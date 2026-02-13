@@ -1,17 +1,23 @@
 import type { Route } from "./+types/home";
-import { Welcome } from "../welcome/welcome";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "BHE PTA" },
-    { name: "description", content: "Boise Heights Elementary PTA" },
+    { title: "Barton Hills Elementary PTA" },
+    {
+      name: "description",
+      content:
+        "Barton Hills Elementary PTA — supporting students, teachers, and families in Austin, TX.",
+    },
   ];
 }
 
-export function loader({ context }: Route.LoaderArgs) {
-  return { message: "Welcome to BHE PTA" };
-}
-
-export default function Home({ loaderData }: Route.ComponentProps) {
-  return <Welcome message={loaderData.message} />;
+export default function Home() {
+  return (
+    <main className="max-w-7xl mx-auto px-4 py-12">
+      <h1 className="text-4xl font-heading font-bold text-charcoal">
+        Welcome to Barton Hills Elementary PTA
+      </h1>
+      <p className="mt-4 text-charcoal/70">Coming soon.</p>
+    </main>
+  );
 }
