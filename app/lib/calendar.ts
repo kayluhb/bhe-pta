@@ -1,12 +1,18 @@
 import type { CalendarEvent } from "./types";
 
-export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
-  const response = await fetch(
-    "https://bartonhills.austinschools.org/events/calendar.ics"
-  );
-  const icsText = await response.text();
+/** Official Barton Hills Elementary school calendar (ICS). https://bartonhills.austinschools.org/events */
+export const BARTON_HILLS_CALENDAR_ICS =
+  "https://bartonhills.austinschools.org/events/calendar.ics";
 
-  // Parse ICS format manually (simpler than ical.js for our needs)
+export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
+  const url = `${BARTON_HILLS_CALENDAR_ICS}?t=${Date.now()}`;
+  const response = await fetch(url);
+  let icsText = await response.text();
+
+  // RFC 5545 line folding: continuation is CRLF + space (or LF + space). Unfold so each logical line is one string.
+  icsText = icsText.replace(/\r\n /g, "").replace(/\n /g, "");
+
+  // Parse ICS format manually (simpler than ical.js for our needs). RRULE not expanded — one instance per VEVENT.
   const events: CalendarEvent[] = [];
   const vevents = icsText.split("BEGIN:VEVENT");
 

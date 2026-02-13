@@ -22,7 +22,7 @@ const hours = [
 const quickLinks = [
   {
     title: "AISD Parent Portal",
-    url: "https://www.austinisd.org/parents",
+    url: "https://portal.austinisd.org/",
     description: "Access grades, attendance, and student information",
     icon: (
       <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">

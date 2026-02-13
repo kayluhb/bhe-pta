@@ -83,18 +83,20 @@ export function Header() {
 
         {/* CTA + Mobile Toggle */}
         <div className="flex items-center gap-3">
-          <Link
-            to="/get-involved"
+          <a
+            href="https://bhe-pta-annual-fund-drive-2025-26.cheddarup.com/"
+            target="_blank"
+            rel="noopener noreferrer"
             className="hidden sm:inline-block bg-spirit-gold text-night-blue font-heading font-bold text-sm px-5 py-2 rounded-full hover:bg-spirit-gold/90 transition-colors"
           >
             Join PTA
-          </Link>
+          </a>
 
           {/* Hamburger Button */}
           <button
             ref={buttonRef}
             type="button"
-            className="lg:hidden text-white p-2 rounded-md hover:bg-white/10 transition-colors"
+            className="lg:hidden text-white p-2 rounded-md hover:bg-white/10 transition-colors cursor-pointer"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-menu"
@@ -159,13 +161,15 @@ export function Header() {
                 {link.label}
               </NavLink>
             ))}
-            <Link
-              to="/get-involved"
+            <a
+              href="https://bhe-pta-annual-fund-drive-2025-26.cheddarup.com/"
+              target="_blank"
+              rel="noopener noreferrer"
               onClick={() => setMobileMenuOpen(false)}
-              className="mt-2 bg-spirit-gold text-night-blue font-heading font-bold text-sm px-5 py-2 rounded-full text-center hover:bg-spirit-gold/90 transition-colors"
+              className="mt-2 bg-spirit-gold text-night-blue font-heading font-bold text-sm px-5 py-2 rounded-full text-center hover:bg-spirit-gold/90 transition-colors block"
             >
               Join PTA
-            </Link>
+            </a>
           </div>
         </nav>
       </div>

@@ -1,4 +1,3 @@
-import { Link } from "react-router";
 import type { Route } from "./+types/about";
 
 export function meta({}: Route.MetaArgs) {
@@ -78,12 +77,10 @@ const initiatives = [
 ];
 
 const boardMembers = [
-  { name: "Board Member", role: "President" },
-  { name: "Board Member", role: "Vice President" },
-  { name: "Board Member", role: "Treasurer" },
-  { name: "Board Member", role: "Secretary" },
-  { name: "Board Member", role: "Volunteer Coordinator" },
-  { name: "Board Member", role: "Communications" },
+  { name: "Becky Jeanes", role: "President" },
+  { name: "Tiffany Munster", role: "Vice President" },
+  { name: "Caleb Brown", role: "Treasurer" },
+  { name: "Jamie Husbands", role: "Secretary" },
 ];
 
 const documents = [
@@ -170,11 +167,11 @@ export default function About() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">
-              Our Leadership
+              Our 25–26 PTA Officers
             </h2>
             <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
             <p className="mt-4 text-charcoal/60 max-w-2xl mx-auto">
-              Meet the dedicated volunteers who lead our PTA
+              PTA Leadership Team — the dedicated volunteers who lead our PTA
             </p>
           </div>
 
@@ -212,63 +209,64 @@ export default function About() {
         </div>
       </section>
 
-      {/* ── 5. Meeting Minutes & Bylaws ──────────────────────────────────── */}
-      <section className="bg-white py-16 md:py-24">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="mb-10">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">
-              Meeting Minutes & Bylaws
-            </h2>
-            <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full" />
-          </div>
+      {/* ── 5. Meeting Minutes & Bylaws (hidden for now) ────────────────────── */}
+      {false && (
+        <section className="bg-white py-16 md:py-24">
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="mb-10">
+              <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">
+                Meeting Minutes & Bylaws
+              </h2>
+              <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full" />
+            </div>
 
-          <div className="space-y-3">
-            {documents.map((doc) => (
-              <a
-                key={doc.title}
-                href="#"
-                className="flex items-center gap-4 bg-warm-white rounded-lg p-5 shadow-sm border border-charcoal/5 hover:shadow-md hover:border-spirit-gold/30 transition-all duration-200 group"
-              >
-                {/* Download icon */}
-                <div className="shrink-0 h-10 w-10 rounded-lg bg-eagle-blue/10 flex items-center justify-center text-eagle-blue group-hover:bg-eagle-blue group-hover:text-white transition-colors">
+            <div className="space-y-3">
+              {documents.map((doc) => (
+                <a
+                  key={doc.title}
+                  href="#"
+                  className="flex items-center gap-4 bg-warm-white rounded-lg p-5 shadow-sm border border-charcoal/5 hover:shadow-md hover:border-spirit-gold/30 transition-all duration-200 group"
+                >
+                  <div className="shrink-0 h-10 w-10 rounded-lg bg-eagle-blue/10 flex items-center justify-center text-eagle-blue group-hover:bg-eagle-blue group-hover:text-white transition-colors">
+                    <svg
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-heading font-bold text-charcoal group-hover:text-eagle-blue transition-colors">
+                      {doc.title}
+                    </p>
+                    <p className="text-sm text-charcoal/40">{doc.type}</p>
+                  </div>
                   <svg
-                    className="h-5 w-5"
+                    className="h-5 w-5 text-charcoal/30 group-hover:text-eagle-blue transition-colors shrink-0"
                     fill="none"
                     viewBox="0 0 24 24"
-                    strokeWidth={1.5}
+                    strokeWidth={2}
                     stroke="currentColor"
                   >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
+                      d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                     />
                   </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-heading font-bold text-charcoal group-hover:text-eagle-blue transition-colors">
-                    {doc.title}
-                  </p>
-                  <p className="text-sm text-charcoal/40">{doc.type}</p>
-                </div>
-                <svg
-                  className="h-5 w-5 text-charcoal/30 group-hover:text-eagle-blue transition-colors shrink-0"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                  />
-                </svg>
-              </a>
-            ))}
+                </a>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── 6. Join Us CTA ───────────────────────────────────────────────── */}
       <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
@@ -285,12 +283,14 @@ export default function About() {
             Membership in the Barton Hills PTA helps support our wonderful
             students, teachers, staff, and programs.
           </p>
-          <Link
-            to="/get-involved"
+          <a
+            href="https://bhe-pta-annual-fund-drive-2025-26.cheddarup.com/"
+            target="_blank"
+            rel="noopener noreferrer"
             className="mt-8 inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
           >
             Join PTA
-          </Link>
+          </a>
         </div>
       </section>
     </div>

@@ -298,7 +298,9 @@ export default function GetInvolved() {
             </p>
             <div className="mt-8">
               <a
-                href="#"
+                href="https://bhe-pta-annual-fund-drive-2025-26.cheddarup.com/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center bg-eagle-blue text-white font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-eagle-blue/90 transition-all duration-200 hover:shadow-lg"
               >
                 Join & Pay Membership
