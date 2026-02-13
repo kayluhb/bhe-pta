@@ -9,11 +9,11 @@ import type { Newsletter } from "~/lib/types";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "News & Updates — Barton Hills Elementary PTA" },
+    { title: "News & Updates | Barton Hills Elementary PTA" },
     {
       name: "description",
       content:
-        "Stay up to date with Eagle Updates from the principal and PTA newsletters from Barton Hills Elementary.",
+        "Read the latest Eagle Updates from Principal Achtermann and PTA newsletters.",
     },
   ];
 }
@@ -69,7 +69,7 @@ export default function News() {
     activeTab === "school" ? sortedSchoolNews : sortedPtaNews;
 
   return (
-    <main>
+    <div>
       {/* ── Page Banner ──────────────────────────────────────────────────── */}
       <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
         <div
@@ -137,7 +137,7 @@ export default function News() {
           )}
         </div>
       </section>
-    </main>
+    </div>
   );
 }
 

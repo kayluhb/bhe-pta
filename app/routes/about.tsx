@@ -3,11 +3,11 @@ import type { Route } from "./+types/about";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "About Our PTA — Barton Hills Elementary" },
+    { title: "About | Barton Hills Elementary PTA" },
     {
       name: "description",
       content:
-        "Learn about the Barton Hills Elementary PTA mission, leadership, programs, and how to get involved.",
+        "Learn about the BHE PTA mission, initiatives, leadership, and how we support Barton Hills Elementary.",
     },
   ];
 }
@@ -98,7 +98,7 @@ const documents = [
 
 export default function About() {
   return (
-    <main>
+    <div>
       {/* ── 1. Page Banner ───────────────────────────────────────────────── */}
       <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
         <div
@@ -293,6 +293,6 @@ export default function About() {
           </Link>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

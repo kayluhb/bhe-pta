@@ -11,11 +11,11 @@ import {
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Barton Hills Elementary PTA" },
+    { title: "Barton Hills Elementary PTA | Soaring Together Since 1964" },
     {
       name: "description",
       content:
-        "Barton Hills Elementary PTA — supporting students, teachers, and families in Austin, TX.",
+        "Barton Hills Elementary PTA - Supporting our school community through parent involvement, fundraising, and advocacy.",
     },
   ];
 }
@@ -166,7 +166,7 @@ function SectionHeader({
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { events, news } = loaderData;
   return (
-    <main>
+    <div>
       {/* ── 1. Hero Section ─────────────────────────────────────────────── */}
       <section className="relative min-h-[60vh] flex items-center bg-gradient-to-br from-eagle-blue to-night-blue overflow-hidden">
         {/* Diagonal gold accent stripe */}
@@ -514,6 +514,6 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

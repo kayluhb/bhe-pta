@@ -3,11 +3,11 @@ import type { Route } from "./+types/get-involved";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Get Involved — Barton Hills Elementary PTA" },
+    { title: "Get Involved | Barton Hills Elementary PTA" },
     {
       name: "description",
       content:
-        "Volunteer, donate, and join the Barton Hills Elementary PTA. Learn about the Annual Fund, volunteer opportunities, and how to make a difference.",
+        "Volunteer, join the PTA, and support the Annual Fund at Barton Hills Elementary.",
     },
   ];
 }
@@ -67,7 +67,7 @@ const oneTimeVolunteer = [
 
 export default function GetInvolved() {
   return (
-    <main>
+    <div>
       {/* ── 1. Page Banner ───────────────────────────────────────────────── */}
       <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
         <div
@@ -339,6 +339,6 @@ export default function GetInvolved() {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { NavLink, Link } from "react-router";
+import { useState, useEffect, useRef } from "react";
+import { NavLink, Link, useLocation } from "react-router";
 
 const navLinks = [
   { to: "/about", label: "About" },
@@ -14,6 +14,33 @@ const navLinks = [
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const location = useLocation();
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setMobileMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [mobileMenuOpen]);
 
   return (
     <header className="sticky top-0 z-50 bg-eagle-blue shadow-lg">
@@ -22,7 +49,7 @@ export function Header() {
         <Link to="/" className="flex items-center gap-3 shrink-0">
           <img
             src="/logo.svg"
-            alt="Barton Hills Eagles logo"
+            alt="Barton Hills Elementary PTA Eagle Logo"
             className="h-12 w-auto invert"
           />
           <div className="hidden sm:flex flex-col leading-tight">
@@ -36,7 +63,7 @@ export function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-1">
+        <nav aria-label="Main navigation" className="hidden lg:flex items-center gap-1">
           {navLinks.map((link) => (
             <NavLink
               key={link.to}
@@ -65,11 +92,13 @@ export function Header() {
 
           {/* Hamburger Button */}
           <button
+            ref={buttonRef}
             type="button"
             className="lg:hidden text-white p-2 rounded-md hover:bg-white/10 transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-expanded={mobileMenuOpen}
-            aria-label="Toggle navigation menu"
+            aria-controls="mobile-menu"
+            aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
           >
             {mobileMenuOpen ? (
               <svg
@@ -105,8 +134,14 @@ export function Header() {
       </div>
 
       {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <nav className="lg:hidden bg-eagle-blue border-t border-white/10 pb-4">
+      <div
+        ref={menuRef}
+        id="mobile-menu"
+        className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+          mobileMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <nav aria-label="Mobile navigation" className="bg-eagle-blue border-t border-white/10 pb-4">
           <div className="max-w-7xl mx-auto px-4 pt-2 flex flex-col gap-1">
             {navLinks.map((link) => (
               <NavLink
@@ -127,13 +162,13 @@ export function Header() {
             <Link
               to="/get-involved"
               onClick={() => setMobileMenuOpen(false)}
-              className="sm:hidden mt-2 bg-spirit-gold text-night-blue font-heading font-bold text-sm px-5 py-2 rounded-full text-center hover:bg-spirit-gold/90 transition-colors"
+              className="mt-2 bg-spirit-gold text-night-blue font-heading font-bold text-sm px-5 py-2 rounded-full text-center hover:bg-spirit-gold/90 transition-colors"
             >
               Join PTA
             </Link>
           </div>
         </nav>
-      )}
+      </div>
     </header>
   );
 }

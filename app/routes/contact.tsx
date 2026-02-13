@@ -2,11 +2,11 @@ import type { Route } from "./+types/contact";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Contact Us — Barton Hills Elementary PTA" },
+    { title: "Contact | Barton Hills Elementary PTA" },
     {
       name: "description",
       content:
-        "Contact Barton Hills Elementary PTA. Find our address, phone, email, social media, and newsletter signup.",
+        "Get in touch with the Barton Hills Elementary PTA. Subscribe to newsletters and follow us on social media.",
     },
   ];
 }
@@ -15,7 +15,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Contact() {
   return (
-    <main>
+    <div>
       {/* ── 1. Page Banner ───────────────────────────────────────────────── */}
       <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
         <div
@@ -348,6 +348,6 @@ export default function Contact() {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

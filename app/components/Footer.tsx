@@ -13,7 +13,7 @@ const quickLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-night-blue text-white/80">
+    <footer aria-label="Footer" className="bg-night-blue text-white/80">
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {/* Brand Column */}
@@ -31,7 +31,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white/60 hover:text-spirit-gold transition-colors"
-                aria-label="Facebook"
+                aria-label="Visit our Facebook page"
               >
                 <svg
                   className="h-5 w-5"
@@ -46,7 +46,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white/60 hover:text-spirit-gold transition-colors"
-                aria-label="Instagram"
+                aria-label="Visit our Instagram page"
               >
                 <svg
                   className="h-5 w-5"

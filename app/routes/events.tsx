@@ -7,11 +7,11 @@ import { Calendar, CategoryLegend } from "~/components/Calendar";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Events Calendar — Barton Hills Elementary PTA" },
+    { title: "Events Calendar | Barton Hills Elementary PTA" },
     {
       name: "description",
       content:
-        "View upcoming events, meetings, and activities at Barton Hills Elementary. Community events, fine arts, holidays, and more.",
+        "View upcoming events, PTA meetings, spirit nights, and school activities at Barton Hills Elementary.",
     },
   ];
 }
@@ -200,7 +200,7 @@ export default function Events() {
   }, []);
 
   return (
-    <main>
+    <div>
       {/* ── Page Banner ──────────────────────────────────────────────────── */}
       <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
         <div
@@ -317,7 +317,7 @@ export default function Events() {
           )}
         </div>
       </section>
-    </main>
+    </div>
   );
 }
 
