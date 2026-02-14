@@ -9,6 +9,7 @@ const quickLinks = [
   { to: "/parents", label: "Parents" },
   { to: "/sponsors", label: "Sponsors" },
   { to: "/contact", label: "Contact" },
+  { to: "/reimbursement", label: "Reimbursement" },
 ];
 
 export function Footer() {

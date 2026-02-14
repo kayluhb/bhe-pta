@@ -8,6 +8,13 @@ interface Env {
   BHE_PTA_NEWSLETTERS: KVNamespace;
   BHE_CALENDAR: KVNamespace;
   MAILCHIMP_API_KEY: string;
+  REIMBURSEMENT_DB: D1Database;
+  R2_BUCKET: R2Bucket;
+  RESEND_API_KEY: string;
+  NOTIFICATION_EMAIL: string;
+  R2_ACCESS_KEY_ID: string;
+  R2_SECRET_ACCESS_KEY: string;
+  CLOUDFLARE_ACCOUNT_ID: string;
 }
 
 declare module "react-router" {

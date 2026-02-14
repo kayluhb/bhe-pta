@@ -11,4 +11,10 @@ export default [
   route("sponsors", "./routes/sponsors.tsx"),
   route("contact", "./routes/contact.tsx"),
   route("dev/sync-calendar", "./routes/dev.sync-calendar.tsx"),
+  route("reimbursement", "./routes/reimbursement.tsx"),
+  route("reimbursement/success", "./routes/reimbursement.success.tsx"),
+  route("api/reimbursement/submit", "./routes/api.reimbursement.submit.ts"),
+  route("api/reimbursement/upload-presign", "./routes/api.reimbursement.upload-presign.ts"),
+  route("api/reimbursement/upload-mock", "./routes/api.reimbursement.upload-mock.ts"),
+  route("api/reimbursement/pdf", "./routes/api.reimbursement.pdf.ts"),
 ] satisfies RouteConfig;
