@@ -17,17 +17,46 @@ export function useFileUpload() {
 
     setUploads((prev) => {
       const next = new Map(prev);
-      next.set(id, {
-        id,
-        filename: file.name,
-        progress: 0,
-        status: 'pending',
-      });
+      next.set(id, { id, filename: file.name, progress: 0, status: 'pending' });
       return next;
     });
 
     try {
-      // Step 1: Get presigned URL
+      const isImage = ['image/jpeg', 'image/png', 'image/webp'].includes(file.type);
+
+      if (isImage) {
+        // Image: send to OCR endpoint for text extraction + PDF conversion
+        setUploads((prev) => {
+          const next = new Map(prev);
+          next.set(id, { id, filename: file.name, progress: 30, status: 'uploading' });
+          return next;
+        });
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch('/api/reimbursement/ocr', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorData = (await response.json()) as { error?: string };
+          throw new Error(errorData.error || 'OCR processing failed');
+        }
+
+        const result = (await response.json()) as FileData;
+
+        setUploads((prev) => {
+          const next = new Map(prev);
+          next.set(id, { id, filename: file.name, progress: 100, status: 'complete' });
+          return next;
+        });
+
+        return result;
+      }
+
+      // PDF: use existing presign + direct upload flow
       const presignResponse = await fetch('/api/reimbursement/upload-presign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -45,15 +74,9 @@ export function useFileUpload() {
 
       const { uploadUrl, key } = (await presignResponse.json()) as { uploadUrl: string; key: string };
 
-      // Step 2: Upload to R2 with progress tracking
       setUploads((prev) => {
         const next = new Map(prev);
-        next.set(id, {
-          id,
-          filename: file.name,
-          progress: 0,
-          status: 'uploading',
-        });
+        next.set(id, { id, filename: file.name, progress: 0, status: 'uploading' });
         return next;
       });
 
@@ -65,12 +88,7 @@ export function useFileUpload() {
             const progress = Math.round((e.loaded / e.total) * 100);
             setUploads((prev) => {
               const next = new Map(prev);
-              next.set(id, {
-                id,
-                filename: file.name,
-                progress,
-                status: 'uploading',
-              });
+              next.set(id, { id, filename: file.name, progress, status: 'uploading' });
               return next;
             });
           }
@@ -91,15 +109,9 @@ export function useFileUpload() {
         xhr.send(file);
       });
 
-      // Step 3: Mark complete
       setUploads((prev) => {
         const next = new Map(prev);
-        next.set(id, {
-          id,
-          filename: file.name,
-          progress: 100,
-          status: 'complete',
-        });
+        next.set(id, { id, filename: file.name, progress: 100, status: 'complete' });
         return next;
       });
 
