@@ -18,4 +18,5 @@ export default [
   route("api/reimbursement/upload-presign", "./routes/api.reimbursement.upload-presign.ts"),
   route("api/reimbursement/upload-mock", "./routes/api.reimbursement.upload-mock.ts"),
   route("api/reimbursement/pdf", "./routes/api.reimbursement.pdf.ts"),
+  route("api/reimbursement/ocr", "./routes/api.reimbursement.ocr.ts"),
 ] satisfies RouteConfig;
