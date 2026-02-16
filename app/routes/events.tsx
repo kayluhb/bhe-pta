@@ -392,11 +392,11 @@ function EventListItem({ event }: { event: CalendarEvent }) {
   return (
     <article
       id={`event-${event.id}`}
-      className="group flex bg-white rounded-lg shadow-md border-l-4 border-spirit-gold overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
+      className="group flex items-center bg-white rounded-lg shadow-md border-l-4 border-spirit-gold overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
     >
       {/* Date Badge */}
-      <div className="flex flex-col items-center justify-center bg-eagle-blue text-white px-4 py-4 min-w-[72px]">
-        <span className="text-xs font-heading font-bold uppercase tracking-wider text-spirit-gold">
+      <div className="flex flex-col items-center justify-center bg-white text-creek-green px-4 py-4 min-w-[72px]">
+        <span className="text-xs font-heading font-bold uppercase tracking-wider text-creek-green/70">
           {monthShort}
         </span>
         <span className="text-2xl font-heading font-bold leading-tight">

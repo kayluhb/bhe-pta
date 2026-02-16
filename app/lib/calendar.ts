@@ -1,5 +1,41 @@
 import type { CalendarEvent } from "./types";
 
+/** Infer a category from the event title since the ICS feed lacks CATEGORIES. */
+function inferCategory(title: string): string {
+  const t = title.toLowerCase();
+
+  // Student/Staff Holidays
+  if (
+    /holiday|break|spring break|winter break|fall break|staff development|pled day|bad weather/i.test(t) ||
+    /student holiday|staff holiday|labor day|mlk day|martin luther king|presidents.?day|cesar chavez|indigenous|diwali/i.test(t)
+  ) {
+    return "Student Holiday";
+  }
+
+  // Fine Arts
+  if (
+    /fine arts|talent show|showcase|art|music|band|choir|play |drama|reflections|book fair|book character|author /i.test(t)
+  ) {
+    return "Fine Arts";
+  }
+
+  // Athletics
+  if (
+    /field day|track and field|running club|biking club|fit n.?fun|ninja|color run|walk.*school|bike.*school/i.test(t)
+  ) {
+    return "Athletics";
+  }
+
+  // Community Events
+  if (
+    /bash|carnival|movie night|spirit day|market day|meet the teacher|back to school|coffee talk|fling|beautification|park day|gardening|jingle bell|picture day|conference|campus tour|prospective parent|future families|pta |cac meeting|advisory council|thanksgiving lunch|pow wow|appreciation|sock drive|stem day|science fair|rodeo|100th day|bee kind|book voting|bluebonnet/i.test(t)
+  ) {
+    return "Community Event";
+  }
+
+  return "Other";
+}
+
 /** Official Barton Hills Elementary school calendar (ICS). https://bartonhills.austinschools.org/events */
 export const BARTON_HILLS_CALENDAR_ICS =
   "https://bartonhills.austinschools.org/events/calendar.ics";
@@ -52,9 +88,9 @@ export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
         start: parseIcsDate(dtstart),
         end: dtend ? parseIcsDate(dtend) : parseIcsDate(dtstart),
         allDay: dtstart.length === 8,
-        category: categories || "Other",
+        category: categories || inferCategory(summary),
         description:
-          description?.replace(/\\n/g, "\n").replace(/\\,/g, ",") || undefined,
+          description?.replace(/\\n/g, "\n").replace(/\\,/g, ",").replace(/^Body\s+/i, '') || undefined,
       });
     }
   }

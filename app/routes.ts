@@ -12,6 +12,7 @@ export default [
   route("contact", "./routes/contact.tsx"),
   route("dev/sync-calendar", "./routes/dev.sync-calendar.tsx"),
   route("reimbursement", "./routes/reimbursement.tsx"),
+  route("pay-me", "./routes/pay-me.tsx"),
   route("reimbursement/success", "./routes/reimbursement.success.tsx"),
   route("api/reimbursement/submit", "./routes/api.reimbursement.submit.ts"),
   route("api/reimbursement/upload-presign", "./routes/api.reimbursement.upload-presign.ts"),

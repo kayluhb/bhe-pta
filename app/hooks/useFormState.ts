@@ -1,5 +1,35 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { RequesterData, ReceiptData, FileData, BudgetSelectionData } from '~/lib/reimbursement/validation';
+
+const STORAGE_KEY = 'bhe-pta-requester-info';
+
+type SavedRequesterInfo = Pick<RequesterData, 'payableTo' | 'email' | 'phone' | 'address'>;
+
+function loadSavedRequesterInfo(): SavedRequesterInfo | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) return null;
+    return JSON.parse(stored) as SavedRequesterInfo;
+  } catch {
+    return null;
+  }
+}
+
+function saveRequesterInfo(data: RequesterData) {
+  if (typeof window === 'undefined') return;
+  try {
+    const toSave: SavedRequesterInfo = {
+      payableTo: data.payableTo,
+      email: data.email,
+      phone: data.phone || '',
+      address: data.address,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+  } catch {
+    // Silently ignore storage errors
+  }
+}
 
 export interface FormState {
   requester: RequesterData;
@@ -39,8 +69,29 @@ const initialState: FormState = {
 const TOTAL_STEPS = 5; // Info, Receipts, Budget, Files, Review
 
 export function useFormState() {
-  const [state, setState] = useState<FormState>(initialState);
+  const [state, setState] = useState<FormState>(() => {
+    const saved = loadSavedRequesterInfo();
+    if (saved) {
+      return {
+        ...initialState,
+        requester: {
+          ...initialState.requester,
+          ...saved,
+          dateOfRequest: getTodayDate(),
+        },
+      };
+    }
+    return initialState;
+  });
   const [currentStep, setCurrentStep] = useState(0);
+
+  // Persist requester info to localStorage when it changes
+  useEffect(() => {
+    const { payableTo, email, address } = state.requester;
+    if (payableTo || email || address) {
+      saveRequesterInfo(state.requester);
+    }
+  }, [state.requester]);
 
   const updateRequester = useCallback((data: Partial<RequesterData>) => {
     setState((prev) => ({
@@ -123,10 +174,12 @@ export function useFormState() {
   }, []);
 
   const reset = useCallback(() => {
+    const saved = loadSavedRequesterInfo();
     setState({
       ...initialState,
       requester: {
         ...initialState.requester,
+        ...(saved || {}),
         dateOfRequest: getTodayDate(),
       },
     });

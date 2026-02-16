@@ -2,7 +2,9 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "bhe-pta",
 	"compatibility_date": "2025-04-04",
-	"compatibility_flags": ["nodejs_compat"],
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
 	"main": "./workers/app.ts",
 	"kv_namespaces": [
 		{
@@ -22,7 +24,7 @@
 		{
 			"binding": "REIMBURSEMENT_DB",
 			"database_name": "pta-reimbursement-db",
-			"database_id": "placeholder"
+			"database_id": "dbba0b11-db79-48f9-b2d9-b4f638f04cf1"
 		}
 	],
 	"r2_buckets": [
@@ -31,6 +33,9 @@
 			"bucket_name": "pta-reimbursement-uploads"
 		}
 	],
+	"ai": {
+		"binding": "AI"
+	},
 	"triggers": {
 		"crons": [
 			"0 23 * * *"

@@ -5,12 +5,10 @@ const navLinks = [
   { to: "/about", label: "About" },
   { to: "/news", label: "News" },
   { to: "/events", label: "Events" },
-  { to: "/get-involved", label: "Get Involved" },
   { to: "/programs", label: "Programs" },
   { to: "/parents", label: "Parents" },
-  { to: "/sponsors", label: "Sponsors" },
+  { to: "/get-involved", label: "Get Involved" },
   { to: "/contact", label: "Contact" },
-  { to: "/reimbursement", label: "Reimbursement" },
 ];
 
 export function Header() {
