@@ -32,7 +32,7 @@ export function EventCard({
         <h3 className="font-heading font-bold text-charcoal text-base group-hover:text-eagle-blue transition-colors">
           {title}
         </h3>
-        <p className="mt-1 text-sm text-charcoal/60 leading-relaxed line-clamp-2">
+        <p className="mt-1 text-sm text-charcoal/70 leading-relaxed line-clamp-2">
           {description}
         </p>
       </div>

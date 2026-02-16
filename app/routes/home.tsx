@@ -7,7 +7,7 @@ import {
   mockPtaNewsletters,
 } from "~/lib/mock-data";
 import type { CalendarEvent } from "~/lib/types";
-// Types are inferred from the loader via Route.ComponentProps
+import { getRandomSponsors } from "~/lib/sponsors";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -53,9 +53,11 @@ export async function loader({ context }: Route.LoaderArgs) {
   const upcomingEvents = events
     .filter((e) => new Date(e.start) >= new Date())
     .sort((a, b) => a.start.localeCompare(b.start))
-    .slice(0, 5);
+    .slice(0, 6);
 
-  return { events: upcomingEvents, news: allNews };
+  const sponsors = getRandomSponsors(6);
+
+  return { events: upcomingEvents, news: allNews, sponsors };
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -164,7 +166,7 @@ function SectionHeader({
 // ─── Homepage Component ─────────────────────────────────────────────────────
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  const { events, news } = loaderData;
+  const { events, news, sponsors } = loaderData;
   return (
     <div>
       {/* ── 1. Hero Section ─────────────────────────────────────────────── */}
@@ -195,20 +197,12 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             Supporting our school community through parent involvement,
             fundraising, and advocacy
           </p>
-          <div className="mt-10 flex flex-wrap gap-4">
-            <a
-              href="https://bhe-pta-annual-fund-drive-2025-26.cheddarup.com/"
-              target="_blank"
-              rel="noopener noreferrer"
+          <div className="mt-10">
+            <Link
+              to="/get-involved"
               className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
             >
               Join PTA
-            </a>
-            <Link
-              to="/sponsors"
-              className="inline-flex items-center border-2 border-white text-white font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-white/10 transition-all duration-200"
-            >
-              Donate
             </Link>
           </div>
         </div>
@@ -341,7 +335,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               <h3 className="font-heading font-bold text-xl text-charcoal">
                 Volunteer
               </h3>
-              <p className="mt-3 text-charcoal/60 leading-relaxed">
+              <p className="mt-3 text-charcoal/70 leading-relaxed">
                 We cannot do what we do without your help! There are many ways
                 to get involved and make a difference.
               </p>
@@ -366,12 +360,12 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               <h3 className="font-heading font-bold text-xl text-charcoal">
                 Join PTA
               </h3>
-              <p className="mt-3 text-charcoal/60 leading-relaxed">
+              <p className="mt-3 text-charcoal/70 leading-relaxed">
                 Membership helps support students, teachers, staff, and programs
                 that make Barton Hills great.
               </p>
               <a
-                href="https://bhe-pta-annual-fund-drive-2025-26.cheddarup.com/"
+                href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-5 inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
@@ -393,19 +387,21 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               <h3 className="font-heading font-bold text-xl text-charcoal">
                 Annual Fund
               </h3>
-              <p className="mt-3 text-charcoal/60 leading-relaxed">
+              <p className="mt-3 text-charcoal/70 leading-relaxed">
                 Over <span className="font-bold text-charcoal">$600 per student</span> annually
                 goes directly to programs, staff, and resources.
               </p>
-              <Link
-                to="/sponsors"
+              <a
+                href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="mt-5 inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
               >
-                Donate
+                Give Now
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                 </svg>
-              </Link>
+              </a>
             </div>
           </div>
         </div>
@@ -437,7 +433,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                   <h3 className="font-heading font-bold text-charcoal group-hover:text-eagle-blue transition-colors">
                     {program.name}
                   </h3>
-                  <p className="mt-1 text-sm text-charcoal/60 leading-relaxed">
+                  <p className="mt-1 text-sm text-charcoal/70 leading-relaxed">
                     {program.description}
                   </p>
                 </div>
@@ -477,20 +473,21 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           </h2>
           <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
 
-          <p className="mt-6 text-charcoal/60 max-w-2xl mx-auto text-lg leading-relaxed">
-            Thank you to our generous sponsors who make our programs possible
+          <p className="mt-6 text-charcoal/70 max-w-2xl mx-auto text-lg leading-relaxed">
+            Thank you to our generous local business sponsors who make our programs possible
           </p>
 
-          {/* Placeholder sponsor logos */}
           <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-            {Array.from({ length: 6 }).map((_, i) => (
+            {sponsors.map((sponsor) => (
               <div
-                key={i}
-                className="aspect-[3/2] rounded-lg bg-charcoal/5 border-2 border-dashed border-charcoal/10 flex items-center justify-center"
+                key={sponsor.name}
+                className="aspect-[3/2] rounded-lg bg-white border border-charcoal/10 flex items-center justify-center p-3"
               >
-                <span className="text-xs font-medium text-charcoal/30 text-center px-2">
-                  Your Logo Here
-                </span>
+                <img
+                  src={sponsor.logo}
+                  alt={sponsor.name}
+                  className={`max-h-full max-w-full object-contain ${sponsor.logoClassName ?? ""}`}
+                />
               </div>
             ))}
           </div>
@@ -500,7 +497,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               to="/sponsors"
               className="inline-flex items-center gap-1 font-heading font-bold text-eagle-blue hover:text-spirit-gold transition-colors"
             >
-              Become a Sponsor
+              Become a Local Business Sponsor
               <svg
                 className="h-5 w-5"
                 fill="none"

@@ -81,7 +81,7 @@ export default function GetInvolved() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white">
             Get Involved
           </h1>
-          <p className="mt-4 text-lg md:text-xl text-white/70 max-w-2xl mx-auto">
+          <p className="mt-4 text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
             We cannot do what we do without your help and participation!
           </p>
           <div className="mt-6 h-1 w-20 bg-spirit-gold rounded-full mx-auto" />
@@ -106,7 +106,7 @@ export default function GetInvolved() {
                   <p className="text-5xl md:text-6xl font-heading font-bold text-spirit-gold">
                     $600+
                   </p>
-                  <p className="text-white/70 text-sm mt-1">
+                  <p className="text-white/90 text-sm mt-1">
                     per student annually
                   </p>
                 </div>
@@ -152,12 +152,47 @@ export default function GetInvolved() {
 
               <div className="mt-10">
                 <a
-                  href="#"
+                  href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
                 >
-                  Donate Now
+                  Become a Member
                 </a>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Local Business Sponsors ─────────────────────────────────── */}
+      <section className="bg-white py-16 md:py-24">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="bg-gradient-to-r from-eagle-blue to-night-blue rounded-2xl p-8 md:p-12 text-center">
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-white">
+              Local Business Sponsorships
+            </h2>
+            <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
+            <p className="mt-6 text-lg text-white/90 leading-relaxed max-w-2xl mx-auto">
+              Is your business interested in supporting Barton Hills Elementary?
+              Local business contributions help fund enrichment programs, classroom
+              resources, and community events for every student.
+            </p>
+            <div className="mt-8 flex flex-wrap justify-center gap-4">
+              <a
+                href="https://my.cheddarup.com/c/bhe-corporate-contributions-2024-25-copy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
+              >
+                Become a Local Business Sponsor
+              </a>
+              <a
+                href="/sponsors"
+                className="inline-flex items-center border-2 border-white text-white font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-white/10 transition-all duration-200"
+              >
+                View Sponsor Tiers
+              </a>
             </div>
           </div>
         </div>
@@ -291,19 +326,19 @@ export default function GetInvolved() {
             </h2>
             <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full" />
             <p className="mt-6 text-lg text-charcoal/70 leading-relaxed">
-              Please consider joining and donating if you can. Your membership
+              Please consider joining and contributing if you can. Your membership
               and support directly impacts every student at Barton Hills
               Elementary. Together, we can continue to provide the programs,
               resources, and community that make our school exceptional.
             </p>
             <div className="mt-8">
               <a
-                href="https://bhe-pta-annual-fund-drive-2025-26.cheddarup.com/"
+                href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center bg-eagle-blue text-white font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-eagle-blue/90 transition-all duration-200 hover:shadow-lg"
               >
-                Join & Pay Membership
+                Become a Member
               </a>
             </div>
           </div>
@@ -321,7 +356,7 @@ export default function GetInvolved() {
             Ready to Make a Difference?
           </h2>
           <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
-          <p className="mt-6 text-lg text-white/80 leading-relaxed">
+          <p className="mt-6 text-lg text-white/90 leading-relaxed">
             Whether you have an hour or an entire semester, there is a place for
             you in our PTA community.
           </p>

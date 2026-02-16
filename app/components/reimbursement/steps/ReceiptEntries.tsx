@@ -39,12 +39,12 @@ export function ReceiptEntries({
         <div className="flex justify-between items-center mb-4">
           <div>
             <h2 className="text-xl font-semibold text-charcoal">Receipt Details</h2>
-            <p className="text-charcoal/60 mt-1">
+            <p className="text-charcoal/70 mt-1">
               Add up to 4 receipts for reimbursement.
             </p>
           </div>
-          <div className="text-right">
-            <p className="text-sm text-charcoal/50">Total</p>
+          <div className="text-right" aria-live="polite">
+            <p className="text-sm text-charcoal/70">Total</p>
             <p className="text-2xl font-bold text-eagle-blue">{formatCurrency(totalAmount)}</p>
           </div>
         </div>
@@ -61,6 +61,7 @@ export function ReceiptEntries({
                   <button
                     type="button"
                     onClick={() => onRemove(index)}
+                    aria-label={`Remove Receipt ${index + 1}`}
                     className="text-red-600 hover:text-red-800 text-sm font-medium"
                   >
                     Remove
@@ -88,7 +89,7 @@ export function ReceiptEntries({
                     placeholder="0.00"
                     required
                   />
-                  <p className="mt-1 text-xs text-charcoal/50">
+                  <p className="mt-1 text-xs text-charcoal/70">
                     Note: Sales tax cannot be reimbursed and should not be included.
                   </p>
                 </div>
@@ -110,7 +111,7 @@ export function ReceiptEntries({
                     onChange={(e) => onUpdate(index, { placeOfPurchase: e.target.value })}
                     placeholder="Name of store or location of website"
                   />
-                  <p className="mt-1 text-xs text-charcoal/50">
+                  <p className="mt-1 text-xs text-charcoal/70">
                     Name of store or location of website.
                   </p>
                 </div>
@@ -123,7 +124,7 @@ export function ReceiptEntries({
           <button
             type="button"
             onClick={onAdd}
-            className="mt-4 w-full py-3 border-2 border-dashed border-charcoal/20 rounded-lg text-charcoal/60 hover:border-eagle-blue hover:text-eagle-blue transition-colors"
+            className="mt-4 w-full py-3 border-2 border-dashed border-charcoal/20 rounded-lg text-charcoal/70 hover:border-eagle-blue hover:text-eagle-blue transition-colors"
           >
             + Add Another Receipt
           </button>

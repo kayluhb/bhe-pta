@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useLoaderData } from "react-router";
 import type { Route } from "./+types/news";
 import {
@@ -62,6 +62,31 @@ function sortByDateDesc(items: Newsletter[]): Newsletter[] {
 export default function News() {
   const { schoolNews, ptaNews } = useLoaderData<typeof loader>();
   const [activeTab, setActiveTab] = useState<"school" | "pta">("school");
+  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({ school: null, pta: null });
+
+  const tabs = [
+    { id: "school" as const, label: "Eagle Updates" },
+    { id: "pta" as const, label: "PTA News" },
+  ];
+
+  const handleTabKeyDown = (e: React.KeyboardEvent, tabId: "school" | "pta") => {
+    const tabIds = tabs.map((t) => t.id);
+    const currentIndex = tabIds.indexOf(tabId);
+
+    let nextIndex: number | null = null;
+    if (e.key === "ArrowRight") {
+      nextIndex = (currentIndex + 1) % tabIds.length;
+    } else if (e.key === "ArrowLeft") {
+      nextIndex = (currentIndex - 1 + tabIds.length) % tabIds.length;
+    }
+
+    if (nextIndex !== null) {
+      e.preventDefault();
+      const nextTab = tabIds[nextIndex];
+      setActiveTab(nextTab);
+      tabRefs.current[nextTab]?.focus();
+    }
+  };
 
   const sortedSchoolNews = sortByDateDesc(schoolNews);
   const sortedPtaNews = sortByDateDesc(ptaNews);
@@ -83,7 +108,7 @@ export default function News() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white">
             News & Updates
           </h1>
-          <p className="mt-4 text-lg md:text-xl text-white/70 max-w-2xl mx-auto">
+          <p className="mt-4 text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
             Stay informed with the latest from our school and PTA
           </p>
           <div className="mt-6 h-1 w-20 bg-spirit-gold rounded-full mx-auto" />
@@ -94,44 +119,46 @@ export default function News() {
       <section className="bg-warm-white py-16 md:py-24">
         <div className="max-w-4xl mx-auto px-4">
           {/* Tab Switcher */}
-          <div className="flex border-b-2 border-charcoal/10 mb-10">
-            <button
-              onClick={() => setActiveTab("school")}
-              className={`relative pb-3 px-5 font-heading font-bold text-lg transition-colors cursor-pointer ${
-                activeTab === "school"
-                  ? "text-eagle-blue"
-                  : "text-charcoal/40 hover:text-charcoal/70"
-              }`}
-            >
-              Eagle Updates
-              {activeTab === "school" && (
-                <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-spirit-gold rounded-full" />
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab("pta")}
-              className={`relative pb-3 px-5 font-heading font-bold text-lg transition-colors cursor-pointer ${
-                activeTab === "pta"
-                  ? "text-eagle-blue"
-                  : "text-charcoal/40 hover:text-charcoal/70"
-              }`}
-            >
-              PTA News
-              {activeTab === "pta" && (
-                <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-spirit-gold rounded-full" />
-              )}
-            </button>
+          <div role="tablist" aria-label="Newsletter categories" className="flex border-b-2 border-charcoal/10 mb-10">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                ref={(el) => { tabRefs.current[tab.id] = el; }}
+                role="tab"
+                id={`tab-${tab.id}`}
+                aria-selected={activeTab === tab.id}
+                aria-controls={`tabpanel-${tab.id}`}
+                tabIndex={activeTab === tab.id ? 0 : -1}
+                onClick={() => setActiveTab(tab.id)}
+                onKeyDown={(e) => handleTabKeyDown(e, tab.id)}
+                className={`relative pb-3 px-5 font-heading font-bold text-lg transition-colors cursor-pointer ${
+                  activeTab === tab.id
+                    ? "text-eagle-blue"
+                    : "text-charcoal/70 hover:text-charcoal/80"
+                }`}
+              >
+                {tab.label}
+                {activeTab === tab.id && (
+                  <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-spirit-gold rounded-full" />
+                )}
+              </button>
+            ))}
           </div>
 
           {/* Newsletter Cards */}
-          <div className="space-y-6">
+          <div
+            role="tabpanel"
+            id={`tabpanel-${activeTab}`}
+            aria-labelledby={`tab-${activeTab}`}
+            className="space-y-6"
+          >
             {displayedNews.map((item) => (
               <NewsletterCard key={item.id} newsletter={item} />
             ))}
           </div>
 
           {displayedNews.length === 0 && (
-            <p className="text-center text-charcoal/50 py-12 text-lg">
+            <p className="text-center text-charcoal/70 py-12 text-lg">
               No newsletters available yet. Check back soon!
             </p>
           )}
@@ -164,22 +191,26 @@ function NewsletterCard({ newsletter }: { newsletter: Newsletter }) {
         <h2 className="font-heading font-bold text-charcoal text-xl group-hover:text-eagle-blue transition-colors">
           {newsletter.title}
         </h2>
-        <p className="mt-3 text-charcoal/60 leading-relaxed">
-          {newsletter.excerpt}
-        </p>
+        {newsletter.excerpt && (
+          <p className="mt-3 text-charcoal/70 leading-relaxed">
+            {newsletter.excerpt}
+          </p>
+        )}
         <a
           href={newsletter.url}
           target="_blank"
           rel="noopener noreferrer"
           className="mt-4 inline-flex items-center text-sm font-semibold text-eagle-blue group-hover:text-spirit-gold transition-colors"
         >
-          Read More
+          Read more about {newsletter.title}
+          <span className="sr-only"> (opens in new tab)</span>
           <svg
             className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={2}
             stroke="currentColor"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"

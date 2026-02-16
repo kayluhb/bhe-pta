@@ -40,6 +40,12 @@ export interface FormState {
 
 const getTodayDate = () => new Date().toISOString().split('T')[0];
 
+const getTwoWeeksFromToday = () => {
+  const date = new Date();
+  date.setDate(date.getDate() + 14);
+  return date.toISOString().split('T')[0];
+};
+
 const initialState: FormState = {
   requester: {
     payableTo: '',
@@ -47,7 +53,7 @@ const initialState: FormState = {
     phone: '',
     address: '',
     dateOfRequest: getTodayDate(),
-    dateCheckNeeded: '',
+    dateCheckNeeded: getTwoWeeksFromToday(),
     invoiceNumber: '',
   },
   receipts: [

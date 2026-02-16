@@ -15,6 +15,7 @@ interface Env {
   R2_ACCESS_KEY_ID: string;
   R2_SECRET_ACCESS_KEY: string;
   CLOUDFLARE_ACCOUNT_ID: string;
+  TURNSTILE_SECRET_KEY: string;
   AI: Ai;
 }
 

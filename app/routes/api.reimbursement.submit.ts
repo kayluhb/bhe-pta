@@ -3,9 +3,37 @@ import { submissionSchema } from "~/lib/reimbursement/validation";
 import { generatePDF } from "~/lib/reimbursement/pdf/generator";
 import { sendNotificationEmail } from "~/lib/reimbursement/email/resend";
 
+async function verifyTurnstile(token: string, secretKey: string, ip: string | null): Promise<boolean> {
+  const formData = new URLSearchParams();
+  formData.append("secret", secretKey);
+  formData.append("response", token);
+  if (ip) formData.append("remoteip", ip);
+
+  const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: formData.toString(),
+  });
+  const outcome = (await res.json()) as { success: boolean };
+  return outcome.success;
+}
+
 export async function action({ request, context }: Route.ActionArgs) {
   try {
     const body = await request.json();
+
+    // Verify Turnstile token
+    const turnstileSecret = context.cloudflare.env.TURNSTILE_SECRET_KEY;
+    const turnstileToken = (body as Record<string, unknown>).turnstileToken;
+    if (!turnstileSecret || !turnstileToken || typeof turnstileToken !== "string") {
+      return Response.json({ error: "Verification failed" }, { status: 403 });
+    }
+
+    const clientIp = request.headers.get("CF-Connecting-IP");
+    const verified = await verifyTurnstile(turnstileToken, turnstileSecret, clientIp);
+    if (!verified) {
+      return Response.json({ error: "Verification failed. Please try again." }, { status: 403 });
+    }
 
     // Validate input
     const validationResult = submissionSchema.safeParse(body);

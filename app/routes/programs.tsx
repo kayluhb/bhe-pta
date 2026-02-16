@@ -107,7 +107,7 @@ export default function Programs() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white">
             Our Programs
           </h1>
-          <p className="mt-4 text-lg md:text-xl text-white/70 max-w-2xl mx-auto">
+          <p className="mt-4 text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
             Enriching the educational experience for every Eagle
           </p>
           <div className="mt-6 h-1 w-20 bg-spirit-gold rounded-full mx-auto" />
@@ -135,7 +135,7 @@ export default function Programs() {
                     <h2 className="text-2xl md:text-3xl font-heading font-bold text-charcoal">
                       {program.name}
                     </h2>
-                    <p className="mt-3 text-charcoal/60 text-lg leading-relaxed">
+                    <p className="mt-3 text-charcoal/70 text-lg leading-relaxed">
                       {program.description}
                     </p>
                   </div>
@@ -157,7 +157,7 @@ export default function Programs() {
             Support Our Programs
           </h2>
           <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
-          <p className="mt-6 text-lg text-white/80 leading-relaxed">
+          <p className="mt-6 text-lg text-white/90 leading-relaxed">
             Our programs are made possible by the generous support of parents,
             families, and community members. Get involved and help us continue
             to make a difference.

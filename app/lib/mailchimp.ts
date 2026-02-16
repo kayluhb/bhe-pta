@@ -19,12 +19,19 @@ export async function fetchMailchimpCampaigns(
 
   const data = (await response.json()) as any;
 
-  return (data.campaigns || []).map((c: any) => ({
-    id: c.id,
-    title: c.settings?.subject_line || "PTA Newsletter",
-    date: c.send_time?.split("T")[0] || new Date().toISOString().split("T")[0],
-    excerpt: c.settings?.preview_text || "",
-    url: c.archive_url || "#",
-    source: "pta" as const,
-  }));
+  return (data.campaigns || []).map((c: any) => {
+    const title = c.settings?.subject_line || "PTA Newsletter";
+    const preview = c.settings?.preview_text || "";
+    // Don't use preview_text if it's the same as the title
+    const excerpt = preview && preview !== title ? preview : "";
+    return {
+      id: c.id,
+      title,
+      date:
+        c.send_time?.split("T")[0] || new Date().toISOString().split("T")[0],
+      excerpt,
+      url: c.archive_url || "#",
+      source: "pta" as const,
+    };
+  });
 }

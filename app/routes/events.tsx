@@ -232,7 +232,7 @@ export default function Events() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white">
             Events Calendar
           </h1>
-          <p className="mt-4 text-lg md:text-xl text-white/70 max-w-2xl mx-auto">
+          <p className="mt-4 text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
             Stay up to date with everything happening at Barton Hills
           </p>
           <div className="mt-6 h-1 w-20 bg-spirit-gold rounded-full mx-auto" />
@@ -246,7 +246,7 @@ export default function Events() {
           <div className="flex items-center justify-between mb-8">
             <button
               onClick={goToPrevMonth}
-              className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-white shadow-md border border-charcoal/10 text-charcoal/60 hover:text-eagle-blue hover:border-eagle-blue transition-colors cursor-pointer"
+              className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-white shadow-md border border-charcoal/10 text-charcoal/70 hover:text-eagle-blue hover:border-eagle-blue transition-colors cursor-pointer"
               aria-label="Previous month"
             >
               <svg
@@ -264,7 +264,7 @@ export default function Events() {
               </svg>
             </button>
 
-            <div className="text-center">
+            <div className="text-center" aria-live="polite" aria-atomic="true">
               <h2 className="text-2xl md:text-3xl font-heading font-bold text-charcoal">
                 {MONTH_NAMES[currentMonth]} {currentYear}
               </h2>
@@ -278,7 +278,7 @@ export default function Events() {
 
             <button
               onClick={goToNextMonth}
-              className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-white shadow-md border border-charcoal/10 text-charcoal/60 hover:text-eagle-blue hover:border-eagle-blue transition-colors cursor-pointer"
+              className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-white shadow-md border border-charcoal/10 text-charcoal/70 hover:text-eagle-blue hover:border-eagle-blue transition-colors cursor-pointer"
               aria-label="Next month"
             >
               <svg
@@ -320,7 +320,7 @@ export default function Events() {
                     <span className="font-heading font-bold text-charcoal">
                       {event.title}
                     </span>
-                    <span className="text-sm text-charcoal/60">
+                    <span className="text-sm text-charcoal/70">
                       {formatEventDateRange(event)}
                     </span>
                   </div>
@@ -365,7 +365,7 @@ export default function Events() {
           </div>
 
           {calendarAndListEvents.length === 0 && monthLongEvents.length === 0 ? (
-            <p className="text-center text-charcoal/50 py-12 text-lg">
+            <p className="text-center text-charcoal/70 py-12 text-lg">
               No events scheduled for {MONTH_NAMES[currentMonth]} {currentYear}.
             </p>
           ) : (
@@ -417,12 +417,12 @@ function EventListItem({ event }: { event: CalendarEvent }) {
           </span>
         </div>
 
-        <p className="text-sm text-charcoal/50 font-medium">
+        <p className="text-sm text-charcoal/70 font-medium">
           {formatEventDateRange(event)}
         </p>
 
         {event.description && (
-          <p className="mt-1.5 text-sm text-charcoal/60 leading-relaxed">
+          <p className="mt-1.5 text-sm text-charcoal/70 leading-relaxed">
             {event.description}
           </p>
         )}

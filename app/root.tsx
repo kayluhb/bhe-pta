@@ -12,6 +12,7 @@ import {
 import type { Route } from "./+types/root";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
+import { useDiscoMode } from "./hooks/useDiscoMode";
 import "./app.css";
 
 export function meta() {
@@ -67,14 +68,27 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
+function DJBeckettBadge() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="disco-badge fixed top-20 right-4 z-50 pointer-events-none bg-spirit-gold text-night-blue font-heading font-bold px-5 py-3 rounded-xl shadow-lg text-sm">
+      <img src="/disco.png" alt="" className="w-16 mx-auto mb-2" />
+      <span className="block text-center">🎵 Now Playing 🎵</span>
+      <span className="block text-center text-lg">DJ Beckett</span>
+    </div>
+  );
+}
+
+export default function App() {
+  const { isDiscoMode } = useDiscoMode();
+
+  return (
+    <div className={`min-h-screen flex flex-col${isDiscoMode ? " disco-active" : ""}`}>
       <Header />
       <main id="main-content" className="flex-1">
         <Outlet />
       </main>
       <Footer />
+      {isDiscoMode && <DJBeckettBadge />}
     </div>
   );
 }

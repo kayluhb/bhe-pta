@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useId } from 'react';
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -19,6 +19,9 @@ export function FileUpload({
 }: FileUploadProps) {
   const [dragActive, setDragActive] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  const id = useId();
+  const inputId = `${id}-file-input`;
+  const errorId = `${id}-error`;
 
   const handleFile = useCallback((file: File) => {
     setLocalError(null);
@@ -70,7 +73,7 @@ export function FileUpload({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-charcoal/80 mb-1">
+        <label htmlFor={inputId} className="block text-sm font-medium text-charcoal/80 mb-1">
           {label}
         </label>
       )}
@@ -80,30 +83,34 @@ export function FileUpload({
         } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-charcoal/40'} ${
           displayError ? 'border-red-500' : ''
         }`}
+        aria-label="File upload drop zone"
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
       >
         <input
+          id={inputId}
           type="file"
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
           accept={accept}
           onChange={handleChange}
           disabled={disabled}
+          aria-describedby={displayError ? errorId : undefined}
+          aria-invalid={displayError ? true : undefined}
         />
-        <svg className="mx-auto h-12 w-12 text-charcoal/40" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+        <svg className="mx-auto h-12 w-12 text-charcoal/60" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
           <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        <p className="mt-2 text-sm text-charcoal/60">
+        <p className="mt-2 text-sm text-charcoal/70">
           <span className="font-medium text-eagle-blue">Click to upload</span> or drag and drop
         </p>
-        <p className="mt-1 text-xs text-charcoal/50">
+        <p className="mt-1 text-xs text-charcoal/60">
           PNG, JPG, WebP or PDF up to {Math.round(maxSize / 1024 / 1024)}MB
         </p>
       </div>
       {displayError && (
-        <p className="mt-1 text-sm text-red-600">{displayError}</p>
+        <p id={errorId} role="alert" className="mt-1 text-sm text-red-600">{displayError}</p>
       )}
     </div>
   );

@@ -80,7 +80,7 @@ export default function Parents() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white">
             Parents
           </h1>
-          <p className="mt-4 text-lg md:text-xl text-white/70 max-w-2xl mx-auto">
+          <p className="mt-4 text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
             Essential information and resources for Barton Hills Elementary
             families
           </p>
@@ -180,7 +180,7 @@ export default function Parents() {
               <p className="font-heading font-bold text-charcoal text-sm">
                 Fax
               </p>
-              <p className="text-charcoal/60 text-sm mt-1">(512) 841-3849</p>
+              <p className="text-charcoal/70 text-sm mt-1">(512) 841-3849</p>
             </div>
 
             {/* Email */}
@@ -236,7 +236,7 @@ export default function Parents() {
               <p className="font-heading font-bold text-charcoal text-sm">
                 Address
               </p>
-              <p className="text-charcoal/60 text-sm mt-1">
+              <p className="text-charcoal/70 text-sm mt-1">
                 2108 Barton Hills Dr
                 <br />
                 Austin, TX 78704
@@ -254,7 +254,7 @@ export default function Parents() {
               Quick Links
             </h2>
             <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
-            <p className="mt-4 text-charcoal/60 max-w-2xl mx-auto">
+            <p className="mt-4 text-charcoal/70 max-w-2xl mx-auto">
               Helpful resources for Barton Hills Elementary families
             </p>
           </div>
@@ -276,7 +276,7 @@ export default function Parents() {
                     <h3 className="font-heading font-bold text-charcoal group-hover:text-eagle-blue transition-colors">
                       {link.title}
                     </h3>
-                    <p className="mt-1 text-sm text-charcoal/50">
+                    <p className="mt-1 text-sm text-charcoal/70">
                       {link.description}
                     </p>
                     <span className="mt-3 inline-flex items-center gap-1 text-sm font-heading font-bold text-eagle-blue group-hover:text-spirit-gold transition-colors">

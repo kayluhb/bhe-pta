@@ -28,7 +28,7 @@ export default function Reimbursement() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white">
             Reimbursement Request
           </h1>
-          <p className="mt-4 text-lg md:text-xl text-white/70 max-w-2xl mx-auto">
+          <p className="mt-4 text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
             Submit a check request for PTA-approved expenses
           </p>
           <div className="mt-6 h-1 w-20 bg-spirit-gold rounded-full mx-auto" />

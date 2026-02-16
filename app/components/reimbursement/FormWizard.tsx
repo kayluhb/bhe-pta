@@ -27,7 +27,7 @@ export function FormWizard() {
     getReceiptBudgetAccount,
   } = useFormState();
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (turnstileToken: string) => {
     const response = await fetch('/api/reimbursement/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -39,6 +39,7 @@ export function FormWizard() {
         })),
         files: state.files,
         budget: state.budget,
+        turnstileToken,
       }),
     });
 
@@ -54,6 +55,10 @@ export function FormWizard() {
   return (
     <div className="max-w-2xl mx-auto">
       <FormProgress currentStep={currentStep} steps={STEPS} />
+
+      <div className="sr-only" aria-live="polite" role="status">
+        Step {currentStep + 1} of {STEPS.length}: {STEPS[currentStep]}
+      </div>
 
       {currentStep === 0 && (
         <RequesterInfo

@@ -45,7 +45,7 @@ export function FileUploads({
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="bg-white p-6 rounded-lg shadow-sm border border-charcoal/10">
         <h2 className="text-xl font-semibold text-charcoal mb-2">Upload Receipts</h2>
-        <p className="text-charcoal/60 mb-6">
+        <p className="text-charcoal/70 mb-6">
           Upload images or PDFs of your receipts (optional, up to 4 files).
         </p>
 
@@ -59,7 +59,7 @@ export function FileUploads({
 
         {/* Upload Progress */}
         {uploads.length > 0 && (
-          <div className="mt-4 space-y-2">
+          <div className="mt-4 space-y-2" role="status" aria-live="polite">
             {uploads.map((upload) => (
               <div
                 key={upload.id}
@@ -69,7 +69,7 @@ export function FileUploads({
               >
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-sm font-medium truncate">{upload.filename}</span>
-                  <span className="text-sm text-charcoal/50">
+                  <span className="text-sm text-charcoal/70">
                     {upload.status === 'uploading' && upload.progress <= 30 && 'Processing image...'}
                     {upload.status === 'uploading' && upload.progress > 30 && `${upload.progress}%`}
                     {upload.status === 'complete' && 'Complete'}
@@ -105,19 +105,20 @@ export function FileUploads({
                   className="flex items-center justify-between p-3 bg-warm-white rounded-lg"
                 >
                   <div className="flex items-center space-x-3">
-                    <svg className="w-8 h-8 text-charcoal/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-8 h-8 text-charcoal/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     <div>
                       <p className="text-sm font-medium text-charcoal truncate max-w-xs">
                         {file.filename}
                       </p>
-                      <p className="text-xs text-charcoal/50">{formatFileSize(file.size)}</p>
+                      <p className="text-xs text-charcoal/70">{formatFileSize(file.size)}</p>
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={() => onRemoveFile(file.key)}
+                    aria-label={`Remove ${file.filename}`}
                     className="text-red-600 hover:text-red-800 text-sm font-medium"
                   >
                     Remove
@@ -129,7 +130,7 @@ export function FileUploads({
         )}
 
         {files.length === 0 && uploads.length === 0 && (
-          <p className="mt-4 text-sm text-charcoal/50 text-center">
+          <p className="mt-4 text-sm text-charcoal/70 text-center">
             No files uploaded yet. You can continue without uploading files.
           </p>
         )}

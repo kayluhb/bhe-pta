@@ -9,6 +9,7 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ className = '', label, error, options, id, ...props }, ref) => {
     const selectId = id || label?.toLowerCase().replace(/\s+/g, '-');
+    const errorId = error ? `${selectId}-error` : undefined;
 
     return (
       <div className="w-full">
@@ -20,6 +21,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         <select
           ref={ref}
           id={selectId}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={errorId}
           className={`w-full px-3 py-2 border rounded-lg shadow-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-eagle-blue focus:border-eagle-blue bg-white ${
             error ? 'border-red-500' : 'border-charcoal/20'
           } ${className}`}
@@ -33,7 +36,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           ))}
         </select>
         {error && (
-          <p className="mt-1 text-sm text-red-600">{error}</p>
+          <p id={errorId} role="alert" className="mt-1 text-sm text-red-600">{error}</p>
         )}
       </div>
     );

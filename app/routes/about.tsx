@@ -109,7 +109,7 @@ export default function About() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white">
             About Our PTA
           </h1>
-          <p className="mt-4 text-lg md:text-xl text-white/70 max-w-2xl mx-auto">
+          <p className="mt-4 text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
             Building community, supporting education, empowering every Eagle
           </p>
           <div className="mt-6 h-1 w-20 bg-spirit-gold rounded-full mx-auto" />
@@ -153,7 +153,7 @@ export default function About() {
                 <h3 className="font-heading font-bold text-xl text-charcoal">
                   {item.title}
                 </h3>
-                <p className="mt-3 text-charcoal/60 leading-relaxed">
+                <p className="mt-3 text-charcoal/70 leading-relaxed">
                   {item.description}
                 </p>
               </div>
@@ -170,7 +170,7 @@ export default function About() {
               Our 25–26 PTA Officers
             </h2>
             <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
-            <p className="mt-4 text-charcoal/60 max-w-2xl mx-auto">
+            <p className="mt-4 text-charcoal/70 max-w-2xl mx-auto">
               PTA Leadership Team — the dedicated volunteers who lead our PTA
             </p>
           </div>
@@ -246,7 +246,7 @@ export default function About() {
                     <p className="font-heading font-bold text-charcoal group-hover:text-eagle-blue transition-colors">
                       {doc.title}
                     </p>
-                    <p className="text-sm text-charcoal/40">{doc.type}</p>
+                    <p className="text-sm text-charcoal/70">{doc.type}</p>
                   </div>
                   <svg
                     className="h-5 w-5 text-charcoal/30 group-hover:text-eagle-blue transition-colors shrink-0"
@@ -279,12 +279,12 @@ export default function About() {
             Join Us
           </h2>
           <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
-          <p className="mt-6 text-lg text-white/80 leading-relaxed">
+          <p className="mt-6 text-lg text-white/90 leading-relaxed">
             Membership in the Barton Hills PTA helps support our wonderful
             students, teachers, staff, and programs.
           </p>
           <a
-            href="https://bhe-pta-annual-fund-drive-2025-26.cheddarup.com/"
+            href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
             target="_blank"
             rel="noopener noreferrer"
             className="mt-8 inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"

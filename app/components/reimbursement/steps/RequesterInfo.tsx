@@ -19,7 +19,7 @@ export function RequesterInfo({ data, onChange, onNext, errors = {} }: Requester
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="bg-white p-6 rounded-lg shadow-sm border border-charcoal/10">
         <h2 className="text-xl font-semibold text-charcoal mb-4">Check Request Information</h2>
-        <p className="text-charcoal/60 mb-6">
+        <p className="text-charcoal/70 mb-6">
           Please provide the payment details for your reimbursement request.
         </p>
 

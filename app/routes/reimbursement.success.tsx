@@ -58,13 +58,13 @@ export default function ReimbursementSuccess() {
               Request Submitted!
             </h2>
 
-            <p className="text-charcoal/60 mb-6">
+            <p className="text-charcoal/70 mb-6">
               Your reimbursement request has been submitted successfully. You
               will receive a confirmation email shortly.
             </p>
 
             {id && (
-              <p className="text-sm text-charcoal/50 mb-6">
+              <p className="text-sm text-charcoal/70 mb-6">
                 Reference ID: <span className="font-mono">{id}</span>
               </p>
             )}
@@ -77,7 +77,7 @@ export default function ReimbursementSuccess() {
                 Submit Another Request
               </Link>
 
-              <p className="text-sm text-charcoal/50">
+              <p className="text-sm text-charcoal/70">
                 Questions? Contact your PTA treasurer.
               </p>
             </div>

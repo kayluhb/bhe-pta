@@ -1,4 +1,7 @@
+import { useState, useEffect, useRef, useCallback } from "react";
 import type { Route } from "./+types/contact";
+
+const TURNSTILE_SITE_KEY = "0x4AAAAAACeBDkCW901l9jWe";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -14,6 +17,91 @@ export function meta({}: Route.MetaArgs) {
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function Contact() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [message, setMessage] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const turnstileRef = useRef<HTMLDivElement>(null);
+  const widgetIdRef = useRef<string | null>(null);
+
+  const renderWidget = useCallback(() => {
+    if (!turnstileRef.current || widgetIdRef.current !== null) return;
+    const turnstile = (window as any).turnstile;
+    if (!turnstile) return;
+    widgetIdRef.current = turnstile.render(turnstileRef.current, {
+      sitekey: TURNSTILE_SITE_KEY,
+      callback: (token: string) => setTurnstileToken(token),
+      "expired-callback": () => setTurnstileToken(null),
+      "error-callback": () => setTurnstileToken(null),
+      theme: "light",
+    });
+  }, []);
+
+  useEffect(() => {
+    if ((window as any).turnstile) {
+      renderWidget();
+      return;
+    }
+
+    const existing = document.querySelector('script[src*="turnstile"]');
+    if (!existing) {
+      const script = document.createElement("script");
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.onload = () => renderWidget();
+      document.head.appendChild(script);
+    } else {
+      existing.addEventListener("load", renderWidget);
+    }
+
+    return () => {
+      if (widgetIdRef.current !== null) {
+        try { (window as any).turnstile?.remove(widgetIdRef.current); } catch {}
+        widgetIdRef.current = null;
+      }
+    };
+  }, [renderWidget]);
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!turnstileToken) {
+      setStatus("error");
+      setMessage("Please complete the verification challenge.");
+      return;
+    }
+
+    setStatus("submitting");
+    setMessage("");
+
+    try {
+      const response = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, turnstileToken }),
+      });
+
+      const data = (await response.json()) as { success?: boolean; alreadySubscribed?: boolean; error?: string };
+
+      if (data.success) {
+        setStatus("success");
+        setMessage(data.alreadySubscribed ? "You're already subscribed!" : "You're subscribed! Check your inbox.");
+        setEmail("");
+      } else {
+        setStatus("error");
+        setMessage(data.error || "Something went wrong. Please try again.");
+      }
+    } catch {
+      setStatus("error");
+      setMessage("Something went wrong. Please try again.");
+    }
+
+    // Reset Turnstile widget after submission attempt
+    if (widgetIdRef.current !== null) {
+      try { (window as any).turnstile?.reset(widgetIdRef.current); } catch {}
+      setTurnstileToken(null);
+    }
+  };
   return (
     <div>
       {/* ── 1. Page Banner ───────────────────────────────────────────────── */}
@@ -29,7 +117,7 @@ export default function Contact() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white">
             Contact Us
           </h1>
-          <p className="mt-4 text-lg md:text-xl text-white/70 max-w-2xl mx-auto">
+          <p className="mt-4 text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
             Stay connected with Barton Hills Elementary PTA
           </p>
           <div className="mt-6 h-1 w-20 bg-spirit-gold rounded-full mx-auto" />
@@ -46,6 +134,7 @@ export default function Contact() {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -56,28 +145,51 @@ export default function Contact() {
             <h2 className="mt-4 text-2xl md:text-3xl font-heading font-bold text-charcoal">
               Newsletter Signup
             </h2>
-            <p className="mt-3 text-charcoal/60 leading-relaxed">
+            <p className="mt-3 text-charcoal/70 leading-relaxed">
               Stay up to date with PTA events, meetings, and important school
               information.
             </p>
-            <form
-              className="mt-8 flex flex-col sm:flex-row gap-3"
-              onSubmit={(e) => e.preventDefault()}
-            >
-              <input
-                type="email"
-                placeholder="Enter your email address"
-                className="flex-1 px-5 py-3 rounded-full border border-charcoal/20 focus:outline-none focus:border-eagle-blue focus:ring-2 focus:ring-eagle-blue/20 text-charcoal placeholder:text-charcoal/40"
-                required
-              />
-              <button
-                type="submit"
-                className="bg-spirit-gold text-night-blue font-heading font-bold px-8 py-3 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25 shrink-0 cursor-pointer"
+            {status === "success" ? (
+              <div className="mt-8 p-4 bg-creek-green/10 rounded-lg" role="status">
+                <p className="text-creek-green font-medium">{message}</p>
+              </div>
+            ) : (
+              <form
+                className="mt-8 space-y-4"
+                onSubmit={handleSubscribe}
               >
-                Subscribe
-              </button>
-            </form>
-            <p className="mt-4 text-xs text-charcoal/40">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <label htmlFor="newsletter-email" className="sr-only">Email address</label>
+                  <input
+                    id="newsletter-email"
+                    type="email"
+                    placeholder="Enter your email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="flex-1 px-5 py-3 rounded-full border border-charcoal/20 focus:outline-none focus:border-eagle-blue focus:ring-2 focus:ring-eagle-blue/20 text-charcoal placeholder:text-charcoal/70"
+                    required
+                    aria-required="true"
+                    aria-describedby={status === "error" ? "subscribe-error" : undefined}
+                    aria-invalid={status === "error" ? true : undefined}
+                    disabled={status === "submitting"}
+                  />
+                  <button
+                    type="submit"
+                    disabled={status === "submitting" || !turnstileToken}
+                    className="bg-spirit-gold text-night-blue font-heading font-bold px-8 py-3 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25 shrink-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {status === "submitting" ? "Subscribing..." : "Subscribe"}
+                  </button>
+                </div>
+                <div className="flex justify-center">
+                  <div ref={turnstileRef} />
+                </div>
+              </form>
+            )}
+            {status === "error" && (
+              <p id="subscribe-error" role="alert" className="mt-3 text-sm text-red-600">{message}</p>
+            )}
+            <p className="mt-4 text-xs text-charcoal/70">
               We respect your privacy. Unsubscribe at any time.
             </p>
           </div>
@@ -103,7 +215,7 @@ export default function Contact() {
               className="group flex items-center gap-5 bg-warm-white rounded-lg shadow-md p-6 border-b-4 border-eagle-blue hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
             >
               <div className="shrink-0 h-14 w-14 rounded-full bg-eagle-blue flex items-center justify-center text-white">
-                <svg className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
               </div>
@@ -111,7 +223,7 @@ export default function Contact() {
                 <h3 className="font-heading font-bold text-lg text-charcoal group-hover:text-eagle-blue transition-colors">
                   Facebook
                 </h3>
-                <p className="text-sm text-charcoal/50">
+                <p className="text-sm text-charcoal/70">
                   @bartonhillspta
                 </p>
               </div>
@@ -121,6 +233,7 @@ export default function Contact() {
                 viewBox="0 0 24 24"
                 strokeWidth={2}
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -138,7 +251,7 @@ export default function Contact() {
               className="group flex items-center gap-5 bg-warm-white rounded-lg shadow-md p-6 border-b-4 border-spirit-gold hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
             >
               <div className="shrink-0 h-14 w-14 rounded-full bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 flex items-center justify-center text-white">
-                <svg className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
                 </svg>
               </div>
@@ -146,7 +259,7 @@ export default function Contact() {
                 <h3 className="font-heading font-bold text-lg text-charcoal group-hover:text-eagle-blue transition-colors">
                   Instagram
                 </h3>
-                <p className="text-sm text-charcoal/50">@bartonhillspta (PTA)</p>
+                <p className="text-sm text-charcoal/70">@bartonhillspta (PTA)</p>
               </div>
               <svg
                 className="h-5 w-5 text-charcoal/30 group-hover:text-eagle-blue transition-colors ml-auto shrink-0"
@@ -154,6 +267,7 @@ export default function Contact() {
                 viewBox="0 0 24 24"
                 strokeWidth={2}
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -171,7 +285,7 @@ export default function Contact() {
               className="group flex items-center gap-5 bg-warm-white rounded-lg shadow-md p-6 border-b-4 border-eagle-blue hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
             >
               <div className="shrink-0 h-14 w-14 rounded-full bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 flex items-center justify-center text-white">
-                <svg className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
                 </svg>
               </div>
@@ -179,7 +293,7 @@ export default function Contact() {
                 <h3 className="font-heading font-bold text-lg text-charcoal group-hover:text-eagle-blue transition-colors">
                   BHE on Instagram
                 </h3>
-                <p className="text-sm text-charcoal/50">@bheeagles (School)</p>
+                <p className="text-sm text-charcoal/70">@bheeagles (School)</p>
               </div>
               <svg
                 className="h-5 w-5 text-charcoal/30 group-hover:text-eagle-blue transition-colors ml-auto shrink-0"
@@ -187,6 +301,7 @@ export default function Contact() {
                 viewBox="0 0 24 24"
                 strokeWidth={2}
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -225,6 +340,7 @@ export default function Contact() {
                         viewBox="0 0 24 24"
                         strokeWidth={1.5}
                         stroke="currentColor"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -242,7 +358,7 @@ export default function Contact() {
                       <p className="font-heading font-bold text-charcoal">
                         Address
                       </p>
-                      <p className="text-charcoal/60 mt-1">
+                      <p className="text-charcoal/70 mt-1">
                         2108 Barton Hills Drive
                         <br />
                         Austin, TX 78704
@@ -258,6 +374,7 @@ export default function Contact() {
                         viewBox="0 0 24 24"
                         strokeWidth={1.5}
                         stroke="currentColor"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -270,7 +387,7 @@ export default function Contact() {
                       <p className="font-heading font-bold text-charcoal">
                         School Hours
                       </p>
-                      <p className="text-charcoal/60 mt-1">
+                      <p className="text-charcoal/70 mt-1">
                         7:40 a.m. - 3:10 p.m.
                       </p>
                     </div>
@@ -292,6 +409,7 @@ export default function Contact() {
                         viewBox="0 0 24 24"
                         strokeWidth={1.5}
                         stroke="currentColor"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -321,6 +439,7 @@ export default function Contact() {
                         viewBox="0 0 24 24"
                         strokeWidth={1.5}
                         stroke="currentColor"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -333,7 +452,7 @@ export default function Contact() {
                       <p className="font-heading font-bold text-charcoal">
                         Fax
                       </p>
-                      <p className="text-charcoal/60 mt-1">(512) 841-3849</p>
+                      <p className="text-charcoal/70 mt-1">(512) 841-3849</p>
                     </div>
                   </div>
 
@@ -345,6 +464,7 @@ export default function Contact() {
                         viewBox="0 0 24 24"
                         strokeWidth={1.5}
                         stroke="currentColor"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -370,7 +490,7 @@ export default function Contact() {
                       >
                         pta@bheeagles.com
                       </a>
-                      <span className="text-charcoal/40 text-sm ml-1">
+                      <span className="text-charcoal/70 text-sm ml-1">
                         (PTA)
                       </span>
                     </div>
