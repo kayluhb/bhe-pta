@@ -17,6 +17,9 @@ interface Env {
   CLOUDFLARE_ACCOUNT_ID: string;
   TURNSTILE_SECRET_KEY: string;
   AI: Ai;
+  GOOGLE_CLIENT_ID: string;
+  GOOGLE_CLIENT_SECRET: string;
+  SESSION_SECRET: string;
 }
 
 declare module "react-router" {
