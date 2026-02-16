@@ -70,7 +70,8 @@ export function FileUploads({
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-sm font-medium truncate">{upload.filename}</span>
                   <span className="text-sm text-charcoal/50">
-                    {upload.status === 'uploading' && `${upload.progress}%`}
+                    {upload.status === 'uploading' && upload.progress <= 30 && 'Processing image...'}
+                    {upload.status === 'uploading' && upload.progress > 30 && `${upload.progress}%`}
                     {upload.status === 'complete' && 'Complete'}
                     {upload.status === 'error' && 'Failed'}
                   </span>
