@@ -36,7 +36,7 @@ export async function action({ request, context }: Route.ActionArgs) {
           content: "Transcribe all visible text in this image exactly as it appears. Include all numbers, dates, and amounts. Output only the transcribed text, nothing else.",
         },
       ],
-      image: [...imageBytes],
+      image: Array.from(imageBytes),
       max_tokens: 2048,
     });
 
@@ -61,13 +61,25 @@ export async function action({ request, context }: Route.ActionArgs) {
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    const lines = doc.splitTextToSize(extractedText, 170);
-    doc.text(lines, 20, 36);
+    const lines = doc.splitTextToSize(extractedText, 170) as string[];
+    const lineHeight = 5;
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const footerY = pageHeight - 15;
+    let currentY = 36;
+
+    for (const line of lines) {
+      if (currentY + lineHeight > footerY) {
+        doc.addPage();
+        currentY = 20;
+      }
+      doc.text(line, 20, currentY);
+      currentY += lineHeight;
+    }
 
     doc.setFontSize(8);
     doc.setFont("helvetica", "italic");
     doc.setTextColor(128);
-    doc.text("Automatically transcribed from uploaded image.", 105, 285, { align: "center" });
+    doc.text("Automatically transcribed from uploaded image.", 105, pageHeight - 10, { align: "center" });
 
     const pdfBuffer = new Uint8Array(doc.output("arraybuffer"));
 
