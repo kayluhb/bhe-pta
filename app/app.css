@@ -53,9 +53,18 @@
 }
 
 @keyframes disco-spin {
+  /* Spin phase */
   0% { transform: rotate(0deg) scale(1); }
-  50% { transform: rotate(180deg) scale(1.15); }
-  100% { transform: rotate(360deg) scale(1); }
+  20% { transform: rotate(180deg) scale(1.15); }
+  40% { transform: rotate(360deg) scale(1); }
+  /* Pulse phase (no rotation) */
+  47% { transform: rotate(360deg) scale(1.2); }
+  55% { transform: rotate(360deg) scale(0.9); }
+  62% { transform: rotate(360deg) scale(1.15); }
+  70% { transform: rotate(360deg) scale(1); }
+  /* Spin phase */
+  85% { transform: rotate(540deg) scale(1.15); }
+  100% { transform: rotate(720deg) scale(1); }
 }
 
 @keyframes disco-badge-enter {
@@ -79,7 +88,7 @@
 }
 
 .disco-active header img {
-  animation: disco-spin 1s linear infinite;
+  animation: disco-spin 3s ease-in-out infinite;
 }
 
 .disco-badge {
