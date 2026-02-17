@@ -43,9 +43,57 @@ export function useDiscoMode() {
       }
     }
 
+    // Shake detection for mobile
+    const SHAKE_THRESHOLD = 25;
+    const SHAKE_COUNT_NEEDED = 3;
+    const SHAKE_WINDOW_MS = 1000;
+    let lastX = 0;
+    let lastY = 0;
+    let lastZ = 0;
+    let lastTime = 0;
+    let shakeCount = 0;
+    let firstShakeTime = 0;
+
+    function handleMotion(e: DeviceMotionEvent) {
+      const acc = e.accelerationIncludingGravity;
+      if (!acc || acc.x === null || acc.y === null || acc.z === null) return;
+
+      const now = Date.now();
+      const dt = now - lastTime;
+      if (dt < 50) return; // throttle
+
+      const dx = Math.abs(acc.x - lastX);
+      const dy = Math.abs(acc.y - lastY);
+      const dz = Math.abs(acc.z - lastZ);
+      const force = dx + dy + dz;
+
+      lastX = acc.x;
+      lastY = acc.y;
+      lastZ = acc.z;
+      lastTime = now;
+
+      if (force > SHAKE_THRESHOLD) {
+        if (shakeCount === 0) firstShakeTime = now;
+        shakeCount++;
+
+        if (shakeCount >= SHAKE_COUNT_NEEDED && now - firstShakeTime < SHAKE_WINDOW_MS) {
+          shakeCount = 0;
+          activate();
+        }
+      }
+
+      // Reset if shakes are too spread out
+      if (now - firstShakeTime > SHAKE_WINDOW_MS) {
+        shakeCount = 0;
+      }
+    }
+
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("devicemotion", handleMotion);
+
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("devicemotion", handleMotion);
       if (timerRef.current) clearTimeout(timerRef.current);
       if (audioRef.current) {
         audioRef.current.pause();
