@@ -12,7 +12,7 @@ interface UploadProgress {
 export function useFileUpload() {
   const [uploads, setUploads] = useState<Map<string, UploadProgress>>(new Map());
 
-  const uploadFile = useCallback(async (file: File): Promise<FileData | null> => {
+  const uploadFile = useCallback(async (file: File): Promise<FileData[] | null> => {
     const id = crypto.randomUUID();
 
     setUploads((prev) => {
@@ -45,7 +45,9 @@ export function useFileUpload() {
           throw new Error(errorData.error || 'OCR processing failed');
         }
 
-        const result = (await response.json()) as FileData;
+        const result = (await response.json()) as FileData & {
+          original?: FileData;
+        };
 
         setUploads((prev) => {
           const next = new Map(prev);
@@ -53,7 +55,13 @@ export function useFileUpload() {
           return next;
         });
 
-        return result;
+        const files: FileData[] = [
+          { key: result.key, filename: result.filename, contentType: result.contentType, size: result.size },
+        ];
+        if (result.original) {
+          files.push(result.original);
+        }
+        return files;
       }
 
       // PDF: use existing presign + direct upload flow
@@ -115,12 +123,12 @@ export function useFileUpload() {
         return next;
       });
 
-      return {
+      return [{
         key,
         filename: file.name,
         contentType: file.type,
         size: file.size,
-      };
+      }];
     } catch (error) {
       setUploads((prev) => {
         const next = new Map(prev);

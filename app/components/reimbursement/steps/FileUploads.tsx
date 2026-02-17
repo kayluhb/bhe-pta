@@ -21,9 +21,11 @@ export function FileUploads({
   const { uploadFile, uploads } = useFileUpload();
 
   const handleFileSelect = async (file: File) => {
-    const result = await uploadFile(file);
-    if (result) {
-      onAddFile(result);
+    const results = await uploadFile(file);
+    if (results) {
+      for (const result of results) {
+        onAddFile(result);
+      }
     }
   };
 

@@ -99,26 +99,39 @@ export async function action({ request, context }: Route.ActionArgs) {
 
     const pdfBuffer = new Uint8Array(doc.output("arraybuffer"));
 
-    // Step 3: Upload PDF to R2
+    // Step 3: Upload PDF and original image to R2
     const timestamp = Date.now();
     const baseName = file.name.replace(/\.[^.]+$/, "");
     const sanitizedName = baseName.replace(/[^a-zA-Z0-9.-]/g, "_");
-    const key = `uploads/${timestamp}-${crypto.randomUUID()}-${sanitizedName}.pdf`;
+    const ext = file.name.split(".").pop() || "jpg";
+    const pdfKey = `uploads/${timestamp}-${crypto.randomUUID()}-${sanitizedName}.pdf`;
+    const originalKey = `uploads/${timestamp}-${crypto.randomUUID()}-${sanitizedName}.${ext}`;
 
     if (env.R2_BUCKET) {
-      await env.R2_BUCKET.put(key, pdfBuffer, {
-        httpMetadata: { contentType: "application/pdf" },
-      });
+      await Promise.all([
+        env.R2_BUCKET.put(pdfKey, pdfBuffer, {
+          httpMetadata: { contentType: "application/pdf" },
+        }),
+        env.R2_BUCKET.put(originalKey, imageBytes, {
+          httpMetadata: { contentType: file.type },
+        }),
+      ]);
     } else {
       console.log(`[Dev] OCR PDF generated for: ${file.name} (${pdfBuffer.length} bytes)`);
     }
 
-    // Step 4: Return file metadata
+    // Step 4: Return file metadata for both PDF and original
     return Response.json({
-      key,
+      key: pdfKey,
       filename: `${sanitizedName}-ocr.pdf`,
       contentType: "application/pdf",
       size: pdfBuffer.length,
+      original: {
+        key: originalKey,
+        filename: file.name,
+        contentType: file.type,
+        size: file.size,
+      },
     });
   } catch (error) {
     console.error("OCR error:", error);
