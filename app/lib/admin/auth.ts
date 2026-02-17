@@ -146,14 +146,14 @@ export async function requireAdmin(
   const origin = new URL(request.url).origin;
 
   if (!sessionCookie) {
-    return Response.redirect(`${origin}/api/auth/google`, 302);
+    return Response.redirect(`${origin}/admin/login`, 302);
   }
 
   const cookieValue = sessionCookie.substring(SESSION_COOKIE_NAME.length + 1);
   const payload = await verifySession(cookieValue, env.SESSION_SECRET);
 
   if (!payload) {
-    return Response.redirect(`${origin}/api/auth/google`, 302);
+    return Response.redirect(`${origin}/admin/login`, 302);
   }
 
   return payload;
