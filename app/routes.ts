@@ -20,4 +20,7 @@ export default [
   route("api/reimbursement/pdf", "./routes/api.reimbursement.pdf.ts"),
   route("api/reimbursement/ocr", "./routes/api.reimbursement.ocr.ts"),
   route("api/subscribe", "./routes/api.subscribe.ts"),
+  route("api/auth/google", "./routes/api.auth.google.ts"),
+  route("api/auth/callback", "./routes/api.auth.callback.ts"),
+  route("api/auth/logout", "./routes/api.auth.logout.ts"),
 ] satisfies RouteConfig;
