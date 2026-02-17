@@ -25,7 +25,7 @@ export function useDiscoMode() {
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
       }
-    }, 6000);
+    }, 20000);
   }, []);
 
   useEffect(() => {

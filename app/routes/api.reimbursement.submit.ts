@@ -79,15 +79,42 @@ export async function action({ request, context }: Route.ActionArgs) {
       budget,
     });
 
-    // In production with D1, we would save to database here
-    // For MVP, we'll just log and send email
-    console.log("New submission:", {
+    // Store generated PDF in R2
+    let pdfKey: string | null = null;
+    if (env.R2_BUCKET) {
+      pdfKey = `submissions/${submissionId}/check-request.pdf`;
+      await env.R2_BUCKET.put(pdfKey, pdfBuffer, {
+        httpMetadata: { contentType: "application/pdf" },
+      });
+    }
+
+    // Save to D1 database
+    const db = env.REIMBURSEMENT_DB;
+    await db.batch([
+      db.prepare(
+        `INSERT INTO submissions (id, requester_name, requester_email, requester_phone, status, total_amount, pdf_key, submitted_at)
+         VALUES (?, ?, ?, ?, 'pending', ?, ?, ?)`
+      ).bind(submissionId, requester.payableTo, requester.email, requester.phone || null, totalAmount, pdfKey, submittedAt),
+      ...receiptsWithBudget.map((receipt, i) =>
+        db.prepare(
+          `INSERT INTO receipt_entries (id, submission_id, receipt_date, description, amount, category, vendor, sort_order)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+        ).bind(crypto.randomUUID(), submissionId, receipt.date, receipt.description, receipt.amount, receipt.budgetAccount, receipt.placeOfPurchase || null, i)
+      ),
+      ...files.map((file, i) =>
+        db.prepare(
+          `INSERT INTO file_attachments (id, submission_id, r2_key, original_filename, content_type, file_size, sort_order)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`
+        ).bind(crypto.randomUUID(), submissionId, file.key, file.filename, file.contentType, file.size, i)
+      ),
+    ]);
+
+    console.log("Submission saved:", {
       id: submissionId,
       requester: requester.payableTo,
       totalAmount,
       receiptsCount: receipts.length,
       filesCount: files.length,
-      budgetAccount: budget.primaryAccount,
     });
 
     // Send email notification if configured

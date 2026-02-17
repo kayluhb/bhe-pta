@@ -78,7 +78,7 @@ export const tiers: SponsorTier[] = [
       { name: "Local Building Group", logo: `${LOGO_PATH}/local-building-group.png` },
       { name: "Nantz", logo: `${LOGO_PATH}/nantz.png`, url: "https://www.nantzorthodontics.com/" },
       { name: "Primrose", logo: `${LOGO_PATH}/primrose.jpg`, url: "https://www.primroseschools.com/" },
-      { name: "Rain King", logo: `${LOGO_PATH}/rain-king.png`, url: "https://www.rainkinginc.com/", logoClassName: "-rotate-90" },
+      { name: "Rain King", logo: `${LOGO_PATH}/rain-king.png`, url: "https://www.rainkinginc.com/", logoClassName: "rotate-90" },
       { name: "Roeder Group", logo: `${LOGO_PATH}/roeder-group.png`, url: "https://brookeroeder.com/" },
       { name: "TX Keeper Cider", logo: `${LOGO_PATH}/tx-keeper-cider.png`, url: "https://texaskeeper.com/" },
       { name: "Understated Leather", logo: `${LOGO_PATH}/understated-leather.jpg`, url: "https://www.understatedleather.com/" },

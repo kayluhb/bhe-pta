@@ -29,14 +29,30 @@ export async function action({ request, context }: Route.ActionArgs) {
     // Step 1: Extract text using Workers AI vision model
     const imageBytes = new Uint8Array(await file.arrayBuffer());
 
+    // Encode image as base64 data URL for the messages content
+    let binary = "";
+    for (let i = 0; i < imageBytes.length; i++) {
+      binary += String.fromCharCode(imageBytes[i]);
+    }
+    const base64Image = btoa(binary);
+    const dataUrl = `data:${file.type};base64,${base64Image}`;
+
     const aiResponse = await env.AI.run("@cf/meta/llama-3.2-11b-vision-instruct", {
       messages: [
         {
           role: "user",
-          content: "Transcribe all visible text in this image exactly as it appears. Include all numbers, dates, and amounts. Output only the transcribed text, nothing else.",
+          content: [
+            {
+              type: "image_url",
+              image_url: { url: dataUrl },
+            },
+            {
+              type: "text",
+              text: "Transcribe all visible text in this image exactly as it appears. Include all numbers, dates, and amounts. Output only the transcribed text, nothing else.",
+            },
+          ],
         },
       ],
-      image: Array.from(imageBytes),
       max_tokens: 2048,
     });
 

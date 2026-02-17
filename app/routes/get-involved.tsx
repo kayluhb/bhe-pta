@@ -360,16 +360,10 @@ export default function GetInvolved() {
             Whether you have an hour or an entire semester, there is a place for
             you in our PTA community.
           </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <a
-              href="#"
-              className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
-            >
-              Sign Up to Volunteer
-            </a>
+          <div className="mt-8">
             <a
               href="mailto:pta@bheeagles.com"
-              className="inline-flex items-center border-2 border-white text-white font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-white/10 transition-all duration-200"
+              className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
             >
               Email PTA
             </a>
