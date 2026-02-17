@@ -24,6 +24,8 @@ export default [
   route("admin/reimbursements/:id", "./routes/admin.reimbursement-detail.tsx"),
   route("api/admin/reimbursements/export", "./routes/api.admin.reimbursements-export.ts"),
   route("api/admin/reimbursements/file", "./routes/api.admin.reimbursement-file.ts"),
+  route("api/admin/bulk-status", "./routes/api.admin.bulk-status.ts"),
+  route("api/admin/bulk-delete", "./routes/api.admin.bulk-delete.ts"),
   route("api/admin/reimbursements/:id/status", "./routes/api.admin.reimbursement-status.ts"),
   route("api/admin/reimbursements/:id/delete", "./routes/api.admin.reimbursement-delete.ts"),
   route("api/subscribe", "./routes/api.subscribe.ts"),
