@@ -18,6 +18,7 @@ interface EmailParams {
     budgetAccount: string;
   }>;
   pdfBuffer: Uint8Array;
+  fileAttachments?: Array<{ filename: string; content: Uint8Array; contentType: string }>;
   notificationEmail: string;
   resendApiKey: string;
 }
@@ -145,7 +146,7 @@ function generateConfirmationHTML(
 }
 
 export async function sendNotificationEmail(params: EmailParams): Promise<void> {
-  const { submission, requester, receipts, pdfBuffer, notificationEmail, resendApiKey } = params;
+  const { submission, requester, receipts, pdfBuffer, fileAttachments, notificationEmail, resendApiKey } = params;
 
   const resend = new Resend(resendApiKey);
 
@@ -164,6 +165,10 @@ export async function sendNotificationEmail(params: EmailParams): Promise<void> 
         filename: `check-request-${submission.id}.pdf`,
         content: pdfBase64,
       },
+      ...(fileAttachments ?? []).map((f) => ({
+        filename: f.filename,
+        content: Buffer.from(f.content).toString('base64'),
+      })),
     ],
   });
 

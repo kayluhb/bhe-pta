@@ -120,6 +120,29 @@ export async function action({ request, context }: Route.ActionArgs) {
     // Send email notification if configured
     if (resendApiKey && notificationEmail) {
       try {
+        // Fetch uploaded files from R2 to attach to treasurer email
+        const fileAttachments: Array<{ filename: string; content: Uint8Array; contentType: string }> = [];
+        if (env.R2_BUCKET && files.length > 0) {
+          const fetched = await Promise.all(
+            files.map(async (f) => {
+              try {
+                const obj = await env.R2_BUCKET.get(f.key);
+                if (!obj) return null;
+                return {
+                  filename: f.filename,
+                  content: new Uint8Array(await obj.arrayBuffer()),
+                  contentType: f.contentType,
+                };
+              } catch {
+                return null;
+              }
+            })
+          );
+          for (const f of fetched) {
+            if (f) fileAttachments.push(f);
+          }
+        }
+
         await sendNotificationEmail({
           submission: {
             id: submissionId,
@@ -128,6 +151,7 @@ export async function action({ request, context }: Route.ActionArgs) {
           requester,
           receipts: receiptsWithBudget,
           pdfBuffer,
+          fileAttachments,
           notificationEmail,
           resendApiKey,
         });
