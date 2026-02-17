@@ -31,6 +31,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
 
   const url = new URL(request.url);
   const statusFilter = url.searchParams.get("status");
+  const idsParam = url.searchParams.get("ids");
 
   const db = context.cloudflare.env.REIMBURSEMENT_DB;
 
@@ -42,9 +43,21 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   `;
 
   const params: string[] = [];
-  if (statusFilter) {
-    query += ` WHERE s.status = ?`;
+  const conditions: string[] = [];
+
+  if (idsParam) {
+    const ids = idsParam.split(",").filter(Boolean);
+    if (ids.length > 0) {
+      conditions.push(`s.id IN (${ids.map(() => "?").join(", ")})`);
+      params.push(...ids);
+    }
+  } else if (statusFilter) {
+    conditions.push(`s.status = ?`);
     params.push(statusFilter);
+  }
+
+  if (conditions.length > 0) {
+    query += ` WHERE ${conditions.join(" AND ")}`;
   }
 
   query += ` ORDER BY s.submitted_at DESC, r.sort_order`;

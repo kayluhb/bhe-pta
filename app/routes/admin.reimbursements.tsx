@@ -1,5 +1,6 @@
 import type { Route } from "./+types/admin.reimbursements";
-import { useLoaderData, useNavigate } from "react-router";
+import { useLoaderData, useNavigate, useRevalidator } from "react-router";
+import { useState } from "react";
 import { requireAdmin, type SessionPayload } from "~/lib/admin/auth";
 
 export function meta() {
@@ -144,6 +145,77 @@ function formatAmount(amount: number): string {
 export default function AdminReimbursements() {
   const { submissions, user, filters } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  const revalidator = useRevalidator();
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkLoading, setBulkLoading] = useState(false);
+
+  const allSelected =
+    submissions.length > 0 && selected.size === submissions.length;
+
+  const toggleAll = () => {
+    if (allSelected) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(submissions.map((s) => String(s.id))));
+    }
+  };
+
+  const toggleOne = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleBulkStatus = async (status: string) => {
+    if (selected.size === 0) return;
+    setBulkLoading(true);
+    try {
+      const res = await fetch("/api/admin/bulk-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: Array.from(selected), status }),
+      });
+      if (res.ok) {
+        setSelected(new Set());
+        revalidator.revalidate();
+      }
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selected.size === 0) return;
+    if (
+      !window.confirm(
+        `Are you sure you want to delete ${selected.size} submission${selected.size !== 1 ? "s" : ""}? This cannot be undone.`
+      )
+    )
+      return;
+    setBulkLoading(true);
+    try {
+      const res = await fetch("/api/admin/bulk-delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: Array.from(selected) }),
+      });
+      if (res.ok) {
+        setSelected(new Set());
+        revalidator.revalidate();
+      }
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
+  const handleExportSelected = () => {
+    if (selected.size === 0) return;
+    const ids = Array.from(selected).join(",");
+    window.location.href = `/api/admin/reimbursements/export?ids=${encodeURIComponent(ids)}`;
+  };
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const params = new URLSearchParams();
@@ -225,6 +297,58 @@ export default function AdminReimbursements() {
           </a>
         </div>
 
+        {/* Bulk Action Bar */}
+        {selected.size > 0 && (
+          <div className="mb-4 flex flex-wrap items-center gap-3 rounded-lg bg-eagle-blue/5 border border-eagle-blue/20 px-4 py-3">
+            <span className="text-sm font-medium text-charcoal font-body">
+              {selected.size} selected
+            </span>
+            <div className="h-4 w-px bg-gray-300" />
+            <button
+              onClick={() => handleBulkStatus("approved")}
+              disabled={bulkLoading}
+              className="rounded-md bg-creek-green px-3 py-1.5 text-xs font-medium text-white hover:bg-creek-green/90 disabled:opacity-50 transition-colors"
+            >
+              Approve
+            </button>
+            <button
+              onClick={() => handleBulkStatus("rejected")}
+              disabled={bulkLoading}
+              className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+            >
+              Reject
+            </button>
+            <button
+              onClick={() => handleBulkStatus("needs_info")}
+              disabled={bulkLoading}
+              className="rounded-md bg-eagle-blue px-3 py-1.5 text-xs font-medium text-white hover:bg-eagle-blue/90 disabled:opacity-50 transition-colors"
+            >
+              Needs Info
+            </button>
+            <button
+              onClick={handleExportSelected}
+              disabled={bulkLoading}
+              className="rounded-md bg-spirit-gold px-3 py-1.5 text-xs font-medium text-charcoal hover:bg-spirit-gold/90 disabled:opacity-50 transition-colors"
+            >
+              Export Selected
+            </button>
+            <div className="h-4 w-px bg-gray-300" />
+            <button
+              onClick={handleBulkDelete}
+              disabled={bulkLoading}
+              className="rounded-md border border-red-300 bg-white px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
+            >
+              Delete
+            </button>
+            <button
+              onClick={() => setSelected(new Set())}
+              className="ml-auto text-xs text-gray-500 hover:text-charcoal transition-colors"
+            >
+              Clear selection
+            </button>
+          </div>
+        )}
+
         {/* Table Card */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           {submissions.length === 0 ? (
@@ -243,6 +367,14 @@ export default function AdminReimbursements() {
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-b border-gray-200 bg-gray-50/50">
+                    <th className="w-10 px-4 py-3">
+                      <input
+                        type="checkbox"
+                        checked={allSelected}
+                        onChange={toggleAll}
+                        className="h-4 w-4 rounded border-gray-300 text-eagle-blue focus:ring-eagle-blue"
+                      />
+                    </th>
                     <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body">
                       Date
                     </th>
@@ -267,8 +399,16 @@ export default function AdminReimbursements() {
                   {submissions.map((sub) => (
                     <tr
                       key={sub.id}
-                      className="hover:bg-gray-50/50 transition-colors"
+                      className={`hover:bg-gray-50/50 transition-colors ${selected.has(String(sub.id)) ? "bg-eagle-blue/5" : ""}`}
                     >
+                      <td className="w-10 px-4 py-3">
+                        <input
+                          type="checkbox"
+                          checked={selected.has(String(sub.id))}
+                          onChange={() => toggleOne(String(sub.id))}
+                          className="h-4 w-4 rounded border-gray-300 text-eagle-blue focus:ring-eagle-blue"
+                        />
+                      </td>
                       <td className="px-4 py-3 text-sm text-charcoal font-body whitespace-nowrap">
                         {formatDate(sub.submitted_at)}
                       </td>
