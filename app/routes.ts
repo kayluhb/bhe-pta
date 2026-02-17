@@ -19,6 +19,8 @@ export default [
   route("api/reimbursement/upload-mock", "./routes/api.reimbursement.upload-mock.ts"),
   route("api/reimbursement/pdf", "./routes/api.reimbursement.pdf.ts"),
   route("api/reimbursement/ocr", "./routes/api.reimbursement.ocr.ts"),
+  route("admin", "./routes/admin.reimbursements.tsx", { id: "admin-index" }),
+  route("admin/reimbursements", "./routes/admin.reimbursements.tsx"),
   route("api/subscribe", "./routes/api.subscribe.ts"),
   route("api/auth/google", "./routes/api.auth.google.ts"),
   route("api/auth/callback", "./routes/api.auth.callback.ts"),
