@@ -81,20 +81,27 @@ function getCategoryStyle(category: string) {
   );
 }
 
+const CT = "America/Chicago";
+
 function parseEventDate(dateStr: string): Date {
   if (dateStr.includes("T")) {
-    return new Date(dateStr);
+    // Treat naive datetime strings as Central Time
+    return dateStr.endsWith("Z") || /[+-]\d{2}:\d{2}$/.test(dateStr)
+      ? new Date(dateStr)
+      : new Date(dateStr + "-06:00");
   }
   const [y, m, d] = dateStr.split("-").map(Number);
-  return new Date(y, m - 1, d);
+  // Use UTC noon so that timeZone formatting never shifts to the wrong date
+  return new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
 }
 
 function formatEventTime(dateStr: string): string | null {
   if (!dateStr.includes("T")) return null;
-  const date = new Date(dateStr);
+  const date = parseEventDate(dateStr);
   return date.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
+    timeZone: CT,
   });
 }
 
@@ -102,21 +109,19 @@ function formatEventDateRange(event: CalendarEvent): string {
   const start = parseEventDate(event.start);
   const end = parseEventDate(event.end);
 
-  const startStr = start.toLocaleDateString("en-US", {
+  const dateFormatOpts: Intl.DateTimeFormatOptions = {
     weekday: "short",
     month: "short",
     day: "numeric",
-  });
+    timeZone: CT,
+  };
+  const startStr = start.toLocaleDateString("en-US", dateFormatOpts);
 
   if (event.allDay) {
     // Multi-day all-day event
     const endDisplay = new Date(end.getTime() - 86400000); // end is exclusive
     if (endDisplay.getTime() > start.getTime()) {
-      const endStr = endDisplay.toLocaleDateString("en-US", {
-        weekday: "short",
-        month: "short",
-        day: "numeric",
-      });
+      const endStr = endDisplay.toLocaleDateString("en-US", dateFormatOpts);
       return `${startStr} — ${endStr}`;
     }
     return startStr;
@@ -137,10 +142,16 @@ function eventInMonth(
   month: number
 ): boolean {
   const start = parseEventDate(event.start);
-  const end = parseEventDate(event.end);
+  let end = parseEventDate(event.end);
 
-  const monthStart = new Date(year, month, 1);
-  const monthEnd = new Date(year, month + 1, 0, 23, 59, 59);
+  // For all-day events, end date is exclusive — use last actual day
+  if (event.allDay) {
+    end = new Date(end.getTime() - 86400000);
+  }
+
+  // Use UTC noon to match parseEventDate
+  const monthStart = new Date(Date.UTC(year, month, 1, 12, 0, 0));
+  const monthEnd = new Date(Date.UTC(year, month + 1, 0, 12, 0, 0));
 
   return start <= monthEnd && end >= monthStart;
 }
@@ -161,9 +172,13 @@ function isMonthLongEvent(
 
 export default function Events() {
   const { events } = useLoaderData<typeof loader>();
+  // Use CT-aware date parts so server (UTC) and client agree on the current month
   const now = new Date();
-  const [currentYear, setCurrentYear] = useState(now.getFullYear());
-  const [currentMonth, setCurrentMonth] = useState(now.getMonth());
+  const nowCT = new Intl.DateTimeFormat("en-US", { timeZone: CT, year: "numeric", month: "numeric" }).formatToParts(now);
+  const initYear = Number(nowCT.find((p) => p.type === "year")!.value);
+  const initMonth = Number(nowCT.find((p) => p.type === "month")!.value) - 1;
+  const [currentYear, setCurrentYear] = useState(initYear);
+  const [currentMonth, setCurrentMonth] = useState(initMonth);
   const eventListRef = useRef<HTMLDivElement>(null);
 
   const goToPrevMonth = useCallback(() => {
@@ -188,8 +203,9 @@ export default function Events() {
 
   const goToToday = useCallback(() => {
     const today = new Date();
-    setCurrentYear(today.getFullYear());
-    setCurrentMonth(today.getMonth());
+    const parts = new Intl.DateTimeFormat("en-US", { timeZone: CT, year: "numeric", month: "numeric" }).formatToParts(today);
+    setCurrentYear(Number(parts.find((p) => p.type === "year")!.value));
+    setCurrentMonth(Number(parts.find((p) => p.type === "month")!.value) - 1);
   }, []);
 
   const monthEvents = events
@@ -337,20 +353,31 @@ export default function Events() {
             onEventClick={handleEventClick}
           />
 
-          {/* Subscribe in Google Calendar */}
-          <p className="mt-6 text-center">
+          {/* Subscribe links */}
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6">
             <a
-              href="https://calendar.google.com/calendar/render?cid=http%3A%2F%2Fbartonhills.austinschools.org%2Fevents%2Fcalendar.ics%3F%261756475268369"
+              href="https://calendar.google.com/calendar/render?cid=http%3A%2F%2Fbartonhills.austinschools.org%2Fevents%2Fcalendar.ics"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-heading font-semibold text-eagle-blue hover:text-spirit-gold transition-colors"
             >
-              Add to Google Calendar
+              Subscribe to School Calendar
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
               </svg>
             </a>
-          </p>
+            <a
+              href="https://calendar.google.com/calendar/render?cid=pta%40bheeagles.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm font-heading font-semibold text-eagle-blue hover:text-spirit-gold transition-colors"
+            >
+              Subscribe to PTA Calendar
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </a>
+          </div>
         </div>
       </section>
 
@@ -385,8 +412,8 @@ export default function Events() {
 
 function EventListItem({ event }: { event: CalendarEvent }) {
   const startDate = parseEventDate(event.start);
-  const monthShort = startDate.toLocaleDateString("en-US", { month: "short" });
-  const dayNum = startDate.getDate().toString();
+  const monthShort = startDate.toLocaleDateString("en-US", { month: "short", timeZone: CT });
+  const dayNum = Number(startDate.toLocaleDateString("en-US", { day: "numeric", timeZone: CT })).toString();
   const style = getCategoryStyle(event.category);
 
   return (

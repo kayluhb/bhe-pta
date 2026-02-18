@@ -239,9 +239,18 @@ export function Calendar({ year, month, events, onEventClick }: CalendarProps) {
     computeWeekSegments(multiDayEntries, weekDays, year, month)
   );
 
+  // Use CT-consistent date so server (UTC) and client agree on "today"
   const today = new Date();
-  const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
-  const todayDate = today.getDate();
+  const todayParts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+  }).formatToParts(today);
+  const todayYear = Number(todayParts.find((p) => p.type === "year")!.value);
+  const todayMonth = Number(todayParts.find((p) => p.type === "month")!.value) - 1;
+  const todayDate = Number(todayParts.find((p) => p.type === "day")!.value);
+  const isCurrentMonth = todayYear === year && todayMonth === month;
 
   return (
     <div role="grid" aria-label={`${MONTH_NAMES[month]} ${year} calendar`} className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -286,7 +295,7 @@ export function Calendar({ year, month, events, onEventClick }: CalendarProps) {
               {layerCount > 0 && (
                 <div className="px-0.5 pt-1 pb-0.5 space-y-0.5 border-b border-charcoal/5">
                   {Array.from({ length: layerCount }, (_, layerIdx) => (
-                    <div key={layerIdx} className="grid grid-cols-7 h-6">
+                    <div key={layerIdx} className="grid grid-cols-7 h-5 md:h-6">
                       {visibleSegments
                         .filter((s) => s.layer === layerIdx)
                         .map((segment) => {
@@ -303,7 +312,7 @@ export function Calendar({ year, month, events, onEventClick }: CalendarProps) {
                               key={segment.event.id}
                               onClick={() => onEventClick?.(segment.event.id)}
                               aria-label={segment.event.title}
-                              className={`${color.barBg} ${color.barText} text-[10px] md:text-xs font-semibold truncate px-2 min-h-[44px] md:min-h-0 leading-6 hover:brightness-110 transition cursor-pointer shadow-sm ${roundedL} ${roundedR}`}
+                              className={`${color.barBg} ${color.barText} text-[10px] md:text-xs font-semibold truncate px-1 md:px-2 h-5 md:h-6 leading-5 md:leading-6 hover:brightness-110 transition cursor-pointer shadow-sm ${roundedL} ${roundedR}`}
                               style={{
                                 gridColumn: `${segment.startCol + 1} / span ${segment.spanCols}`,
                               }}
@@ -331,20 +340,41 @@ export function Calendar({ year, month, events, onEventClick }: CalendarProps) {
                       key={col}
                       role="gridcell"
                       aria-label={fullDate}
-                      className={`min-h-[60px] md:min-h-[80px] border-r border-b border-charcoal/10 p-1.5 ${
+                      className={`min-h-[48px] md:min-h-[80px] border-r border-b border-charcoal/10 p-1 md:p-1.5 ${
                         day === null ? "bg-charcoal/[0.02]" : "bg-white"
                       }`}
                     >
                       {day !== null && (
                         <>
                           <span
-                            className={`inline-flex items-center justify-center text-sm font-heading font-semibold w-7 h-7 rounded-full ${
+                            className={`inline-flex items-center justify-center text-xs md:text-sm font-heading font-semibold w-6 h-6 md:w-7 md:h-7 rounded-full ${
                               isToday ? "bg-eagle-blue text-white" : "text-charcoal/70"
                             }`}
                           >
                             {day}
                           </span>
-                          <div className="mt-0.5 space-y-0.5">
+                          {/* Mobile: colored dots */}
+                          {dayEvents.length > 0 && (
+                            <div className="flex flex-wrap gap-0.5 mt-0.5 md:hidden justify-center">
+                              {dayEvents.slice(0, 4).map((event) => {
+                                const color = getCategoryColor(event.category);
+                                return (
+                                  <button
+                                    key={event.id}
+                                    onClick={() => onEventClick?.(event.id)}
+                                    aria-label={`${event.title} on ${fullDate}`}
+                                    className={`w-2 h-2 rounded-full ${color.barBg} hover:opacity-80 transition-opacity cursor-pointer`}
+                                    title={event.title}
+                                  />
+                                );
+                              })}
+                              {dayEvents.length > 4 && (
+                                <span className="text-[8px] leading-none text-charcoal/50">+{dayEvents.length - 4}</span>
+                              )}
+                            </div>
+                          )}
+                          {/* Desktop: text badges */}
+                          <div className="mt-0.5 space-y-0.5 hidden md:block">
                             {dayEvents.slice(0, 3).map((event) => {
                               const color = getCategoryColor(event.category);
                               return (
@@ -352,7 +382,7 @@ export function Calendar({ year, month, events, onEventClick }: CalendarProps) {
                                   key={event.id}
                                   onClick={() => onEventClick?.(event.id)}
                                   aria-label={`${event.title} on ${fullDate}`}
-                                  className={`w-full text-left text-[10px] md:text-xs leading-tight font-medium px-1.5 py-1 min-h-[44px] md:min-h-0 md:py-0.5 rounded truncate ${color.bg} ${color.text} hover:opacity-80 transition-opacity cursor-pointer`}
+                                  className={`w-full text-left text-xs leading-tight font-medium px-1.5 py-0.5 rounded truncate ${color.bg} ${color.text} hover:opacity-80 transition-opacity cursor-pointer`}
                                   title={event.title}
                                 >
                                   {event.title}

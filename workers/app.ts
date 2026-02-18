@@ -1,6 +1,6 @@
 import { createRequestHandler } from "react-router";
 import { scrapeSchoolNews } from "../app/lib/scraper";
-import { fetchCalendarEvents } from "../app/lib/calendar";
+import { fetchCalendarEvents, fetchPtaCalendarEvents } from "../app/lib/calendar";
 import { fetchMailchimpCampaigns } from "../app/lib/mailchimp";
 
 interface Env {
@@ -53,12 +53,13 @@ export default {
     const results = await Promise.allSettled([
       scrapeSchoolNews(),
       fetchCalendarEvents(),
+      fetchPtaCalendarEvents(),
       env.MAILCHIMP_API_KEY && env.MAILCHIMP_API_KEY !== "placeholder"
         ? fetchMailchimpCampaigns(env.MAILCHIMP_API_KEY)
         : Promise.resolve([]),
     ]);
 
-    const [newsletterResult, calendarResult, mailchimpResult] = results;
+    const [newsletterResult, calendarResult, ptaCalendarResult, mailchimpResult] = results;
 
     if (
       newsletterResult.status === "fulfilled" &&
@@ -78,22 +79,32 @@ export default {
       );
     }
 
-    if (
-      calendarResult.status === "fulfilled" &&
-      calendarResult.value.length > 0
-    ) {
+    // Merge school + PTA calendar events
+    const schoolEvents =
+      calendarResult.status === "fulfilled" ? calendarResult.value : [];
+    const ptaEvents =
+      ptaCalendarResult.status === "fulfilled" ? ptaCalendarResult.value : [];
+    const allCalendarEvents = [...schoolEvents, ...ptaEvents];
+
+    if (allCalendarEvents.length > 0) {
       await env.BHE_CALENDAR.put(
         "events",
-        JSON.stringify(calendarResult.value)
+        JSON.stringify(allCalendarEvents)
       );
-      console.log(`Stored ${calendarResult.value.length} calendar events`);
+      console.log(
+        `Stored ${schoolEvents.length} school + ${ptaEvents.length} PTA calendar events`
+      );
     } else {
       console.error(
-        "Failed to fetch calendar:",
+        "Failed to fetch calendars:",
         calendarResult.status === "rejected"
           ? calendarResult.reason
           : "No results"
       );
+    }
+
+    if (ptaCalendarResult.status === "rejected") {
+      console.error("Failed to fetch PTA calendar:", ptaCalendarResult.reason);
     }
 
     if (

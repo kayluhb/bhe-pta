@@ -36,21 +36,26 @@ function inferCategory(title: string): string {
   return "Other";
 }
 
-/** Official Barton Hills Elementary school calendar (ICS). https://bartonhills.austinschools.org/events */
-export const BARTON_HILLS_CALENDAR_ICS =
-  "https://bartonhills.austinschools.org/events/calendar.ics";
+/** Parse ICS date formats: 20260201, 20260214T173000, or 20260214T233000Z */
+function parseIcsDate(d: string): string {
+  // Strip trailing Z (we treat all times as Central Time for this school)
+  const clean = d.replace(/Z$/, "");
+  if (clean.length === 8) {
+    return `${clean.slice(0, 4)}-${clean.slice(4, 6)}-${clean.slice(6, 8)}`;
+  }
+  return `${clean.slice(0, 4)}-${clean.slice(4, 6)}-${clean.slice(6, 8)}T${clean.slice(9, 11)}:${clean.slice(11, 13)}:${clean.slice(13, 15)}`;
+}
 
-export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
-  const url = `${BARTON_HILLS_CALENDAR_ICS}?t=${Date.now()}`;
-  const response = await fetch(url);
-  let icsText = await response.text();
-
+/** Parse a raw ICS text string into CalendarEvent objects. */
+function parseIcs(
+  icsText: string,
+  opts: { source?: "school" | "pta"; categoryFn?: (title: string) => string } = {}
+): CalendarEvent[] {
   // RFC 5545 line folding: continuation is CRLF + space (or LF + space). Unfold so each logical line is one string.
-  icsText = icsText.replace(/\r\n /g, "").replace(/\n /g, "");
+  const unfolded = icsText.replace(/\r\n /g, "").replace(/\n /g, "");
 
-  // Parse ICS format manually (simpler than ical.js for our needs). RRULE not expanded — one instance per VEVENT.
   const events: CalendarEvent[] = [];
-  const vevents = icsText.split("BEGIN:VEVENT");
+  const vevents = unfolded.split("BEGIN:VEVENT");
 
   for (let i = 1; i < vevents.length; i++) {
     const block = vevents[i].split("END:VEVENT")[0];
@@ -74,26 +79,50 @@ export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
     const uid = getValue("UID");
 
     if (summary && dtstart) {
-      // Parse ICS date formats: 20260201 or 20260214T173000
-      const parseIcsDate = (d: string): string => {
-        if (d.length === 8) {
-          return `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`;
-        }
-        return `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}T${d.slice(9, 11)}:${d.slice(11, 13)}:${d.slice(13, 15)}`;
-      };
-
+      const title = summary.replace(/\\,/g, ",").replace(/\\n/g, " ");
       events.push({
         id: uid || `event-${i}`,
-        title: summary.replace(/\\,/g, ",").replace(/\\n/g, " "),
+        title,
         start: parseIcsDate(dtstart),
         end: dtend ? parseIcsDate(dtend) : parseIcsDate(dtstart),
         allDay: dtstart.length === 8,
-        category: categories || inferCategory(summary),
+        category:
+          categories ||
+          (opts.categoryFn ? opts.categoryFn(title) : inferCategory(title)),
         description:
-          description?.replace(/\\n/g, "\n").replace(/\\,/g, ",").replace(/^Body\s+/i, '') || undefined,
+          description
+            ?.replace(/\\n/g, "\n")
+            .replace(/\\,/g, ",")
+            .replace(/^Body\s+/i, "") || undefined,
+        source: opts.source,
       });
     }
   }
 
   return events;
+}
+
+/** Official Barton Hills Elementary school calendar (ICS). https://bartonhills.austinschools.org/events */
+export const BARTON_HILLS_CALENDAR_ICS =
+  "https://bartonhills.austinschools.org/events/calendar.ics";
+
+/** BHE PTA Google Calendar public ICS feed. */
+export const PTA_CALENDAR_ICS =
+  "https://calendar.google.com/calendar/ical/pta%40bheeagles.com/public/basic.ics";
+
+export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
+  const url = `${BARTON_HILLS_CALENDAR_ICS}?t=${Date.now()}`;
+  const response = await fetch(url);
+  const icsText = await response.text();
+  return parseIcs(icsText, { source: "school" });
+}
+
+export async function fetchPtaCalendarEvents(): Promise<CalendarEvent[]> {
+  const url = `${PTA_CALENDAR_ICS}?t=${Date.now()}`;
+  const response = await fetch(url);
+  const icsText = await response.text();
+  return parseIcs(icsText, {
+    source: "pta",
+    categoryFn: () => "Community Event",
+  });
 }

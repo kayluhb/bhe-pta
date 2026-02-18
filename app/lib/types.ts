@@ -15,4 +15,5 @@ export interface CalendarEvent {
   allDay: boolean;
   category: string;
   description?: string;
+  source?: "school" | "pta";
 }
