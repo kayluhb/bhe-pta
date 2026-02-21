@@ -1,6 +1,6 @@
-import { Input } from '~/components/reimbursement/ui/Input';
-import { Button } from '~/components/reimbursement/ui/Button';
-import type { RequesterData } from '~/lib/reimbursement/validation';
+import { Input } from "~/components/reimbursement/ui/Input";
+import { Button } from "~/components/reimbursement/ui/Button";
+import type { RequesterData } from "~/lib/reimbursement/validation";
 
 interface RequesterInfoProps {
   data: RequesterData;
@@ -9,7 +9,12 @@ interface RequesterInfoProps {
   errors?: Record<string, string>;
 }
 
-export function RequesterInfo({ data, onChange, onNext, errors = {} }: RequesterInfoProps) {
+export function RequesterInfo({
+  data,
+  onChange,
+  onNext,
+  errors = {},
+}: RequesterInfoProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onNext();
@@ -18,9 +23,14 @@ export function RequesterInfo({ data, onChange, onNext, errors = {} }: Requester
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="bg-white p-6 rounded-lg shadow-sm border border-charcoal/10">
-        <h2 className="text-xl font-semibold text-charcoal mb-4">Check Request Information</h2>
+        <h2 className="text-xl font-semibold text-charcoal mb-4">
+          Check Request Information
+        </h2>
         <p className="text-charcoal/70 mb-6">
           Please provide the payment details for your reimbursement request.
+          <br />
+          Fields marked with <span className="text-red-500">*</span> are
+          required.
         </p>
 
         <div className="space-y-4">
@@ -48,7 +58,7 @@ export function RequesterInfo({ data, onChange, onNext, errors = {} }: Requester
           <Input
             label="Phone Number"
             type="tel"
-            value={data.phone || ''}
+            value={data.phone || ""}
             onChange={(e) => onChange({ phone: e.target.value })}
             error={errors.phone}
             placeholder="(555) 123-4567"
@@ -88,7 +98,7 @@ export function RequesterInfo({ data, onChange, onNext, errors = {} }: Requester
 
           <Input
             label="Invoice Number (if applicable)"
-            value={data.invoiceNumber || ''}
+            value={data.invoiceNumber || ""}
             onChange={(e) => onChange({ invoiceNumber: e.target.value })}
             error={errors.invoiceNumber}
             placeholder="Optional"
@@ -98,9 +108,7 @@ export function RequesterInfo({ data, onChange, onNext, errors = {} }: Requester
       </div>
 
       <div className="flex justify-end">
-        <Button type="submit">
-          Next: Add Receipts
-        </Button>
+        <Button type="submit">Next: Add Receipts</Button>
       </div>
     </form>
   );
