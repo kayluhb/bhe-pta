@@ -67,6 +67,16 @@ export default function Sponsors() {
             or name printed on signage and displayed on the school fence along
             Barton Hills Drive for one year.
           </p>
+          <div className="mt-8">
+            <a
+              href="https://my.cheddarup.com/c/bhe-corporate-contributions-2024-25-copy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
+            >
+              Contribute Now
+            </a>
+          </div>
         </div>
       </section>
 

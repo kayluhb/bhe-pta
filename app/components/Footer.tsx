@@ -1,15 +1,12 @@
 import { Link } from "react-router";
 
 const quickLinks = [
-  { to: "/about", label: "About" },
+  { to: "/reimbursement", label: "Reimbursement" },
   { to: "/news", label: "News" },
   { to: "/events", label: "Events" },
   { to: "/get-involved", label: "Get Involved" },
-  { to: "/programs", label: "Programs" },
   { to: "/parents", label: "Parents" },
-  { to: "/sponsors", label: "Local Business Sponsors" },
-  { to: "/contact", label: "Contact" },
-  { to: "/reimbursement", label: "Reimbursement" },
+  { to: "/archive", label: "Archive" },
 ];
 
 export function Footer() {
