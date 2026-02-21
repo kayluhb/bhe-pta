@@ -181,9 +181,6 @@ export default function Contact() {
                     {status === "submitting" ? "Subscribing..." : "Subscribe"}
                   </button>
                 </div>
-                <div className="flex justify-center">
-                  <div ref={turnstileRef} />
-                </div>
               </form>
             )}
             {status === "error" && (
@@ -193,6 +190,9 @@ export default function Contact() {
               We respect your privacy. Unsubscribe at any time.
             </p>
           </div>
+        </div>
+        <div className="flex justify-center mt-6">
+          <div ref={turnstileRef} />
         </div>
       </section>
 

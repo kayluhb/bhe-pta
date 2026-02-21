@@ -1,11 +1,15 @@
-import type { Route } from "./+types/api.reimbursement.ocr";
+import type { Route } from "./+types/api.reimbursement.convert-receipt";
 import jsPDF from "jspdf";
+import { requireTurnstile } from "~/lib/turnstile";
 
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 export async function action({ request, context }: Route.ActionArgs) {
   try {
+    const denied = await requireTurnstile(request, context.cloudflare.env.TURNSTILE_SECRET_KEY);
+    if (denied) return denied;
+
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
 
@@ -15,7 +19,7 @@ export async function action({ request, context }: Route.ActionArgs) {
 
     if (!IMAGE_TYPES.includes(file.type)) {
       return Response.json(
-        { error: "Invalid file type. Only JPEG, PNG, and WebP images are accepted for OCR." },
+        { error: "Invalid file type. Only JPEG, PNG, and WebP images are accepted." },
         { status: 400 }
       );
     }
@@ -26,37 +30,60 @@ export async function action({ request, context }: Route.ActionArgs) {
 
     const env = context.cloudflare.env;
 
-    // Step 1: Extract text using Workers AI vision model
+    // Step 1: Extract text using Gemini vision model
     const imageBytes = new Uint8Array(await file.arrayBuffer());
 
-    // Encode image as base64 data URL for the messages content
+    // Encode image as base64 for Gemini API
     let binary = "";
     for (let i = 0; i < imageBytes.length; i++) {
       binary += String.fromCharCode(imageBytes[i]);
     }
     const base64Image = btoa(binary);
-    const dataUrl = `data:${file.type};base64,${base64Image}`;
 
-    const aiResponse = await env.AI.run("@cf/meta/llama-3.2-11b-vision-instruct", {
-      messages: [
-        {
-          role: "user",
-          content: [
+    const geminiResponse = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${env.GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
             {
-              type: "image_url",
-              image_url: { url: dataUrl },
-            },
-            {
-              type: "text",
-              text: "Transcribe all visible text in this image exactly as it appears. Include all numbers, dates, and amounts. Output only the transcribed text, nothing else.",
+              parts: [
+                {
+                  inline_data: {
+                    mime_type: file.type,
+                    data: base64Image,
+                  },
+                },
+                {
+                  text: "Transcribe all visible text in this receipt image exactly as it appears. Include all numbers, dates, amounts, item names, and totals. Output only the transcribed text, nothing else.",
+                },
+              ],
             },
           ],
-        },
-      ],
-      max_tokens: 2048,
-    });
+          generationConfig: {
+            maxOutputTokens: 2048,
+          },
+        }),
+      }
+    );
 
-    const extractedText = aiResponse.response?.trim();
+    if (!geminiResponse.ok) {
+      const errBody = await geminiResponse.text();
+      console.error("Gemini API error:", geminiResponse.status, errBody);
+      return Response.json(
+        { error: "Failed to process image with Gemini. Please try uploading it directly." },
+        { status: 502 }
+      );
+    }
+
+    const geminiResult = (await geminiResponse.json()) as {
+      candidates?: Array<{
+        content?: { parts?: Array<{ text?: string }> };
+      }>;
+    };
+
+    const extractedText = geminiResult.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
     if (!extractedText) {
       return Response.json(
@@ -70,7 +97,7 @@ export async function action({ request, context }: Route.ActionArgs) {
 
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
-    doc.text("Receipt OCR Transcript", 105, 20, { align: "center" });
+    doc.text("Converted Receipt Transcript", 105, 20, { align: "center" });
 
     doc.setDrawColor(200);
     doc.line(20, 26, 190, 26);
@@ -117,13 +144,13 @@ export async function action({ request, context }: Route.ActionArgs) {
         }),
       ]);
     } else {
-      console.log(`[Dev] OCR PDF generated for: ${file.name} (${pdfBuffer.length} bytes)`);
+      console.log(`[Dev] Converted receipt PDF generated for: ${file.name} (${pdfBuffer.length} bytes)`);
     }
 
     // Step 4: Return file metadata for both PDF and original
     return Response.json({
       key: pdfKey,
-      filename: `${sanitizedName}-ocr.pdf`,
+      filename: `${sanitizedName}-converted.pdf`,
       contentType: "application/pdf",
       size: pdfBuffer.length,
       original: {
@@ -134,7 +161,7 @@ export async function action({ request, context }: Route.ActionArgs) {
       },
     });
   } catch (error) {
-    console.error("OCR error:", error);
+    console.error("Receipt conversion error:", error);
     return Response.json(
       { error: "Failed to process image. Please try uploading it directly." },
       { status: 500 }

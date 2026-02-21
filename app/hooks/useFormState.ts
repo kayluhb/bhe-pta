@@ -145,7 +145,7 @@ export function useFormState() {
 
   const addFile = useCallback((file: FileData) => {
     setState((prev) => {
-      if (prev.files.length >= 4) return prev;
+      if (prev.files.length >= 8) return prev;
       return {
         ...prev,
         files: [...prev.files, file],

@@ -9,6 +9,8 @@ interface FileUploadsProps {
   onRemoveFile: (key: string) => void;
   onNext: () => void;
   onBack: () => void;
+  turnstileToken: string | null;
+  onResetTurnstile: () => void;
 }
 
 export function FileUploads({
@@ -17,10 +19,18 @@ export function FileUploads({
   onRemoveFile,
   onNext,
   onBack,
+  turnstileToken,
+  onResetTurnstile,
 }: FileUploadsProps) {
-  const { uploadFile, uploads } = useFileUpload();
+  const { uploadFile, clearUpload, uploads } = useFileUpload(turnstileToken, onResetTurnstile);
 
   const handleFileSelect = async (file: File) => {
+    // Clear any failed uploads so the user gets a fresh state
+    for (const upload of uploads) {
+      if (upload.status === 'error') {
+        clearUpload(upload.id);
+      }
+    }
     const results = await uploadFile(file);
     if (results) {
       for (const result of results) {
@@ -43,19 +53,21 @@ export function FileUploads({
   const activeUploads = uploads.filter((u) => u.status === 'uploading' || u.status === 'pending');
   const isUploading = activeUploads.length > 0;
 
+  const maxFiles = 8;
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="bg-white p-6 rounded-lg shadow-sm border border-charcoal/10">
         <h2 className="text-xl font-semibold text-charcoal mb-2">Upload Receipts</h2>
         <p className="text-charcoal/70 mb-6">
-          Upload images or PDFs of your receipts (optional, up to 4 files).
+          Upload images or PDFs of your receipts (optional, up to 4 receipts).
         </p>
 
-        {files.length < 4 && (
+        {files.length < maxFiles && (
           <FileUpload
             onFileSelect={handleFileSelect}
             label=""
-            disabled={isUploading || files.length >= 4}
+            disabled={isUploading}
           />
         )}
 
@@ -87,7 +99,17 @@ export function FileUploads({
                   </div>
                 )}
                 {upload.status === 'error' && (
-                  <p className="text-sm text-red-600">{upload.error}</p>
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm text-red-600">{upload.error}</p>
+                    <button
+                      type="button"
+                      onClick={() => clearUpload(upload.id)}
+                      className="text-sm font-medium text-charcoal/70 hover:text-charcoal ml-3 shrink-0"
+                      aria-label={`Dismiss error for ${upload.filename}`}
+                    >
+                      Dismiss
+                    </button>
+                  </div>
                 )}
               </div>
             ))}
@@ -98,7 +120,7 @@ export function FileUploads({
         {files.length > 0 && (
           <div className="mt-6">
             <h3 className="text-sm font-medium text-charcoal/80 mb-3">
-              Uploaded Files ({files.length}/4)
+              Uploaded Files ({files.length})
             </h3>
             <ul className="space-y-2">
               {files.map((file) => (
@@ -111,9 +133,14 @@ export function FileUploads({
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     <div>
-                      <p className="text-sm font-medium text-charcoal truncate max-w-xs">
+                      <a
+                        href={`/api/reimbursement/file?key=${encodeURIComponent(file.key)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-medium text-eagle-blue hover:underline truncate max-w-xs block"
+                      >
                         {file.filename}
-                      </p>
+                      </a>
                       <p className="text-xs text-charcoal/70">{formatFileSize(file.size)}</p>
                     </div>
                   </div>

@@ -1,4 +1,5 @@
 import type { Route } from "./+types/api.reimbursement.upload-presign";
+import { requireTurnstile } from "~/lib/turnstile";
 
 const ALLOWED_TYPES = [
   "image/jpeg",
@@ -10,6 +11,9 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 export async function action({ request, context }: Route.ActionArgs) {
   try {
+    const denied = await requireTurnstile(request, context.cloudflare.env.TURNSTILE_SECRET_KEY);
+    if (denied) return denied;
+
     const { filename, contentType, fileSize } = (await request.json()) as {
       filename: string;
       contentType: string;

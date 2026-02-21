@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router';
 import { useFormState } from '~/hooks/useFormState';
+import { useTurnstile } from '~/hooks/useTurnstile';
 import { FormProgress } from './FormProgress';
 import { RequesterInfo } from './steps/RequesterInfo';
 import { ReceiptEntries } from './steps/ReceiptEntries';
@@ -26,6 +27,8 @@ export function FormWizard() {
     prevStep,
     getReceiptBudgetAccount,
   } = useFormState();
+
+  const { token: turnstileToken, containerRef: turnstileRef, reset: resetTurnstile } = useTurnstile();
 
   const handleSubmit = async (turnstileToken: string) => {
     const response = await fetch('/api/reimbursement/submit', {
@@ -98,6 +101,8 @@ export function FormWizard() {
           onRemoveFile={removeFile}
           onNext={nextStep}
           onBack={prevStep}
+          turnstileToken={turnstileToken}
+          onResetTurnstile={resetTurnstile}
         />
       )}
 
@@ -108,8 +113,14 @@ export function FormWizard() {
           onBack={prevStep}
           onSubmit={handleSubmit}
           getReceiptBudgetAccount={getReceiptBudgetAccount}
+          turnstileToken={turnstileToken}
+          onResetTurnstile={resetTurnstile}
         />
       )}
+
+      <div className="flex justify-center mt-6">
+        <div ref={turnstileRef} />
+      </div>
     </div>
   );
 }

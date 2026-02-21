@@ -92,7 +92,7 @@ export const budgetSelectionSchema = z.object({
 export const submissionSchema = z.object({
   requester: requesterSchema,
   receipts: z.array(receiptSchema).min(1, 'At least one receipt is required').max(4),
-  files: z.array(fileSchema).max(4),
+  files: z.array(fileSchema).max(8),
   budget: budgetSelectionSchema,
 });
 

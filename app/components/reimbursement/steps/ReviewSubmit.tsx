@@ -1,8 +1,6 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { Button } from '~/components/reimbursement/ui/Button';
 import type { FormState } from '~/hooks/useFormState';
-
-const TURNSTILE_SITE_KEY = '0x4AAAAAACeBDkCW901l9jWe';
 
 interface ReviewSubmitProps {
   data: FormState;
@@ -10,62 +8,19 @@ interface ReviewSubmitProps {
   onBack: () => void;
   onSubmit: (turnstileToken: string) => Promise<void>;
   getReceiptBudgetAccount: (index: number) => string;
+  turnstileToken: string | null;
+  onResetTurnstile: () => void;
 }
 
-export function ReviewSubmit({ data, totalAmount, onBack, onSubmit, getReceiptBudgetAccount }: ReviewSubmitProps) {
+export function ReviewSubmit({ data, totalAmount, onBack, onSubmit, getReceiptBudgetAccount, turnstileToken, onResetTurnstile }: ReviewSubmitProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  const turnstileRef = useRef<HTMLDivElement>(null);
-  const widgetIdRef = useRef<string | null>(null);
-
-  const renderWidget = useCallback(() => {
-    if (!turnstileRef.current || widgetIdRef.current !== null) return;
-    const turnstile = (window as any).turnstile;
-    if (!turnstile) return;
-    widgetIdRef.current = turnstile.render(turnstileRef.current, {
-      sitekey: TURNSTILE_SITE_KEY,
-      callback: (token: string) => setTurnstileToken(token),
-      'expired-callback': () => setTurnstileToken(null),
-      'error-callback': () => setTurnstileToken(null),
-      theme: 'light',
-    });
-  }, []);
-
-  useEffect(() => {
-    // If Turnstile script is already loaded, render immediately
-    if ((window as any).turnstile) {
-      renderWidget();
-      return;
-    }
-
-    // Load the Turnstile script
-    const existing = document.querySelector('script[src*="turnstile"]');
-    if (!existing) {
-      const script = document.createElement('script');
-      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-      script.async = true;
-      script.onload = () => renderWidget();
-      document.head.appendChild(script);
-    } else {
-      existing.addEventListener('load', renderWidget);
-    }
-
-    return () => {
-      if (widgetIdRef.current !== null) {
-        try {
-          (window as any).turnstile?.remove(widgetIdRef.current);
-        } catch {}
-        widgetIdRef.current = null;
-      }
-    };
-  }, [renderWidget]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!turnstileToken) {
-      setError('Please complete the verification challenge.');
+      setError('Please complete the verification challenge above.');
       return;
     }
 
@@ -77,13 +32,7 @@ export function ReviewSubmit({ data, totalAmount, onBack, onSubmit, getReceiptBu
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Submission failed. Please try again.');
       setIsSubmitting(false);
-      // Reset the widget so user can retry
-      if (widgetIdRef.current !== null) {
-        try {
-          (window as any).turnstile?.reset(widgetIdRef.current);
-        } catch {}
-        setTurnstileToken(null);
-      }
+      onResetTurnstile();
     }
   };
 
@@ -205,10 +154,6 @@ export function ReviewSubmit({ data, totalAmount, onBack, onSubmit, getReceiptBu
             By submitting this request, you confirm that all information is accurate and the expenses
             are eligible for PTA reimbursement. Sales tax should not be included in the amounts above.
           </p>
-        </div>
-
-        <div className="mt-6 flex justify-center">
-          <div ref={turnstileRef} />
         </div>
       </div>
 

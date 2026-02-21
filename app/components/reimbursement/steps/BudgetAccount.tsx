@@ -124,6 +124,7 @@ function SearchableSelect({
           }}
           onKeyDown={handleKeyDown}
           placeholder="Search or select an account..."
+          autoComplete="off"
           className="w-full px-3 py-2 border border-charcoal/20 rounded-lg shadow-sm text-charcoal placeholder:text-charcoal/70 focus:outline-none focus:ring-2 focus:ring-eagle-blue focus:border-eagle-blue"
           required={required}
         />

@@ -9,7 +9,7 @@ interface UploadProgress {
   error?: string;
 }
 
-export function useFileUpload() {
+export function useFileUpload(turnstileToken: string | null, onResetTurnstile?: () => void) {
   const [uploads, setUploads] = useState<Map<string, UploadProgress>>(new Map());
 
   const uploadFile = useCallback(async (file: File): Promise<FileData[] | null> => {
@@ -35,8 +35,9 @@ export function useFileUpload() {
         const formData = new FormData();
         formData.append('file', file);
 
-        const response = await fetch('/api/reimbursement/ocr', {
+        const response = await fetch('/api/reimbursement/convert-receipt', {
           method: 'POST',
+          headers: turnstileToken ? { 'X-Turnstile-Token': turnstileToken } : {},
           body: formData,
         });
 
@@ -55,6 +56,9 @@ export function useFileUpload() {
           return next;
         });
 
+        // Reset Turnstile so a fresh token is available for the next request
+        onResetTurnstile?.();
+
         const files: FileData[] = [
           { key: result.key, filename: result.filename, contentType: result.contentType, size: result.size },
         ];
@@ -67,7 +71,10 @@ export function useFileUpload() {
       // PDF: use existing presign + direct upload flow
       const presignResponse = await fetch('/api/reimbursement/upload-presign', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(turnstileToken ? { 'X-Turnstile-Token': turnstileToken } : {}),
+        },
         body: JSON.stringify({
           filename: file.name,
           contentType: file.type,
@@ -123,6 +130,9 @@ export function useFileUpload() {
         return next;
       });
 
+      // Reset Turnstile so a fresh token is available for the next request
+      onResetTurnstile?.();
+
       return [{
         key,
         filename: file.name,
@@ -143,7 +153,7 @@ export function useFileUpload() {
       });
       return null;
     }
-  }, []);
+  }, [turnstileToken, onResetTurnstile]);
 
   const clearUpload = useCallback((id: string) => {
     setUploads((prev) => {
