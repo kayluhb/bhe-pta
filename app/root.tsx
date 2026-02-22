@@ -1,41 +1,54 @@
+import {useCallback, useEffect, useState} from 'react';
 import {
   isRouteErrorResponse,
+  Link,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
-} from "react-router";
+} from 'react-router';
 
-import type { Route } from "./+types/root";
-import { Header } from "./components/Header";
-import { Footer } from "./components/Footer";
-import "./app.css";
+import type {Route} from './+types/root';
+import {Footer} from './components/Footer';
+import {Header} from './components/Header';
+import {useDiscoMode} from './hooks/useDiscoMode';
+import './app.css';
 
 export function meta() {
   return [
-    { title: "Barton Hills Elementary PTA" },
-    { name: "description", content: "Barton Hills Elementary PTA - Supporting our school community through parent involvement, fundraising, and advocacy since 1964." },
-    { property: "og:title", content: "Barton Hills Elementary PTA" },
-    { property: "og:description", content: "Supporting our school community since 1964" },
-    { property: "og:type", content: "website" },
+    {title: 'Barton Hills Elementary PTA'},
+    {
+      name: 'description',
+      content:
+        'Barton Hills Elementary PTA - Supporting our school community through parent involvement, fundraising, and advocacy since 1964.',
+    },
+    {property: 'og:title', content: 'Barton Hills Elementary PTA'},
+    {property: 'og:description', content: 'Supporting our school community since 1964'},
+    {property: 'og:type', content: 'website'},
+    {name: 'apple-mobile-web-app-title', content: 'BHE PTA'},
   ];
 }
 
 export const links: Route.LinksFunction = () => [
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  {rel: 'icon', type: 'image/png', href: '/favicon-96x96.png', sizes: '96x96'},
+  {rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg'},
+  {rel: 'shortcut icon', href: '/favicon.ico'},
+  {rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png'},
+  {rel: 'manifest', href: '/site.webmanifest'},
+  {rel: 'preconnect', href: 'https://fonts.googleapis.com'},
   {
-    rel: "preconnect",
-    href: "https://fonts.gstatic.com",
-    crossOrigin: "anonymous",
+    rel: 'preconnect',
+    href: 'https://fonts.gstatic.com',
+    crossOrigin: 'anonymous',
   },
   {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:wght@400;500;600;700&display=swap",
+    rel: 'stylesheet',
+    href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:wght@400;500;600;700&display=swap',
   },
 ];
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export function Layout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en">
       <head>
@@ -59,43 +72,176 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
+function DJBeckettBadge() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="disco-badge fixed top-20 right-4 z-50 pointer-events-none bg-spirit-gold text-night-blue font-heading font-bold px-5 py-3 rounded-xl shadow-lg text-sm">
+      <img src="/disco.png" alt="" className="w-16 mx-auto mb-2" />
+      <span className="block text-center">🎵 Now Playing 🎵</span>
+      <span className="block text-center text-lg">DJ Beckett</span>
+    </div>
+  );
+}
+
+export default function App() {
+  const {isDiscoMode} = useDiscoMode();
+
+  return (
+    <div className={`min-h-screen flex flex-col${isDiscoMode ? ' disco-active' : ''}`}>
       <Header />
       <main id="main-content" className="flex-1">
         <Outlet />
       </main>
       <Footer />
+      {isDiscoMode && <DJBeckettBadge />}
     </div>
   );
 }
 
-export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!";
-  let details = "An unexpected error occurred.";
-  let stack: string | undefined;
+function EagleEyes() {
+  const [leftPupil, setLeftPupil] = useState({x: 0, y: 0});
+  const [rightPupil, setRightPupil] = useState({x: 0, y: 0});
 
-  if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
-    details =
-      error.status === 404
-        ? "The requested page could not be found."
-        : error.statusText || details;
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message;
-    stack = error.stack;
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    const calcPupil = (eyeId: string) => {
+      const eye = document.getElementById(eyeId);
+      if (!eye) return {x: 0, y: 0};
+      const rect = eye.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      const angle = Math.atan2(dy, dx);
+      const dist = Math.min(Math.hypot(dx, dy) / 80, 1);
+      return {x: dist * Math.cos(angle) * 3, y: dist * Math.sin(angle) * 2};
+    };
+    setLeftPupil(calcPupil('eagle-left-eye'));
+    setRightPupil(calcPupil('eagle-right-eye'));
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [handleMouseMove]);
+
+  const pupilChar = '\u25CF';
+
+  // prettier-ignore
+  const lines = [
+    '                    ___',
+    "                _,-'   `-._",
+    "              ,'             `.",
+    "            ,'    __     __    `.",
+    '           /    ,[  ]   [  ],    \\',
+    "          /     `--'     `--'     \\",
+    '         |    ___           ___    |',
+    '         |   /   \\  ,",   /   \\   |',
+    '          \\  \\___/ / | \\  \\___/  /',
+    "           `.     /  |  \\      ,'",
+    "        ____`-._ \\  |  / _,-'____",
+    "      ,'    `-._`-._|_,-'_,-'    `.",
+    "    ,'          `-.___,-'          `.",
+    '   /       _,---._       _,---._     \\',
+    "  /      ,'       `.   ,'       `.    \\",
+    ' /      /           \\ /           \\    \\',
+    '|      |             V             |    |',
+    ' \\      \\           / \\           /    /',
+    "  \\      `.       ,'   `.       ,'    /",
+    "   \\       `-._,-'       `-._,-'    /",
+    "    `.                             ,'",
+    "      `.                         ,'",
+    "        `-.                   ,-'",
+    "           `-._           _,-'",
+    "               `--.___,--'",
+  ];
+
+  return (
+    <div className="relative select-none" aria-hidden="true">
+      <pre className="font-mono text-eagle-blue text-xs sm:text-sm md:text-base leading-tight">
+        {lines.map((line, i) => (
+          <span key={i} className="block">
+            {line}
+            {'\n'}
+          </span>
+        ))}
+      </pre>
+      {/* Left eye */}
+      <span
+        id="eagle-left-eye"
+        className="absolute font-mono text-spirit-gold text-xs sm:text-sm md:text-base"
+        style={{
+          top: 'calc(16% + 0.1em)',
+          left: 'calc(38% + 0.5em)',
+          transform: `translate(${leftPupil.x}px, ${leftPupil.y}px)`,
+          transition: 'transform 0.05s linear',
+        }}
+      >
+        {pupilChar}
+      </span>
+      {/* Right eye */}
+      <span
+        id="eagle-right-eye"
+        className="absolute font-mono text-spirit-gold text-xs sm:text-sm md:text-base"
+        style={{
+          top: 'calc(16% + 0.1em)',
+          left: 'calc(56% + 0.2em)',
+          transform: `translate(${rightPupil.x}px, ${rightPupil.y}px)`,
+          transition: 'transform 0.05s linear',
+        }}
+      >
+        {pupilChar}
+      </span>
+    </div>
+  );
+}
+
+export function ErrorBoundary({error}: Route.ErrorBoundaryProps) {
+  const is404 = isRouteErrorResponse(error) && error.status === 404;
+
+  if (!is404) {
+    let details = 'An unexpected error occurred.';
+    let stack: string | undefined;
+    if (isRouteErrorResponse(error)) {
+      details = error.statusText || details;
+    } else if (import.meta.env.DEV && error && error instanceof Error) {
+      details = error.message;
+      stack = error.stack;
+    }
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main id="main-content" className="flex-1 pt-16 p-4 container mx-auto">
+          <h1 className="text-3xl font-heading font-bold text-eagle-blue">Error</h1>
+          <p className="mt-2 text-charcoal">{details}</p>
+          {stack && (
+            <pre className="w-full p-4 overflow-x-auto mt-4">
+              <code>{stack}</code>
+            </pre>
+          )}
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main id="main-content" className="flex-1 flex items-center justify-center py-16 px-4">
+        <div className="text-center max-w-lg">
+          <EagleEyes />
+          <h1 className="text-6xl font-heading font-bold text-eagle-blue mt-6">404</h1>
+          <p className="text-xl text-charcoal/70 mt-3 font-body">
+            This eagle has searched far and wide, but that page doesn't exist.
+          </p>
+          <Link
+            to="/"
+            className="inline-block mt-8 bg-eagle-blue text-white font-heading font-bold text-sm px-6 py-3 rounded-full hover:bg-eagle-blue/90 transition-colors"
+          >
+            Fly Back Home
+          </Link>
+        </div>
+      </main>
+      <Footer />
+    </div>
   );
 }

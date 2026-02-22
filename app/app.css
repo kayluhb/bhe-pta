@@ -1,23 +1,155 @@
 @import "tailwindcss";
 
 @theme {
-  --color-eagle-blue: #1a3a6b;
-  --color-spirit-gold: #d4a843;
+  --color-eagle-blue: #1a6b3a;
+  --color-spirit-gold: #b8922e;
   --color-creek-green: #2d6a4f;
   --color-warm-white: #faf8f5;
-  --color-night-blue: #0d1b2a;
-  --color-charcoal: #1a1a2e;
+  --color-night-blue: #0a2a15;
+  --color-charcoal: #1a2e1a;
   --font-family-heading: "Montserrat", sans-serif;
   --font-family-body: "Inter", sans-serif;
 }
 
-html {
-  scroll-behavior: smooth;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 @layer base {
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
+
   :focus-visible {
-    outline: 2px solid #d4a843;
+    outline: 2px solid #b8922e;
     outline-offset: 2px;
   }
+}
+
+/* Disco Eagle Easter Egg */
+@keyframes disco-bg {
+  0% {
+    background-color: #b8922e;
+  }
+  16% {
+    background-color: #ff69b4;
+  }
+  33% {
+    background-color: #8b5cf6;
+  }
+  50% {
+    background-color: #06b6d4;
+  }
+  66% {
+    background-color: #2dd4bf;
+  }
+  83% {
+    background-color: #84cc16;
+  }
+  100% {
+    background-color: #b8922e;
+  }
+}
+
+@keyframes disco-wobble {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(-2px, 3px) rotate(-1deg);
+  }
+  50% {
+    transform: translate(2px, -2px) rotate(1deg);
+  }
+  75% {
+    transform: translate(-1px, 2px) rotate(-0.5deg);
+  }
+}
+
+@keyframes disco-spin {
+  /* Spin phase */
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  20% {
+    transform: rotate(180deg) scale(1.15);
+  }
+  40% {
+    transform: rotate(360deg) scale(1);
+  }
+  /* Pulse phase (no rotation) */
+  47% {
+    transform: rotate(360deg) scale(1.2);
+  }
+  55% {
+    transform: rotate(360deg) scale(0.9);
+  }
+  62% {
+    transform: rotate(360deg) scale(1.15);
+  }
+  70% {
+    transform: rotate(360deg) scale(1);
+  }
+  /* Spin phase */
+  85% {
+    transform: rotate(540deg) scale(1.15);
+  }
+  100% {
+    transform: rotate(720deg) scale(1);
+  }
+}
+
+@keyframes disco-badge-enter {
+  0% {
+    transform: translateY(-100%) scale(0.5);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(10%) scale(1.05);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(-5%) scale(0.98);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes disco-badge-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.disco-active {
+  animation: disco-bg 1.5s linear infinite;
+}
+
+.disco-active main {
+  animation: disco-wobble 0.4s ease-in-out infinite;
+}
+
+.disco-active header img {
+  animation: disco-spin 3s ease-in-out infinite;
+}
+
+.disco-badge {
+  animation:
+    disco-badge-enter 0.5s ease-out forwards,
+    disco-badge-pulse 1.2s ease-in-out 0.5s infinite;
 }

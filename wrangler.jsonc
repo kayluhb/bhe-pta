@@ -1,26 +1,48 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "bhe-pta",
-  "compatibility_date": "2025-04-04",
-  "main": "./workers/app.ts",
-  "kv_namespaces": [
-    {
-      "binding": "BHE_NEWSLETTERS",
-      "id": "placeholder-newsletters",
-      "preview_id": "placeholder-newsletters-preview"
-    },
-    {
-      "binding": "BHE_PTA_NEWSLETTERS",
-      "id": "placeholder-pta-newsletters",
-      "preview_id": "placeholder-pta-newsletters-preview"
-    },
-    {
-      "binding": "BHE_CALENDAR",
-      "id": "placeholder-calendar",
-      "preview_id": "placeholder-calendar-preview"
-    }
-  ],
-  "triggers": {
-    "crons": ["0 23 * * *"]
-  }
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "bhe-pta",
+	"compatibility_date": "2025-04-04",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"main": "./workers/app.ts",
+	"kv_namespaces": [
+		{
+			"binding": "BHE_NEWSLETTERS",
+			"id": "4c77b6f69f774a458fa7e1c312f9115d"
+		},
+		{
+			"binding": "BHE_PTA_NEWSLETTERS",
+			"id": "2c28fd7859d24acfacbda32a83f27015"
+		},
+		{
+			"binding": "BHE_CALENDAR",
+			"id": "197ef44ed4744f0fb77d5df135137706"
+		}
+	],
+	"d1_databases": [
+		{
+			"binding": "REIMBURSEMENT_DB",
+			"database_name": "pta-reimbursement-db",
+			"database_id": "dbba0b11-db79-48f9-b2d9-b4f638f04cf1"
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "R2_BUCKET",
+			"bucket_name": "pta-reimbursement-uploads"
+		},
+		{
+			"binding": "R2_ARCHIVE",
+			"bucket_name": "pta-archive"
+		}
+	],
+	"ai": {
+		"binding": "AI"
+	},
+	"triggers": {
+		"crons": [
+			"0 23 * * *"
+		]
+	}
 }
