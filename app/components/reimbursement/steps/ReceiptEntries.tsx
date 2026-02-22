@@ -34,14 +34,14 @@ export function ReceiptEntries({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form className="space-y-6" onSubmit={handleSubmit}>
       <div className="bg-white p-6 rounded-lg shadow-sm border border-charcoal/10">
         <div className="flex justify-between items-center mb-4">
           <div>
             <h2 className="text-xl font-semibold text-charcoal">Receipt Details</h2>
             <p className="text-charcoal/70 mt-1">Add up to 4 receipts for reimbursement.</p>
           </div>
-          <div className="text-right" aria-live="polite">
+          <div aria-live="polite" className="text-right">
             <p className="text-sm text-charcoal/70">Total</p>
             <p className="text-2xl font-bold text-eagle-blue">{formatCurrency(totalAmount)}</p>
           </div>
@@ -49,15 +49,15 @@ export function ReceiptEntries({
 
         <div className="space-y-6">
           {receipts.map((receipt, index) => (
-            <div key={index} className="p-4 bg-warm-white rounded-lg border border-charcoal/10">
+            <div className="p-4 bg-warm-white rounded-lg border border-charcoal/10" key={index}>
               <div className="flex justify-between items-center mb-4">
                 <h3 className="font-medium text-charcoal">Receipt {index + 1}</h3>
                 {receipts.length > 1 && (
                   <button
-                    type="button"
-                    onClick={() => onRemove(index)}
                     aria-label={`Remove Receipt ${index + 1}`}
                     className="text-red-600 hover:text-red-800 text-sm font-medium"
+                    onClick={() => onRemove(index)}
+                    type="button"
                   >
                     Remove
                   </button>
@@ -67,46 +67,47 @@ export function ReceiptEntries({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
                   label="Date of Purchase"
-                  type="date"
-                  value={receipt.date}
                   onChange={(e) => onUpdate(index, {date: e.target.value})}
                   required
+                  type="date"
+                  value={receipt.date}
                 />
 
                 <div className="w-full">
                   <Input
                     label="Amount to Reimburse"
-                    type="number"
-                    step="0.01"
                     min="0"
-                    value={receipt.amount || ''}
                     onChange={(e) =>
                       onUpdate(index, {amount: Number.parseFloat(e.target.value) || 0})
                     }
                     placeholder="0.00"
                     required
+                    step="0.01"
+                    type="number"
+                    value={receipt.amount || ''}
                   />
                   <p className="mt-1 text-xs text-charcoal/70">
-                    Note: Sales tax cannot be reimbursed and should not be included.
+                    Note: <strong>Sales tax cannot be reimbursed</strong> and should not be
+                    included.
                   </p>
                 </div>
 
                 <div className="md:col-span-2">
                   <Input
                     label="Description"
-                    value={receipt.description}
                     onChange={(e) => onUpdate(index, {description: e.target.value})}
                     placeholder="What was purchased?"
                     required
+                    value={receipt.description}
                   />
                 </div>
 
                 <div className="md:col-span-2">
                   <Input
                     label="Place of Purchase"
-                    value={receipt.placeOfPurchase || ''}
                     onChange={(e) => onUpdate(index, {placeOfPurchase: e.target.value})}
                     placeholder="Name of store or location of website"
+                    value={receipt.placeOfPurchase || ''}
                   />
                   <p className="mt-1 text-xs text-charcoal/70">
                     Name of store or location of website.
@@ -119,9 +120,9 @@ export function ReceiptEntries({
 
         {receipts.length < 4 && (
           <button
-            type="button"
-            onClick={onAdd}
             className="mt-4 w-full py-3 border-2 border-dashed border-charcoal/20 rounded-lg text-charcoal/70 hover:border-eagle-blue hover:text-eagle-blue transition-colors"
+            onClick={onAdd}
+            type="button"
           >
             + Add Another Receipt
           </button>
@@ -129,7 +130,7 @@ export function ReceiptEntries({
       </div>
 
       <div className="flex justify-between">
-        <Button type="button" variant="outline" onClick={onBack}>
+        <Button onClick={onBack} type="button" variant="outline">
           Back
         </Button>
         <Button type="submit">Next: Budget Account</Button>

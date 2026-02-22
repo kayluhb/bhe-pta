@@ -1,7 +1,7 @@
-import { createRequestHandler } from "react-router";
-import { scrapeSchoolNews } from "../app/lib/scraper";
-import { fetchCalendarEvents, fetchPtaCalendarEvents } from "../app/lib/calendar";
-import { fetchMailchimpCampaigns } from "../app/lib/mailchimp";
+import {createRequestHandler} from 'react-router';
+import {fetchCalendarEvents, fetchPtaCalendarEvents} from '../app/lib/calendar';
+import {fetchMailchimpCampaigns} from '../app/lib/mailchimp';
+import {scrapeSchoolNews} from '../app/lib/scraper';
 
 interface Env {
   BHE_NEWSLETTERS: KVNamespace;
@@ -24,7 +24,7 @@ interface Env {
   SESSION_SECRET: string;
 }
 
-declare module "react-router" {
+declare module 'react-router' {
   interface AppLoadContext {
     cloudflare: {
       env: Env;
@@ -34,8 +34,8 @@ declare module "react-router" {
 }
 
 const requestHandler = createRequestHandler(
-  () => import("virtual:react-router/server-build"),
-  import.meta.env.MODE
+  () => import('virtual:react-router/server-build'),
+  import.meta.env.MODE,
 );
 
 async function runDataRefresh(env: Env): Promise<string[]> {
@@ -45,76 +45,51 @@ async function runDataRefresh(env: Env): Promise<string[]> {
     scrapeSchoolNews(),
     fetchCalendarEvents(),
     fetchPtaCalendarEvents(),
-    env.MAILCHIMP_API_KEY && env.MAILCHIMP_API_KEY !== "placeholder"
+    env.MAILCHIMP_API_KEY && env.MAILCHIMP_API_KEY !== 'placeholder'
       ? fetchMailchimpCampaigns(env.MAILCHIMP_API_KEY)
       : Promise.resolve([]),
   ]);
 
   const [newsletterResult, calendarResult, ptaCalendarResult, mailchimpResult] = results;
 
-  if (
-    newsletterResult.status === "fulfilled" &&
-    newsletterResult.value.length > 0
-  ) {
-    await env.BHE_NEWSLETTERS.put(
-      "latest",
-      JSON.stringify(newsletterResult.value)
-    );
+  if (newsletterResult.status === 'fulfilled' && newsletterResult.value.length > 0) {
+    await env.BHE_NEWSLETTERS.put('latest', JSON.stringify(newsletterResult.value));
     log.push(`Stored ${newsletterResult.value.length} school newsletters`);
   } else {
     const msg =
-      "Failed to scrape newsletters: " +
-      (newsletterResult.status === "rejected"
-        ? newsletterResult.reason
-        : "No results");
+      'Failed to scrape newsletters: ' +
+      (newsletterResult.status === 'rejected' ? newsletterResult.reason : 'No results');
     console.error(msg);
     log.push(msg);
   }
 
   // Merge school + PTA calendar events
-  const schoolEvents =
-    calendarResult.status === "fulfilled" ? calendarResult.value : [];
-  const ptaEvents =
-    ptaCalendarResult.status === "fulfilled" ? ptaCalendarResult.value : [];
+  const schoolEvents = calendarResult.status === 'fulfilled' ? calendarResult.value : [];
+  const ptaEvents = ptaCalendarResult.status === 'fulfilled' ? ptaCalendarResult.value : [];
   const allCalendarEvents = [...schoolEvents, ...ptaEvents];
 
   if (allCalendarEvents.length > 0) {
-    await env.BHE_CALENDAR.put(
-      "events",
-      JSON.stringify(allCalendarEvents)
-    );
-    log.push(
-      `Stored ${schoolEvents.length} school + ${ptaEvents.length} PTA calendar events`
-    );
+    await env.BHE_CALENDAR.put('events', JSON.stringify(allCalendarEvents));
+    log.push(`Stored ${schoolEvents.length} school + ${ptaEvents.length} PTA calendar events`);
   } else {
     const msg =
-      "Failed to fetch calendars: " +
-      (calendarResult.status === "rejected"
-        ? calendarResult.reason
-        : "No results");
+      'Failed to fetch calendars: ' +
+      (calendarResult.status === 'rejected' ? calendarResult.reason : 'No results');
     console.error(msg);
     log.push(msg);
   }
 
-  if (ptaCalendarResult.status === "rejected") {
-    const msg = "Failed to fetch PTA calendar: " + ptaCalendarResult.reason;
+  if (ptaCalendarResult.status === 'rejected') {
+    const msg = 'Failed to fetch PTA calendar: ' + ptaCalendarResult.reason;
     console.error(msg);
     log.push(msg);
   }
 
-  if (
-    mailchimpResult.status === "fulfilled" &&
-    mailchimpResult.value.length > 0
-  ) {
-    await env.BHE_PTA_NEWSLETTERS.put(
-      "latest",
-      JSON.stringify(mailchimpResult.value)
-    );
-    log.push(
-      `Stored ${mailchimpResult.value.length} PTA newsletters from Mailchimp`
-    );
-  } else if (mailchimpResult.status === "rejected") {
-    const msg = "Failed to fetch Mailchimp campaigns: " + mailchimpResult.reason;
+  if (mailchimpResult.status === 'fulfilled' && mailchimpResult.value.length > 0) {
+    await env.BHE_PTA_NEWSLETTERS.put('latest', JSON.stringify(mailchimpResult.value));
+    log.push(`Stored ${mailchimpResult.value.length} PTA newsletters from Mailchimp`);
+  } else if (mailchimpResult.status === 'rejected') {
+    const msg = 'Failed to fetch Mailchimp campaigns: ' + mailchimpResult.reason;
     console.error(msg);
     log.push(msg);
   }
@@ -125,31 +100,27 @@ async function runDataRefresh(env: Env): Promise<string[]> {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    if (url.hostname.startsWith("www.")) {
-      url.hostname = url.hostname.replace(/^www\./, "");
+    if (url.hostname.startsWith('www.')) {
+      url.hostname = url.hostname.replace(/^www\./, '');
       return Response.redirect(url.toString(), 301);
     }
 
     // Manual refresh endpoint — requires SESSION_SECRET as bearer token
-    if (url.pathname === "/api/refresh" && request.method === "POST") {
-      const auth = request.headers.get("Authorization");
+    if (url.pathname === '/api/refresh' && request.method === 'POST') {
+      const auth = request.headers.get('Authorization');
       if (auth !== `Bearer ${env.SESSION_SECRET}`) {
-        return new Response("Unauthorized", { status: 401 });
+        return new Response('Unauthorized', {status: 401});
       }
       const log = await runDataRefresh(env);
-      return Response.json({ ok: true, log });
+      return Response.json({ok: true, log});
     }
 
     return requestHandler(request, {
-      cloudflare: { env, ctx },
+      cloudflare: {env, ctx},
     });
   },
 
-  async scheduled(
-    controller: ScheduledController,
-    env: Env,
-    ctx: ExecutionContext
-  ) {
+  async scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext) {
     console.log(`Cron triggered: ${controller.cron}`);
     const log = await runDataRefresh(env);
     log.forEach((msg) => console.log(msg));

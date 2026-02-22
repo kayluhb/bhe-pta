@@ -136,8 +136,8 @@ export default function Privacy() {
             request deletion of your reimbursement data or other personal information, please
             contact us at{' '}
             <a
-              href="mailto:pta@bheeagles.com"
               className="text-eagle-blue hover:text-spirit-gold transition-colors"
+              href="mailto:pta@bheeagles.com"
             >
               pta@bheeagles.com
             </a>
@@ -156,8 +156,8 @@ export default function Privacy() {
           <p className="text-charcoal/70 leading-relaxed mt-3">
             If you have questions about this Privacy Policy, please contact us at{' '}
             <a
-              href="mailto:pta@bheeagles.com"
               className="text-eagle-blue hover:text-spirit-gold transition-colors"
+              href="mailto:pta@bheeagles.com"
             >
               pta@bheeagles.com
             </a>

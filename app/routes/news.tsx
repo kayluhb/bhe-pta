@@ -111,28 +111,28 @@ export default function News() {
         <div className="max-w-4xl mx-auto px-4">
           {/* Tab Switcher */}
           <div
-            role="tablist"
             aria-label="Newsletter categories"
             className="flex border-b-2 border-charcoal/10 mb-10"
+            role="tablist"
           >
             {tabs.map((tab) => (
               <button
-                key={tab.id}
-                ref={(el) => {
-                  tabRefs.current[tab.id] = el;
-                }}
-                role="tab"
-                id={`tab-${tab.id}`}
-                aria-selected={activeTab === tab.id}
                 aria-controls={`tabpanel-${tab.id}`}
-                tabIndex={activeTab === tab.id ? 0 : -1}
-                onClick={() => setActiveTab(tab.id)}
-                onKeyDown={(e) => handleTabKeyDown(e, tab.id)}
+                aria-selected={activeTab === tab.id}
                 className={`relative pb-3 px-5 font-heading font-bold text-lg transition-colors cursor-pointer ${
                   activeTab === tab.id
                     ? 'text-eagle-blue'
                     : 'text-charcoal/70 hover:text-charcoal/80'
                 }`}
+                id={`tab-${tab.id}`}
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                onKeyDown={(e) => handleTabKeyDown(e, tab.id)}
+                ref={(el) => {
+                  tabRefs.current[tab.id] = el;
+                }}
+                role="tab"
+                tabIndex={activeTab === tab.id ? 0 : -1}
               >
                 {tab.label}
                 {activeTab === tab.id && (
@@ -144,10 +144,10 @@ export default function News() {
 
           {/* Newsletter Cards */}
           <div
-            role="tabpanel"
-            id={`tabpanel-${activeTab}`}
             aria-labelledby={`tab-${activeTab}`}
             className="space-y-6"
+            id={`tabpanel-${activeTab}`}
+            role="tabpanel"
           >
             {displayedNews.map((item) => (
               <NewsletterCard key={item.id} newsletter={item} />
@@ -157,27 +157,27 @@ export default function News() {
           {hasMore && (
             <div className="mt-8 text-center">
               <button
+                className="inline-flex items-center gap-2 px-8 py-3 bg-eagle-blue text-white font-heading font-bold rounded-full hover:bg-eagle-blue/90 transition-all duration-200 hover:shadow-lg cursor-pointer"
                 onClick={() =>
                   setVisibleCount((prev) => ({
                     ...prev,
                     [activeTab]: prev[activeTab] + 5,
                   }))
                 }
-                className="inline-flex items-center gap-2 px-8 py-3 bg-eagle-blue text-white font-heading font-bold rounded-full hover:bg-eagle-blue/90 transition-all duration-200 hover:shadow-lg cursor-pointer"
               >
                 Load More
                 <svg
+                  aria-hidden="true"
                   className="h-4 w-4"
                   fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
                   stroke="currentColor"
-                  aria-hidden="true"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
                 >
                   <path
+                    d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3"
                   />
                 </svg>
               </button>
@@ -225,25 +225,25 @@ function NewsletterCard({newsletter}: {newsletter: Newsletter}) {
           <p className="mt-3 text-charcoal/70 leading-relaxed">{newsletter.excerpt}</p>
         )}
         <a
-          href={newsletter.url}
-          target="_blank"
-          rel="noopener noreferrer"
           className="mt-4 inline-flex items-center text-sm font-semibold text-eagle-blue group-hover:text-spirit-gold transition-colors"
+          href={newsletter.url}
+          rel="noopener noreferrer"
+          target="_blank"
         >
           Read more about {newsletter.title}
           <span className="sr-only"> (opens in new tab)</span>
           <svg
+            aria-hidden="true"
             className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5"
             fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
             stroke="currentColor"
-            aria-hidden="true"
+            strokeWidth={2}
+            viewBox="0 0 24 24"
           >
             <path
+              d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
               strokeLinecap="round"
               strokeLinejoin="round"
-              d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
             />
           </svg>
         </a>

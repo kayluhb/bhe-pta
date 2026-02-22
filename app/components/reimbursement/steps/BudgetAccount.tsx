@@ -94,32 +94,24 @@ function SearchableSelect({
 
   return (
     <div className="w-full" ref={containerRef}>
-      <label htmlFor={`${id}-input`} className="block text-sm font-medium text-charcoal/80 mb-1">
+      <label className="block text-sm font-medium text-charcoal/80 mb-1" htmlFor={`${id}-input`}>
         {label}
         {required && (
-          <span className="text-red-500 ml-1" aria-hidden="true">
+          <span aria-hidden="true" className="text-red-500 ml-1">
             *
           </span>
         )}
       </label>
       <div className="relative">
         <input
-          ref={inputRef}
-          id={`${id}-input`}
-          type="text"
-          role="combobox"
-          aria-autocomplete="list"
-          aria-expanded={isOpen}
-          aria-controls={listboxId}
           aria-activedescendant={activeOptionId}
+          aria-autocomplete="list"
+          aria-controls={listboxId}
+          aria-expanded={isOpen}
           aria-required={required || undefined}
-          value={isOpen ? search : value}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setActiveIndex(-1);
-            if (!isOpen) setIsOpen(true);
-          }}
-          onFocus={() => setIsOpen(true)}
+          autoComplete="off"
+          className="w-full px-3 py-2 border border-charcoal/20 rounded-lg shadow-sm text-charcoal placeholder:text-charcoal/70 focus:outline-none focus:ring-2 focus:ring-eagle-blue focus:border-eagle-blue"
+          id={`${id}-input`}
           onBlur={(e) => {
             // Close only if focus moves outside the container
             if (!containerRef.current?.contains(e.relatedTarget as Node)) {
@@ -127,64 +119,72 @@ function SearchableSelect({
               setActiveIndex(-1);
             }
           }}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setActiveIndex(-1);
+            if (!isOpen) setIsOpen(true);
+          }}
+          onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder="Search or select an account..."
-          autoComplete="off"
-          className="w-full px-3 py-2 border border-charcoal/20 rounded-lg shadow-sm text-charcoal placeholder:text-charcoal/70 focus:outline-none focus:ring-2 focus:ring-eagle-blue focus:border-eagle-blue"
+          ref={inputRef}
           required={required}
+          role="combobox"
+          type="text"
+          value={isOpen ? search : value}
         />
         {value && !isOpen && (
           <button
-            type="button"
+            aria-label="Clear selection"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-charcoal/70 hover:text-charcoal/80"
             onClick={() => {
               onChange('');
               setIsOpen(true);
               inputRef.current?.focus();
             }}
-            aria-label="Clear selection"
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-charcoal/70 hover:text-charcoal/80"
+            type="button"
           >
             <svg
+              aria-hidden="true"
               className="w-4 h-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
-              aria-hidden="true"
             >
               <path
+                d="M6 18L18 6M6 6l12 12"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
               />
             </svg>
           </button>
         )}
         {isOpen && (
           <ul
-            ref={listboxRef}
-            id={listboxId}
-            role="listbox"
             className="absolute z-10 w-full mt-1 bg-white border border-charcoal/20 rounded-lg shadow-lg max-h-60 overflow-auto"
+            id={listboxId}
+            ref={listboxRef}
+            role="listbox"
           >
             {filteredAccounts.length === 0 ? (
-              <li className="px-3 py-2 text-charcoal/70" role="option" aria-selected={false}>
+              <li aria-selected={false} className="px-3 py-2 text-charcoal/70" role="option">
                 No accounts found
               </li>
             ) : (
               filteredAccounts.map((account, index) => (
                 <li
-                  key={account}
-                  id={`${id}-option-${index}`}
-                  role="option"
                   aria-selected={account === value}
+                  className={`px-3 py-2 cursor-pointer text-charcoal hover:bg-eagle-blue/10 ${
+                    account === value ? 'bg-eagle-blue/20 font-medium' : ''
+                  } ${index === activeIndex ? 'bg-eagle-blue/10 outline outline-2 outline-eagle-blue' : ''}`}
+                  id={`${id}-option-${index}`}
+                  key={account}
                   onMouseDown={(e) => {
                     e.preventDefault();
                     handleSelect(account);
                   }}
-                  className={`px-3 py-2 cursor-pointer text-charcoal hover:bg-eagle-blue/10 ${
-                    account === value ? 'bg-eagle-blue/20 font-medium' : ''
-                  } ${index === activeIndex ? 'bg-eagle-blue/10 outline outline-2 outline-eagle-blue' : ''}`}
+                  role="option"
                 >
                   {account}
                 </li>
@@ -218,7 +218,7 @@ export function BudgetAccount({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form className="space-y-6" onSubmit={handleSubmit}>
       <div className="bg-white p-6 rounded-lg shadow-sm border border-charcoal/10">
         <h2 className="text-xl font-semibold text-charcoal mb-2">Budget Account</h2>
         <p className="text-charcoal/70 mb-6">
@@ -228,19 +228,19 @@ export function BudgetAccount({
         <div className="space-y-6">
           <SearchableSelect
             label="Budget Account to Debit"
-            value={budget.primaryAccount}
             onChange={(value) => onUpdateBudget({primaryAccount: value})}
             required
+            value={budget.primaryAccount}
           />
 
           {receipts.length > 1 && (
             <div className="border-t pt-4">
               <label className="flex items-center space-x-3 cursor-pointer">
                 <input
-                  type="checkbox"
                   checked={budget.splitAccounts}
-                  onChange={(e) => onUpdateBudget({splitAccounts: e.target.checked})}
                   className="w-4 h-4 text-eagle-blue border-charcoal/20 rounded focus:ring-eagle-blue"
+                  onChange={(e) => onUpdateBudget({splitAccounts: e.target.checked})}
+                  type="checkbox"
                 />
                 <span className="text-sm font-medium text-charcoal/80">
                   Split receipts across different accounts
@@ -258,7 +258,7 @@ export function BudgetAccount({
                 Assign accounts to each receipt:
               </h3>
               {receipts.map((receipt, index) => (
-                <div key={index} className="p-3 bg-warm-white rounded-lg border border-charcoal/10">
+                <div className="p-3 bg-warm-white rounded-lg border border-charcoal/10" key={index}>
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm font-medium text-charcoal">
                       Receipt {index + 1}: {receipt.description || 'No description'}
@@ -280,10 +280,10 @@ export function BudgetAccount({
       </div>
 
       <div className="flex justify-between">
-        <Button type="button" variant="outline" onClick={onBack}>
+        <Button onClick={onBack} type="button" variant="outline">
           Back
         </Button>
-        <Button type="submit" disabled={!budget.primaryAccount}>
+        <Button disabled={!budget.primaryAccount} type="submit">
           Next: Upload Files
         </Button>
       </div>

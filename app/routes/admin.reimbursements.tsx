@@ -226,8 +226,8 @@ export default function AdminReimbursements() {
           <div className="flex items-center gap-4">
             <span className="text-sm text-white/80 hidden sm:inline">{user.name}</span>
             <a
-              href="/api/auth/logout"
               className="text-sm text-white/70 hover:text-white underline underline-offset-2 transition-colors"
+              href="/api/auth/logout"
             >
               Logout
             </a>
@@ -239,14 +239,14 @@ export default function AdminReimbursements() {
         {/* Filter Bar */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
-            <label htmlFor="status-filter" className="text-sm font-medium text-charcoal font-body">
+            <label className="text-sm font-medium text-charcoal font-body" htmlFor="status-filter">
               Status:
             </label>
             <select
-              id="status-filter"
-              value={filters.status}
-              onChange={handleStatusChange}
               className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
+              id="status-filter"
+              onChange={handleStatusChange}
+              value={filters.status}
             >
               {STATUS_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -257,15 +257,21 @@ export default function AdminReimbursements() {
           </div>
 
           <a
-            href={exportUrl}
             className="inline-flex items-center gap-2 rounded-lg bg-eagle-blue px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-eagle-blue/90 transition-colors font-body"
+            href={exportUrl}
           >
-            <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              aria-hidden="true"
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
+                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
               />
             </svg>
             Export CSV
@@ -280,44 +286,44 @@ export default function AdminReimbursements() {
             </span>
             <div className="h-4 w-px bg-gray-300" />
             <button
-              onClick={() => handleBulkStatus('approved')}
-              disabled={bulkLoading}
               className="rounded-md bg-creek-green px-3 py-1.5 text-xs font-medium text-white hover:bg-creek-green/90 disabled:opacity-50 transition-colors"
+              disabled={bulkLoading}
+              onClick={() => handleBulkStatus('approved')}
             >
               Approve
             </button>
             <button
-              onClick={() => handleBulkStatus('rejected')}
-              disabled={bulkLoading}
               className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+              disabled={bulkLoading}
+              onClick={() => handleBulkStatus('rejected')}
             >
               Reject
             </button>
             <button
-              onClick={() => handleBulkStatus('needs_info')}
-              disabled={bulkLoading}
               className="rounded-md bg-eagle-blue px-3 py-1.5 text-xs font-medium text-white hover:bg-eagle-blue/90 disabled:opacity-50 transition-colors"
+              disabled={bulkLoading}
+              onClick={() => handleBulkStatus('needs_info')}
             >
               Needs Info
             </button>
             <button
-              onClick={handleExportSelected}
-              disabled={bulkLoading}
               className="rounded-md bg-spirit-gold px-3 py-1.5 text-xs font-medium text-charcoal hover:bg-spirit-gold/90 disabled:opacity-50 transition-colors"
+              disabled={bulkLoading}
+              onClick={handleExportSelected}
             >
               Export Selected
             </button>
             <div className="h-4 w-px bg-gray-300" />
             <button
-              onClick={handleBulkDelete}
-              disabled={bulkLoading}
               className="rounded-md border border-red-300 bg-white px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
+              disabled={bulkLoading}
+              onClick={handleBulkDelete}
             >
               Delete
             </button>
             <button
-              onClick={() => setSelected(new Set())}
               className="ml-auto text-xs text-gray-500 hover:text-charcoal transition-colors"
+              onClick={() => setSelected(new Set())}
             >
               Clear selection
             </button>
@@ -350,22 +356,40 @@ export default function AdminReimbursements() {
                         type="checkbox"
                       />
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body" scope="col">
+                    <th
+                      className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body"
+                      scope="col"
+                    >
                       Date
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body" scope="col">
+                    <th
+                      className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body"
+                      scope="col"
+                    >
                       Requester
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body hidden md:table-cell" scope="col">
+                    <th
+                      className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body hidden md:table-cell"
+                      scope="col"
+                    >
                       Email
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body text-right" scope="col">
+                    <th
+                      className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body text-right"
+                      scope="col"
+                    >
                       Amount
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body" scope="col">
+                    <th
+                      className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body"
+                      scope="col"
+                    >
                       Status
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body text-right" scope="col">
+                    <th
+                      className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body text-right"
+                      scope="col"
+                    >
                       Actions
                     </th>
                   </tr>
@@ -373,8 +397,8 @@ export default function AdminReimbursements() {
                 <tbody className="divide-y divide-gray-100">
                   {submissions.map((sub) => (
                     <tr
-                      key={sub.id}
                       className={`hover:bg-gray-50/50 transition-colors ${selected.has(String(sub.id)) ? 'bg-eagle-blue/5' : ''}`}
+                      key={sub.id}
                     >
                       <td className="w-10 px-4 py-3">
                         <input

@@ -53,63 +53,75 @@ export async function generatePDF(data: PDFData): Promise<Uint8Array> {
   const doc = new jsPDF();
 
   // Header
-  doc.setFontSize(20);
+  doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
-  doc.text('PTA Check Request', 105, 20, {align: 'center'});
+  doc.text('BHE PTA Check Request', 105, 18, {align: 'center'});
 
   // Horizontal line
   doc.setDrawColor(200);
-  doc.line(20, 28, 190, 28);
+  doc.line(20, 23, 190, 23);
 
   // Submission Info
-  doc.setFontSize(10);
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(0);
-  doc.text(`Reference: ${submission.id}`, 20, 38);
-  doc.text(`Submitted: ${formatDate(submission.submittedAt)}`, 140, 38);
+  doc.text(`Reference: ${submission.id}`, 20, 30);
+  doc.text(`Submitted: ${formatDate(submission.submittedAt)}`, 140, 30);
 
-  // Check Request Info Section
-  let yPos = 50;
-  doc.setFontSize(12);
+  // Check Request Info Section — condensed two-column layout
+  let yPos = 38;
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
   doc.text('Check Request Information', 20, yPos);
 
-  yPos += 8;
-  doc.setFontSize(10);
+  yPos += 6;
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
 
-  doc.text(`Payable to: ${requester.payableTo}`, 20, yPos);
-  yPos += 6;
-  doc.text(`Email: ${requester.email}`, 20, yPos);
-  yPos += 6;
+  const labelX = 20;
+  const valueX = 50;
+  const labelX2 = 110;
+  const valueX2 = 140;
+
+  doc.text('Payable to:', labelX, yPos);
+  doc.text(requester.payableTo, valueX, yPos);
+  doc.text('Email:', labelX2, yPos);
+  doc.text(requester.email, valueX2, yPos);
+  yPos += 5;
+
+  doc.text('Address:', labelX, yPos);
+  doc.text(requester.address, valueX, yPos);
   if (requester.phone) {
-    doc.text(`Phone: ${requester.phone}`, 20, yPos);
-    yPos += 6;
+    doc.text('Phone:', labelX2, yPos);
+    doc.text(requester.phone, valueX2, yPos);
   }
-  doc.text(`Address: ${requester.address}`, 20, yPos);
-  yPos += 6;
-  doc.text(`Date of Request: ${formatDate(requester.dateOfRequest)}`, 20, yPos);
-  doc.text(`Date Check Needed: ${formatDate(requester.dateCheckNeeded)}`, 105, yPos);
-  yPos += 6;
+  yPos += 5;
+
+  doc.text('Date of Request:', labelX, yPos);
+  doc.text(formatDate(requester.dateOfRequest), valueX, yPos);
+  doc.text('Check Needed:', labelX2, yPos);
+  doc.text(formatDate(requester.dateCheckNeeded), valueX2, yPos);
+  yPos += 5;
   if (requester.invoiceNumber) {
-    doc.text(`Invoice #: ${requester.invoiceNumber}`, 20, yPos);
-    yPos += 6;
+    doc.text('Invoice #:', labelX, yPos);
+    doc.text(requester.invoiceNumber, valueX, yPos);
+    yPos += 5;
   }
 
   // Budget Account Section
-  yPos += 8;
-  doc.setFontSize(12);
+  yPos += 6;
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
   doc.text('Budget Account', 20, yPos);
 
-  yPos += 8;
-  doc.setFontSize(10);
+  yPos += 6;
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
   doc.text(`Primary Account: ${budget.primaryAccount}`, 20, yPos);
 
   // Receipts Table
-  yPos += 14;
-  doc.setFontSize(12);
+  yPos += 10;
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
   doc.text('Expense Details', 20, yPos);
 
@@ -118,8 +130,6 @@ export async function generatePDF(data: PDFData): Promise<Uint8Array> {
   // Table header
   doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
-  doc.setFillColor(240, 240, 240);
-  doc.rect(20, yPos - 5, 170, 8, 'F');
   doc.text('Date', 22, yPos);
   doc.text('Description', 42, yPos);
   doc.text('Place', 90, yPos);
@@ -164,41 +174,29 @@ export async function generatePDF(data: PDFData): Promise<Uint8Array> {
   const boxX = 20;
   const boxW = 90;
   const boxH = 52;
-  doc.rect(boxX, yPos, boxW, boxH);
-
   let boxY = yPos + 7;
   doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
-  doc.setFont('helvetica', 'underline' as never);
-  doc.text("Treasurer's Notes:", boxX + 3, boxY);
   doc.setFont('helvetica', 'normal');
 
-  boxY += 8;
-  doc.text('Date Invoice', boxX + 3, boxY);
-  boxY += 6;
-  doc.text('Received:', boxX + 3, boxY);
-  doc.line(boxX + 28, boxY + 1, boxX + 70, boxY + 1);
+  boxY += 0;
+  doc.text('Date Received:', boxX + 3, boxY);
+  doc.line(boxX + 35, boxY + 1, boxX + 70, boxY + 1);
 
   boxY += 8;
   doc.text('Date Approved:', boxX + 3, boxY);
-  doc.line(boxX + 38, boxY + 1, boxX + 55, boxY + 1);
-  doc.text('Paid:', boxX + 56, boxY);
-  doc.line(boxX + 64, boxY + 1, boxX + 85, boxY + 1);
+  doc.line(boxX + 35, boxY + 1, boxX + 70, boxY + 1);
+
+  boxY += 8;
+  doc.text('Date Paid:', boxX + 3, boxY);
+  doc.line(boxX + 25, boxY + 1, boxX + 70, boxY + 1);
 
   boxY += 8;
   doc.text('Check Number:', boxX + 3, boxY);
-  doc.line(boxX + 38, boxY + 1, boxX + 85, boxY + 1);
+  doc.line(boxX + 35, boxY + 1, boxX + 70, boxY + 1);
 
   boxY += 8;
   doc.text('Amount of Check:', boxX + 3, boxY);
-  doc.line(boxX + 3, boxY + 8, boxX + 50, boxY + 8);
-
-  // Remarks section (right of box)
-  const remarksX = boxX + boxW + 5;
-  doc.setFont('helvetica', 'bold');
-  doc.setFont('helvetica', 'underline' as never);
-  doc.text('Remarks:', remarksX, yPos + 7);
-  doc.setFont('helvetica', 'normal');
+  doc.line(boxX + 40, boxY + 1, boxX + 70, boxY + 1);
 
   // Signature lines
   yPos += boxH + 14;

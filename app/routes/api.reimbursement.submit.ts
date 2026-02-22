@@ -97,10 +97,19 @@ export async function action({request, context}: Route.ActionArgs) {
       });
     }
 
-    // Rename uploaded files to friendly names
+    // Rename uploaded files to friendly names.
+    // Files arrive in pairs: converted PDF then original, for each upload.
+    // Name them as receipt-1, receipt-1-original, receipt-2, receipt-2-original, etc.
+    let receiptNumber = 0;
     const renamedFiles = await Promise.all(
-      files.map(async (file, i) => {
-        const friendlyName = buildReceiptFilename(slug, i, file.filename, file.contentType);
+      files.map(async (file) => {
+        const isOriginal = !file.filename.endsWith('-converted.pdf');
+        if (!isOriginal) {
+          receiptNumber++;
+        }
+        const ext = file.filename.split('.').pop() || 'pdf';
+        const suffix = isOriginal ? `-original.${ext}` : '.pdf';
+        const friendlyName = `${slug}-receipt-${receiptNumber}${suffix}`;
         const newKey = `submissions/${submissionId}/${friendlyName}`;
 
         if (env.R2_BUCKET) {

@@ -92,11 +92,11 @@ export function Header() {
     <header className="sticky top-0 z-50 bg-eagle-blue shadow-lg">
       <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
         {/* Logo + Site Name */}
-        <Link to="/" className="flex items-center gap-3 shrink-0">
+        <Link className="flex items-center gap-3 shrink-0" to="/">
           <img
-            src="/logo.svg"
             alt="Barton Hills Elementary PTA Eagle Logo"
             className="h-12 w-auto invert"
+            src="/logo.svg"
           />
           <div className="hidden sm:flex flex-col leading-tight">
             <span className="text-white font-heading font-bold text-lg">
@@ -110,13 +110,13 @@ export function Header() {
         <nav aria-label="Main navigation" className="hidden lg:flex items-center gap-1">
           {navLinks.map((link) => (
             <NavLink
-              key={link.to}
-              to={link.to}
               className={({isActive}) =>
                 `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   isActive ? 'text-spirit-gold' : 'text-white/80 hover:text-white hover:bg-white/10'
                 }`
               }
+              key={link.to}
+              to={link.to}
             >
               {link.label}
             </NavLink>
@@ -126,48 +126,48 @@ export function Header() {
         {/* CTA + Mobile Toggle */}
         <div className="flex items-center gap-3">
           <a
-            href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
-            target="_blank"
-            rel="noopener noreferrer"
             className="hidden sm:inline-block bg-spirit-gold text-night-blue font-heading font-bold text-sm px-5 py-2 rounded-full hover:bg-spirit-gold/90 transition-colors"
+            href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
+            rel="noopener noreferrer"
+            target="_blank"
           >
             Join PTA<span className="sr-only"> (opens in new tab)</span>
           </a>
 
           {/* Hamburger Button */}
           <button
-            ref={buttonRef}
-            type="button"
+            aria-controls="mobile-menu"
+            aria-expanded={mobileMenuOpen}
+            aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
             className="lg:hidden text-white p-2 rounded-md hover:bg-white/10 transition-colors cursor-pointer"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-expanded={mobileMenuOpen}
-            aria-controls="mobile-menu"
-            aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            ref={buttonRef}
+            type="button"
           >
             {mobileMenuOpen ? (
               <svg
+                aria-hidden="true"
                 className="h-6 w-6"
                 fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
                 stroke="currentColor"
-                aria-hidden="true"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             ) : (
               <svg
+                aria-hidden="true"
                 className="h-6 w-6"
                 fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
                 stroke="currentColor"
-                aria-hidden="true"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
               >
                 <path
+                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
                 />
               </svg>
             )}
@@ -177,21 +177,17 @@ export function Header() {
 
       {/* Mobile Menu */}
       <div
-        ref={menuRef}
-        id="mobile-menu"
         aria-hidden={!mobileMenuOpen}
         className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
           mobileMenuOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
         }`}
+        id="mobile-menu"
+        ref={menuRef}
       >
         <nav aria-label="Mobile navigation" className="bg-eagle-blue border-t border-white/10 pb-4">
           <div className="max-w-7xl mx-auto px-4 pt-2 flex flex-col gap-1">
             {navLinks.map((link) => (
               <NavLink
-                key={link.to}
-                to={link.to}
-                onClick={() => setMobileMenuOpen(false)}
-                tabIndex={mobileMenuOpen ? 0 : -1}
                 className={({isActive}) =>
                   `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     isActive
@@ -199,17 +195,21 @@ export function Header() {
                       : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`
                 }
+                key={link.to}
+                onClick={() => setMobileMenuOpen(false)}
+                tabIndex={mobileMenuOpen ? 0 : -1}
+                to={link.to}
               >
                 {link.label}
               </NavLink>
             ))}
             <a
-              href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setMobileMenuOpen(false)}
-              tabIndex={mobileMenuOpen ? 0 : -1}
               className="mt-2 bg-spirit-gold text-night-blue font-heading font-bold text-sm px-5 py-2 rounded-full text-center hover:bg-spirit-gold/90 transition-colors block"
+              href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
+              onClick={() => setMobileMenuOpen(false)}
+              rel="noopener noreferrer"
+              tabIndex={mobileMenuOpen ? 0 : -1}
+              target="_blank"
             >
               Join PTA<span className="sr-only"> (opens in new tab)</span>
             </a>

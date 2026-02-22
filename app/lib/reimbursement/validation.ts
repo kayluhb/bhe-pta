@@ -44,7 +44,6 @@ export const BUDGET_ACCOUNTS = [
   'School improvements (Paint the Hall)',
   "Principal's wish list",
   'PTA officer training',
-  'Sales tax',
   'Scholarships (Students for trips)',
   'Snacks for classrooms',
   'Student merch (t-shirts & stickers)',

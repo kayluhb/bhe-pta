@@ -121,7 +121,7 @@ export default function GetInvolved() {
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {fundedInitiatives.map((item) => (
-                    <div key={item} className="flex items-start gap-3">
+                    <div className="flex items-start gap-3" key={item}>
                       <svg
                         aria-hidden="true"
                         className="h-5 w-5 text-creek-green shrink-0 mt-0.5"
@@ -131,9 +131,9 @@ export default function GetInvolved() {
                         viewBox="0 0 24 24"
                       >
                         <path
+                          d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                       </svg>
                       <span className="text-charcoal/70">{item}</span>
@@ -182,8 +182,8 @@ export default function GetInvolved() {
                 <span className="sr-only">(opens in new tab)</span>
               </a>
               <a
-                href="/sponsors"
                 className="inline-flex items-center border-2 border-white text-white font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-white/10 transition-all duration-200"
+                href="/sponsors"
               >
                 View Sponsor Tiers
               </a>
@@ -226,7 +226,7 @@ export default function GetInvolved() {
               </div>
               <ul className="space-y-3">
                 {regularVolunteer.map((item) => (
-                  <li key={item} className="flex items-center gap-2 text-charcoal/70">
+                  <li className="flex items-center gap-2 text-charcoal/70" key={item}>
                     <div className="h-1.5 w-1.5 rounded-full bg-eagle-blue shrink-0" />
                     {item}
                   </li>
@@ -257,7 +257,7 @@ export default function GetInvolved() {
               </div>
               <ul className="space-y-3">
                 {intermittentVolunteer.map((item) => (
-                  <li key={item} className="flex items-center gap-2 text-charcoal/70">
+                  <li className="flex items-center gap-2 text-charcoal/70" key={item}>
                     <div className="h-1.5 w-1.5 rounded-full bg-spirit-gold shrink-0" />
                     {item}
                   </li>
@@ -288,7 +288,7 @@ export default function GetInvolved() {
               </div>
               <ul className="space-y-3">
                 {oneTimeVolunteer.map((item) => (
-                  <li key={item} className="flex items-center gap-2 text-charcoal/70">
+                  <li className="flex items-center gap-2 text-charcoal/70" key={item}>
                     <div className="h-1.5 w-1.5 rounded-full bg-creek-green shrink-0" />
                     {item}
                   </li>
@@ -342,8 +342,8 @@ export default function GetInvolved() {
           </p>
           <div className="mt-8">
             <a
-              href="mailto:pta@bheeagles.com"
               className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
+              href="mailto:pta@bheeagles.com"
             >
               Email PTA
             </a>

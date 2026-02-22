@@ -16,7 +16,7 @@ export function RequesterInfo({data, onChange, onNext, errors = {}}: RequesterIn
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form className="space-y-6" onSubmit={handleSubmit}>
       <div className="bg-white p-6 rounded-lg shadow-sm border border-charcoal/10">
         <h2 className="text-xl font-semibold text-charcoal mb-4">Check Request Information</h2>
         <p className="text-charcoal/70 mb-6">
@@ -27,74 +27,74 @@ export function RequesterInfo({data, onChange, onNext, errors = {}}: RequesterIn
 
         <div className="space-y-4">
           <Input
-            label="Payable to"
-            value={data.payableTo}
-            onChange={(e) => onChange({payableTo: e.target.value})}
-            error={errors.payableTo}
-            placeholder="Name to appear on check"
             autoComplete="name"
+            error={errors.payableTo}
+            label="Payable to"
+            onChange={(e) => onChange({payableTo: e.target.value})}
+            placeholder="Name to appear on check"
             required
+            value={data.payableTo}
           />
 
           <Input
+            autoComplete="email"
+            error={errors.email}
             label="Email Address"
+            onChange={(e) => onChange({email: e.target.value})}
+            placeholder="your@email.com"
+            required
             type="email"
             value={data.email}
-            onChange={(e) => onChange({email: e.target.value})}
-            error={errors.email}
-            placeholder="your@email.com"
-            autoComplete="email"
-            required
           />
 
           <Input
+            autoComplete="tel"
+            error={errors.phone}
             label="Phone Number"
+            onChange={(e) => onChange({phone: e.target.value})}
+            placeholder="(555) 123-4567"
             type="tel"
             value={data.phone || ''}
-            onChange={(e) => onChange({phone: e.target.value})}
-            error={errors.phone}
-            placeholder="(555) 123-4567"
-            autoComplete="tel"
           />
 
           <Input
-            label="Mailing Address"
-            value={data.address}
-            onChange={(e) => onChange({address: e.target.value})}
-            error={errors.address}
-            placeholder="Street address, City, State ZIP"
             autoComplete="street-address"
+            error={errors.address}
+            label="Mailing Address"
+            onChange={(e) => onChange({address: e.target.value})}
+            placeholder="Street address, City, State ZIP"
             required
+            value={data.address}
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
+              autoComplete="off"
+              disabled
               label="Date of Request"
+              onChange={() => {}} // Read-only
               type="date"
               value={data.dateOfRequest}
-              onChange={() => {}} // Read-only
-              disabled
-              autoComplete="off"
             />
 
             <Input
+              autoComplete="off"
+              error={errors.dateCheckNeeded}
               label="Date Check Needed"
+              onChange={(e) => onChange({dateCheckNeeded: e.target.value})}
+              required
               type="date"
               value={data.dateCheckNeeded}
-              onChange={(e) => onChange({dateCheckNeeded: e.target.value})}
-              error={errors.dateCheckNeeded}
-              autoComplete="off"
-              required
             />
           </div>
 
           <Input
-            label="Invoice Number (if applicable)"
-            value={data.invoiceNumber || ''}
-            onChange={(e) => onChange({invoiceNumber: e.target.value})}
-            error={errors.invoiceNumber}
-            placeholder="Optional"
             autoComplete="off"
+            error={errors.invoiceNumber}
+            label="Invoice Number (if applicable)"
+            onChange={(e) => onChange({invoiceNumber: e.target.value})}
+            placeholder="Optional"
+            value={data.invoiceNumber || ''}
           />
         </div>
       </div>

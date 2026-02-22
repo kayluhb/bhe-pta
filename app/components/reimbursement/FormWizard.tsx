@@ -59,7 +59,7 @@ export function FormWizard() {
     <div className="max-w-2xl mx-auto">
       <FormProgress currentStep={currentStep} steps={STEPS} />
 
-      <div className="sr-only" aria-live="polite" role="status">
+      <div aria-live="polite" className="sr-only" role="status">
         Step {currentStep + 1} of {STEPS.length}: {STEPS[currentStep]}
       </div>
 
@@ -69,12 +69,12 @@ export function FormWizard() {
 
       {currentStep === 1 && (
         <ReceiptEntries
-          receipts={state.receipts}
-          onUpdate={updateReceipt}
           onAdd={addReceipt}
-          onRemove={removeReceipt}
-          onNext={nextStep}
           onBack={prevStep}
+          onNext={nextStep}
+          onRemove={removeReceipt}
+          onUpdate={updateReceipt}
+          receipts={state.receipts}
           totalAmount={totalAmount}
         />
       )}
@@ -82,11 +82,11 @@ export function FormWizard() {
       {currentStep === 2 && (
         <BudgetAccount
           budget={state.budget}
-          receipts={state.receipts}
+          onBack={prevStep}
+          onNext={nextStep}
           onUpdateBudget={updateBudget}
           onUpdateReceipt={updateReceipt}
-          onNext={nextStep}
-          onBack={prevStep}
+          receipts={state.receipts}
         />
       )}
 
@@ -94,23 +94,24 @@ export function FormWizard() {
         <FileUploads
           files={state.files}
           onAddFile={addFile}
-          onRemoveFile={removeFile}
-          onNext={nextStep}
           onBack={prevStep}
-          turnstileToken={turnstileToken}
+          onNext={nextStep}
+          onRemoveFile={removeFile}
           onResetTurnstile={resetTurnstile}
+          payableTo={state.requester.payableTo}
+          turnstileToken={turnstileToken}
         />
       )}
 
       {currentStep === 4 && (
         <ReviewSubmit
           data={state}
-          totalAmount={totalAmount}
-          onBack={prevStep}
-          onSubmit={handleSubmit}
           getReceiptBudgetAccount={getReceiptBudgetAccount}
-          turnstileToken={turnstileToken}
+          onBack={prevStep}
           onResetTurnstile={resetTurnstile}
+          onSubmit={handleSubmit}
+          totalAmount={totalAmount}
+          turnstileToken={turnstileToken}
         />
       )}
 

@@ -234,8 +234,14 @@ export default function Home({loaderData}: Route.ComponentProps) {
         />
 
         {/* Gold diagonal accent bar */}
-        <div aria-hidden="true" className="absolute -right-20 top-1/4 w-80 h-2 bg-spirit-gold/30 rotate-[135deg]" />
-        <div aria-hidden="true" className="absolute -left-10 bottom-1/3 w-60 h-1.5 bg-spirit-gold/20 rotate-[135deg]" />
+        <div
+          aria-hidden="true"
+          className="absolute -right-20 top-1/4 w-80 h-2 bg-spirit-gold/30 rotate-[135deg]"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute -left-10 bottom-1/3 w-60 h-1.5 bg-spirit-gold/20 rotate-[135deg]"
+        />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 py-20 md:py-28 lg:py-32 w-full">
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-bold text-white leading-tight max-w-3xl">
@@ -246,8 +252,8 @@ export default function Home({loaderData}: Route.ComponentProps) {
           </p>
           <div className="mt-10">
             <Link
-              to="/get-involved"
               className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
+              to="/get-involved"
             >
               Join PTA
             </Link>
@@ -270,19 +276,19 @@ export default function Home({loaderData}: Route.ComponentProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {events.map((event) => (
               <EventCard
+                day={formatEventDay(event.start)}
+                description={event.description || event.category}
                 key={event.id}
                 month={formatEventMonth(event.start)}
-                day={formatEventDay(event.start)}
                 title={event.title}
-                description={event.description || event.category}
               />
             ))}
           </div>
 
           <div className="mt-10 text-right">
             <Link
-              to="/events"
               className="inline-flex items-center gap-1 font-heading font-bold text-eagle-blue hover:text-spirit-gold transition-colors"
+              to="/events"
             >
               View All Events
               <svg
@@ -319,10 +325,10 @@ export default function Home({loaderData}: Route.ComponentProps) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {news.map((item) => (
               <NewsCard
-                key={item.id}
                 date={formatNewsDate(item.date)}
-                title={item.title}
                 excerpt={item.excerpt}
+                key={item.id}
+                title={item.title}
                 to={item.url !== '#' ? item.url : '/news'}
               />
             ))}
@@ -330,8 +336,8 @@ export default function Home({loaderData}: Route.ComponentProps) {
 
           <div className="mt-10 text-right">
             <Link
-              to="/news"
               className="inline-flex items-center gap-1 font-heading font-bold text-eagle-blue hover:text-spirit-gold transition-colors"
+              to="/news"
             >
               All News
               <svg
@@ -354,7 +360,11 @@ export default function Home({loaderData}: Route.ComponentProps) {
       </section>
 
       {/* ── Angled divider ──────────────────────────────────────────────── */}
-      <div aria-hidden="true" className="h-16 bg-white" style={{clipPath: 'polygon(0 0, 100% 0, 0 100%, 0 0)'}} />
+      <div
+        aria-hidden="true"
+        className="h-16 bg-white"
+        style={{clipPath: 'polygon(0 0, 100% 0, 0 100%, 0 0)'}}
+      />
 
       {/* ── 4. Get Involved Section ─────────────────────────────────────── */}
       <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
@@ -396,8 +406,8 @@ export default function Home({loaderData}: Route.ComponentProps) {
                 make a difference.
               </p>
               <Link
-                to="/get-involved"
                 className="mt-5 inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
+                to="/get-involved"
               >
                 Learn More
                 <span className="sr-only"> about volunteering</span>
@@ -442,10 +452,10 @@ export default function Home({loaderData}: Route.ComponentProps) {
                 Hills great.
               </p>
               <a
-                href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
-                target="_blank"
-                rel="noopener noreferrer"
                 className="mt-5 inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
+                href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
+                rel="noopener noreferrer"
+                target="_blank"
               >
                 Join Now
                 <span className="sr-only">(opens in new tab)</span>
@@ -490,10 +500,10 @@ export default function Home({loaderData}: Route.ComponentProps) {
                 directly to programs, staff, and resources.
               </p>
               <a
-                href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
-                target="_blank"
-                rel="noopener noreferrer"
                 className="mt-5 inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
+                href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
+                rel="noopener noreferrer"
+                target="_blank"
               >
                 Give Now
                 <span className="sr-only">(opens in new tab)</span>
@@ -532,8 +542,8 @@ export default function Home({loaderData}: Route.ComponentProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {programs.map((program) => (
               <div
-                key={program.name}
                 className="group flex items-start gap-4 bg-white rounded-lg shadow-md p-6 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
+                key={program.name}
               >
                 <div
                   className={`shrink-0 h-12 w-12 rounded-lg ${program.color} flex items-center justify-center text-white`}
@@ -554,8 +564,8 @@ export default function Home({loaderData}: Route.ComponentProps) {
 
           <div className="mt-10 text-right">
             <Link
-              to="/programs"
               className="inline-flex items-center gap-1 font-heading font-bold text-eagle-blue hover:text-spirit-gold transition-colors"
+              to="/programs"
             >
               View All Programs
               <svg
@@ -592,13 +602,13 @@ export default function Home({loaderData}: Route.ComponentProps) {
           <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
             {sponsors.map((sponsor) => (
               <div
-                key={sponsor.name}
                 className="aspect-[3/2] rounded-lg bg-white border border-charcoal/10 flex items-center justify-center p-3"
+                key={sponsor.name}
               >
                 <img
-                  src={sponsor.logo}
                   alt={sponsor.name}
                   className={`max-h-full max-w-full object-contain ${sponsor.logoClassName ?? ''}`}
+                  src={sponsor.logo}
                 />
               </div>
             ))}
@@ -606,8 +616,8 @@ export default function Home({loaderData}: Route.ComponentProps) {
 
           <div className="mt-10">
             <Link
-              to="/sponsors"
               className="inline-flex items-center gap-1 font-heading font-bold text-eagle-blue hover:text-spirit-gold transition-colors"
+              to="/sponsors"
             >
               Become a Local Business Sponsor
               <svg
