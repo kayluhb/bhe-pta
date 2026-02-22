@@ -76,16 +76,17 @@ const programs = [
     color: 'bg-eagle-blue',
     icon: (
       <svg
+        aria-hidden="true"
         className="h-8 w-8"
         fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
         stroke="currentColor"
+        strokeWidth={1.5}
+        viewBox="0 0 24 24"
       >
         <path
+          d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42"
           strokeLinecap="round"
           strokeLinejoin="round"
-          d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42"
         />
       </svg>
     ),
@@ -96,16 +97,17 @@ const programs = [
     color: 'bg-spirit-gold',
     icon: (
       <svg
+        aria-hidden="true"
         className="h-8 w-8"
         fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
         stroke="currentColor"
+        strokeWidth={1.5}
+        viewBox="0 0 24 24"
       >
         <path
+          d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"
           strokeLinecap="round"
           strokeLinejoin="round"
-          d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"
         />
       </svg>
     ),
@@ -116,16 +118,17 @@ const programs = [
     color: 'bg-creek-green',
     icon: (
       <svg
+        aria-hidden="true"
         className="h-8 w-8"
         fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
         stroke="currentColor"
+        strokeWidth={1.5}
+        viewBox="0 0 24 24"
       >
         <path
+          d="M12 21V10m0 0c0-4.418 3.582-8 8-8 0 4.418-3.582 8-8 8zm0 0c0-3.314-2.686-6-6-6 0 3.314 2.686 6 6 6z"
           strokeLinecap="round"
           strokeLinejoin="round"
-          d="M12 21V10m0 0c0-4.418 3.582-8 8-8 0 4.418-3.582 8-8 8zm0 0c0-3.314-2.686-6-6-6 0 3.314 2.686 6 6 6z"
         />
       </svg>
     ),
@@ -136,16 +139,17 @@ const programs = [
     color: 'bg-eagle-blue',
     icon: (
       <svg
+        aria-hidden="true"
         className="h-8 w-8"
         fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
         stroke="currentColor"
+        strokeWidth={1.5}
+        viewBox="0 0 24 24"
       >
         <path
+          d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.62 48.62 0 0112 20.904a48.62 48.62 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.636 50.636 0 00-2.658-.813A59.906 59.906 0 0112 3.493a59.903 59.903 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.62 48.62 0 0112 20.904a48.62 48.62 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.636 50.636 0 00-2.658-.813A59.906 59.906 0 0112 3.493a59.903 59.903 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"
         />
       </svg>
     ),
@@ -156,16 +160,17 @@ const programs = [
     color: 'bg-spirit-gold',
     icon: (
       <svg
+        aria-hidden="true"
         className="h-8 w-8"
         fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
         stroke="currentColor"
+        strokeWidth={1.5}
+        viewBox="0 0 24 24"
       >
         <path
+          d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
           strokeLinecap="round"
           strokeLinejoin="round"
-          d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
         />
       </svg>
     ),
@@ -176,16 +181,17 @@ const programs = [
     color: 'bg-creek-green',
     icon: (
       <svg
+        aria-hidden="true"
         className="h-8 w-8"
         fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
         stroke="currentColor"
+        strokeWidth={1.5}
+        viewBox="0 0 24 24"
       >
         <path
+          d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
           strokeLinecap="round"
           strokeLinejoin="round"
-          d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
         />
       </svg>
     ),
@@ -219,6 +225,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
       <section className="relative min-h-[60vh] flex items-center bg-gradient-to-br from-eagle-blue to-night-blue overflow-hidden">
         {/* Diagonal gold accent stripe */}
         <div
+          aria-hidden="true"
           className="absolute inset-0 opacity-[0.07]"
           style={{
             backgroundImage:
@@ -227,8 +234,8 @@ export default function Home({loaderData}: Route.ComponentProps) {
         />
 
         {/* Gold diagonal accent bar */}
-        <div className="absolute -right-20 top-1/4 w-80 h-2 bg-spirit-gold/30 rotate-[135deg]" />
-        <div className="absolute -left-10 bottom-1/3 w-60 h-1.5 bg-spirit-gold/20 rotate-[135deg]" />
+        <div aria-hidden="true" className="absolute -right-20 top-1/4 w-80 h-2 bg-spirit-gold/30 rotate-[135deg]" />
+        <div aria-hidden="true" className="absolute -left-10 bottom-1/3 w-60 h-1.5 bg-spirit-gold/20 rotate-[135deg]" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 py-20 md:py-28 lg:py-32 w-full">
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-bold text-white leading-tight max-w-3xl">
@@ -249,6 +256,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
 
         {/* Angled bottom edge */}
         <div
+          aria-hidden="true"
           className="absolute bottom-0 left-0 right-0 h-16 bg-warm-white"
           style={{clipPath: 'polygon(0 100%, 100% 0, 100% 100%)'}}
         />
@@ -278,16 +286,17 @@ export default function Home({loaderData}: Route.ComponentProps) {
             >
               View All Events
               <svg
+                aria-hidden="true"
                 className="h-5 w-5"
                 fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2.5}
                 stroke="currentColor"
+                strokeWidth={2.5}
+                viewBox="0 0 24 24"
               >
                 <path
+                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                 />
               </svg>
             </Link>
@@ -297,6 +306,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
 
       {/* ── Angled divider ──────────────────────────────────────────────── */}
       <div
+        aria-hidden="true"
         className="h-16 bg-warm-white -mb-1"
         style={{clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 0)'}}
       />
@@ -325,16 +335,17 @@ export default function Home({loaderData}: Route.ComponentProps) {
             >
               All News
               <svg
+                aria-hidden="true"
                 className="h-5 w-5"
                 fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2.5}
                 stroke="currentColor"
+                strokeWidth={2.5}
+                viewBox="0 0 24 24"
               >
                 <path
+                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                 />
               </svg>
             </Link>
@@ -343,12 +354,13 @@ export default function Home({loaderData}: Route.ComponentProps) {
       </section>
 
       {/* ── Angled divider ──────────────────────────────────────────────── */}
-      <div className="h-16 bg-white" style={{clipPath: 'polygon(0 0, 100% 0, 0 100%, 0 0)'}} />
+      <div aria-hidden="true" className="h-16 bg-white" style={{clipPath: 'polygon(0 0, 100% 0, 0 100%, 0 0)'}} />
 
       {/* ── 4. Get Involved Section ─────────────────────────────────────── */}
       <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
         {/* Subtle gold diagonal accent */}
         <div
+          aria-hidden="true"
           className="absolute top-0 right-0 w-1/2 h-full bg-spirit-gold/5"
           style={{clipPath: 'polygon(100% 0, 0 100%, 100% 100%)'}}
         />
@@ -364,16 +376,17 @@ export default function Home({loaderData}: Route.ComponentProps) {
             <div className="group bg-white rounded-lg shadow-lg border-b-4 border-spirit-gold p-8 transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
               <div className="h-14 w-14 rounded-full bg-eagle-blue/10 flex items-center justify-center mb-5">
                 <svg
+                  aria-hidden="true"
                   className="h-7 w-7 text-eagle-blue"
                   fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
                   stroke="currentColor"
+                  strokeWidth={1.5}
+                  viewBox="0 0 24 24"
                 >
                   <path
+                    d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"
                   />
                 </svg>
               </div>
@@ -387,17 +400,19 @@ export default function Home({loaderData}: Route.ComponentProps) {
                 className="mt-5 inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
               >
                 Learn More
+                <span className="sr-only"> about volunteering</span>
                 <svg
+                  aria-hidden="true"
                   className="h-4 w-4"
                   fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2.5}
                   stroke="currentColor"
+                  strokeWidth={2.5}
+                  viewBox="0 0 24 24"
                 >
                   <path
+                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                   />
                 </svg>
               </Link>
@@ -407,16 +422,17 @@ export default function Home({loaderData}: Route.ComponentProps) {
             <div className="group bg-white rounded-lg shadow-lg border-b-4 border-spirit-gold p-8 transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
               <div className="h-14 w-14 rounded-full bg-eagle-blue/10 flex items-center justify-center mb-5">
                 <svg
+                  aria-hidden="true"
                   className="h-7 w-7 text-eagle-blue"
                   fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
                   stroke="currentColor"
+                  strokeWidth={1.5}
+                  viewBox="0 0 24 24"
                 >
                   <path
+                    d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"
                   />
                 </svg>
               </div>
@@ -432,17 +448,19 @@ export default function Home({loaderData}: Route.ComponentProps) {
                 className="mt-5 inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
               >
                 Join Now
+                <span className="sr-only">(opens in new tab)</span>
                 <svg
+                  aria-hidden="true"
                   className="h-4 w-4"
                   fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2.5}
                   stroke="currentColor"
+                  strokeWidth={2.5}
+                  viewBox="0 0 24 24"
                 >
                   <path
+                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                   />
                 </svg>
               </a>
@@ -452,16 +470,17 @@ export default function Home({loaderData}: Route.ComponentProps) {
             <div className="group bg-white rounded-lg shadow-lg border-b-4 border-spirit-gold p-8 transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
               <div className="h-14 w-14 rounded-full bg-eagle-blue/10 flex items-center justify-center mb-5">
                 <svg
+                  aria-hidden="true"
                   className="h-7 w-7 text-eagle-blue"
                   fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
                   stroke="currentColor"
+                  strokeWidth={1.5}
+                  viewBox="0 0 24 24"
                 >
                   <path
+                    d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"
                   />
                 </svg>
               </div>
@@ -477,17 +496,19 @@ export default function Home({loaderData}: Route.ComponentProps) {
                 className="mt-5 inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
               >
                 Give Now
+                <span className="sr-only">(opens in new tab)</span>
                 <svg
+                  aria-hidden="true"
                   className="h-4 w-4"
                   fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2.5}
                   stroke="currentColor"
+                  strokeWidth={2.5}
+                  viewBox="0 0 24 24"
                 >
                   <path
+                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                   />
                 </svg>
               </a>
@@ -498,6 +519,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
 
       {/* ── Angled divider ──────────────────────────────────────────────── */}
       <div
+        aria-hidden="true"
         className="h-16 bg-gradient-to-br from-eagle-blue to-night-blue -mb-1"
         style={{clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 0)'}}
       />
@@ -537,16 +559,17 @@ export default function Home({loaderData}: Route.ComponentProps) {
             >
               View All Programs
               <svg
+                aria-hidden="true"
                 className="h-5 w-5"
                 fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2.5}
                 stroke="currentColor"
+                strokeWidth={2.5}
+                viewBox="0 0 24 24"
               >
                 <path
+                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                 />
               </svg>
             </Link>
@@ -588,16 +611,17 @@ export default function Home({loaderData}: Route.ComponentProps) {
             >
               Become a Local Business Sponsor
               <svg
+                aria-hidden="true"
                 className="h-5 w-5"
                 fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2.5}
                 stroke="currentColor"
+                strokeWidth={2.5}
+                viewBox="0 0 24 24"
               >
                 <path
+                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                 />
               </svg>
             </Link>

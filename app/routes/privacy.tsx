@@ -88,12 +88,13 @@ export default function Privacy() {
               <strong className="text-charcoal">Mailchimp</strong> — for newsletter distribution.
               Your email address is shared with Mailchimp when you subscribe. See{' '}
               <a
-                href="https://mailchimp.com/legal/privacy/"
-                target="_blank"
-                rel="noopener noreferrer"
                 className="text-eagle-blue hover:text-spirit-gold transition-colors"
+                href="https://mailchimp.com/legal/privacy/"
+                rel="noopener noreferrer"
+                target="_blank"
               >
                 Mailchimp's Privacy Policy
+                <span className="sr-only">(opens in new tab)</span>
               </a>
               .
             </li>
@@ -101,12 +102,13 @@ export default function Privacy() {
               <strong className="text-charcoal">Cloudflare</strong> — for website hosting and
               security. See{' '}
               <a
-                href="https://www.cloudflare.com/privacypolicy/"
-                target="_blank"
-                rel="noopener noreferrer"
                 className="text-eagle-blue hover:text-spirit-gold transition-colors"
+                href="https://www.cloudflare.com/privacypolicy/"
+                rel="noopener noreferrer"
+                target="_blank"
               >
                 Cloudflare's Privacy Policy
+                <span className="sr-only">(opens in new tab)</span>
               </a>
               .
             </li>

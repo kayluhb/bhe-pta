@@ -258,16 +258,17 @@ export default function Events() {
               aria-label="Previous month"
             >
               <svg
+                aria-hidden="true"
                 className="h-5 w-5"
                 fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
                 stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
               >
                 <path
+                  d="M15.75 19.5L8.25 12l7.5-7.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d="M15.75 19.5L8.25 12l7.5-7.5"
                 />
               </svg>
             </button>
@@ -290,13 +291,14 @@ export default function Events() {
               aria-label="Next month"
             >
               <svg
+                aria-hidden="true"
                 className="h-5 w-5"
                 fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
                 stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                <path d="M8.25 4.5l7.5 7.5-7.5 7.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
           </div>
@@ -347,19 +349,20 @@ export default function Events() {
             >
               Subscribe to School Calendar
               <svg
+                aria-hidden="true"
                 className="h-4 w-4"
                 fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
                 stroke="currentColor"
-                aria-hidden
+                strokeWidth={2}
+                viewBox="0 0 24 24"
               >
                 <path
+                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                 />
               </svg>
+              <span className="sr-only">(opens in new tab)</span>
             </a>
             <a
               href="https://calendar.google.com/calendar/render?cid=pta%40bheeagles.com"
@@ -369,19 +372,20 @@ export default function Events() {
             >
               Subscribe to PTA Calendar
               <svg
+                aria-hidden="true"
                 className="h-4 w-4"
                 fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
                 stroke="currentColor"
-                aria-hidden
+                strokeWidth={2}
+                viewBox="0 0 24 24"
               >
                 <path
+                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                 />
               </svg>
+              <span className="sr-only">(opens in new tab)</span>
             </a>
           </div>
         </div>

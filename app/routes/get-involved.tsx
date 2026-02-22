@@ -123,11 +123,12 @@ export default function GetInvolved() {
                   {fundedInitiatives.map((item) => (
                     <div key={item} className="flex items-start gap-3">
                       <svg
+                        aria-hidden="true"
                         className="h-5 w-5 text-creek-green shrink-0 mt-0.5"
                         fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={2}
                         stroke="currentColor"
+                        strokeWidth={2}
+                        viewBox="0 0 24 24"
                       >
                         <path
                           strokeLinecap="round"
@@ -143,12 +144,13 @@ export default function GetInvolved() {
 
               <div className="mt-10">
                 <a
-                  href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
+                  href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
+                  rel="noopener noreferrer"
+                  target="_blank"
                 >
                   Become a Member
+                  <span className="sr-only">(opens in new tab)</span>
                 </a>
               </div>
             </div>
@@ -171,12 +173,13 @@ export default function GetInvolved() {
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               <a
-                href="https://my.cheddarup.com/c/bhe-corporate-contributions-2024-25-copy"
-                target="_blank"
-                rel="noopener noreferrer"
                 className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
+                href="https://my.cheddarup.com/c/bhe-corporate-contributions-2024-25-copy"
+                rel="noopener noreferrer"
+                target="_blank"
               >
                 Become a Local Business Sponsor
+                <span className="sr-only">(opens in new tab)</span>
               </a>
               <a
                 href="/sponsors"
@@ -205,16 +208,17 @@ export default function GetInvolved() {
               <div className="flex items-center gap-3 mb-6">
                 <div className="h-10 w-10 rounded-full bg-eagle-blue flex items-center justify-center">
                   <svg
+                    aria-hidden="true"
                     className="h-5 w-5 text-white"
                     fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
                     stroke="currentColor"
+                    strokeWidth={1.5}
+                    viewBox="0 0 24 24"
                   >
                     <path
+                      d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"
                     />
                   </svg>
                 </div>
@@ -235,16 +239,17 @@ export default function GetInvolved() {
               <div className="flex items-center gap-3 mb-6">
                 <div className="h-10 w-10 rounded-full bg-spirit-gold flex items-center justify-center">
                   <svg
+                    aria-hidden="true"
                     className="h-5 w-5 text-night-blue"
                     fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
                     stroke="currentColor"
+                    strokeWidth={1.5}
+                    viewBox="0 0 24 24"
                   >
                     <path
+                      d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"
                     />
                   </svg>
                 </div>
@@ -265,16 +270,17 @@ export default function GetInvolved() {
               <div className="flex items-center gap-3 mb-6">
                 <div className="h-10 w-10 rounded-full bg-creek-green flex items-center justify-center">
                   <svg
+                    aria-hidden="true"
                     className="h-5 w-5 text-white"
                     fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
                     stroke="currentColor"
+                    strokeWidth={1.5}
+                    viewBox="0 0 24 24"
                   >
                     <path
+                      d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
                 </div>
@@ -306,12 +312,13 @@ export default function GetInvolved() {
             </p>
             <div className="mt-8">
               <a
-                href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
-                target="_blank"
-                rel="noopener noreferrer"
                 className="inline-flex items-center bg-eagle-blue text-white font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-eagle-blue/90 transition-all duration-200 hover:shadow-lg"
+                href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
+                rel="noopener noreferrer"
+                target="_blank"
               >
                 Become a Member
+                <span className="sr-only">(opens in new tab)</span>
               </a>
             </div>
           </div>

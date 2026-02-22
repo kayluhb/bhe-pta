@@ -21,12 +21,13 @@ export async function loader({request, context}: Route.LoaderArgs) {
 
 export default function AdminLogin() {
   return (
-    <div className="min-h-screen bg-warm-white flex flex-col items-center justify-center px-4">
+    <main className="min-h-screen bg-warm-white flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm">
         {/* Logo / Branding */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-eagle-blue to-night-blue mb-4">
             <svg
+              aria-hidden="true"
               className="h-8 w-8 text-white"
               fill="none"
               stroke="currentColor"
@@ -55,7 +56,7 @@ export default function AdminLogin() {
             href="/api/auth/google"
             className="flex items-center justify-center gap-3 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-charcoal shadow-sm hover:bg-gray-50 transition-colors font-body"
           >
-            <svg className="h-5 w-5" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-5 w-5" viewBox="0 0 24 24">
               <path
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
                 fill="#4285F4"
@@ -81,6 +82,6 @@ export default function AdminLogin() {
           Only authorized PTA board members can access this area.
         </p>
       </div>
-    </div>
+    </main>
   );
 }

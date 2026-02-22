@@ -40,6 +40,7 @@ export default function ReimbursementSuccess() {
           <div className="bg-white rounded-lg shadow-sm border border-charcoal/10 p-8 text-center">
             <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-creek-green/10 mb-6">
               <svg
+                aria-hidden="true"
                 className="h-8 w-8 text-creek-green"
                 fill="none"
                 stroke="currentColor"

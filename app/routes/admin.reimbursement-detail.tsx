@@ -285,6 +285,7 @@ export default function AdminReimbursementDetail() {
                     ? 'bg-creek-green/10 text-creek-green'
                     : 'bg-red-50 text-red-700'
                 }`}
+                role="alert"
               >
                 {feedback.message}
               </div>
@@ -308,21 +309,22 @@ export default function AdminReimbursementDetail() {
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
+                <caption className="sr-only">Receipt entries</caption>
                 <thead>
                   <tr className="border-b border-gray-200 bg-gray-50/50">
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body">
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body" scope="col">
                       Date
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body">
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body" scope="col">
                       Description
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body">
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body" scope="col">
                       Vendor
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body">
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body" scope="col">
                       Budget Account
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body text-right">
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body text-right" scope="col">
                       Amount
                     </th>
                   </tr>
@@ -376,7 +378,7 @@ export default function AdminReimbursementDetail() {
                   href={`/api/admin/reimbursements/file?key=${encodeURIComponent(submission.pdf_key)}`}
                   className="inline-flex items-center gap-2 rounded-lg bg-eagle-blue px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-eagle-blue/90 transition-colors font-body"
                 >
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"

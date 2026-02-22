@@ -68,12 +68,13 @@ export default function Sponsors() {
           </p>
           <div className="mt-8">
             <a
-              href="https://my.cheddarup.com/c/bhe-corporate-contributions-2024-25-copy"
-              target="_blank"
-              rel="noopener noreferrer"
               className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
+              href="https://my.cheddarup.com/c/bhe-corporate-contributions-2024-25-copy"
+              rel="noopener noreferrer"
+              target="_blank"
             >
               Contribute Now
+              <span className="sr-only">(opens in new tab)</span>
             </a>
           </div>
         </div>
@@ -92,11 +93,12 @@ export default function Sponsors() {
             {fundedItems.map((item) => (
               <div key={item} className="flex items-start gap-3 p-3">
                 <svg
+                  aria-hidden="true"
                   className="h-5 w-5 text-creek-green shrink-0 mt-0.5"
                   fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
                   stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                 </svg>
@@ -134,11 +136,12 @@ export default function Sponsors() {
                     className={`h-10 w-10 rounded-lg ${tier.color} flex items-center justify-center`}
                   >
                     <svg
+                      aria-hidden="true"
                       className="h-5 w-5 text-white"
                       fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
                       stroke="currentColor"
+                      strokeWidth={1.5}
+                      viewBox="0 0 24 24"
                     >
                       <path
                         strokeLinecap="round"
@@ -169,11 +172,12 @@ export default function Sponsors() {
                     );
                     return sponsor.url ? (
                       <a
-                        key={sponsor.name}
-                        href={sponsor.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        aria-label={`Visit ${sponsor.name} website (opens in new tab)`}
                         className="transition-transform hover:scale-105"
+                        href={sponsor.url}
+                        key={sponsor.name}
+                        rel="noopener noreferrer"
+                        target="_blank"
                       >
                         {card}
                       </a>
@@ -217,12 +221,13 @@ export default function Sponsors() {
           </p>
           <div className="mt-8">
             <a
-              href="https://my.cheddarup.com/c/bhe-corporate-contributions-2024-25-copy"
-              target="_blank"
-              rel="noopener noreferrer"
               className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
+              href="https://my.cheddarup.com/c/bhe-corporate-contributions-2024-25-copy"
+              rel="noopener noreferrer"
+              target="_blank"
             >
               Contribute Now
+              <span className="sr-only">(opens in new tab)</span>
             </a>
           </div>
         </div>

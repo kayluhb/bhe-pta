@@ -27,7 +27,7 @@ const quickLinks = [
     description: 'Submit expense reimbursement requests to the PTA',
     icon: (
       <svg
-        aria-hidden
+        aria-hidden="true"
         className="h-7 w-7"
         fill="none"
         stroke="currentColor"
@@ -49,7 +49,7 @@ const quickLinks = [
     description: 'Access grades, attendance, and student information',
     icon: (
       <svg
-        aria-hidden
+        aria-hidden="true"
         className="h-7 w-7"
         fill="none"
         stroke="currentColor"
@@ -71,7 +71,7 @@ const quickLinks = [
     description: 'View daily menus and manage lunch accounts',
     icon: (
       <svg
-        aria-hidden
+        aria-hidden="true"
         className="h-7 w-7"
         fill="none"
         stroke="currentColor"
@@ -93,7 +93,7 @@ const quickLinks = [
     description: 'Barton Hills Elementary official AISD page',
     icon: (
       <svg
-        aria-hidden
+        aria-hidden="true"
         className="h-7 w-7"
         fill="none"
         stroke="currentColor"
@@ -115,7 +115,7 @@ const quickLinks = [
     description: 'District news, policies, and resources',
     icon: (
       <svg
-        aria-hidden
+        aria-hidden="true"
         className="h-7 w-7"
         fill="none"
         stroke="currentColor"
@@ -188,7 +188,7 @@ export default function Parents() {
                     <span className="mt-3 inline-flex items-center gap-1 text-sm font-heading font-bold text-eagle-blue group-hover:text-spirit-gold transition-colors">
                       {'to' in link ? 'Go' : 'Visit'}
                       <svg
-                        aria-hidden
+                        aria-hidden="true"
                         className="h-4 w-4"
                         fill="none"
                         stroke="currentColor"
@@ -223,6 +223,7 @@ export default function Parents() {
                   target="_blank"
                 >
                   {inner}
+                  <span className="sr-only">(opens in new tab)</span>
                 </a>
               );
             })}
@@ -241,12 +242,13 @@ export default function Parents() {
             </div>
             <div className="p-6 md:p-8">
               <table className="w-full">
+                <caption className="sr-only">School hours</caption>
                 <tbody className="divide-y divide-charcoal/10">
                   {hours.map((row) => (
                     <tr key={row.label}>
-                      <td className="py-4 pr-4">
+                      <th className="py-4 pr-4 text-left" scope="row">
                         <span className="font-heading font-bold text-charcoal">{row.label}</span>
-                      </td>
+                      </th>
                       <td className="py-4 text-right">
                         <span className="text-charcoal/70 font-medium">{row.time}</span>
                       </td>
@@ -274,7 +276,7 @@ export default function Parents() {
             <div className="bg-white rounded-lg shadow-md p-6 text-center">
               <div className="mx-auto h-12 w-12 rounded-full bg-eagle-blue/10 flex items-center justify-center text-eagle-blue mb-4">
                 <svg
-                  aria-hidden
+                  aria-hidden="true"
                   className="h-6 w-6"
                   fill="none"
                   stroke="currentColor"
@@ -302,7 +304,7 @@ export default function Parents() {
             <div className="bg-white rounded-lg shadow-md p-6 text-center">
               <div className="mx-auto h-12 w-12 rounded-full bg-eagle-blue/10 flex items-center justify-center text-eagle-blue mb-4">
                 <svg
-                  aria-hidden
+                  aria-hidden="true"
                   className="h-6 w-6"
                   fill="none"
                   stroke="currentColor"
@@ -325,7 +327,7 @@ export default function Parents() {
             <div className="bg-white rounded-lg shadow-md p-6 text-center">
               <div className="mx-auto h-12 w-12 rounded-full bg-eagle-blue/10 flex items-center justify-center text-eagle-blue mb-4">
                 <svg
-                  aria-hidden
+                  aria-hidden="true"
                   className="h-6 w-6"
                   fill="none"
                   stroke="currentColor"
@@ -353,7 +355,7 @@ export default function Parents() {
             <div className="bg-white rounded-lg shadow-md p-6 text-center">
               <div className="mx-auto h-12 w-12 rounded-full bg-eagle-blue/10 flex items-center justify-center text-eagle-blue mb-4">
                 <svg
-                  aria-hidden
+                  aria-hidden="true"
                   className="h-6 w-6"
                   fill="none"
                   stroke="currentColor"

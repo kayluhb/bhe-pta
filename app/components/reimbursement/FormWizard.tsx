@@ -115,7 +115,7 @@ export function FormWizard() {
       )}
 
       <div className="flex justify-center mt-6">
-        <div ref={turnstileRef} />
+        <div aria-label="Security verification" ref={turnstileRef} />
       </div>
     </div>
   );

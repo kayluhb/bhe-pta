@@ -64,7 +64,7 @@ export function FileUploads({
         </p>
 
         {files.length < maxFiles && (
-          <FileUpload onFileSelect={handleFileSelect} label="" disabled={isUploading} />
+          <FileUpload disabled={isUploading} label="Upload receipt file" onFileSelect={handleFileSelect} />
         )}
 
         {/* Upload Progress */}

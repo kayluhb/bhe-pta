@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import type {ArchiveItem} from '~/data/archive';
 import {archiveData} from '~/data/archive';
 import type {Route} from './+types/archive';
@@ -66,11 +66,12 @@ export default function Archive({loaderData}: Route.ComponentProps) {
           <div className="max-w-3xl mx-auto px-4 text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-eagle-blue/10 mb-6">
               <svg
+                aria-hidden="true"
                 className="h-8 w-8 text-eagle-blue"
                 fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
                 stroke="currentColor"
+                strokeWidth={1.5}
+                viewBox="0 0 24 24"
               >
                 <path
                   strokeLinecap="round"
@@ -92,45 +93,97 @@ export default function Archive({loaderData}: Route.ComponentProps) {
 
       {/* ── 3. Lightbox ──────────────────────────────────────────────────── */}
       {lightboxItem && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
-          onClick={() => setLightboxItem(null)}
-          onKeyDown={(e) => {
-            if (e.key === 'Escape') setLightboxItem(null);
-          }}
-          role="dialog"
-          aria-label={lightboxItem.title}
-        >
-          <div
-            className="relative max-w-4xl w-full max-h-[90vh]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setLightboxItem(null)}
-              className="absolute -top-10 right-0 text-white/80 hover:text-white transition-colors cursor-pointer"
-              aria-label="Close"
-            >
-              <svg
-                className="h-8 w-8"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <img
-              src={`https://archive.bheeagles.com/${lightboxItem.r2Key}`}
-              alt={lightboxItem.title}
-              className="w-full h-auto max-h-[85vh] object-contain rounded-lg"
-            />
-            <p className="mt-3 text-center text-white font-heading font-semibold">
-              {lightboxItem.title}
-            </p>
-          </div>
-        </div>
+        <Lightbox item={lightboxItem} onClose={() => setLightboxItem(null)} />
       )}
+    </div>
+  );
+}
+
+// ─── Lightbox ───────────────────────────────────────────────────────────────
+
+function Lightbox({item, onClose}: {item: ArchiveItem; onClose: () => void}) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previousFocusRef = useRef<Element | null>(null);
+
+  useEffect(() => {
+    previousFocusRef.current = document.activeElement;
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key === 'Tab') {
+        const dialog = dialogRef.current;
+        if (!dialog) return;
+        const focusable = dialog.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      if (previousFocusRef.current instanceof HTMLElement) {
+        previousFocusRef.current.focus();
+      }
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      aria-label={item.title}
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+      onClick={onClose}
+      ref={dialogRef}
+      role="dialog"
+    >
+      <div
+        className="relative max-w-4xl w-full max-h-[90vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          aria-label="Close"
+          className="absolute -top-10 right-0 text-white/80 hover:text-white transition-colors cursor-pointer"
+          onClick={onClose}
+          ref={closeButtonRef}
+        >
+          <svg
+            aria-hidden="true"
+            className="h-8 w-8"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <img
+          alt={item.title}
+          className="w-full h-auto max-h-[85vh] object-contain rounded-lg"
+          src={`https://archive.bheeagles.com/${item.r2Key}`}
+        />
+        <p className="mt-3 text-center text-white font-heading font-semibold">{item.title}</p>
+      </div>
     </div>
   );
 }
@@ -151,9 +204,10 @@ function YearSection({
   return (
     <div className="bg-white rounded-xl shadow-sm border border-charcoal/5 overflow-hidden">
       <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-6 py-5 text-left cursor-pointer hover:bg-charcoal/[0.02] transition-colors"
+        aria-controls={`year-panel-${yearData.year}`}
         aria-expanded={open}
+        className="w-full flex items-center justify-between px-6 py-5 text-left cursor-pointer hover:bg-charcoal/[0.02] transition-colors"
+        onClick={() => setOpen(!open)}
       >
         <div className="flex items-center gap-4">
           <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-eagle-blue text-white font-heading font-bold text-sm shrink-0">
@@ -173,11 +227,12 @@ function YearSection({
             {yearData.items.length} {yearData.items.length === 1 ? 'item' : 'items'}
           </span>
           <svg
+            aria-hidden="true"
             className={`h-5 w-5 text-charcoal/40 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
             fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
             stroke="currentColor"
+            strokeWidth={2}
+            viewBox="0 0 24 24"
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
           </svg>
@@ -185,7 +240,11 @@ function YearSection({
       </button>
 
       {open && (
-        <div className="px-6 pb-6 border-t border-charcoal/5">
+        <div
+          className="px-6 pb-6 border-t border-charcoal/5"
+          id={`year-panel-${yearData.year}`}
+          role="region"
+        >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-5">
             {yearData.items
               .slice()
@@ -250,11 +309,12 @@ function ItemCard({
       <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-eagle-blue/10 text-eagle-blue shrink-0 group-hover:bg-eagle-blue group-hover:text-white transition-colors duration-200">
         {item.type === 'pdf' ? (
           <svg
+            aria-hidden="true"
             className="h-5 w-5"
             fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
             stroke="currentColor"
+            strokeWidth={1.5}
+            viewBox="0 0 24 24"
           >
             <path
               strokeLinecap="round"
@@ -264,11 +324,12 @@ function ItemCard({
           </svg>
         ) : (
           <svg
+            aria-hidden="true"
             className="h-5 w-5"
             fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
             stroke="currentColor"
+            strokeWidth={1.5}
+            viewBox="0 0 24 24"
           >
             <path
               strokeLinecap="round"

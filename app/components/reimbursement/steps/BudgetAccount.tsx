@@ -268,9 +268,9 @@ export function BudgetAccount({
                     </span>
                   </div>
                   <SearchableSelect
-                    label=""
-                    value={receipt.budgetAccount || budget.primaryAccount}
+                    label="Budget account"
                     onChange={(value) => onUpdateReceipt(index, {budgetAccount: value})}
+                    value={receipt.budgetAccount || budget.primaryAccount}
                   />
                 </div>
               ))}

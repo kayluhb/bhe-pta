@@ -260,7 +260,7 @@ export default function AdminReimbursements() {
             href={exportUrl}
             className="inline-flex items-center gap-2 rounded-lg bg-eagle-blue px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-eagle-blue/90 transition-colors font-body"
           >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -338,32 +338,34 @@ export default function AdminReimbursements() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left">
+                <caption className="sr-only">Reimbursement submissions</caption>
                 <thead>
                   <tr className="border-b border-gray-200 bg-gray-50/50">
-                    <th className="w-10 px-4 py-3">
+                    <th className="w-10 px-4 py-3" scope="col">
                       <input
-                        type="checkbox"
+                        aria-label="Select all submissions"
                         checked={allSelected}
-                        onChange={toggleAll}
                         className="h-4 w-4 rounded border-gray-300 text-eagle-blue focus:ring-eagle-blue"
+                        onChange={toggleAll}
+                        type="checkbox"
                       />
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body">
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body" scope="col">
                       Date
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body">
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body" scope="col">
                       Requester
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body hidden md:table-cell">
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body hidden md:table-cell" scope="col">
                       Email
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body text-right">
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body text-right" scope="col">
                       Amount
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body">
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body" scope="col">
                       Status
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body text-right">
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body text-right" scope="col">
                       Actions
                     </th>
                   </tr>
@@ -376,10 +378,11 @@ export default function AdminReimbursements() {
                     >
                       <td className="w-10 px-4 py-3">
                         <input
-                          type="checkbox"
+                          aria-label={`Select submission from ${sub.requester_name}`}
                           checked={selected.has(String(sub.id))}
-                          onChange={() => toggleOne(String(sub.id))}
                           className="h-4 w-4 rounded border-gray-300 text-eagle-blue focus:ring-eagle-blue"
+                          onChange={() => toggleOne(String(sub.id))}
+                          type="checkbox"
                         />
                       </td>
                       <td className="px-4 py-3 text-sm text-charcoal font-body whitespace-nowrap">
@@ -399,10 +402,10 @@ export default function AdminReimbursements() {
                       </td>
                       <td className="px-4 py-3 text-right">
                         <a
-                          href={`/admin/reimbursements/${sub.id}`}
                           className="text-sm text-eagle-blue hover:text-eagle-blue/80 font-medium font-body transition-colors"
+                          href={`/admin/reimbursements/${sub.id}`}
                         >
-                          View
+                          View<span className="sr-only"> submission from {sub.requester_name}</span>
                         </a>
                       </td>
                     </tr>

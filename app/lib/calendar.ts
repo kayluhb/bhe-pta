@@ -48,12 +48,13 @@ function inferCategory(title: string): string {
 
 /** Parse ICS date formats: 20260201, 20260214T173000, or 20260214T233000Z */
 function parseIcsDate(d: string): string {
-  // Strip trailing Z (we treat all times as Central Time for this school)
+  const isUtc = d.endsWith('Z');
   const clean = d.replace(/Z$/, '');
   if (clean.length === 8) {
     return `${clean.slice(0, 4)}-${clean.slice(4, 6)}-${clean.slice(6, 8)}`;
   }
-  return `${clean.slice(0, 4)}-${clean.slice(4, 6)}-${clean.slice(6, 8)}T${clean.slice(9, 11)}:${clean.slice(11, 13)}:${clean.slice(13, 15)}`;
+  const iso = `${clean.slice(0, 4)}-${clean.slice(4, 6)}-${clean.slice(6, 8)}T${clean.slice(9, 11)}:${clean.slice(11, 13)}:${clean.slice(13, 15)}`;
+  return isUtc ? iso + 'Z' : iso;
 }
 
 /** Parse a raw ICS text string into CalendarEvent objects. */
