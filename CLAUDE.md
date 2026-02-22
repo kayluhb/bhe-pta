@@ -5,12 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Build & Development Commands
 
 ```bash
-npm run dev              # Local dev server with HMR (http://localhost:5173)
-npm run build            # Production build (react-router build)
-npm run deploy           # Build + deploy to Cloudflare Workers
-npm run typecheck        # Full type check: cf-typegen → react-router typegen → tsc -b
-npm run cf-typegen       # Regenerate Cloudflare binding types (worker-configuration.d.ts)
-npm run preview          # Build + local preview via Vite
+pnpm dev              # Local dev server with HMR (http://localhost:5173)
+pnpm build            # Production build (react-router build)
+pnpm prod:deploy      # Build + deploy to Cloudflare Workers
+pnpm typecheck        # Full type check: cf-typegen → react-router typegen → tsc -b
+pnpm cf-typegen       # Regenerate Cloudflare binding types (worker-configuration.d.ts)
+pnpm preview          # Build + local preview via Vite
 ```
 
 No test framework is currently configured.

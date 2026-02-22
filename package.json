@@ -2,14 +2,15 @@
   "name": "bhe-pta",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.30.0",
   "scripts": {
     "build": "react-router build",
     "cf-typegen": "wrangler types",
     "dev": "react-router dev",
-    "postinstall": "npm run cf-typegen",
-    "preview": "npm run build && vite preview",
-    "prod:deploy": "npm run build && wrangler deploy",
-    "typecheck": "npm run cf-typegen && react-router typegen && tsc -b",
+    "postinstall": "pnpm run cf-typegen",
+    "preview": "pnpm run build && vite preview",
+    "prod:deploy": "pnpm run build && wrangler deploy",
+    "typecheck": "pnpm run cf-typegen && react-router typegen && tsc -b",
     "refresh": "curl -s -X POST https://bheeagles.com/api/refresh -H \"Authorization: Bearer $SESSION_SECRET\" | jq ."
   },
   "dependencies": {
