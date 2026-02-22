@@ -14,13 +14,13 @@ The official website for the Bryker Heights Elementary PTA, built with React Rou
 Install dependencies:
 
 ```bash
-npm install
+pnpm install
 ```
 
 Start the dev server:
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 The site will be available at `http://localhost:5173`.
@@ -29,16 +29,16 @@ The site will be available at `http://localhost:5173`.
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Local dev server with HMR |
-| `npm run build` | Production build |
-| `npm run deploy` | Build + deploy to Cloudflare Workers |
-| `npm run typecheck` | Full type check |
-| `npm run preview` | Build + local preview |
+| `pnpm dev` | Local dev server with HMR |
+| `pnpm build` | Production build |
+| `pnpm prod:deploy` | Build + deploy to Cloudflare Workers |
+| `pnpm typecheck` | Full type check |
+| `pnpm preview` | Build + local preview |
 
 ## Deployment
 
 Deploy to Cloudflare Workers:
 
 ```bash
-npm run deploy
+pnpm prod:deploy
 ```
