@@ -2,11 +2,11 @@ import type { Route } from "./+types/parents";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Parents — Barton Hills Elementary PTA" },
+    { title: "Parents | Barton Hills Elementary PTA" },
     {
       name: "description",
       content:
-        "Essential information and resources for Barton Hills Elementary families including school hours, contact info, and helpful links.",
+        "Essential information and resources for Barton Hills Elementary parents and families.",
     },
   ];
 }
@@ -22,7 +22,7 @@ const hours = [
 const quickLinks = [
   {
     title: "AISD Parent Portal",
-    url: "https://www.austinisd.org/parents",
+    url: "https://portal.austinisd.org/",
     description: "Access grades, attendance, and student information",
     icon: (
       <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -66,7 +66,7 @@ const quickLinks = [
 
 export default function Parents() {
   return (
-    <main>
+    <div>
       {/* ── 1. Page Banner ───────────────────────────────────────────────── */}
       <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
         <div
@@ -302,6 +302,6 @@ export default function Parents() {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

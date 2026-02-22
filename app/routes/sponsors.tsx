@@ -3,11 +3,11 @@ import type { Route } from "./+types/sponsors";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Our Sponsors — Barton Hills Elementary PTA" },
+    { title: "Our Sponsors | Barton Hills Elementary PTA" },
     {
       name: "description",
       content:
-        "Meet our Partners in Education who provide generous support to Barton Hills Elementary PTA. Learn how to become a sponsor.",
+        "Thank you to our Partners in Education who support Barton Hills Elementary PTA.",
     },
   ];
 }
@@ -57,7 +57,7 @@ const tiers = [
 
 export default function Sponsors() {
   return (
-    <main>
+    <div>
       {/* ── 1. Page Banner ───────────────────────────────────────────────── */}
       <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
         <div
@@ -184,6 +184,6 @@ export default function Sponsors() {
           </p>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

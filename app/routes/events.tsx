@@ -1,32 +1,31 @@
 import { useState, useCallback, useRef } from "react";
 import { useLoaderData } from "react-router";
 import type { Route } from "./+types/events";
-import { mockEvents } from "~/lib/mock-data";
 import type { CalendarEvent } from "~/lib/types";
-import { Calendar, CategoryLegend } from "~/components/Calendar";
+import { Calendar, CategoryLegend, getEventDaysInMonth } from "~/components/Calendar";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Events Calendar — Barton Hills Elementary PTA" },
+    { title: "Events Calendar | Barton Hills Elementary PTA" },
     {
       name: "description",
       content:
-        "View upcoming events, meetings, and activities at Barton Hills Elementary. Community events, fine arts, holidays, and more.",
+        "View upcoming events, PTA meetings, spirit nights, and school activities at Barton Hills Elementary.",
     },
   ];
 }
 
 export async function loader({ context }: Route.LoaderArgs) {
-  let events = mockEvents;
+  let events: CalendarEvent[] = [];
 
   try {
     const kvEvents = await context.cloudflare.env.BHE_CALENDAR.get(
       "events",
       "json"
     );
-    if (kvEvents) events = kvEvents as typeof events;
+    if (kvEvents) events = kvEvents as CalendarEvent[];
   } catch {
-    // KV not available — use mock data
+    // KV not available — show empty; all events come from school calendar ICS
   }
 
   return { events };
@@ -146,6 +145,18 @@ function eventInMonth(
   return start <= monthEnd && end >= monthStart;
 }
 
+/** True if event is all-day and spans every day of the given month (show above calendar). */
+function isMonthLongEvent(
+  event: CalendarEvent,
+  year: number,
+  month: number
+): boolean {
+  if (!event.allDay) return false;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const days = getEventDaysInMonth(event, year, month);
+  return days.length >= daysInMonth;
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function Events() {
@@ -188,6 +199,13 @@ export default function Events() {
         parseEventDate(a.start).getTime() - parseEventDate(b.start).getTime()
     );
 
+  const monthLongEvents = monthEvents.filter((e) =>
+    isMonthLongEvent(e, currentYear, currentMonth)
+  );
+  const calendarAndListEvents = monthEvents.filter(
+    (e) => !isMonthLongEvent(e, currentYear, currentMonth)
+  );
+
   const handleEventClick = useCallback((eventId: string) => {
     const el = document.getElementById(`event-${eventId}`);
     if (el) {
@@ -200,7 +218,7 @@ export default function Events() {
   }, []);
 
   return (
-    <main>
+    <div>
       {/* ── Page Banner ──────────────────────────────────────────────────── */}
       <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
         <div
@@ -284,13 +302,55 @@ export default function Events() {
             <CategoryLegend />
           </div>
 
+          {/* Month-long events (all-day events spanning the full month) */}
+          {monthLongEvents.length > 0 && (
+            <div className="mb-6 space-y-2">
+              {monthLongEvents.map((event) => {
+                const style = getCategoryStyle(event.category);
+                return (
+                  <div
+                    key={event.id}
+                    className={`flex items-center gap-3 rounded-lg border px-4 py-3 ${style.bg} ${style.border}`}
+                  >
+                    <span
+                      className={`text-xs font-heading font-semibold uppercase tracking-wider ${style.text}`}
+                    >
+                      {event.category}
+                    </span>
+                    <span className="font-heading font-bold text-charcoal">
+                      {event.title}
+                    </span>
+                    <span className="text-sm text-charcoal/60">
+                      {formatEventDateRange(event)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
           {/* Calendar Grid */}
           <Calendar
             year={currentYear}
             month={currentMonth}
-            events={events}
+            events={calendarAndListEvents}
             onEventClick={handleEventClick}
           />
+
+          {/* Subscribe in Google Calendar */}
+          <p className="mt-6 text-center">
+            <a
+              href="https://calendar.google.com/calendar/render?cid=http%3A%2F%2Fbartonhills.austinschools.org%2Fevents%2Fcalendar.ics%3F%261756475268369"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm font-heading font-semibold text-eagle-blue hover:text-spirit-gold transition-colors"
+            >
+              Add to Google Calendar
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </a>
+          </p>
         </div>
       </section>
 
@@ -304,20 +364,20 @@ export default function Events() {
             <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full" />
           </div>
 
-          {monthEvents.length === 0 ? (
+          {calendarAndListEvents.length === 0 && monthLongEvents.length === 0 ? (
             <p className="text-center text-charcoal/50 py-12 text-lg">
               No events scheduled for {MONTH_NAMES[currentMonth]} {currentYear}.
             </p>
           ) : (
             <div className="space-y-5">
-              {monthEvents.map((event) => (
+              {calendarAndListEvents.map((event) => (
                 <EventListItem key={event.id} event={event} />
               ))}
             </div>
           )}
         </div>
       </section>
-    </main>
+    </div>
   );
 }
 

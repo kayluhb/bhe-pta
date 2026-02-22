@@ -12,6 +12,16 @@ import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import "./app.css";
 
+export function meta() {
+  return [
+    { title: "Barton Hills Elementary PTA" },
+    { name: "description", content: "Barton Hills Elementary PTA - Supporting our school community through parent involvement, fundraising, and advocacy since 1964." },
+    { property: "og:title", content: "Barton Hills Elementary PTA" },
+    { property: "og:description", content: "Supporting our school community since 1964" },
+    { property: "og:type", content: "website" },
+  ];
+}
+
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
@@ -35,6 +45,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body className="font-body bg-warm-white text-charcoal">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-[100] focus:bg-spirit-gold focus:text-night-blue focus:px-4 focus:py-2 focus:font-bold"
+        >
+          Skip to main content
+        </a>
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -47,9 +63,9 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <div className="flex-1">
+      <main id="main-content" className="flex-1">
         <Outlet />
-      </div>
+      </main>
       <Footer />
     </div>
   );

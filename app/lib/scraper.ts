@@ -8,34 +8,21 @@ export async function scrapeSchoolNews(): Promise<Newsletter[]> {
 
   const newsletters: Newsletter[] = [];
 
-  // The school news page lists articles. Parse each one.
-  // Look for article/news item elements with titles, dates, links.
-  // Inspect the page structure — typical patterns:
-  //   - .views-row or .node-teaser for each item
-  //   - h2/h3 a for title + link
-  //   - .date-display-single or time element for date
-  //   - .field-content or p for excerpt
-
-  // Build a resilient parser that extracts what it can
-  $(
-    "article, .views-row, .node--type-article, [class*='news-item'], .view-content > div"
-  ).each((i, el) => {
+  // School site uses Drupal with .panel.panel-default for each news item:
+  //   <div class="panel panel-default clearfix">
+  //     <h2><a href="/news/2026/02/04/eagle-update-...">Eagle Update - ...</a></h2>
+  //     <div class="time"><time datetime="2026-02-04">February 04, 2026</time></div>
+  //     <p>Eagle Update - ...</p>
+  //   </div>
+  $(".panel.panel-default").each((i, el) => {
     const $el = $(el);
-    const titleEl = $el
-      .find("h2 a, h3 a, .field-title a, .views-field-title a")
-      .first();
+    const titleEl = $el.find("h2 a").first();
     const title = titleEl.text().trim();
     const href = titleEl.attr("href");
-    const dateText = $el
-      .find("time, .date-display-single, .views-field-created, .field-date")
-      .first()
-      .text()
-      .trim();
-    const excerpt = $el
-      .find("p, .field-body, .views-field-body, .field-teaser")
-      .first()
-      .text()
-      .trim();
+    const timeEl = $el.find("time").first();
+    const dateText =
+      timeEl.attr("datetime") || timeEl.text().trim();
+    const excerpt = $el.find("p").first().text().trim();
 
     if (title && href) {
       const url = href.startsWith("http")
