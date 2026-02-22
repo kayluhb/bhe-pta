@@ -1,13 +1,12 @@
-import { Link } from "react-router";
-import type { Route } from "./+types/get-involved";
+import {Link} from 'react-router';
+import type {Route} from './+types/get-involved';
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Get Involved | Barton Hills Elementary PTA" },
+    {title: 'Get Involved | Barton Hills Elementary PTA'},
     {
-      name: "description",
-      content:
-        "Volunteer, join the PTA, and support the Annual Fund at Barton Hills Elementary.",
+      name: 'description',
+      content: 'Volunteer, join the PTA, and support the Annual Fund at Barton Hills Elementary.',
     },
   ];
 }
@@ -15,53 +14,50 @@ export function meta({}: Route.MetaArgs) {
 // ─── Data ────────────────────────────────────────────────────────────────────
 
 const fundedInitiatives = [
-  "Library, music, art, and PE materials",
-  "Faculty supplies and training",
-  "Student t-shirts and yearbooks",
-  "Cultural arts programs",
-  "Social-emotional learning",
-  "Outdoor maintenance",
-  "PE equipment",
-  "HEPA filters",
-  "Technology",
-  "Academic enrichment",
-  "School gardens",
+  'Library, music, art, and PE materials',
+  'Faculty supplies and training',
+  'Student t-shirts and yearbooks',
+  'Cultural arts programs',
+  'Social-emotional learning',
+  'Outdoor maintenance',
+  'PE equipment',
+  'HEPA filters',
+  'Technology',
+  'Academic enrichment',
+  'School gardens',
 ];
 
 const regularVolunteer = [
-  "ACPTA & Vertical Team Rep",
-  "Book Buddies",
-  "Coffee Talk",
-  "Courtesy",
-  "Graphic Design",
-  "Social Media",
-  "Bulletin Board",
-  "Website",
+  'ACPTA & Vertical Team Rep',
+  'Book Buddies',
+  'Coffee Talk',
+  'Courtesy',
+  'Graphic Design',
+  'Social Media',
+  'Bulletin Board',
+  'Website',
 ];
 
 const intermittentVolunteer = [
-  "Community Events",
-  "Eagle News",
-  "Grade-level Hospitality",
-  "CATCH Committee",
-  "Cultural Arts",
-  "FUNraising",
-  "Greenworks",
-  "Parties with a Purpose",
-  "Parent Support Series",
-  "Volunteer Coordinator",
-  "Teacher Grant Program",
-  "Reflections",
-  "School Merchandise",
-  "Scholarship Awards",
-  "School Supplies",
-  "Yearbook",
+  'Community Events',
+  'Eagle News',
+  'Grade-level Hospitality',
+  'CATCH Committee',
+  'Cultural Arts',
+  'FUNraising',
+  'Greenworks',
+  'Parties with a Purpose',
+  'Parent Support Series',
+  'Volunteer Coordinator',
+  'Teacher Grant Program',
+  'Reflections',
+  'School Merchandise',
+  'Scholarship Awards',
+  'School Supplies',
+  'Yearbook',
 ];
 
-const oneTimeVolunteer = [
-  "Carnival contributions",
-  "Seasonal parent parties (fall and spring)",
-];
+const oneTimeVolunteer = ['Carnival contributions', 'Seasonal parent parties (fall and spring)'];
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -74,7 +70,7 @@ export default function GetInvolved() {
           className="absolute inset-0 opacity-[0.05]"
           style={{
             backgroundImage:
-              "repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)",
+              'repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)',
           }}
         />
         <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
@@ -106,22 +102,17 @@ export default function GetInvolved() {
                   <p className="text-5xl md:text-6xl font-heading font-bold text-spirit-gold">
                     $600+
                   </p>
-                  <p className="text-white/90 text-sm mt-1">
-                    per student annually
-                  </p>
+                  <p className="text-white/90 text-sm mt-1">per student annually</p>
                 </div>
               </div>
             </div>
 
             <div className="p-8 md:p-12">
               <p className="text-charcoal/70 text-lg leading-relaxed">
-                The PTA spends over $600 per student every year on programs and
-                resources that directly benefit our children. We request a
-                contribution of{" "}
-                <span className="font-bold text-charcoal">
-                  $200 per child
-                </span>{" "}
-                to help sustain these vital programs.
+                The PTA spends over $600 per student every year on programs and resources that
+                directly benefit our children. We request a contribution of{' '}
+                <span className="font-bold text-charcoal">$200 per child</span> to help sustain
+                these vital programs.
               </p>
 
               <div className="mt-8">
@@ -174,9 +165,9 @@ export default function GetInvolved() {
             </h2>
             <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
             <p className="mt-6 text-lg text-white/90 leading-relaxed max-w-2xl mx-auto">
-              Is your business interested in supporting Barton Hills Elementary?
-              Local business contributions help fund enrichment programs, classroom
-              resources, and community events for every student.
+              Is your business interested in supporting Barton Hills Elementary? Local business
+              contributions help fund enrichment programs, classroom resources, and community events
+              for every student.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               <a
@@ -227,16 +218,11 @@ export default function GetInvolved() {
                     />
                   </svg>
                 </div>
-                <h3 className="font-heading font-bold text-xl text-charcoal">
-                  Regular Cadence
-                </h3>
+                <h3 className="font-heading font-bold text-xl text-charcoal">Regular Cadence</h3>
               </div>
               <ul className="space-y-3">
                 {regularVolunteer.map((item) => (
-                  <li
-                    key={item}
-                    className="flex items-center gap-2 text-charcoal/70"
-                  >
+                  <li key={item} className="flex items-center gap-2 text-charcoal/70">
                     <div className="h-1.5 w-1.5 rounded-full bg-eagle-blue shrink-0" />
                     {item}
                   </li>
@@ -262,16 +248,11 @@ export default function GetInvolved() {
                     />
                   </svg>
                 </div>
-                <h3 className="font-heading font-bold text-xl text-charcoal">
-                  Intermittent
-                </h3>
+                <h3 className="font-heading font-bold text-xl text-charcoal">Intermittent</h3>
               </div>
               <ul className="space-y-3">
                 {intermittentVolunteer.map((item) => (
-                  <li
-                    key={item}
-                    className="flex items-center gap-2 text-charcoal/70"
-                  >
+                  <li key={item} className="flex items-center gap-2 text-charcoal/70">
                     <div className="h-1.5 w-1.5 rounded-full bg-spirit-gold shrink-0" />
                     {item}
                   </li>
@@ -297,16 +278,11 @@ export default function GetInvolved() {
                     />
                   </svg>
                 </div>
-                <h3 className="font-heading font-bold text-xl text-charcoal">
-                  One-Time
-                </h3>
+                <h3 className="font-heading font-bold text-xl text-charcoal">One-Time</h3>
               </div>
               <ul className="space-y-3">
                 {oneTimeVolunteer.map((item) => (
-                  <li
-                    key={item}
-                    className="flex items-center gap-2 text-charcoal/70"
-                  >
+                  <li key={item} className="flex items-center gap-2 text-charcoal/70">
                     <div className="h-1.5 w-1.5 rounded-full bg-creek-green shrink-0" />
                     {item}
                   </li>
@@ -321,15 +297,12 @@ export default function GetInvolved() {
       <section className="bg-warm-white py-16 md:py-24">
         <div className="max-w-4xl mx-auto px-4">
           <div className="bg-white rounded-lg shadow-lg p-8 md:p-12 border-l-4 border-spirit-gold">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">
-              Join PTA
-            </h2>
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">Join PTA</h2>
             <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full" />
             <p className="mt-6 text-lg text-charcoal/70 leading-relaxed">
-              Please consider joining and contributing if you can. Your membership
-              and support directly impacts every student at Barton Hills
-              Elementary. Together, we can continue to provide the programs,
-              resources, and community that make our school exceptional.
+              Please consider joining and contributing if you can. Your membership and support
+              directly impacts every student at Barton Hills Elementary. Together, we can continue
+              to provide the programs, resources, and community that make our school exceptional.
             </p>
             <div className="mt-8">
               <a
@@ -349,7 +322,7 @@ export default function GetInvolved() {
       <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
         <div
           className="absolute top-0 right-0 w-1/2 h-full bg-spirit-gold/5"
-          style={{ clipPath: "polygon(100% 0, 0 100%, 100% 100%)" }}
+          style={{clipPath: 'polygon(100% 0, 0 100%, 100% 100%)'}}
         />
         <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-heading font-bold text-white">
@@ -357,8 +330,8 @@ export default function GetInvolved() {
           </h2>
           <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
           <p className="mt-6 text-lg text-white/90 leading-relaxed">
-            Whether you have an hour or an entire semester, there is a place for
-            you in our PTA community.
+            Whether you have an hour or an entire semester, there is a place for you in our PTA
+            community.
           </p>
           <div className="mt-8">
             <a

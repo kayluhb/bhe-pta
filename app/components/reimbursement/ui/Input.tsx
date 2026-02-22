@@ -1,4 +1,4 @@
-import { type InputHTMLAttributes, forwardRef } from 'react';
+import {forwardRef, type InputHTMLAttributes} from 'react';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -6,7 +6,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className = '', label, error, id, required, ...props }, ref) => {
+  ({className = '', label, error, id, required, ...props}, ref) => {
     const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
     const errorId = error ? `${inputId}-error` : undefined;
 
@@ -15,7 +15,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label htmlFor={inputId} className="block text-sm font-medium text-charcoal/80 mb-1">
             {label}
-            {required && <span className="text-red-500 ml-1" aria-hidden="true">*</span>}
+            {required && (
+              <span className="text-red-500 ml-1" aria-hidden="true">
+                *
+              </span>
+            )}
           </label>
         )}
         <input
@@ -30,11 +34,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           {...props}
         />
         {error && (
-          <p id={errorId} role="alert" className="mt-1 text-sm text-red-600">{error}</p>
+          <p id={errorId} role="alert" className="mt-1 text-sm text-red-600">
+            {error}
+          </p>
         )}
       </div>
     );
-  }
+  },
 );
 
 Input.displayName = 'Input';

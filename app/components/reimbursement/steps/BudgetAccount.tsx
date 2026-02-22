@@ -1,6 +1,10 @@
-import { useState, useMemo, useRef, useId, useCallback } from 'react';
-import { Button } from '~/components/reimbursement/ui/Button';
-import { BUDGET_ACCOUNTS, type ReceiptData, type BudgetSelectionData } from '~/lib/reimbursement/validation';
+import {useCallback, useId, useMemo, useRef, useState} from 'react';
+import {Button} from '~/components/reimbursement/ui/Button';
+import {
+  BUDGET_ACCOUNTS,
+  type BudgetSelectionData,
+  type ReceiptData,
+} from '~/lib/reimbursement/validation';
 
 interface BudgetAccountProps {
   budget: BudgetSelectionData;
@@ -34,18 +38,19 @@ function SearchableSelect({
   const filteredAccounts = useMemo(() => {
     if (!search) return BUDGET_ACCOUNTS;
     const lower = search.toLowerCase();
-    return BUDGET_ACCOUNTS.filter((account) =>
-      account.toLowerCase().includes(lower)
-    );
+    return BUDGET_ACCOUNTS.filter((account) => account.toLowerCase().includes(lower));
   }, [search]);
 
-  const handleSelect = useCallback((account: string) => {
-    onChange(account);
-    setSearch('');
-    setIsOpen(false);
-    setActiveIndex(-1);
-    inputRef.current?.focus();
-  }, [onChange]);
+  const handleSelect = useCallback(
+    (account: string) => {
+      onChange(account);
+      setSearch('');
+      setIsOpen(false);
+      setActiveIndex(-1);
+      inputRef.current?.focus();
+    },
+    [onChange],
+  );
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen) {
@@ -60,15 +65,11 @@ function SearchableSelect({
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setActiveIndex((prev) =>
-          prev < filteredAccounts.length - 1 ? prev + 1 : 0
-        );
+        setActiveIndex((prev) => (prev < filteredAccounts.length - 1 ? prev + 1 : 0));
         break;
       case 'ArrowUp':
         e.preventDefault();
-        setActiveIndex((prev) =>
-          prev > 0 ? prev - 1 : filteredAccounts.length - 1
-        );
+        setActiveIndex((prev) => (prev > 0 ? prev - 1 : filteredAccounts.length - 1));
         break;
       case 'Enter':
         e.preventDefault();
@@ -88,14 +89,18 @@ function SearchableSelect({
   const activeOptionId = activeIndex >= 0 ? `${id}-option-${activeIndex}` : undefined;
   if (listboxRef.current && activeOptionId) {
     const activeEl = listboxRef.current.querySelector(`#${CSS.escape(activeOptionId)}`);
-    activeEl?.scrollIntoView({ block: 'nearest' });
+    activeEl?.scrollIntoView({block: 'nearest'});
   }
 
   return (
     <div className="w-full" ref={containerRef}>
       <label htmlFor={`${id}-input`} className="block text-sm font-medium text-charcoal/80 mb-1">
         {label}
-        {required && <span className="text-red-500 ml-1" aria-hidden="true">*</span>}
+        {required && (
+          <span className="text-red-500 ml-1" aria-hidden="true">
+            *
+          </span>
+        )}
       </label>
       <div className="relative">
         <input
@@ -139,8 +144,19 @@ function SearchableSelect({
             aria-label="Clear selection"
             className="absolute right-2 top-1/2 -translate-y-1/2 text-charcoal/70 hover:text-charcoal/80"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         )}
@@ -152,7 +168,9 @@ function SearchableSelect({
             className="absolute z-10 w-full mt-1 bg-white border border-charcoal/20 rounded-lg shadow-lg max-h-60 overflow-auto"
           >
             {filteredAccounts.length === 0 ? (
-              <li className="px-3 py-2 text-charcoal/70" role="option" aria-selected={false}>No accounts found</li>
+              <li className="px-3 py-2 text-charcoal/70" role="option" aria-selected={false}>
+                No accounts found
+              </li>
             ) : (
               filteredAccounts.map((account, index) => (
                 <li
@@ -211,7 +229,7 @@ export function BudgetAccount({
           <SearchableSelect
             label="Budget Account to Debit"
             value={budget.primaryAccount}
-            onChange={(value) => onUpdateBudget({ primaryAccount: value })}
+            onChange={(value) => onUpdateBudget({primaryAccount: value})}
             required
           />
 
@@ -221,7 +239,7 @@ export function BudgetAccount({
                 <input
                   type="checkbox"
                   checked={budget.splitAccounts}
-                  onChange={(e) => onUpdateBudget({ splitAccounts: e.target.checked })}
+                  onChange={(e) => onUpdateBudget({splitAccounts: e.target.checked})}
                   className="w-4 h-4 text-eagle-blue border-charcoal/20 rounded focus:ring-eagle-blue"
                 />
                 <span className="text-sm font-medium text-charcoal/80">
@@ -240,10 +258,7 @@ export function BudgetAccount({
                 Assign accounts to each receipt:
               </h3>
               {receipts.map((receipt, index) => (
-                <div
-                  key={index}
-                  className="p-3 bg-warm-white rounded-lg border border-charcoal/10"
-                >
+                <div key={index} className="p-3 bg-warm-white rounded-lg border border-charcoal/10">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm font-medium text-charcoal">
                       Receipt {index + 1}: {receipt.description || 'No description'}
@@ -255,7 +270,7 @@ export function BudgetAccount({
                   <SearchableSelect
                     label=""
                     value={receipt.budgetAccount || budget.primaryAccount}
-                    onChange={(value) => onUpdateReceipt(index, { budgetAccount: value })}
+                    onChange={(value) => onUpdateReceipt(index, {budgetAccount: value})}
                   />
                 </div>
               ))}

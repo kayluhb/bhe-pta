@@ -1,8 +1,8 @@
-import type { Route } from "./+types/api.reimbursement.pdf";
-import { generatePDF } from "~/lib/reimbursement/pdf/generator";
+import {generatePDF} from '~/lib/reimbursement/pdf/generator';
+import type {Route} from './+types/api.reimbursement.pdf';
 
 interface PDFRequestData {
-  submission?: { id?: string; submittedAt: string; totalAmount: number };
+  submission?: {id?: string; submittedAt: string; totalAmount: number};
   requester: {
     payableTo: string;
     email: string;
@@ -19,10 +19,10 @@ interface PDFRequestData {
     placeOfPurchase?: string;
     budgetAccount: string;
   }>;
-  budget: { primaryAccount: string; splitAccounts: boolean };
+  budget: {primaryAccount: string; splitAccounts: boolean};
 }
 
-export async function action({ request }: Route.ActionArgs) {
+export async function action({request}: Route.ActionArgs) {
   try {
     const data = (await request.json()) as PDFRequestData;
 
@@ -30,15 +30,12 @@ export async function action({ request }: Route.ActionArgs) {
 
     return new Response(pdfBuffer as unknown as BodyInit, {
       headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="reimbursement-${data.submission?.id || "form"}.pdf"`,
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="reimbursement-${data.submission?.id || 'form'}.pdf"`,
       },
     });
   } catch (error) {
-    console.error("PDF generation error:", error);
-    return Response.json(
-      { error: "Failed to generate PDF" },
-      { status: 500 }
-    );
+    console.error('PDF generation error:', error);
+    return Response.json({error: 'Failed to generate PDF'}, {status: 500});
   }
 }

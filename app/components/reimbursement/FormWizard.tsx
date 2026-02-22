@@ -1,14 +1,14 @@
-import { useNavigate } from "react-router";
-import { useFormState } from "~/hooks/useFormState";
-import { useTurnstile } from "~/hooks/useTurnstile";
-import { FormProgress } from "./FormProgress";
-import { RequesterInfo } from "./steps/RequesterInfo";
-import { ReceiptEntries } from "./steps/ReceiptEntries";
-import { BudgetAccount } from "./steps/BudgetAccount";
-import { FileUploads } from "./steps/FileUploads";
-import { ReviewSubmit } from "./steps/ReviewSubmit";
+import {useNavigate} from 'react-router';
+import {useFormState} from '~/hooks/useFormState';
+import {useTurnstile} from '~/hooks/useTurnstile';
+import {FormProgress} from './FormProgress';
+import {BudgetAccount} from './steps/BudgetAccount';
+import {FileUploads} from './steps/FileUploads';
+import {ReceiptEntries} from './steps/ReceiptEntries';
+import {RequesterInfo} from './steps/RequesterInfo';
+import {ReviewSubmit} from './steps/ReviewSubmit';
 
-const STEPS = ["Request Info", "Receipts", "Budget", "Files", "Review"];
+const STEPS = ['Request Info', 'Receipts', 'Budget', 'Files', 'Review'];
 
 export function FormWizard() {
   const navigate = useNavigate();
@@ -28,16 +28,12 @@ export function FormWizard() {
     getReceiptBudgetAccount,
   } = useFormState();
 
-  const {
-    token: turnstileToken,
-    containerRef: turnstileRef,
-    reset: resetTurnstile,
-  } = useTurnstile();
+  const {token: turnstileToken, containerRef: turnstileRef, reset: resetTurnstile} = useTurnstile();
 
   const handleSubmit = async (turnstileToken: string) => {
-    const response = await fetch("/api/reimbursement/submit", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const response = await fetch('/api/reimbursement/submit', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         requester: state.requester,
         receipts: state.receipts.map((r, i) => ({
@@ -51,11 +47,11 @@ export function FormWizard() {
     });
 
     if (!response.ok) {
-      const errorData = (await response.json()) as { error?: string };
-      throw new Error(errorData.error || "Submission failed");
+      const errorData = (await response.json()) as {error?: string};
+      throw new Error(errorData.error || 'Submission failed');
     }
 
-    const result = (await response.json()) as { submissionId: string };
+    const result = (await response.json()) as {submissionId: string};
     navigate(`/reimbursement/success?id=${result.submissionId}`);
   };
 
@@ -68,11 +64,7 @@ export function FormWizard() {
       </div>
 
       {currentStep === 0 && (
-        <RequesterInfo
-          data={state.requester}
-          onChange={updateRequester}
-          onNext={nextStep}
-        />
+        <RequesterInfo data={state.requester} onChange={updateRequester} onNext={nextStep} />
       )}
 
       {currentStep === 1 && (

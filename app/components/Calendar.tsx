@@ -1,42 +1,39 @@
-import type { CalendarEvent } from "~/lib/types";
+import type {CalendarEvent} from '~/lib/types';
 
 // ─── Category Colors ──────────────────────────────────────────────────────────
 
-const categoryColors: Record<
-  string,
-  { bg: string; text: string; barBg: string; barText: string }
-> = {
-  "Community Event": {
-    bg: "bg-cyan-100",
-    text: "text-cyan-800",
-    barBg: "bg-cyan-600",
-    barText: "text-white",
+const categoryColors: Record<string, {bg: string; text: string; barBg: string; barText: string}> = {
+  'Community Event': {
+    bg: 'bg-cyan-100',
+    text: 'text-cyan-800',
+    barBg: 'bg-cyan-600',
+    barText: 'text-white',
   },
-  "Fine Arts": {
-    bg: "bg-pink-100",
-    text: "text-pink-800",
-    barBg: "bg-pink-600",
-    barText: "text-white",
+  'Fine Arts': {
+    bg: 'bg-pink-100',
+    text: 'text-pink-800',
+    barBg: 'bg-pink-600',
+    barText: 'text-white',
   },
-  "Student Holiday": {
-    bg: "bg-amber-100",
-    text: "text-amber-800",
-    barBg: "bg-amber-500",
-    barText: "text-white",
+  'Student Holiday': {
+    bg: 'bg-amber-100',
+    text: 'text-amber-800',
+    barBg: 'bg-amber-500',
+    barText: 'text-white',
   },
   Athletics: {
-    bg: "bg-teal-100",
-    text: "text-teal-800",
-    barBg: "bg-teal-600",
-    barText: "text-white",
+    bg: 'bg-teal-100',
+    text: 'text-teal-800',
+    barBg: 'bg-teal-600',
+    barText: 'text-white',
   },
 };
 
 const defaultColor = {
-  bg: "bg-slate-100",
-  text: "text-slate-700",
-  barBg: "bg-slate-500",
-  barText: "text-white",
+  bg: 'bg-slate-100',
+  text: 'text-slate-700',
+  barBg: 'bg-slate-500',
+  barText: 'text-white',
 };
 
 function getCategoryColor(category: string) {
@@ -45,7 +42,7 @@ function getCategoryColor(category: string) {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 function getDaysInMonth(year: number, month: number): number {
   return new Date(year, month + 1, 0).getDate();
@@ -56,18 +53,14 @@ function getFirstDayOfMonth(year: number, month: number): number {
 }
 
 /** Parse "2026-02-14" or "2026-02-14T17:30:00" into { year, month (0-based), day } */
-function parseDate(dateStr: string): { year: number; month: number; day: number } {
-  const [datePart] = dateStr.split("T");
-  const [y, m, d] = datePart.split("-").map(Number);
-  return { year: y, month: m - 1, day: d };
+function parseDate(dateStr: string): {year: number; month: number; day: number} {
+  const [datePart] = dateStr.split('T');
+  const [y, m, d] = datePart.split('-').map(Number);
+  return {year: y, month: m - 1, day: d};
 }
 
 /** Get all dates an event spans, within a given month. Exported for use on events page. */
-export function getEventDaysInMonth(
-  event: CalendarEvent,
-  year: number,
-  month: number
-): number[] {
+export function getEventDaysInMonth(event: CalendarEvent, year: number, month: number): number[] {
   const start = parseDate(event.start);
   const end = parseDate(event.end);
 
@@ -83,7 +76,8 @@ export function getEventDaysInMonth(
   const monthEnd = new Date(year, month + 1, 0);
 
   const iterStart = startDate > monthStart ? startDate : monthStart;
-  const iterEnd = endDate <= new Date(monthEnd.getTime() + 86400000) ? endDate : new Date(year, month + 1, 1);
+  const iterEnd =
+    endDate <= new Date(monthEnd.getTime() + 86400000) ? endDate : new Date(year, month + 1, 1);
 
   const current = new Date(iterStart);
   while (current < iterEnd) {
@@ -120,14 +114,14 @@ function getEventLastDate(event: CalendarEvent): Date {
 }
 
 function computeWeekSegments(
-  multiDayEvents: { event: CalendarEvent; days: number[] }[],
+  multiDayEvents: {event: CalendarEvent; days: number[]}[],
   weekDays: (number | null)[],
   year: number,
-  month: number
+  month: number,
 ): EventSegment[] {
   const segments: EventSegment[] = [];
 
-  for (const { event, days: eventDays } of multiDayEvents) {
+  for (const {event, days: eventDays} of multiDayEvents) {
     // Find which columns in this week the event occupies
     const cols: number[] = [];
     for (let col = 0; col < 7; col++) {
@@ -153,7 +147,7 @@ function computeWeekSegments(
     const isStart = segStartDate.getTime() === actualStart.getTime();
     const isEnd = segEndDate.getTime() === actualEnd.getTime();
 
-    segments.push({ event, startCol, spanCols, isStart, isEnd, layer: 0 });
+    segments.push({event, startCol, spanCols, isStart, isEnd, layer: 0});
   }
 
   // Assign layers greedily — each segment gets the lowest non-overlapping layer
@@ -166,7 +160,7 @@ function computeWeekSegments(
         (other) =>
           other.layer === layer &&
           other.startCol < segment.startCol + segment.spanCols &&
-          other.startCol + other.spanCols > segment.startCol
+          other.startCol + other.spanCols > segment.startCol,
       )
     ) {
       layer++;
@@ -189,10 +183,31 @@ interface CalendarProps {
   onEventClick?: (eventId: string) => void;
 }
 
-const DAY_NAMES_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const DAY_NAMES_FULL = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+];
+const MONTH_NAMES = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
 
-export function Calendar({ year, month, events, onEventClick }: CalendarProps) {
+export function Calendar({year, month, events, onEventClick}: CalendarProps) {
   const daysInMonth = getDaysInMonth(year, month);
   const firstDay = getFirstDayOfMonth(year, month);
 
@@ -211,13 +226,13 @@ export function Calendar({ year, month, events, onEventClick }: CalendarProps) {
   }
 
   // Classify events: multi-day (spanning bars) vs single-day (badges)
-  const multiDayEntries: { event: CalendarEvent; days: number[] }[] = [];
+  const multiDayEntries: {event: CalendarEvent; days: number[]}[] = [];
   const multiDayEventIds = new Set<string>();
 
   for (const event of events) {
     const days = getEventDaysInMonth(event, year, month);
     if (days.length > 1) {
-      multiDayEntries.push({ event, days });
+      multiDayEntries.push({event, days});
       multiDayEventIds.add(event.id);
     }
   }
@@ -236,24 +251,28 @@ export function Calendar({ year, month, events, onEventClick }: CalendarProps) {
 
   // Compute segments for each week
   const weekSegments = weekRows.map((weekDays) =>
-    computeWeekSegments(multiDayEntries, weekDays, year, month)
+    computeWeekSegments(multiDayEntries, weekDays, year, month),
   );
 
   // Use CT-consistent date so server (UTC) and client agree on "today"
   const today = new Date();
-  const todayParts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Chicago",
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
+  const todayParts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Chicago',
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
   }).formatToParts(today);
-  const todayYear = Number(todayParts.find((p) => p.type === "year")!.value);
-  const todayMonth = Number(todayParts.find((p) => p.type === "month")!.value) - 1;
-  const todayDate = Number(todayParts.find((p) => p.type === "day")!.value);
+  const todayYear = Number(todayParts.find((p) => p.type === 'year')!.value);
+  const todayMonth = Number(todayParts.find((p) => p.type === 'month')!.value) - 1;
+  const todayDate = Number(todayParts.find((p) => p.type === 'day')!.value);
   const isCurrentMonth = todayYear === year && todayMonth === month;
 
   return (
-    <div role="grid" aria-label={`${MONTH_NAMES[month]} ${year} calendar`} className="bg-white rounded-lg shadow-md overflow-hidden">
+    <div
+      role="grid"
+      aria-label={`${MONTH_NAMES[month]} ${year} calendar`}
+      className="bg-white rounded-lg shadow-md overflow-hidden"
+    >
       {/* Day headers */}
       <div role="row" className="grid grid-cols-7 bg-eagle-blue">
         {DAY_NAMES.map((name, i) => (
@@ -294,18 +313,14 @@ export function Calendar({ year, month, events, onEventClick }: CalendarProps) {
               {/* Spanning event bars */}
               {layerCount > 0 && (
                 <div className="px-0.5 pt-1 pb-0.5 space-y-0.5 border-b border-charcoal/5">
-                  {Array.from({ length: layerCount }, (_, layerIdx) => (
+                  {Array.from({length: layerCount}, (_, layerIdx) => (
                     <div key={layerIdx} className="grid grid-cols-7 h-5 md:h-6">
                       {visibleSegments
                         .filter((s) => s.layer === layerIdx)
                         .map((segment) => {
                           const color = getCategoryColor(segment.event.category);
-                          const roundedL = segment.isStart
-                            ? "rounded-l-md ml-0.5"
-                            : "";
-                          const roundedR = segment.isEnd
-                            ? "rounded-r-md mr-0.5"
-                            : "";
+                          const roundedL = segment.isStart ? 'rounded-l-md ml-0.5' : '';
+                          const roundedR = segment.isEnd ? 'rounded-r-md mr-0.5' : '';
 
                           return (
                             <button
@@ -330,10 +345,11 @@ export function Calendar({ year, month, events, onEventClick }: CalendarProps) {
               {/* Day cells */}
               <div role="row" className="grid grid-cols-7">
                 {weekDays.map((day, col) => {
-                  const dayEvents = day ? singleDayMap.get(day) ?? [] : [];
+                  const dayEvents = day ? (singleDayMap.get(day) ?? []) : [];
                   const isToday = isCurrentMonth && day === todayDate;
-                  const hiddenSpanning = day ? hiddenPerDay.get(day) ?? 0 : 0;
-                  const fullDate = day !== null ? `${MONTH_NAMES[month]} ${day}, ${year}` : undefined;
+                  const hiddenSpanning = day ? (hiddenPerDay.get(day) ?? 0) : 0;
+                  const fullDate =
+                    day !== null ? `${MONTH_NAMES[month]} ${day}, ${year}` : undefined;
 
                   return (
                     <div
@@ -341,14 +357,14 @@ export function Calendar({ year, month, events, onEventClick }: CalendarProps) {
                       role="gridcell"
                       aria-label={fullDate}
                       className={`min-h-[48px] md:min-h-[80px] border-r border-b border-charcoal/10 p-1 md:p-1.5 ${
-                        day === null ? "bg-charcoal/[0.02]" : "bg-white"
+                        day === null ? 'bg-charcoal/[0.02]' : 'bg-white'
                       }`}
                     >
                       {day !== null && (
                         <>
                           <span
                             className={`inline-flex items-center justify-center text-xs md:text-sm font-heading font-semibold w-6 h-6 md:w-7 md:h-7 rounded-full ${
-                              isToday ? "bg-eagle-blue text-white" : "text-charcoal/70"
+                              isToday ? 'bg-eagle-blue text-white' : 'text-charcoal/70'
                             }`}
                           >
                             {day}
@@ -369,7 +385,9 @@ export function Calendar({ year, month, events, onEventClick }: CalendarProps) {
                                 );
                               })}
                               {dayEvents.length > 4 && (
-                                <span className="text-[8px] leading-none text-charcoal/50">+{dayEvents.length - 4}</span>
+                                <span className="text-[8px] leading-none text-charcoal/50">
+                                  +{dayEvents.length - 4}
+                                </span>
                               )}
                             </div>
                           )}
@@ -390,8 +408,12 @@ export function Calendar({ year, month, events, onEventClick }: CalendarProps) {
                               );
                             })}
                             {(dayEvents.length > 3 || hiddenSpanning > 0) && (
-                              <span className="text-[10px] text-charcoal/70 px-1" aria-label={`${dayEvents.length - Math.min(dayEvents.length, 3) + hiddenSpanning} more events`}>
-                                +{dayEvents.length - Math.min(dayEvents.length, 3) + hiddenSpanning} more
+                              <span
+                                className="text-[10px] text-charcoal/70 px-1"
+                                aria-label={`${dayEvents.length - Math.min(dayEvents.length, 3) + hiddenSpanning} more events`}
+                              >
+                                +{dayEvents.length - Math.min(dayEvents.length, 3) + hiddenSpanning}{' '}
+                                more
                               </span>
                             )}
                           </div>
@@ -416,7 +438,10 @@ export function CategoryLegend() {
     <div className="flex flex-wrap gap-4">
       {Object.entries(categoryColors).map(([name, colors]) => (
         <div key={name} className="flex items-center gap-1.5">
-          <span className={`inline-block w-3 h-3 rounded-full ${colors.barBg}`} aria-hidden="true" />
+          <span
+            className={`inline-block w-3 h-3 rounded-full ${colors.barBg}`}
+            aria-hidden="true"
+          />
           <span className="text-xs text-charcoal/70 font-medium">{name}</span>
         </div>
       ))}

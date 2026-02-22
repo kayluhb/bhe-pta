@@ -8,21 +8,21 @@ interface SessionPayloadWithExp extends SessionPayload {
   exp: number;
 }
 
-const SESSION_COOKIE_NAME = "admin_session";
+const SESSION_COOKIE_NAME = 'admin_session';
 const SESSION_TTL_SECONDS = 24 * 60 * 60; // 24 hours
 
 function toBase64Url(data: string): string {
-  return btoa(data).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return btoa(data).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
 function fromBase64Url(data: string): string {
-  const padded = data.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = data.replace(/-/g, '+').replace(/_/g, '/');
   return atob(padded);
 }
 
 function bufferToBase64Url(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
-  let binary = "";
+  let binary = '';
   for (let i = 0; i < bytes.length; i++) {
     binary += String.fromCharCode(bytes[i]);
   }
@@ -32,30 +32,22 @@ function bufferToBase64Url(buffer: ArrayBuffer): string {
 async function getHmacKey(secret: string): Promise<CryptoKey> {
   const encoder = new TextEncoder();
   return crypto.subtle.importKey(
-    "raw",
+    'raw',
     encoder.encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
+    {name: 'HMAC', hash: 'SHA-256'},
     false,
-    ["sign", "verify"]
+    ['sign', 'verify'],
   );
 }
 
 async function hmacSign(data: string, secret: string): Promise<string> {
   const key = await getHmacKey(secret);
   const encoder = new TextEncoder();
-  const signature = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    encoder.encode(data)
-  );
+  const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(data));
   return bufferToBase64Url(signature);
 }
 
-async function hmacVerify(
-  data: string,
-  signature: string,
-  secret: string
-): Promise<boolean> {
+async function hmacVerify(data: string, signature: string, secret: string): Promise<boolean> {
   const key = await getHmacKey(secret);
   const encoder = new TextEncoder();
 
@@ -66,22 +58,14 @@ async function hmacVerify(
     sigBytes[i] = sigBinary.charCodeAt(i);
   }
 
-  return crypto.subtle.verify(
-    "HMAC",
-    key,
-    sigBytes.buffer,
-    encoder.encode(data)
-  );
+  return crypto.subtle.verify('HMAC', key, sigBytes.buffer, encoder.encode(data));
 }
 
 /**
  * Creates a signed session cookie value from a payload.
  * Format: base64url(json).base64url(hmac-sha256)
  */
-export async function signSession(
-  payload: SessionPayload,
-  secret: string
-): Promise<string> {
+export async function signSession(payload: SessionPayload, secret: string): Promise<string> {
   const payloadWithExp: SessionPayloadWithExp = {
     ...payload,
     exp: Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS,
@@ -99,9 +83,9 @@ export async function signSession(
  */
 export async function verifySession(
   cookie: string,
-  secret: string
+  secret: string,
 ): Promise<SessionPayload | null> {
-  const dotIndex = cookie.indexOf(".");
+  const dotIndex = cookie.indexOf('.');
   if (dotIndex === -1) return null;
 
   const encodedPayload = cookie.substring(0, dotIndex);
@@ -122,7 +106,7 @@ export async function verifySession(
     return {
       email: payload.email,
       name: payload.name,
-      ...(payload.picture ? { picture: payload.picture } : {}),
+      ...(payload.picture ? {picture: payload.picture} : {}),
     };
   } catch {
     return null;
@@ -135,13 +119,11 @@ export async function verifySession(
  */
 export async function requireAdmin(
   request: Request,
-  env: { SESSION_SECRET: string }
+  env: {SESSION_SECRET: string},
 ): Promise<SessionPayload | Response> {
-  const cookieHeader = request.headers.get("Cookie") ?? "";
-  const cookies = cookieHeader.split("; ");
-  const sessionCookie = cookies.find((c) =>
-    c.startsWith(`${SESSION_COOKIE_NAME}=`)
-  );
+  const cookieHeader = request.headers.get('Cookie') ?? '';
+  const cookies = cookieHeader.split('; ');
+  const sessionCookie = cookies.find((c) => c.startsWith(`${SESSION_COOKIE_NAME}=`));
 
   const origin = new URL(request.url).origin;
 

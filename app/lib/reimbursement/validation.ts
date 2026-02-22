@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import {z} from 'zod';
 
 export const BUDGET_ACCOUNTS = [
   'Academic enrichment',
@@ -57,7 +57,7 @@ export const BUDGET_ACCOUNTS = [
   'Yearbook',
 ] as const;
 
-export type BudgetAccount = typeof BUDGET_ACCOUNTS[number];
+export type BudgetAccount = (typeof BUDGET_ACCOUNTS)[number];
 
 export const requesterSchema = z.object({
   payableTo: z.string().min(1, 'Payable to is required'),

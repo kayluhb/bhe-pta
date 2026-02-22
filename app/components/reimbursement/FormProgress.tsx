@@ -3,7 +3,7 @@ interface FormProgressProps {
   steps: string[];
 }
 
-export function FormProgress({ currentStep, steps }: FormProgressProps) {
+export function FormProgress({currentStep, steps}: FormProgressProps) {
   return (
     <nav aria-label="Progress" className="mb-8">
       <ol className="flex items-center justify-between">
@@ -11,16 +11,16 @@ export function FormProgress({ currentStep, steps }: FormProgressProps) {
           <li
             key={step}
             className="flex items-center"
-            aria-current={index === currentStep ? "step" : undefined}
+            aria-current={index === currentStep ? 'step' : undefined}
           >
             <div className="flex flex-col items-center">
               <div
                 className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors ${
                   index < currentStep
-                    ? "bg-eagle-blue border-eagle-blue text-white"
+                    ? 'bg-eagle-blue border-eagle-blue text-white'
                     : index === currentStep
-                      ? "border-eagle-blue text-eagle-blue"
-                      : "border-charcoal/20 text-charcoal/70"
+                      ? 'border-eagle-blue text-eagle-blue'
+                      : 'border-charcoal/20 text-charcoal/70'
                 }`}
               >
                 {index < currentStep ? (
@@ -44,15 +44,15 @@ export function FormProgress({ currentStep, steps }: FormProgressProps) {
               </div>
               <span
                 className={`mt-2 text-xs font-medium whitespace-nowrap ${
-                  index <= currentStep ? "text-eagle-blue" : "text-charcoal/70"
+                  index <= currentStep ? 'text-eagle-blue' : 'text-charcoal/70'
                 }`}
               >
                 <span className="sr-only">
                   {index < currentStep
-                    ? "Completed: "
+                    ? 'Completed: '
                     : index === currentStep
-                      ? "Current: "
-                      : "Upcoming: "}
+                      ? 'Current: '
+                      : 'Upcoming: '}
                 </span>
                 {step}
               </span>
@@ -61,7 +61,7 @@ export function FormProgress({ currentStep, steps }: FormProgressProps) {
               <div
                 aria-hidden="true"
                 className={`hidden sm:block w-16 md:w-24 h-0.5 mx-2 ${
-                  index < currentStep ? "bg-eagle-blue" : "bg-charcoal/20"
+                  index < currentStep ? 'bg-eagle-blue' : 'bg-charcoal/20'
                 }`}
               />
             )}

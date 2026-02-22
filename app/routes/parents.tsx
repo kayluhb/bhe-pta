@@ -1,13 +1,13 @@
-import { Link } from "react-router";
-import type { Route } from "./+types/parents";
+import {Link} from 'react-router';
+import type {Route} from './+types/parents';
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Parents | Barton Hills Elementary PTA" },
+    {title: 'Parents | Barton Hills Elementary PTA'},
     {
-      name: "description",
+      name: 'description',
       content:
-        "Essential information and resources for Barton Hills Elementary parents and families.",
+        'Essential information and resources for Barton Hills Elementary parents and families.',
     },
   ];
 }
@@ -15,16 +15,16 @@ export function meta({}: Route.MetaArgs) {
 // ─── Data ────────────────────────────────────────────────────────────────────
 
 const hours = [
-  { label: "Main Office", time: "Mon-Fri 7:30 AM - 4:00 PM" },
-  { label: "Student Hours", time: "Mon-Fri 7:40 AM - 3:10 PM" },
-  { label: "Library", time: "Mon-Fri 8:00 AM - 3:30 PM" },
+  {label: 'Main Office', time: 'Mon-Fri 7:30 AM - 4:00 PM'},
+  {label: 'Student Hours', time: 'Mon-Fri 7:40 AM - 3:10 PM'},
+  {label: 'Library', time: 'Mon-Fri 8:00 AM - 3:30 PM'},
 ];
 
 const quickLinks = [
   {
-    title: "AISD Parent Portal",
-    url: "https://portal.austinisd.org/",
-    description: "Access grades, attendance, and student information",
+    title: 'AISD Parent Portal',
+    url: 'https://portal.austinisd.org/',
+    description: 'Access grades, attendance, and student information',
     icon: (
       <svg
         className="h-7 w-7"
@@ -32,6 +32,7 @@ const quickLinks = [
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
+        aria-hidden
       >
         <path
           strokeLinecap="round"
@@ -42,9 +43,9 @@ const quickLinks = [
     ),
   },
   {
-    title: "SchoolCafe / Lunch Menus",
-    url: "https://www.schoolcafe.com",
-    description: "View daily menus and manage lunch accounts",
+    title: 'SchoolCafe / Lunch Menus',
+    url: 'https://www.schoolcafe.com',
+    description: 'View daily menus and manage lunch accounts',
     icon: (
       <svg
         className="h-7 w-7"
@@ -52,6 +53,7 @@ const quickLinks = [
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
+        aria-hidden
       >
         <path
           strokeLinecap="round"
@@ -62,9 +64,9 @@ const quickLinks = [
     ),
   },
   {
-    title: "Official School Website",
-    url: "https://bartonhills.austinschools.org",
-    description: "Barton Hills Elementary official AISD page",
+    title: 'Official School Website',
+    url: 'https://bartonhills.austinschools.org',
+    description: 'Barton Hills Elementary official AISD page',
     icon: (
       <svg
         className="h-7 w-7"
@@ -72,6 +74,7 @@ const quickLinks = [
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
+        aria-hidden
       >
         <path
           strokeLinecap="round"
@@ -82,9 +85,9 @@ const quickLinks = [
     ),
   },
   {
-    title: "Austin ISD Homepage",
-    url: "https://www.austinisd.org",
-    description: "District news, policies, and resources",
+    title: 'Austin ISD Homepage',
+    url: 'https://www.austinisd.org',
+    description: 'District news, policies, and resources',
     icon: (
       <svg
         className="h-7 w-7"
@@ -92,6 +95,7 @@ const quickLinks = [
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
+        aria-hidden
       >
         <path
           strokeLinecap="round"
@@ -102,9 +106,9 @@ const quickLinks = [
     ),
   },
   {
-    title: "PTA Reimbursement",
-    to: "/reimbursement",
-    description: "Submit expense reimbursement requests to the PTA",
+    title: 'PTA Reimbursement',
+    to: '/reimbursement',
+    description: 'Submit expense reimbursement requests to the PTA',
     icon: (
       <svg
         className="h-7 w-7"
@@ -112,6 +116,7 @@ const quickLinks = [
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
+        aria-hidden
       >
         <path
           strokeLinecap="round"
@@ -134,7 +139,7 @@ export default function Parents() {
           className="absolute inset-0 opacity-[0.05]"
           style={{
             backgroundImage:
-              "repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)",
+              'repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)',
           }}
         />
         <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
@@ -142,8 +147,7 @@ export default function Parents() {
             Parents
           </h1>
           <p className="mt-4 text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
-            Essential information and resources for Barton Hills Elementary
-            families
+            Essential information and resources for Barton Hills Elementary families
           </p>
           <div className="mt-6 h-1 w-20 bg-spirit-gold rounded-full mx-auto" />
         </div>
@@ -165,7 +169,7 @@ export default function Parents() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {quickLinks.map((link) => {
               const cardClass =
-                "group bg-white rounded-lg shadow-md p-6 border-l-4 border-eagle-blue hover:shadow-lg hover:-translate-y-1 transition-all duration-200";
+                'group bg-white rounded-lg shadow-md p-6 border-l-4 border-eagle-blue hover:shadow-lg hover:-translate-y-1 transition-all duration-200';
               const inner = (
                 <div className="flex items-start gap-4">
                   <div className="shrink-0 h-12 w-12 rounded-lg bg-eagle-blue/10 flex items-center justify-center text-eagle-blue group-hover:bg-eagle-blue group-hover:text-white transition-colors">
@@ -175,17 +179,16 @@ export default function Parents() {
                     <h3 className="font-heading font-bold text-charcoal group-hover:text-eagle-blue transition-colors">
                       {link.title}
                     </h3>
-                    <p className="mt-1 text-sm text-charcoal/70">
-                      {link.description}
-                    </p>
+                    <p className="mt-1 text-sm text-charcoal/70">{link.description}</p>
                     <span className="mt-3 inline-flex items-center gap-1 text-sm font-heading font-bold text-eagle-blue group-hover:text-spirit-gold transition-colors">
-                      {"to" in link ? "Go" : "Visit"}
+                      {'to' in link ? 'Go' : 'Visit'}
                       <svg
                         className="h-4 w-4"
                         fill="none"
                         viewBox="0 0 24 24"
                         strokeWidth={2.5}
                         stroke="currentColor"
+                        aria-hidden
                       >
                         <path
                           strokeLinecap="round"
@@ -198,7 +201,7 @@ export default function Parents() {
                 </div>
               );
 
-              if ("to" in link && link.to) {
+              if ('to' in link && link.to) {
                 return (
                   <Link key={link.title} to={link.to} className={cardClass}>
                     {inner}
@@ -208,7 +211,7 @@ export default function Parents() {
               return (
                 <a
                   key={link.title}
-                  href={"url" in link ? link.url : "#"}
+                  href={'url' in link ? link.url : '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={cardClass}
@@ -236,14 +239,10 @@ export default function Parents() {
                   {hours.map((row) => (
                     <tr key={row.label}>
                       <td className="py-4 pr-4">
-                        <span className="font-heading font-bold text-charcoal">
-                          {row.label}
-                        </span>
+                        <span className="font-heading font-bold text-charcoal">{row.label}</span>
                       </td>
                       <td className="py-4 text-right">
-                        <span className="text-charcoal/70 font-medium">
-                          {row.time}
-                        </span>
+                        <span className="text-charcoal/70 font-medium">{row.time}</span>
                       </td>
                     </tr>
                   ))}
@@ -274,6 +273,7 @@ export default function Parents() {
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
+                  aria-hidden
                 >
                   <path
                     strokeLinecap="round"
@@ -282,9 +282,7 @@ export default function Parents() {
                   />
                 </svg>
               </div>
-              <p className="font-heading font-bold text-charcoal text-sm">
-                Phone
-              </p>
+              <p className="font-heading font-bold text-charcoal text-sm">Phone</p>
               <a
                 href="tel:+15124142013"
                 className="text-eagle-blue hover:text-spirit-gold transition-colors text-sm mt-1 inline-block"
@@ -302,6 +300,7 @@ export default function Parents() {
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
+                  aria-hidden
                 >
                   <path
                     strokeLinecap="round"
@@ -310,9 +309,7 @@ export default function Parents() {
                   />
                 </svg>
               </div>
-              <p className="font-heading font-bold text-charcoal text-sm">
-                Fax
-              </p>
+              <p className="font-heading font-bold text-charcoal text-sm">Fax</p>
               <p className="text-charcoal/70 text-sm mt-1">(512) 841-3849</p>
             </div>
 
@@ -325,6 +322,7 @@ export default function Parents() {
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
+                  aria-hidden
                 >
                   <path
                     strokeLinecap="round"
@@ -333,9 +331,7 @@ export default function Parents() {
                   />
                 </svg>
               </div>
-              <p className="font-heading font-bold text-charcoal text-sm">
-                Email
-              </p>
+              <p className="font-heading font-bold text-charcoal text-sm">Email</p>
               <a
                 href="mailto:bhe@austinisd.org"
                 className="text-eagle-blue hover:text-spirit-gold transition-colors text-sm mt-1 inline-block"
@@ -353,6 +349,7 @@ export default function Parents() {
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
+                  aria-hidden
                 >
                   <path
                     strokeLinecap="round"
@@ -366,9 +363,7 @@ export default function Parents() {
                   />
                 </svg>
               </div>
-              <p className="font-heading font-bold text-charcoal text-sm">
-                Address
-              </p>
+              <p className="font-heading font-bold text-charcoal text-sm">Address</p>
               <p className="text-charcoal/70 text-sm mt-1">
                 2108 Barton Hills Dr
                 <br />

@@ -1,7 +1,7 @@
-import { FileUpload } from '~/components/reimbursement/ui/FileUpload';
-import { Button } from '~/components/reimbursement/ui/Button';
-import { useFileUpload } from '~/hooks/useFileUpload';
-import type { FileData } from '~/lib/reimbursement/validation';
+import {Button} from '~/components/reimbursement/ui/Button';
+import {FileUpload} from '~/components/reimbursement/ui/FileUpload';
+import {useFileUpload} from '~/hooks/useFileUpload';
+import type {FileData} from '~/lib/reimbursement/validation';
 
 interface FileUploadsProps {
   files: FileData[];
@@ -22,7 +22,7 @@ export function FileUploads({
   turnstileToken,
   onResetTurnstile,
 }: FileUploadsProps) {
-  const { uploadFile, clearUpload, uploads } = useFileUpload(turnstileToken, onResetTurnstile);
+  const {uploadFile, clearUpload, uploads} = useFileUpload(turnstileToken, onResetTurnstile);
 
   const handleFileSelect = async (file: File) => {
     // Clear any failed uploads so the user gets a fresh state
@@ -64,11 +64,7 @@ export function FileUploads({
         </p>
 
         {files.length < maxFiles && (
-          <FileUpload
-            onFileSelect={handleFileSelect}
-            label=""
-            disabled={isUploading}
-          />
+          <FileUpload onFileSelect={handleFileSelect} label="" disabled={isUploading} />
         )}
 
         {/* Upload Progress */}
@@ -84,7 +80,9 @@ export function FileUploads({
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-sm font-medium truncate">{upload.filename}</span>
                   <span className="text-sm text-charcoal/70">
-                    {upload.status === 'uploading' && upload.progress <= 30 && 'Processing image...'}
+                    {upload.status === 'uploading' &&
+                      upload.progress <= 30 &&
+                      'Processing image...'}
                     {upload.status === 'uploading' && upload.progress > 30 && `${upload.progress}%`}
                     {upload.status === 'complete' && 'Complete'}
                     {upload.status === 'error' && 'Failed'}
@@ -94,7 +92,7 @@ export function FileUploads({
                   <div className="w-full bg-charcoal/10 rounded-full h-2">
                     <div
                       className="bg-eagle-blue h-2 rounded-full transition-all"
-                      style={{ width: `${upload.progress}%` }}
+                      style={{width: `${upload.progress}%`}}
                     />
                   </div>
                 )}
@@ -129,8 +127,19 @@ export function FileUploads({
                   className="flex items-center justify-between p-3 bg-warm-white rounded-lg"
                 >
                   <div className="flex items-center space-x-3">
-                    <svg className="w-8 h-8 text-charcoal/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    <svg
+                      className="w-8 h-8 text-charcoal/70"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
                     </svg>
                     <div>
                       <a

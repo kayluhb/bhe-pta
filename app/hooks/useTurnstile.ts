@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 
 const TURNSTILE_SITE_KEY = '0x4AAAAAACeBDkCW901l9jWe';
 
@@ -56,5 +56,5 @@ export function useTurnstile() {
     }
   }, []);
 
-  return { token, containerRef, reset };
+  return {token, containerRef, reset};
 }

@@ -1,20 +1,20 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import {useCallback, useEffect, useRef, useState} from 'react';
 
-const TRIGGER_WORD = "beckett";
+const TRIGGER_WORD = 'beckett';
 
 export function useDiscoMode() {
   const [isDiscoMode, setIsDiscoMode] = useState(false);
-  const bufferRef = useRef("");
+  const bufferRef = useRef('');
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const activate = useCallback(() => {
     setIsDiscoMode(true);
-    bufferRef.current = "";
+    bufferRef.current = '';
     if (timerRef.current) clearTimeout(timerRef.current);
 
     if (!audioRef.current) {
-      audioRef.current = new Audio("/disco.mp3");
+      audioRef.current = new Audio('/disco.mp3');
     }
     audioRef.current.currentTime = 0;
     audioRef.current.play().catch(() => {});
@@ -31,12 +31,10 @@ export function useDiscoMode() {
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
       if (e.key.length !== 1) return;
 
-      bufferRef.current = (bufferRef.current + e.key.toLowerCase()).slice(
-        -TRIGGER_WORD.length
-      );
+      bufferRef.current = (bufferRef.current + e.key.toLowerCase()).slice(-TRIGGER_WORD.length);
 
       if (bufferRef.current === TRIGGER_WORD) {
         activate();
@@ -88,12 +86,12 @@ export function useDiscoMode() {
       }
     }
 
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("devicemotion", handleMotion);
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('devicemotion', handleMotion);
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("devicemotion", handleMotion);
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('devicemotion', handleMotion);
       if (timerRef.current) clearTimeout(timerRef.current);
       if (audioRef.current) {
         audioRef.current.pause();
@@ -102,5 +100,5 @@ export function useDiscoMode() {
     };
   }, [activate]);
 
-  return { isDiscoMode };
+  return {isDiscoMode};
 }

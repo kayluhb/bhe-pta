@@ -1,106 +1,103 @@
-import { useState, useCallback, useRef } from "react";
-import { useLoaderData } from "react-router";
-import type { Route } from "./+types/events";
-import type { CalendarEvent } from "~/lib/types";
-import { Calendar, CategoryLegend, getEventDaysInMonth } from "~/components/Calendar";
+import {useCallback, useRef, useState} from 'react';
+import {useLoaderData} from 'react-router';
+import {Calendar, CategoryLegend, getEventDaysInMonth} from '~/components/Calendar';
+import type {CalendarEvent} from '~/lib/types';
+import type {Route} from './+types/events';
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Events Calendar | Barton Hills Elementary PTA" },
+    {title: 'Events Calendar | Barton Hills Elementary PTA'},
     {
-      name: "description",
+      name: 'description',
       content:
-        "View upcoming events, PTA meetings, spirit nights, and school activities at Barton Hills Elementary.",
+        'View upcoming events, PTA meetings, spirit nights, and school activities at Barton Hills Elementary.',
     },
   ];
 }
 
-export async function loader({ context }: Route.LoaderArgs) {
+export async function loader({context}: Route.LoaderArgs) {
   let events: CalendarEvent[] = [];
 
   try {
-    const kvEvents = await context.cloudflare.env.BHE_CALENDAR.get(
-      "events",
-      "json"
-    );
+    const kvEvents = await context.cloudflare.env.BHE_CALENDAR.get('events', 'json');
     if (kvEvents) events = kvEvents as CalendarEvent[];
   } catch {
     // KV not available — show empty; all events come from school calendar ICS
   }
 
-  return { events };
+  return {events};
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const MONTH_NAMES = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
 ];
 
-const categoryColors: Record<string, { bg: string; text: string; border: string }> = {
-  "Community Event": {
-    bg: "bg-cyan-50",
-    text: "text-cyan-800",
-    border: "border-cyan-200",
+const categoryColors: Record<string, {bg: string; text: string; border: string}> = {
+  'Community Event': {
+    bg: 'bg-cyan-50',
+    text: 'text-cyan-800',
+    border: 'border-cyan-200',
   },
-  "Fine Arts": {
-    bg: "bg-pink-50",
-    text: "text-pink-800",
-    border: "border-pink-200",
+  'Fine Arts': {
+    bg: 'bg-pink-50',
+    text: 'text-pink-800',
+    border: 'border-pink-200',
   },
-  "Student Holiday": {
-    bg: "bg-amber-50",
-    text: "text-amber-800",
-    border: "border-amber-200",
+  'Student Holiday': {
+    bg: 'bg-amber-50',
+    text: 'text-amber-800',
+    border: 'border-amber-200',
   },
   Athletics: {
-    bg: "bg-teal-50",
-    text: "text-teal-800",
-    border: "border-teal-200",
+    bg: 'bg-teal-50',
+    text: 'text-teal-800',
+    border: 'border-teal-200',
   },
 };
 
 function getCategoryStyle(category: string) {
   return (
     categoryColors[category] ?? {
-      bg: "bg-gray-50",
-      text: "text-gray-800",
-      border: "border-gray-200",
+      bg: 'bg-gray-50',
+      text: 'text-gray-800',
+      border: 'border-gray-200',
     }
   );
 }
 
-const CT = "America/Chicago";
+const CT = 'America/Chicago';
 
 function parseEventDate(dateStr: string): Date {
-  if (dateStr.includes("T")) {
+  if (dateStr.includes('T')) {
     // Treat naive datetime strings as Central Time
-    return dateStr.endsWith("Z") || /[+-]\d{2}:\d{2}$/.test(dateStr)
+    return dateStr.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(dateStr)
       ? new Date(dateStr)
-      : new Date(dateStr + "-06:00");
+      : new Date(dateStr + '-06:00');
   }
-  const [y, m, d] = dateStr.split("-").map(Number);
+  const [y, m, d] = dateStr.split('-').map(Number);
   // Use UTC noon so that timeZone formatting never shifts to the wrong date
   return new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
 }
 
 function formatEventTime(dateStr: string): string | null {
-  if (!dateStr.includes("T")) return null;
+  if (!dateStr.includes('T')) return null;
   const date = parseEventDate(dateStr);
-  return date.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
+  return date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
     timeZone: CT,
   });
 }
@@ -110,18 +107,18 @@ function formatEventDateRange(event: CalendarEvent): string {
   const end = parseEventDate(event.end);
 
   const dateFormatOpts: Intl.DateTimeFormatOptions = {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
     timeZone: CT,
   };
-  const startStr = start.toLocaleDateString("en-US", dateFormatOpts);
+  const startStr = start.toLocaleDateString('en-US', dateFormatOpts);
 
   if (event.allDay) {
     // Multi-day all-day event
     const endDisplay = new Date(end.getTime() - 86400000); // end is exclusive
     if (endDisplay.getTime() > start.getTime()) {
-      const endStr = endDisplay.toLocaleDateString("en-US", dateFormatOpts);
+      const endStr = endDisplay.toLocaleDateString('en-US', dateFormatOpts);
       return `${startStr} — ${endStr}`;
     }
     return startStr;
@@ -136,11 +133,7 @@ function formatEventDateRange(event: CalendarEvent): string {
 }
 
 /** Check whether an event falls within the given month/year */
-function eventInMonth(
-  event: CalendarEvent,
-  year: number,
-  month: number
-): boolean {
+function eventInMonth(event: CalendarEvent, year: number, month: number): boolean {
   const start = parseEventDate(event.start);
   let end = parseEventDate(event.end);
 
@@ -157,11 +150,7 @@ function eventInMonth(
 }
 
 /** True if event is all-day and spans every day of the given month (show above calendar). */
-function isMonthLongEvent(
-  event: CalendarEvent,
-  year: number,
-  month: number
-): boolean {
+function isMonthLongEvent(event: CalendarEvent, year: number, month: number): boolean {
   if (!event.allDay) return false;
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const days = getEventDaysInMonth(event, year, month);
@@ -171,12 +160,16 @@ function isMonthLongEvent(
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function Events() {
-  const { events } = useLoaderData<typeof loader>();
+  const {events} = useLoaderData<typeof loader>();
   // Use CT-aware date parts so server (UTC) and client agree on the current month
   const now = new Date();
-  const nowCT = new Intl.DateTimeFormat("en-US", { timeZone: CT, year: "numeric", month: "numeric" }).formatToParts(now);
-  const initYear = Number(nowCT.find((p) => p.type === "year")!.value);
-  const initMonth = Number(nowCT.find((p) => p.type === "month")!.value) - 1;
+  const nowCT = new Intl.DateTimeFormat('en-US', {
+    timeZone: CT,
+    year: 'numeric',
+    month: 'numeric',
+  }).formatToParts(now);
+  const initYear = Number(nowCT.find((p) => p.type === 'year')!.value);
+  const initMonth = Number(nowCT.find((p) => p.type === 'month')!.value) - 1;
   const [currentYear, setCurrentYear] = useState(initYear);
   const [currentMonth, setCurrentMonth] = useState(initMonth);
   const eventListRef = useRef<HTMLDivElement>(null);
@@ -203,32 +196,31 @@ export default function Events() {
 
   const goToToday = useCallback(() => {
     const today = new Date();
-    const parts = new Intl.DateTimeFormat("en-US", { timeZone: CT, year: "numeric", month: "numeric" }).formatToParts(today);
-    setCurrentYear(Number(parts.find((p) => p.type === "year")!.value));
-    setCurrentMonth(Number(parts.find((p) => p.type === "month")!.value) - 1);
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: CT,
+      year: 'numeric',
+      month: 'numeric',
+    }).formatToParts(today);
+    setCurrentYear(Number(parts.find((p) => p.type === 'year')!.value));
+    setCurrentMonth(Number(parts.find((p) => p.type === 'month')!.value) - 1);
   }, []);
 
   const monthEvents = events
     .filter((e) => eventInMonth(e, currentYear, currentMonth))
-    .sort(
-      (a, b) =>
-        parseEventDate(a.start).getTime() - parseEventDate(b.start).getTime()
-    );
+    .sort((a, b) => parseEventDate(a.start).getTime() - parseEventDate(b.start).getTime());
 
-  const monthLongEvents = monthEvents.filter((e) =>
-    isMonthLongEvent(e, currentYear, currentMonth)
-  );
+  const monthLongEvents = monthEvents.filter((e) => isMonthLongEvent(e, currentYear, currentMonth));
   const calendarAndListEvents = monthEvents.filter(
-    (e) => !isMonthLongEvent(e, currentYear, currentMonth)
+    (e) => !isMonthLongEvent(e, currentYear, currentMonth),
   );
 
   const handleEventClick = useCallback((eventId: string) => {
     const el = document.getElementById(`event-${eventId}`);
     if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      el.classList.add("ring-2", "ring-spirit-gold");
+      el.scrollIntoView({behavior: 'smooth', block: 'center'});
+      el.classList.add('ring-2', 'ring-spirit-gold');
       setTimeout(() => {
-        el.classList.remove("ring-2", "ring-spirit-gold");
+        el.classList.remove('ring-2', 'ring-spirit-gold');
       }, 2000);
     }
   }, []);
@@ -241,7 +233,7 @@ export default function Events() {
           className="absolute inset-0 opacity-[0.05]"
           style={{
             backgroundImage:
-              "repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)",
+              'repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)',
           }}
         />
         <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
@@ -304,11 +296,7 @@ export default function Events() {
                 strokeWidth={2}
                 stroke="currentColor"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
               </svg>
             </button>
           </div>
@@ -333,12 +321,8 @@ export default function Events() {
                     >
                       {event.category}
                     </span>
-                    <span className="font-heading font-bold text-charcoal">
-                      {event.title}
-                    </span>
-                    <span className="text-sm text-charcoal/70">
-                      {formatEventDateRange(event)}
-                    </span>
+                    <span className="font-heading font-bold text-charcoal">{event.title}</span>
+                    <span className="text-sm text-charcoal/70">{formatEventDateRange(event)}</span>
                   </div>
                 );
               })}
@@ -362,8 +346,19 @@ export default function Events() {
               className="inline-flex items-center gap-2 text-sm font-heading font-semibold text-eagle-blue hover:text-spirit-gold transition-colors"
             >
               Subscribe to School Calendar
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                aria-hidden
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                />
               </svg>
             </a>
             <a
@@ -373,8 +368,19 @@ export default function Events() {
               className="inline-flex items-center gap-2 text-sm font-heading font-semibold text-eagle-blue hover:text-spirit-gold transition-colors"
             >
               Subscribe to PTA Calendar
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                aria-hidden
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                />
               </svg>
             </a>
           </div>
@@ -410,10 +416,12 @@ export default function Events() {
 
 // ─── Event List Item ──────────────────────────────────────────────────────────
 
-function EventListItem({ event }: { event: CalendarEvent }) {
+function EventListItem({event}: {event: CalendarEvent}) {
   const startDate = parseEventDate(event.start);
-  const monthShort = startDate.toLocaleDateString("en-US", { month: "short", timeZone: CT });
-  const dayNum = Number(startDate.toLocaleDateString("en-US", { day: "numeric", timeZone: CT })).toString();
+  const monthShort = startDate.toLocaleDateString('en-US', {month: 'short', timeZone: CT});
+  const dayNum = Number(
+    startDate.toLocaleDateString('en-US', {day: 'numeric', timeZone: CT}),
+  ).toString();
   const style = getCategoryStyle(event.category);
 
   return (
@@ -426,9 +434,7 @@ function EventListItem({ event }: { event: CalendarEvent }) {
         <span className="text-xs font-heading font-bold uppercase tracking-wider text-creek-green/70">
           {monthShort}
         </span>
-        <span className="text-2xl font-heading font-bold leading-tight">
-          {dayNum}
-        </span>
+        <span className="text-2xl font-heading font-bold leading-tight">{dayNum}</span>
       </div>
 
       {/* Content */}
@@ -444,14 +450,10 @@ function EventListItem({ event }: { event: CalendarEvent }) {
           </span>
         </div>
 
-        <p className="text-sm text-charcoal/70 font-medium">
-          {formatEventDateRange(event)}
-        </p>
+        <p className="text-sm text-charcoal/70 font-medium">{formatEventDateRange(event)}</p>
 
         {event.description && (
-          <p className="mt-1.5 text-sm text-charcoal/70 leading-relaxed">
-            {event.description}
-          </p>
+          <p className="mt-1.5 text-sm text-charcoal/70 leading-relaxed">{event.description}</p>
         )}
       </div>
     </article>

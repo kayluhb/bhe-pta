@@ -1,14 +1,14 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { NavLink, Link, useLocation } from "react-router";
+import {useCallback, useEffect, useRef, useState} from 'react';
+import {Link, NavLink, useLocation} from 'react-router';
 
 const navLinks = [
-  { to: "/about", label: "About" },
-  { to: "/news", label: "News" },
-  { to: "/events", label: "Events" },
-  { to: "/programs", label: "Programs" },
-  { to: "/parents", label: "Parents" },
-  { to: "/get-involved", label: "Get Involved" },
-  { to: "/contact", label: "Contact" },
+  {to: '/about', label: 'About'},
+  {to: '/news', label: 'News'},
+  {to: '/events', label: 'Events'},
+  {to: '/programs', label: 'Programs'},
+  {to: '/parents', label: 'Parents'},
+  {to: '/get-involved', label: 'Get Involved'},
+  {to: '/contact', label: 'Contact'},
 ];
 
 export function Header() {
@@ -42,8 +42,8 @@ export function Header() {
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [mobileMenuOpen, closeMenu]);
 
   // Escape key handler and focus trap
@@ -51,15 +51,15 @@ export function Header() {
     if (!mobileMenuOpen) return;
 
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         closeMenu();
         return;
       }
 
       // Focus trap
-      if (e.key === "Tab" && menuRef.current) {
+      if (e.key === 'Tab' && menuRef.current) {
         const focusable = menuRef.current.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
         );
         if (focusable.length === 0) return;
 
@@ -76,14 +76,14 @@ export function Header() {
       }
     }
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [mobileMenuOpen, closeMenu]);
 
   // Focus first menu item when menu opens
   useEffect(() => {
     if (mobileMenuOpen && menuRef.current) {
-      const firstLink = menuRef.current.querySelector<HTMLElement>("a[href]");
+      const firstLink = menuRef.current.querySelector<HTMLElement>('a[href]');
       firstLink?.focus();
     }
   }, [mobileMenuOpen]);
@@ -102,9 +102,7 @@ export function Header() {
             <span className="text-white font-heading font-bold text-lg">
               Barton Hills Elementary
             </span>
-            <span className="text-spirit-gold font-heading font-semibold text-sm">
-              PTA
-            </span>
+            <span className="text-spirit-gold font-heading font-semibold text-sm">PTA</span>
           </div>
         </Link>
 
@@ -114,11 +112,9 @@ export function Header() {
             <NavLink
               key={link.to}
               to={link.to}
-              className={({ isActive }) =>
+              className={({isActive}) =>
                 `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive
-                    ? "text-spirit-gold"
-                    : "text-white/80 hover:text-white hover:bg-white/10"
+                  isActive ? 'text-spirit-gold' : 'text-white/80 hover:text-white hover:bg-white/10'
                 }`
               }
             >
@@ -146,7 +142,7 @@ export function Header() {
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-menu"
-            aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
           >
             {mobileMenuOpen ? (
               <svg
@@ -157,11 +153,7 @@ export function Header() {
                 stroke="currentColor"
                 aria-hidden="true"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             ) : (
               <svg
@@ -189,7 +181,7 @@ export function Header() {
         id="mobile-menu"
         aria-hidden={!mobileMenuOpen}
         className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-          mobileMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+          mobileMenuOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
         <nav aria-label="Mobile navigation" className="bg-eagle-blue border-t border-white/10 pb-4">
@@ -200,11 +192,11 @@ export function Header() {
                 to={link.to}
                 onClick={() => setMobileMenuOpen(false)}
                 tabIndex={mobileMenuOpen ? 0 : -1}
-                className={({ isActive }) =>
+                className={({isActive}) =>
                   `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     isActive
-                      ? "text-spirit-gold bg-white/5"
-                      : "text-white/80 hover:text-white hover:bg-white/10"
+                      ? 'text-spirit-gold bg-white/5'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`
                 }
               >

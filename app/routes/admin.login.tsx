@@ -1,27 +1,19 @@
-import type { Route } from "./+types/admin.login";
-import { verifySession } from "~/lib/admin/auth";
+import {verifySession} from '~/lib/admin/auth';
+import type {Route} from './+types/admin.login';
 
 export function meta() {
-  return [{ title: "Sign In | Barton Hills Elementary PTA Admin" }];
+  return [{title: 'Sign In | Barton Hills Elementary PTA Admin'}];
 }
 
-export async function loader({ request, context }: Route.LoaderArgs) {
+export async function loader({request, context}: Route.LoaderArgs) {
   // If already logged in, redirect to admin
-  const cookieHeader = request.headers.get("Cookie") ?? "";
-  const sessionCookie = cookieHeader
-    .split("; ")
-    .find((c) => c.startsWith("admin_session="));
+  const cookieHeader = request.headers.get('Cookie') ?? '';
+  const sessionCookie = cookieHeader.split('; ').find((c) => c.startsWith('admin_session='));
   if (sessionCookie) {
-    const value = sessionCookie.substring("admin_session=".length);
-    const payload = await verifySession(
-      value,
-      context.cloudflare.env.SESSION_SECRET
-    );
+    const value = sessionCookie.substring('admin_session='.length);
+    const payload = await verifySession(value, context.cloudflare.env.SESSION_SECRET);
     if (payload) {
-      return Response.redirect(
-        new URL("/admin", request.url).toString(),
-        302
-      );
+      return Response.redirect(new URL('/admin', request.url).toString(), 302);
     }
   }
   return {};
@@ -48,18 +40,15 @@ export default function AdminLogin() {
               />
             </svg>
           </div>
-          <h1 className="text-2xl font-heading font-bold text-charcoal">
-            PTA Admin
-          </h1>
-          <p className="mt-2 text-sm text-gray-500 font-body">
-            Barton Hills Elementary
-          </p>
+          <h1 className="text-2xl font-heading font-bold text-charcoal">PTA Admin</h1>
+          <p className="mt-2 text-sm text-gray-500 font-body">Barton Hills Elementary</p>
         </div>
 
         {/* Login Card */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <p className="text-sm text-gray-600 font-body text-center mb-6">
-            Sign in with your <span className="font-medium">@bheeagles.com</span> Google account to access the admin dashboard.
+            Sign in with your <span className="font-medium">@bheeagles.com</span> Google account to
+            access the admin dashboard.
           </p>
 
           <a

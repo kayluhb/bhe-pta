@@ -1,5 +1,10 @@
-import { useState, useCallback, useEffect } from 'react';
-import type { RequesterData, ReceiptData, FileData, BudgetSelectionData } from '~/lib/reimbursement/validation';
+import {useCallback, useEffect, useState} from 'react';
+import type {
+  BudgetSelectionData,
+  FileData,
+  ReceiptData,
+  RequesterData,
+} from '~/lib/reimbursement/validation';
 
 const STORAGE_KEY = 'bhe-pta-requester-info';
 
@@ -93,7 +98,7 @@ export function useFormState() {
 
   // Persist requester info to localStorage when it changes
   useEffect(() => {
-    const { payableTo, email, address } = state.requester;
+    const {payableTo, email, address} = state.requester;
     if (payableTo || email || address) {
       saveRequesterInfo(state.requester);
     }
@@ -102,15 +107,15 @@ export function useFormState() {
   const updateRequester = useCallback((data: Partial<RequesterData>) => {
     setState((prev) => ({
       ...prev,
-      requester: { ...prev.requester, ...data },
+      requester: {...prev.requester, ...data},
     }));
   }, []);
 
   const updateReceipt = useCallback((index: number, data: Partial<ReceiptData>) => {
     setState((prev) => {
       const newReceipts = [...prev.receipts];
-      newReceipts[index] = { ...newReceipts[index], ...data };
-      return { ...prev, receipts: newReceipts };
+      newReceipts[index] = {...newReceipts[index], ...data};
+      return {...prev, receipts: newReceipts};
     });
   }, []);
 
@@ -163,7 +168,7 @@ export function useFormState() {
   const updateBudget = useCallback((data: Partial<BudgetSelectionData>) => {
     setState((prev) => ({
       ...prev,
-      budget: { ...prev.budget, ...data },
+      budget: {...prev.budget, ...data},
     }));
   }, []);
 
@@ -195,12 +200,15 @@ export function useFormState() {
   const totalAmount = state.receipts.reduce((sum, r) => sum + (r.amount || 0), 0);
 
   // Get effective budget account for each receipt
-  const getReceiptBudgetAccount = useCallback((index: number): string => {
-    if (state.budget.splitAccounts && state.receipts[index]?.budgetAccount) {
-      return state.receipts[index].budgetAccount!;
-    }
-    return state.budget.primaryAccount;
-  }, [state.budget.splitAccounts, state.budget.primaryAccount, state.receipts]);
+  const getReceiptBudgetAccount = useCallback(
+    (index: number): string => {
+      if (state.budget.splitAccounts && state.receipts[index]?.budgetAccount) {
+        return state.receipts[index].budgetAccount!;
+      }
+      return state.budget.primaryAccount;
+    },
+    [state.budget.splitAccounts, state.budget.primaryAccount, state.receipts],
+  );
 
   return {
     state,

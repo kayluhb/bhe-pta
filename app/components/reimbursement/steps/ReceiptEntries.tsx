@@ -1,6 +1,6 @@
-import { Input } from '~/components/reimbursement/ui/Input';
-import { Button } from '~/components/reimbursement/ui/Button';
-import type { ReceiptData } from '~/lib/reimbursement/validation';
+import {Button} from '~/components/reimbursement/ui/Button';
+import {Input} from '~/components/reimbursement/ui/Input';
+import type {ReceiptData} from '~/lib/reimbursement/validation';
 
 interface ReceiptEntriesProps {
   receipts: ReceiptData[];
@@ -39,9 +39,7 @@ export function ReceiptEntries({
         <div className="flex justify-between items-center mb-4">
           <div>
             <h2 className="text-xl font-semibold text-charcoal">Receipt Details</h2>
-            <p className="text-charcoal/70 mt-1">
-              Add up to 4 receipts for reimbursement.
-            </p>
+            <p className="text-charcoal/70 mt-1">Add up to 4 receipts for reimbursement.</p>
           </div>
           <div className="text-right" aria-live="polite">
             <p className="text-sm text-charcoal/70">Total</p>
@@ -51,10 +49,7 @@ export function ReceiptEntries({
 
         <div className="space-y-6">
           {receipts.map((receipt, index) => (
-            <div
-              key={index}
-              className="p-4 bg-warm-white rounded-lg border border-charcoal/10"
-            >
+            <div key={index} className="p-4 bg-warm-white rounded-lg border border-charcoal/10">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="font-medium text-charcoal">Receipt {index + 1}</h3>
                 {receipts.length > 1 && (
@@ -74,7 +69,7 @@ export function ReceiptEntries({
                   label="Date of Purchase"
                   type="date"
                   value={receipt.date}
-                  onChange={(e) => onUpdate(index, { date: e.target.value })}
+                  onChange={(e) => onUpdate(index, {date: e.target.value})}
                   required
                 />
 
@@ -85,7 +80,9 @@ export function ReceiptEntries({
                     step="0.01"
                     min="0"
                     value={receipt.amount || ''}
-                    onChange={(e) => onUpdate(index, { amount: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      onUpdate(index, {amount: Number.parseFloat(e.target.value) || 0})
+                    }
                     placeholder="0.00"
                     required
                   />
@@ -98,7 +95,7 @@ export function ReceiptEntries({
                   <Input
                     label="Description"
                     value={receipt.description}
-                    onChange={(e) => onUpdate(index, { description: e.target.value })}
+                    onChange={(e) => onUpdate(index, {description: e.target.value})}
                     placeholder="What was purchased?"
                     required
                   />
@@ -108,7 +105,7 @@ export function ReceiptEntries({
                   <Input
                     label="Place of Purchase"
                     value={receipt.placeOfPurchase || ''}
-                    onChange={(e) => onUpdate(index, { placeOfPurchase: e.target.value })}
+                    onChange={(e) => onUpdate(index, {placeOfPurchase: e.target.value})}
                     placeholder="Name of store or location of website"
                   />
                   <p className="mt-1 text-xs text-charcoal/70">
@@ -135,9 +132,7 @@ export function ReceiptEntries({
         <Button type="button" variant="outline" onClick={onBack}>
           Back
         </Button>
-        <Button type="submit">
-          Next: Budget Account
-        </Button>
+        <Button type="submit">Next: Budget Account</Button>
       </div>
     </form>
   );

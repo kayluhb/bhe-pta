@@ -1,25 +1,25 @@
-import { useState } from "react";
-import type { Route } from "./+types/archive";
-import { archiveData } from "~/data/archive";
-import type { ArchiveItem } from "~/data/archive";
+import {useState} from 'react';
+import type {ArchiveItem} from '~/data/archive';
+import {archiveData} from '~/data/archive';
+import type {Route} from './+types/archive';
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Our History | Barton Hills Elementary PTA" },
+    {title: 'Our History | Barton Hills Elementary PTA'},
     {
-      name: "description",
+      name: 'description',
       content:
-        "Browse the Barton Hills Elementary PTA archive — photos, newsletters, event flyers, and carnival memories from years past.",
+        'Browse the Barton Hills Elementary PTA archive — photos, newsletters, event flyers, and carnival memories from years past.',
     },
   ];
 }
 
 export function loader({}: Route.LoaderArgs) {
-  return { years: archiveData };
+  return {years: archiveData};
 }
 
-export default function Archive({ loaderData }: Route.ComponentProps) {
-  const { years } = loaderData;
+export default function Archive({loaderData}: Route.ComponentProps) {
+  const {years} = loaderData;
   const [lightboxItem, setLightboxItem] = useState<ArchiveItem | null>(null);
 
   return (
@@ -30,7 +30,7 @@ export default function Archive({ loaderData }: Route.ComponentProps) {
           className="absolute inset-0 opacity-[0.05]"
           style={{
             backgroundImage:
-              "repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)",
+              'repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)',
           }}
         />
         <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
@@ -38,8 +38,8 @@ export default function Archive({ loaderData }: Route.ComponentProps) {
             Our History
           </h1>
           <p className="mt-4 text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
-            A look back at the Barton Hills Elementary PTA community through the
-            years — photos, newsletters, and memories from our Eagle family.
+            A look back at the Barton Hills Elementary PTA community through the years — photos,
+            newsletters, and memories from our Eagle family.
           </p>
           <div className="mt-6 h-1 w-20 bg-spirit-gold rounded-full mx-auto" />
         </div>
@@ -83,8 +83,8 @@ export default function Archive({ loaderData }: Route.ComponentProps) {
               Archive Coming Soon
             </h2>
             <p className="mt-4 text-charcoal/70 max-w-md mx-auto">
-              We're curating photos, newsletters, and memories from years of
-              BHE PTA history. Check back soon!
+              We're curating photos, newsletters, and memories from years of BHE PTA history. Check
+              back soon!
             </p>
           </div>
         </section>
@@ -96,7 +96,7 @@ export default function Archive({ loaderData }: Route.ComponentProps) {
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
           onClick={() => setLightboxItem(null)}
           onKeyDown={(e) => {
-            if (e.key === "Escape") setLightboxItem(null);
+            if (e.key === 'Escape') setLightboxItem(null);
           }}
           role="dialog"
           aria-label={lightboxItem.title}
@@ -117,11 +117,7 @@ export default function Archive({ loaderData }: Route.ComponentProps) {
                 strokeWidth={2}
                 stroke="currentColor"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
             <img
@@ -168,29 +164,22 @@ function YearSection({
               {yearData.year}
             </h2>
             {yearData.description && (
-              <p className="text-sm text-charcoal/60 mt-0.5">
-                {yearData.description}
-              </p>
+              <p className="text-sm text-charcoal/60 mt-0.5">{yearData.description}</p>
             )}
           </div>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-xs font-medium text-charcoal/40">
-            {yearData.items.length}{" "}
-            {yearData.items.length === 1 ? "item" : "items"}
+            {yearData.items.length} {yearData.items.length === 1 ? 'item' : 'items'}
           </span>
           <svg
-            className={`h-5 w-5 text-charcoal/40 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+            className={`h-5 w-5 text-charcoal/40 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={2}
             stroke="currentColor"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
           </svg>
         </div>
       </button>
@@ -200,17 +189,9 @@ function YearSection({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-5">
             {yearData.items
               .slice()
-              .sort(
-                (a, b) =>
-                  new Date(b.date ?? "").getTime() -
-                  new Date(a.date ?? "").getTime()
-              )
+              .sort((a, b) => new Date(b.date ?? '').getTime() - new Date(a.date ?? '').getTime())
               .map((item) => (
-                <ItemCard
-                  key={item.id}
-                  item={item}
-                  onImageClick={onImageClick}
-                />
+                <ItemCard key={item.id} item={item} onImageClick={onImageClick} />
               ))}
           </div>
         </div>
@@ -231,11 +212,11 @@ function ItemCard({
   const fileUrl = `https://archive.bheeagles.com/${item.r2Key}`;
   const thumbUrl = item.thumbnailR2Key
     ? `https://archive.bheeagles.com/${item.thumbnailR2Key}`
-    : item.type === "image"
+    : item.type === 'image'
       ? fileUrl
       : null;
 
-  if (item.type === "image") {
+  if (item.type === 'image') {
     return (
       <button
         onClick={() => onImageClick(item)}
@@ -251,12 +232,8 @@ function ItemCard({
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
         <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-200">
-          <p className="text-white text-sm font-heading font-semibold">
-            {item.title}
-          </p>
-          {item.description && (
-            <p className="text-white/80 text-xs mt-0.5">{item.description}</p>
-          )}
+          <p className="text-white text-sm font-heading font-semibold">{item.title}</p>
+          {item.description && <p className="text-white/80 text-xs mt-0.5">{item.description}</p>}
         </div>
       </button>
     );
@@ -271,7 +248,7 @@ function ItemCard({
       className="group flex items-start gap-4 p-4 rounded-lg bg-charcoal/[0.02] border border-charcoal/10 hover:border-eagle-blue/30 hover:bg-eagle-blue/[0.03] transition-all duration-200"
     >
       <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-eagle-blue/10 text-eagle-blue shrink-0 group-hover:bg-eagle-blue group-hover:text-white transition-colors duration-200">
-        {item.type === "pdf" ? (
+        {item.type === 'pdf' ? (
           <svg
             className="h-5 w-5"
             fill="none"
@@ -305,11 +282,9 @@ function ItemCard({
         <p className="text-sm font-heading font-semibold text-charcoal group-hover:text-eagle-blue transition-colors">
           {item.title}
         </p>
-        {item.description && (
-          <p className="text-xs text-charcoal/60 mt-0.5">{item.description}</p>
-        )}
+        {item.description && <p className="text-xs text-charcoal/60 mt-0.5">{item.description}</p>}
         <p className="text-xs text-charcoal/40 mt-1 uppercase tracking-wide">
-          {item.type === "pdf" ? "PDF" : "Document"}
+          {item.type === 'pdf' ? 'PDF' : 'Document'}
         </p>
       </div>
     </a>

@@ -1,29 +1,24 @@
-import type { Route } from "./+types/admin.reimbursements";
-import { useLoaderData, useNavigate, useRevalidator } from "react-router";
-import { useState } from "react";
-import { requireAdmin, type SessionPayload } from "~/lib/admin/auth";
+import {useState} from 'react';
+import {useLoaderData, useNavigate, useRevalidator} from 'react-router';
+import {requireAdmin, type SessionPayload} from '~/lib/admin/auth';
+import type {Route} from './+types/admin.reimbursements';
 
 export function meta() {
-  return [{ title: "Admin | Barton Hills Elementary PTA" }];
+  return [{title: 'Admin | Barton Hills Elementary PTA'}];
 }
 
 const VALID_SORT_COLUMNS = [
-  "submitted_at",
-  "requester_name",
-  "requester_email",
-  "total_amount",
-  "status",
-  "updated_at",
+  'submitted_at',
+  'requester_name',
+  'requester_email',
+  'total_amount',
+  'status',
+  'updated_at',
 ] as const;
 
-const VALID_ORDERS = ["asc", "desc"] as const;
+const VALID_ORDERS = ['asc', 'desc'] as const;
 
-const VALID_STATUSES = [
-  "pending",
-  "approved",
-  "rejected",
-  "needs_info",
-] as const;
+const VALID_STATUSES = ['pending', 'approved', 'rejected', 'needs_info'] as const;
 
 interface Submission {
   id: number;
@@ -35,42 +30,33 @@ interface Submission {
   updated_at: string;
 }
 
-export async function loader({ request, context }: Route.LoaderArgs) {
+export async function loader({request, context}: Route.LoaderArgs) {
   const auth = await requireAdmin(request, context.cloudflare.env);
   if (auth instanceof Response) return auth;
   const user: SessionPayload = auth;
 
   const url = new URL(request.url);
-  const statusFilter = url.searchParams.get("status") || "";
-  const sort = url.searchParams.get("sort") || "submitted_at";
-  const order = url.searchParams.get("order") || "desc";
+  const statusFilter = url.searchParams.get('status') || '';
+  const sort = url.searchParams.get('sort') || 'submitted_at';
+  const order = url.searchParams.get('order') || 'desc';
 
   // Validate sort column and order against allowlists
-  const validSort = VALID_SORT_COLUMNS.includes(
-    sort as (typeof VALID_SORT_COLUMNS)[number]
-  )
+  const validSort = VALID_SORT_COLUMNS.includes(sort as (typeof VALID_SORT_COLUMNS)[number])
     ? sort
-    : "submitted_at";
-  const validOrder = VALID_ORDERS.includes(
-    order as (typeof VALID_ORDERS)[number]
-  )
-    ? order
-    : "desc";
+    : 'submitted_at';
+  const validOrder = VALID_ORDERS.includes(order as (typeof VALID_ORDERS)[number]) ? order : 'desc';
 
   const db = context.cloudflare.env.REIMBURSEMENT_DB;
 
   let submissions: Submission[];
 
-  if (
-    statusFilter &&
-    VALID_STATUSES.includes(statusFilter as (typeof VALID_STATUSES)[number])
-  ) {
+  if (statusFilter && VALID_STATUSES.includes(statusFilter as (typeof VALID_STATUSES)[number])) {
     const result = await db
       .prepare(
         `SELECT id, requester_name, requester_email, total_amount, status, submitted_at, updated_at
          FROM submissions
          WHERE status = ?
-         ORDER BY ${validSort} ${validOrder}`
+         ORDER BY ${validSort} ${validOrder}`,
       )
       .bind(statusFilter)
       .all<Submission>();
@@ -80,7 +66,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
       .prepare(
         `SELECT id, requester_name, requester_email, total_amount, status, submitted_at, updated_at
          FROM submissions
-         ORDER BY ${validSort} ${validOrder}`
+         ORDER BY ${validSort} ${validOrder}`,
       )
       .all<Submission>();
     submissions = result.results;
@@ -89,36 +75,36 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   return {
     submissions,
     user,
-    filters: { status: statusFilter, sort: validSort, order: validOrder },
+    filters: {status: statusFilter, sort: validSort, order: validOrder},
   };
 }
 
 const STATUS_OPTIONS = [
-  { value: "", label: "All" },
-  { value: "pending", label: "Pending" },
-  { value: "approved", label: "Approved" },
-  { value: "rejected", label: "Rejected" },
-  { value: "needs_info", label: "Needs Info" },
+  {value: '', label: 'All'},
+  {value: 'pending', label: 'Pending'},
+  {value: 'approved', label: 'Approved'},
+  {value: 'rejected', label: 'Rejected'},
+  {value: 'needs_info', label: 'Needs Info'},
 ];
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({status}: {status: string}) {
   const styles: Record<string, string> = {
-    approved: "bg-creek-green/15 text-creek-green border-creek-green/30",
-    pending: "bg-spirit-gold/15 text-spirit-gold border-spirit-gold/30",
-    rejected: "bg-red-100 text-red-700 border-red-300",
-    needs_info: "bg-eagle-blue/10 text-eagle-blue border-eagle-blue/30",
+    approved: 'bg-creek-green/15 text-creek-green border-creek-green/30',
+    pending: 'bg-spirit-gold/15 text-spirit-gold border-spirit-gold/30',
+    rejected: 'bg-red-100 text-red-700 border-red-300',
+    needs_info: 'bg-eagle-blue/10 text-eagle-blue border-eagle-blue/30',
   };
 
   const labels: Record<string, string> = {
-    approved: "Approved",
-    pending: "Pending",
-    rejected: "Rejected",
-    needs_info: "Needs Info",
+    approved: 'Approved',
+    pending: 'Pending',
+    rejected: 'Rejected',
+    needs_info: 'Needs Info',
   };
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[status] ?? "bg-gray-100 text-gray-700 border-gray-300"}`}
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[status] ?? 'bg-gray-100 text-gray-700 border-gray-300'}`}
     >
       {labels[status] ?? status}
     </span>
@@ -128,10 +114,10 @@ function StatusBadge({ status }: { status: string }) {
 function formatDate(dateStr: string): string {
   try {
     const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
     });
   } catch {
     return dateStr;
@@ -143,14 +129,13 @@ function formatAmount(amount: number): string {
 }
 
 export default function AdminReimbursements() {
-  const { submissions, user, filters } = useLoaderData<typeof loader>();
+  const {submissions, user, filters} = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const revalidator = useRevalidator();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkLoading, setBulkLoading] = useState(false);
 
-  const allSelected =
-    submissions.length > 0 && selected.size === submissions.length;
+  const allSelected = submissions.length > 0 && selected.size === submissions.length;
 
   const toggleAll = () => {
     if (allSelected) {
@@ -173,10 +158,10 @@ export default function AdminReimbursements() {
     if (selected.size === 0) return;
     setBulkLoading(true);
     try {
-      const res = await fetch("/api/admin/bulk-status", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: Array.from(selected), status }),
+      const res = await fetch('/api/admin/bulk-status', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ids: Array.from(selected), status}),
       });
       if (res.ok) {
         setSelected(new Set());
@@ -191,16 +176,16 @@ export default function AdminReimbursements() {
     if (selected.size === 0) return;
     if (
       !window.confirm(
-        `Are you sure you want to delete ${selected.size} submission${selected.size !== 1 ? "s" : ""}? This cannot be undone.`
+        `Are you sure you want to delete ${selected.size} submission${selected.size !== 1 ? 's' : ''}? This cannot be undone.`,
       )
     )
       return;
     setBulkLoading(true);
     try {
-      const res = await fetch("/api/admin/bulk-delete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: Array.from(selected) }),
+      const res = await fetch('/api/admin/bulk-delete', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ids: Array.from(selected)}),
       });
       if (res.ok) {
         setSelected(new Set());
@@ -213,22 +198,22 @@ export default function AdminReimbursements() {
 
   const handleExportSelected = () => {
     if (selected.size === 0) return;
-    const ids = Array.from(selected).join(",");
+    const ids = Array.from(selected).join(',');
     window.location.href = `/api/admin/reimbursements/export?ids=${encodeURIComponent(ids)}`;
   };
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const params = new URLSearchParams();
-    if (e.target.value) params.set("status", e.target.value);
-    if (filters.sort !== "submitted_at") params.set("sort", filters.sort);
-    if (filters.order !== "desc") params.set("order", filters.order);
+    if (e.target.value) params.set('status', e.target.value);
+    if (filters.sort !== 'submitted_at') params.set('sort', filters.sort);
+    if (filters.order !== 'desc') params.set('order', filters.order);
     const qs = params.toString();
-    navigate(qs ? `?${qs}` : ".");
+    navigate(qs ? `?${qs}` : '.');
   };
 
   const exportUrl = filters.status
     ? `/api/admin/reimbursements/export?status=${filters.status}`
-    : "/api/admin/reimbursements/export";
+    : '/api/admin/reimbursements/export';
 
   return (
     <div className="min-h-screen bg-warm-white">
@@ -239,9 +224,7 @@ export default function AdminReimbursements() {
             Reimbursement Admin
           </h1>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-white/80 hidden sm:inline">
-              {user.name}
-            </span>
+            <span className="text-sm text-white/80 hidden sm:inline">{user.name}</span>
             <a
               href="/api/auth/logout"
               className="text-sm text-white/70 hover:text-white underline underline-offset-2 transition-colors"
@@ -256,10 +239,7 @@ export default function AdminReimbursements() {
         {/* Filter Bar */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
-            <label
-              htmlFor="status-filter"
-              className="text-sm font-medium text-charcoal font-body"
-            >
+            <label htmlFor="status-filter" className="text-sm font-medium text-charcoal font-body">
               Status:
             </label>
             <select
@@ -280,12 +260,7 @@ export default function AdminReimbursements() {
             href={exportUrl}
             className="inline-flex items-center gap-2 rounded-lg bg-eagle-blue px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-eagle-blue/90 transition-colors font-body"
           >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -305,21 +280,21 @@ export default function AdminReimbursements() {
             </span>
             <div className="h-4 w-px bg-gray-300" />
             <button
-              onClick={() => handleBulkStatus("approved")}
+              onClick={() => handleBulkStatus('approved')}
               disabled={bulkLoading}
               className="rounded-md bg-creek-green px-3 py-1.5 text-xs font-medium text-white hover:bg-creek-green/90 disabled:opacity-50 transition-colors"
             >
               Approve
             </button>
             <button
-              onClick={() => handleBulkStatus("rejected")}
+              onClick={() => handleBulkStatus('rejected')}
               disabled={bulkLoading}
               className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
             >
               Reject
             </button>
             <button
-              onClick={() => handleBulkStatus("needs_info")}
+              onClick={() => handleBulkStatus('needs_info')}
               disabled={bulkLoading}
               className="rounded-md bg-eagle-blue px-3 py-1.5 text-xs font-medium text-white hover:bg-eagle-blue/90 disabled:opacity-50 transition-colors"
             >
@@ -353,9 +328,7 @@ export default function AdminReimbursements() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           {submissions.length === 0 ? (
             <div className="px-6 py-16 text-center">
-              <p className="text-gray-500 font-body text-lg">
-                No submissions found
-              </p>
+              <p className="text-gray-500 font-body text-lg">No submissions found</p>
               {filters.status && (
                 <p className="text-gray-400 font-body text-sm mt-1">
                   Try changing the status filter
@@ -399,7 +372,7 @@ export default function AdminReimbursements() {
                   {submissions.map((sub) => (
                     <tr
                       key={sub.id}
-                      className={`hover:bg-gray-50/50 transition-colors ${selected.has(String(sub.id)) ? "bg-eagle-blue/5" : ""}`}
+                      className={`hover:bg-gray-50/50 transition-colors ${selected.has(String(sub.id)) ? 'bg-eagle-blue/5' : ''}`}
                     >
                       <td className="w-10 px-4 py-3">
                         <input
@@ -443,7 +416,7 @@ export default function AdminReimbursements() {
         {/* Count */}
         {submissions.length > 0 && (
           <p className="mt-3 text-sm text-gray-400 font-body">
-            {submissions.length} submission{submissions.length !== 1 ? "s" : ""}
+            {submissions.length} submission{submissions.length !== 1 ? 's' : ''}
           </p>
         )}
       </main>

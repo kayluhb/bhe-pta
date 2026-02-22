@@ -1,13 +1,13 @@
-import { type SelectHTMLAttributes, forwardRef } from 'react';
+import {forwardRef, type SelectHTMLAttributes} from 'react';
 
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
   error?: string;
-  options: { value: string; label: string }[];
+  options: {value: string; label: string}[];
 }
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  ({ className = '', label, error, options, id, required, ...props }, ref) => {
+  ({className = '', label, error, options, id, required, ...props}, ref) => {
     const selectId = id || label?.toLowerCase().replace(/\s+/g, '-');
     const errorId = error ? `${selectId}-error` : undefined;
 
@@ -16,7 +16,11 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         {label && (
           <label htmlFor={selectId} className="block text-sm font-medium text-charcoal/80 mb-1">
             {label}
-            {required && <span className="text-red-500 ml-1" aria-hidden="true">*</span>}
+            {required && (
+              <span className="text-red-500 ml-1" aria-hidden="true">
+                *
+              </span>
+            )}
           </label>
         )}
         <select
@@ -37,11 +41,13 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           ))}
         </select>
         {error && (
-          <p id={errorId} role="alert" className="mt-1 text-sm text-red-600">{error}</p>
+          <p id={errorId} role="alert" className="mt-1 text-sm text-red-600">
+            {error}
+          </p>
         )}
       </div>
     );
-  }
+  },
 );
 
 Select.displayName = 'Select';

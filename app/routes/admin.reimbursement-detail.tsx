@@ -1,10 +1,10 @@
-import { useState } from "react";
-import type { Route } from "./+types/admin.reimbursement-detail";
-import { useLoaderData } from "react-router";
-import { requireAdmin, type SessionPayload } from "~/lib/admin/auth";
+import {useState} from 'react';
+import {useLoaderData} from 'react-router';
+import {requireAdmin, type SessionPayload} from '~/lib/admin/auth';
+import type {Route} from './+types/admin.reimbursement-detail';
 
 export function meta() {
-  return [{ title: "Submission Details | Admin" }];
+  return [{title: 'Submission Details | Admin'}];
 }
 
 interface Submission {
@@ -41,7 +41,7 @@ interface FileAttachment {
   sort_order: number;
 }
 
-export async function loader({ request, params, context }: Route.LoaderArgs) {
+export async function loader({request, params, context}: Route.LoaderArgs) {
   const auth = await requireAdmin(request, context.cloudflare.env);
   if (auth instanceof Response) return auth;
   const user: SessionPayload = auth;
@@ -50,48 +50,44 @@ export async function loader({ request, params, context }: Route.LoaderArgs) {
   const db = context.cloudflare.env.REIMBURSEMENT_DB;
 
   const results = await db.batch([
-    db.prepare("SELECT * FROM submissions WHERE id = ?").bind(id),
+    db.prepare('SELECT * FROM submissions WHERE id = ?').bind(id),
     db
-      .prepare(
-        "SELECT * FROM receipt_entries WHERE submission_id = ? ORDER BY sort_order"
-      )
+      .prepare('SELECT * FROM receipt_entries WHERE submission_id = ? ORDER BY sort_order')
       .bind(id),
     db
-      .prepare(
-        "SELECT * FROM file_attachments WHERE submission_id = ? ORDER BY sort_order"
-      )
+      .prepare('SELECT * FROM file_attachments WHERE submission_id = ? ORDER BY sort_order')
       .bind(id),
   ]);
 
   const submission = results[0].results[0] as Submission | undefined;
   if (!submission) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response('Not Found', {status: 404});
   }
 
   const receipts = results[1].results as ReceiptEntry[];
   const files = results[2].results as FileAttachment[];
 
-  return { submission, receipts, files, user };
+  return {submission, receipts, files, user};
 }
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({status}: {status: string}) {
   const styles: Record<string, string> = {
-    approved: "bg-creek-green/15 text-creek-green border-creek-green/30",
-    pending: "bg-spirit-gold/15 text-spirit-gold border-spirit-gold/30",
-    rejected: "bg-red-100 text-red-700 border-red-300",
-    needs_info: "bg-eagle-blue/10 text-eagle-blue border-eagle-blue/30",
+    approved: 'bg-creek-green/15 text-creek-green border-creek-green/30',
+    pending: 'bg-spirit-gold/15 text-spirit-gold border-spirit-gold/30',
+    rejected: 'bg-red-100 text-red-700 border-red-300',
+    needs_info: 'bg-eagle-blue/10 text-eagle-blue border-eagle-blue/30',
   };
 
   const labels: Record<string, string> = {
-    approved: "Approved",
-    pending: "Pending",
-    rejected: "Rejected",
-    needs_info: "Needs Info",
+    approved: 'Approved',
+    pending: 'Pending',
+    rejected: 'Rejected',
+    needs_info: 'Needs Info',
   };
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[status] ?? "bg-gray-100 text-gray-700 border-gray-300"}`}
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[status] ?? 'bg-gray-100 text-gray-700 border-gray-300'}`}
     >
       {labels[status] ?? status}
     </span>
@@ -101,10 +97,10 @@ function StatusBadge({ status }: { status: string }) {
 function formatDate(dateStr: string): string {
   try {
     const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
     });
   } catch {
     return dateStr;
@@ -122,13 +118,12 @@ function formatFileSize(bytes: number): string {
 }
 
 export default function AdminReimbursementDetail() {
-  const { submission, receipts, files, user } =
-    useLoaderData<typeof loader>();
+  const {submission, receipts, files, user} = useLoaderData<typeof loader>();
   const [status, setStatus] = useState(submission.status);
-  const [notes, setNotes] = useState(submission.admin_notes ?? "");
+  const [notes, setNotes] = useState(submission.admin_notes ?? '');
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<{
-    type: "success" | "error";
+    type: 'success' | 'error';
     message: string;
   } | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -137,25 +132,21 @@ export default function AdminReimbursementDetail() {
     setSaving(true);
     setFeedback(null);
     try {
-      const res = await fetch(
-        `/api/admin/reimbursements/${submission.id}/status`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status, notes }),
-        }
-      );
+      const res = await fetch(`/api/admin/reimbursements/${submission.id}/status`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({status, notes}),
+      });
       if (!res.ok) {
         const text = await res.text();
-        throw new Error(text || "Failed to update status");
+        throw new Error(text || 'Failed to update status');
       }
-      setFeedback({ type: "success", message: "Status updated successfully." });
+      setFeedback({type: 'success', message: 'Status updated successfully.'});
       setTimeout(() => window.location.reload(), 1000);
     } catch (err) {
       setFeedback({
-        type: "error",
-        message:
-          err instanceof Error ? err.message : "An unknown error occurred.",
+        type: 'error',
+        message: err instanceof Error ? err.message : 'An unknown error occurred.',
       });
     } finally {
       setSaving(false);
@@ -163,23 +154,19 @@ export default function AdminReimbursementDetail() {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete this submission?"))
-      return;
+    if (!window.confirm('Are you sure you want to delete this submission?')) return;
     setDeleting(true);
     try {
-      const res = await fetch(
-        `/api/admin/reimbursements/${submission.id}/delete`,
-        { method: "DELETE" }
-      );
+      const res = await fetch(`/api/admin/reimbursements/${submission.id}/delete`, {
+        method: 'DELETE',
+      });
       if (!res.ok) {
         const text = await res.text();
-        throw new Error(text || "Failed to delete submission");
+        throw new Error(text || 'Failed to delete submission');
       }
-      window.location.href = "/admin/reimbursements";
+      window.location.href = '/admin/reimbursements';
     } catch (err) {
-      alert(
-        err instanceof Error ? err.message : "Failed to delete submission."
-      );
+      alert(err instanceof Error ? err.message : 'Failed to delete submission.');
       setDeleting(false);
     }
   };
@@ -195,9 +182,7 @@ export default function AdminReimbursementDetail() {
             Submission Details
           </h1>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-white/80 hidden sm:inline">
-              {user.name}
-            </span>
+            <span className="text-sm text-white/80 hidden sm:inline">{user.name}</span>
             <a
               href="/api/auth/logout"
               className="text-sm text-white/70 hover:text-white underline underline-offset-2 transition-colors"
@@ -218,44 +203,32 @@ export default function AdminReimbursementDetail() {
             >
               &larr; Back to list
             </a>
-            <span className="text-sm text-gray-400 font-body">
-              ID: #{submission.id}
-            </span>
+            <span className="text-sm text-gray-400 font-body">ID: #{submission.id}</span>
           </div>
           <StatusBadge status={submission.status} />
         </div>
 
         {/* Submission Info Card */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-heading font-semibold text-charcoal mb-4">
-            Submission Info
-          </h2>
+          <h2 className="text-lg font-heading font-semibold text-charcoal mb-4">Submission Info</h2>
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm font-body">
             <div>
               <dt className="text-gray-500">Requester Name</dt>
-              <dd className="text-charcoal font-medium">
-                {submission.requester_name}
-              </dd>
+              <dd className="text-charcoal font-medium">{submission.requester_name}</dd>
             </div>
             <div>
               <dt className="text-gray-500">Email</dt>
-              <dd className="text-charcoal font-medium">
-                {submission.requester_email}
-              </dd>
+              <dd className="text-charcoal font-medium">{submission.requester_email}</dd>
             </div>
             {submission.requester_phone && (
               <div>
                 <dt className="text-gray-500">Phone</dt>
-                <dd className="text-charcoal font-medium">
-                  {submission.requester_phone}
-                </dd>
+                <dd className="text-charcoal font-medium">{submission.requester_phone}</dd>
               </div>
             )}
             <div>
               <dt className="text-gray-500">Submitted</dt>
-              <dd className="text-charcoal font-medium">
-                {formatDate(submission.submitted_at)}
-              </dd>
+              <dd className="text-charcoal font-medium">{formatDate(submission.submitted_at)}</dd>
             </div>
             <div>
               <dt className="text-gray-500">Total Amount</dt>
@@ -268,9 +241,7 @@ export default function AdminReimbursementDetail() {
 
         {/* Status Update Form */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-heading font-semibold text-charcoal mb-4">
-            Update Status
-          </h2>
+          <h2 className="text-lg font-heading font-semibold text-charcoal mb-4">Update Status</h2>
           <div className="space-y-4">
             <div>
               <label
@@ -310,9 +281,9 @@ export default function AdminReimbursementDetail() {
             {feedback && (
               <div
                 className={`text-sm font-body px-3 py-2 rounded-lg ${
-                  feedback.type === "success"
-                    ? "bg-creek-green/10 text-creek-green"
-                    : "bg-red-50 text-red-700"
+                  feedback.type === 'success'
+                    ? 'bg-creek-green/10 text-creek-green'
+                    : 'bg-red-50 text-red-700'
                 }`}
               >
                 {feedback.message}
@@ -324,7 +295,7 @@ export default function AdminReimbursementDetail() {
               disabled={saving}
               className="inline-flex items-center gap-2 rounded-lg bg-eagle-blue px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-eagle-blue/90 transition-colors font-body disabled:opacity-50"
             >
-              {saving ? "Saving..." : "Save"}
+              {saving ? 'Saving...' : 'Save'}
             </button>
           </div>
         </div>
@@ -333,9 +304,7 @@ export default function AdminReimbursementDetail() {
         {receipts.length > 0 && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="px-6 pt-6 pb-3">
-              <h2 className="text-lg font-heading font-semibold text-charcoal">
-                Receipt Entries
-              </h2>
+              <h2 className="text-lg font-heading font-semibold text-charcoal">Receipt Entries</h2>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
@@ -360,21 +329,16 @@ export default function AdminReimbursementDetail() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {receipts.map((r) => (
-                    <tr
-                      key={r.id}
-                      className="hover:bg-gray-50/50 transition-colors"
-                    >
+                    <tr key={r.id} className="hover:bg-gray-50/50 transition-colors">
                       <td className="px-4 py-3 text-sm text-charcoal font-body whitespace-nowrap">
                         {formatDate(r.receipt_date)}
                       </td>
+                      <td className="px-4 py-3 text-sm text-charcoal font-body">{r.description}</td>
                       <td className="px-4 py-3 text-sm text-charcoal font-body">
-                        {r.description}
+                        {r.vendor ?? '—'}
                       </td>
                       <td className="px-4 py-3 text-sm text-charcoal font-body">
-                        {r.vendor ?? "—"}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-charcoal font-body">
-                        {r.category ?? "—"}
+                        {r.category ?? '—'}
                       </td>
                       <td className="px-4 py-3 text-sm text-charcoal font-body text-right tabular-nums">
                         {formatAmount(r.amount)}
@@ -412,12 +376,7 @@ export default function AdminReimbursementDetail() {
                   href={`/api/admin/reimbursements/file?key=${encodeURIComponent(submission.pdf_key)}`}
                   className="inline-flex items-center gap-2 rounded-lg bg-eagle-blue px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-eagle-blue/90 transition-colors font-body"
                 >
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -433,10 +392,7 @@ export default function AdminReimbursementDetail() {
             {files.length > 0 && (
               <ul className="divide-y divide-gray-100">
                 {files.map((f) => (
-                  <li
-                    key={f.id}
-                    className="flex items-center justify-between py-3 gap-4"
-                  >
+                  <li key={f.id} className="flex items-center justify-between py-3 gap-4">
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-charcoal font-body truncate">
                         {f.original_filename}
@@ -460,12 +416,10 @@ export default function AdminReimbursementDetail() {
 
         {/* Delete Section */}
         <div className="bg-white rounded-xl shadow-sm border border-red-200 p-6">
-          <h2 className="text-lg font-heading font-semibold text-red-700 mb-2">
-            Danger Zone
-          </h2>
+          <h2 className="text-lg font-heading font-semibold text-red-700 mb-2">Danger Zone</h2>
           <p className="text-sm text-gray-600 font-body mb-4">
-            Permanently delete this submission and all associated data. This
-            action cannot be undone.
+            Permanently delete this submission and all associated data. This action cannot be
+            undone.
           </p>
           <button
             type="button"
@@ -473,7 +427,7 @@ export default function AdminReimbursementDetail() {
             disabled={deleting}
             className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 transition-colors font-body disabled:opacity-50"
           >
-            {deleting ? "Deleting..." : "Delete Submission"}
+            {deleting ? 'Deleting...' : 'Delete Submission'}
           </button>
         </div>
       </main>

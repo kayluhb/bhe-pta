@@ -1,19 +1,19 @@
-import { Link, useSearchParams } from "react-router";
-import type { Route } from "./+types/reimbursement.success";
+import {Link, useSearchParams} from 'react-router';
+import type {Route} from './+types/reimbursement.success';
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Request Submitted | Barton Hills Elementary PTA" },
+    {title: 'Request Submitted | Barton Hills Elementary PTA'},
     {
-      name: "description",
-      content: "Your reimbursement request has been submitted successfully.",
+      name: 'description',
+      content: 'Your reimbursement request has been submitted successfully.',
     },
   ];
 }
 
 export default function ReimbursementSuccess() {
   const [searchParams] = useSearchParams();
-  const id = searchParams.get("id");
+  const id = searchParams.get('id');
 
   return (
     <div>
@@ -23,7 +23,7 @@ export default function ReimbursementSuccess() {
           className="absolute inset-0 opacity-[0.05]"
           style={{
             backgroundImage:
-              "repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)",
+              'repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)',
           }}
         />
         <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
@@ -54,13 +54,11 @@ export default function ReimbursementSuccess() {
               </svg>
             </div>
 
-            <h2 className="text-2xl font-bold text-charcoal mb-2">
-              Request Submitted!
-            </h2>
+            <h2 className="text-2xl font-bold text-charcoal mb-2">Request Submitted!</h2>
 
             <p className="text-charcoal/70 mb-6">
-              Your reimbursement request has been submitted successfully. You
-              will receive a confirmation email shortly.
+              Your reimbursement request has been submitted successfully. You will receive a
+              confirmation email shortly.
             </p>
 
             {id && (
@@ -77,9 +75,7 @@ export default function ReimbursementSuccess() {
                 Submit Another Request
               </Link>
 
-              <p className="text-sm text-charcoal/70">
-                Questions? Contact your PTA treasurer.
-              </p>
+              <p className="text-sm text-charcoal/70">Questions? Contact your PTA treasurer.</p>
             </div>
           </div>
         </div>

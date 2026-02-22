@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import {useCallback, useEffect, useState} from 'react';
 import {
   isRouteErrorResponse,
   Link,
@@ -7,44 +7,48 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-} from "react-router";
+} from 'react-router';
 
-import type { Route } from "./+types/root";
-import { Header } from "./components/Header";
-import { Footer } from "./components/Footer";
-import { useDiscoMode } from "./hooks/useDiscoMode";
-import "./app.css";
+import type {Route} from './+types/root';
+import {Footer} from './components/Footer';
+import {Header} from './components/Header';
+import {useDiscoMode} from './hooks/useDiscoMode';
+import './app.css';
 
 export function meta() {
   return [
-    { title: "Barton Hills Elementary PTA" },
-    { name: "description", content: "Barton Hills Elementary PTA - Supporting our school community through parent involvement, fundraising, and advocacy since 1964." },
-    { property: "og:title", content: "Barton Hills Elementary PTA" },
-    { property: "og:description", content: "Supporting our school community since 1964" },
-    { property: "og:type", content: "website" },
-    { name: "apple-mobile-web-app-title", content: "BHE PTA" },
+    {title: 'Barton Hills Elementary PTA'},
+    {
+      name: 'description',
+      content:
+        'Barton Hills Elementary PTA - Supporting our school community through parent involvement, fundraising, and advocacy since 1964.',
+    },
+    {property: 'og:title', content: 'Barton Hills Elementary PTA'},
+    {property: 'og:description', content: 'Supporting our school community since 1964'},
+    {property: 'og:type', content: 'website'},
+    {name: 'apple-mobile-web-app-title', content: 'BHE PTA'},
   ];
 }
 
 export const links: Route.LinksFunction = () => [
-  { rel: "icon", type: "image/png", href: "/favicon-96x96.png", sizes: "96x96" },
-  { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
-  { rel: "shortcut icon", href: "/favicon.ico" },
-  { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
-  { rel: "manifest", href: "/site.webmanifest" },
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  {rel: 'icon', type: 'image/png', href: '/favicon-96x96.png', sizes: '96x96'},
+  {rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg'},
+  {rel: 'shortcut icon', href: '/favicon.ico'},
+  {rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png'},
+  {rel: 'manifest', href: '/site.webmanifest'},
+  {rel: 'preconnect', href: 'https://fonts.googleapis.com'},
   {
-    rel: "preconnect",
-    href: "https://fonts.gstatic.com",
-    crossOrigin: "anonymous",
+    rel: 'preconnect',
+    href: 'https://fonts.gstatic.com',
+    crossOrigin: 'anonymous',
   },
   {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:wght@400;500;600;700&display=swap",
+    rel: 'stylesheet',
+    href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:wght@400;500;600;700&display=swap',
   },
 ];
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export function Layout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en">
       <head>
@@ -79,10 +83,10 @@ function DJBeckettBadge() {
 }
 
 export default function App() {
-  const { isDiscoMode } = useDiscoMode();
+  const {isDiscoMode} = useDiscoMode();
 
   return (
-    <div className={`min-h-screen flex flex-col${isDiscoMode ? " disco-active" : ""}`}>
+    <div className={`min-h-screen flex flex-col${isDiscoMode ? ' disco-active' : ''}`}>
       <Header />
       <main id="main-content" className="flex-1">
         <Outlet />
@@ -94,13 +98,13 @@ export default function App() {
 }
 
 function EagleEyes() {
-  const [leftPupil, setLeftPupil] = useState({ x: 0, y: 0 });
-  const [rightPupil, setRightPupil] = useState({ x: 0, y: 0 });
+  const [leftPupil, setLeftPupil] = useState({x: 0, y: 0});
+  const [rightPupil, setRightPupil] = useState({x: 0, y: 0});
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     const calcPupil = (eyeId: string) => {
       const eye = document.getElementById(eyeId);
-      if (!eye) return { x: 0, y: 0 };
+      if (!eye) return {x: 0, y: 0};
       const rect = eye.getBoundingClientRect();
       const cx = rect.left + rect.width / 2;
       const cy = rect.top + rect.height / 2;
@@ -108,39 +112,39 @@ function EagleEyes() {
       const dy = e.clientY - cy;
       const angle = Math.atan2(dy, dx);
       const dist = Math.min(Math.hypot(dx, dy) / 80, 1);
-      return { x: dist * Math.cos(angle) * 3, y: dist * Math.sin(angle) * 2 };
+      return {x: dist * Math.cos(angle) * 3, y: dist * Math.sin(angle) * 2};
     };
-    setLeftPupil(calcPupil("eagle-left-eye"));
-    setRightPupil(calcPupil("eagle-right-eye"));
+    setLeftPupil(calcPupil('eagle-left-eye'));
+    setRightPupil(calcPupil('eagle-right-eye'));
   }, []);
 
   useEffect(() => {
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [handleMouseMove]);
 
-  const pupilChar = "\u25CF";
+  const pupilChar = '\u25CF';
 
   // prettier-ignore
   const lines = [
-    "                    ___",
+    '                    ___',
     "                _,-'   `-._",
     "              ,'             `.",
     "            ,'    __     __    `.",
-    "           /    ,[  ]   [  ],    \\",
+    '           /    ,[  ]   [  ],    \\',
     "          /     `--'     `--'     \\",
-    "         |    ___           ___    |",
-    "         |   /   \\  ,\",   /   \\   |",
-    "          \\  \\___/ / | \\  \\___/  /",
+    '         |    ___           ___    |',
+    '         |   /   \\  ,",   /   \\   |',
+    '          \\  \\___/ / | \\  \\___/  /',
     "           `.     /  |  \\      ,'",
     "        ____`-._ \\  |  / _,-'____",
     "      ,'    `-._`-._|_,-'_,-'    `.",
     "    ,'          `-.___,-'          `.",
-    "   /       _,---._       _,---._     \\",
+    '   /       _,---._       _,---._     \\',
     "  /      ,'       `.   ,'       `.    \\",
-    " /      /           \\ /           \\    \\",
-    "|      |             V             |    |",
-    " \\      \\           / \\           /    /",
+    ' /      /           \\ /           \\    \\',
+    '|      |             V             |    |',
+    ' \\      \\           / \\           /    /',
     "  \\      `.       ,'   `.       ,'    /",
     "   \\       `-._,-'       `-._,-'    /",
     "    `.                             ,'",
@@ -154,7 +158,10 @@ function EagleEyes() {
     <div className="relative select-none" aria-hidden="true">
       <pre className="font-mono text-eagle-blue text-xs sm:text-sm md:text-base leading-tight">
         {lines.map((line, i) => (
-          <span key={i} className="block">{line}{"\n"}</span>
+          <span key={i} className="block">
+            {line}
+            {'\n'}
+          </span>
         ))}
       </pre>
       {/* Left eye */}
@@ -162,10 +169,10 @@ function EagleEyes() {
         id="eagle-left-eye"
         className="absolute font-mono text-spirit-gold text-xs sm:text-sm md:text-base"
         style={{
-          top: "calc(16% + 0.1em)",
-          left: "calc(38% + 0.5em)",
+          top: 'calc(16% + 0.1em)',
+          left: 'calc(38% + 0.5em)',
           transform: `translate(${leftPupil.x}px, ${leftPupil.y}px)`,
-          transition: "transform 0.05s linear",
+          transition: 'transform 0.05s linear',
         }}
       >
         {pupilChar}
@@ -175,10 +182,10 @@ function EagleEyes() {
         id="eagle-right-eye"
         className="absolute font-mono text-spirit-gold text-xs sm:text-sm md:text-base"
         style={{
-          top: "calc(16% + 0.1em)",
-          left: "calc(56% + 0.2em)",
+          top: 'calc(16% + 0.1em)',
+          left: 'calc(56% + 0.2em)',
           transform: `translate(${rightPupil.x}px, ${rightPupil.y}px)`,
-          transition: "transform 0.05s linear",
+          transition: 'transform 0.05s linear',
         }}
       >
         {pupilChar}
@@ -187,11 +194,11 @@ function EagleEyes() {
   );
 }
 
-export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+export function ErrorBoundary({error}: Route.ErrorBoundaryProps) {
   const is404 = isRouteErrorResponse(error) && error.status === 404;
 
   if (!is404) {
-    let details = "An unexpected error occurred.";
+    let details = 'An unexpected error occurred.';
     let stack: string | undefined;
     if (isRouteErrorResponse(error)) {
       details = error.statusText || details;
@@ -222,9 +229,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
       <main id="main-content" className="flex-1 flex items-center justify-center py-16 px-4">
         <div className="text-center max-w-lg">
           <EagleEyes />
-          <h1 className="text-6xl font-heading font-bold text-eagle-blue mt-6">
-            404
-          </h1>
+          <h1 className="text-6xl font-heading font-bold text-eagle-blue mt-6">404</h1>
           <p className="text-xl text-charcoal/70 mt-3 font-body">
             This eagle has searched far and wide, but that page doesn't exist.
           </p>

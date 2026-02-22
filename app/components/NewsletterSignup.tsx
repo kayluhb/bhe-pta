@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import {useCallback, useEffect, useRef, useState} from 'react';
 
-const TURNSTILE_SITE_KEY = "0x4AAAAAACeBDkCW901l9jWe";
+const TURNSTILE_SITE_KEY = '0x4AAAAAACeBDkCW901l9jWe';
 
 export function NewsletterSignup() {
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
-  const [message, setMessage] = useState("");
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [message, setMessage] = useState('');
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const turnstileRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
@@ -17,9 +17,9 @@ export function NewsletterSignup() {
     widgetIdRef.current = turnstile.render(turnstileRef.current, {
       sitekey: TURNSTILE_SITE_KEY,
       callback: (token: string) => setTurnstileToken(token),
-      "expired-callback": () => setTurnstileToken(null),
-      "error-callback": () => setTurnstileToken(null),
-      theme: "light",
+      'expired-callback': () => setTurnstileToken(null),
+      'error-callback': () => setTurnstileToken(null),
+      theme: 'light',
     });
   }, []);
 
@@ -31,18 +31,20 @@ export function NewsletterSignup() {
 
     const existing = document.querySelector('script[src*="turnstile"]');
     if (!existing) {
-      const script = document.createElement("script");
-      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      const script = document.createElement('script');
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
       script.async = true;
       script.onload = () => renderWidget();
       document.head.appendChild(script);
     } else {
-      existing.addEventListener("load", renderWidget);
+      existing.addEventListener('load', renderWidget);
     }
 
     return () => {
       if (widgetIdRef.current !== null) {
-        try { (window as any).turnstile?.remove(widgetIdRef.current); } catch {}
+        try {
+          (window as any).turnstile?.remove(widgetIdRef.current);
+        } catch {}
         widgetIdRef.current = null;
       }
     };
@@ -52,39 +54,49 @@ export function NewsletterSignup() {
     e.preventDefault();
 
     if (!turnstileToken) {
-      setStatus("error");
-      setMessage("Please complete the verification challenge.");
+      setStatus('error');
+      setMessage('Please complete the verification challenge.');
       return;
     }
 
-    setStatus("submitting");
-    setMessage("");
+    setStatus('submitting');
+    setMessage('');
 
     try {
-      const response = await fetch("/api/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, turnstileToken }),
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({email, turnstileToken}),
       });
 
-      const data = (await response.json()) as { success?: boolean; alreadySubscribed?: boolean; error?: string };
+      const data = (await response.json()) as {
+        success?: boolean;
+        alreadySubscribed?: boolean;
+        error?: string;
+      };
 
       if (data.success) {
-        setStatus("success");
-        setMessage(data.alreadySubscribed ? "You're already subscribed!" : "You're subscribed! Check your inbox.");
-        setEmail("");
+        setStatus('success');
+        setMessage(
+          data.alreadySubscribed
+            ? "You're already subscribed!"
+            : "You're subscribed! Check your inbox.",
+        );
+        setEmail('');
       } else {
-        setStatus("error");
-        setMessage(data.error || "Something went wrong. Please try again.");
+        setStatus('error');
+        setMessage(data.error || 'Something went wrong. Please try again.');
       }
     } catch {
-      setStatus("error");
-      setMessage("Something went wrong. Please try again.");
+      setStatus('error');
+      setMessage('Something went wrong. Please try again.');
     }
 
     // Reset Turnstile widget after submission attempt
     if (widgetIdRef.current !== null) {
-      try { (window as any).turnstile?.reset(widgetIdRef.current); } catch {}
+      try {
+        (window as any).turnstile?.reset(widgetIdRef.current);
+      } catch {}
       setTurnstileToken(null);
     }
   };
@@ -111,20 +123,18 @@ export function NewsletterSignup() {
             Newsletter Signup
           </h2>
           <p className="mt-3 text-charcoal/70 leading-relaxed">
-            Stay up to date with PTA events, meetings, and important school
-            information.
+            Stay up to date with PTA events, meetings, and important school information.
           </p>
-          {status === "success" ? (
+          {status === 'success' ? (
             <div className="mt-8 p-4 bg-creek-green/10 rounded-lg" role="status">
               <p className="text-creek-green font-medium">{message}</p>
             </div>
           ) : (
-            <form
-              className="mt-8 space-y-4"
-              onSubmit={handleSubscribe}
-            >
+            <form className="mt-8 space-y-4" onSubmit={handleSubscribe}>
               <div className="flex flex-col sm:flex-row gap-3">
-                <label htmlFor="newsletter-email" className="sr-only">Email address</label>
+                <label htmlFor="newsletter-email" className="sr-only">
+                  Email address
+                </label>
                 <input
                   id="newsletter-email"
                   type="email"
@@ -134,22 +144,24 @@ export function NewsletterSignup() {
                   className="flex-1 px-5 py-3 rounded-full border border-charcoal/20 focus:outline-none focus:border-eagle-blue focus:ring-2 focus:ring-eagle-blue/20 text-charcoal placeholder:text-charcoal/70"
                   required
                   aria-required="true"
-                  aria-describedby={status === "error" ? "subscribe-error" : undefined}
-                  aria-invalid={status === "error" ? true : undefined}
-                  disabled={status === "submitting"}
+                  aria-describedby={status === 'error' ? 'subscribe-error' : undefined}
+                  aria-invalid={status === 'error' ? true : undefined}
+                  disabled={status === 'submitting'}
                 />
                 <button
                   type="submit"
-                  disabled={status === "submitting" || !turnstileToken}
+                  disabled={status === 'submitting' || !turnstileToken}
                   className="bg-spirit-gold text-night-blue font-heading font-bold px-8 py-3 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25 shrink-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {status === "submitting" ? "Subscribing..." : "Subscribe"}
+                  {status === 'submitting' ? 'Subscribing...' : 'Subscribe'}
                 </button>
               </div>
             </form>
           )}
-          {status === "error" && (
-            <p id="subscribe-error" role="alert" className="mt-3 text-sm text-red-600">{message}</p>
+          {status === 'error' && (
+            <p id="subscribe-error" role="alert" className="mt-3 text-sm text-red-600">
+              {message}
+            </p>
           )}
           <p className="mt-4 text-xs text-charcoal/70">
             We respect your privacy. Unsubscribe at any time.

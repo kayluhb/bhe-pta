@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import {Link} from 'react-router';
 
 interface EventCardProps {
   month: string;
@@ -8,13 +8,7 @@ interface EventCardProps {
   to?: string;
 }
 
-export function EventCard({
-  month,
-  day,
-  title,
-  description,
-  to,
-}: EventCardProps) {
+export function EventCard({month, day, title, description, to}: EventCardProps) {
   const content = (
     <div className="group flex bg-white rounded-lg shadow-md border-l-4 border-spirit-gold overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5">
       {/* Date Badge */}
@@ -22,9 +16,7 @@ export function EventCard({
         <span className="text-xs font-heading font-bold uppercase tracking-wider text-creek-green/70">
           {month}
         </span>
-        <span className="text-2xl font-heading font-bold leading-tight">
-          {day}
-        </span>
+        <span className="text-2xl font-heading font-bold leading-tight">{day}</span>
       </div>
 
       {/* Content */}
@@ -32,9 +24,7 @@ export function EventCard({
         <h3 className="font-heading font-bold text-charcoal text-base group-hover:text-eagle-blue transition-colors">
           {title}
         </h3>
-        <p className="mt-1 text-sm text-charcoal/70 leading-relaxed line-clamp-2">
-          {description}
-        </p>
+        <p className="mt-1 text-sm text-charcoal/70 leading-relaxed line-clamp-2">{description}</p>
       </div>
     </div>
   );

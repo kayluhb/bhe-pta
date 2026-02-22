@@ -1,6 +1,6 @@
-import { Input } from "~/components/reimbursement/ui/Input";
-import { Button } from "~/components/reimbursement/ui/Button";
-import type { RequesterData } from "~/lib/reimbursement/validation";
+import {Button} from '~/components/reimbursement/ui/Button';
+import {Input} from '~/components/reimbursement/ui/Input';
+import type {RequesterData} from '~/lib/reimbursement/validation';
 
 interface RequesterInfoProps {
   data: RequesterData;
@@ -9,12 +9,7 @@ interface RequesterInfoProps {
   errors?: Record<string, string>;
 }
 
-export function RequesterInfo({
-  data,
-  onChange,
-  onNext,
-  errors = {},
-}: RequesterInfoProps) {
+export function RequesterInfo({data, onChange, onNext, errors = {}}: RequesterInfoProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onNext();
@@ -23,21 +18,18 @@ export function RequesterInfo({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="bg-white p-6 rounded-lg shadow-sm border border-charcoal/10">
-        <h2 className="text-xl font-semibold text-charcoal mb-4">
-          Check Request Information
-        </h2>
+        <h2 className="text-xl font-semibold text-charcoal mb-4">Check Request Information</h2>
         <p className="text-charcoal/70 mb-6">
           Please provide the payment details for your reimbursement request.
           <br />
-          Fields marked with <span className="text-red-500">*</span> are
-          required.
+          Fields marked with <span className="text-red-500">*</span> are required.
         </p>
 
         <div className="space-y-4">
           <Input
             label="Payable to"
             value={data.payableTo}
-            onChange={(e) => onChange({ payableTo: e.target.value })}
+            onChange={(e) => onChange({payableTo: e.target.value})}
             error={errors.payableTo}
             placeholder="Name to appear on check"
             autoComplete="name"
@@ -48,7 +40,7 @@ export function RequesterInfo({
             label="Email Address"
             type="email"
             value={data.email}
-            onChange={(e) => onChange({ email: e.target.value })}
+            onChange={(e) => onChange({email: e.target.value})}
             error={errors.email}
             placeholder="your@email.com"
             autoComplete="email"
@@ -58,8 +50,8 @@ export function RequesterInfo({
           <Input
             label="Phone Number"
             type="tel"
-            value={data.phone || ""}
-            onChange={(e) => onChange({ phone: e.target.value })}
+            value={data.phone || ''}
+            onChange={(e) => onChange({phone: e.target.value})}
             error={errors.phone}
             placeholder="(555) 123-4567"
             autoComplete="tel"
@@ -68,7 +60,7 @@ export function RequesterInfo({
           <Input
             label="Mailing Address"
             value={data.address}
-            onChange={(e) => onChange({ address: e.target.value })}
+            onChange={(e) => onChange({address: e.target.value})}
             error={errors.address}
             placeholder="Street address, City, State ZIP"
             autoComplete="street-address"
@@ -89,7 +81,7 @@ export function RequesterInfo({
               label="Date Check Needed"
               type="date"
               value={data.dateCheckNeeded}
-              onChange={(e) => onChange({ dateCheckNeeded: e.target.value })}
+              onChange={(e) => onChange({dateCheckNeeded: e.target.value})}
               error={errors.dateCheckNeeded}
               autoComplete="off"
               required
@@ -98,8 +90,8 @@ export function RequesterInfo({
 
           <Input
             label="Invoice Number (if applicable)"
-            value={data.invoiceNumber || ""}
-            onChange={(e) => onChange({ invoiceNumber: e.target.value })}
+            value={data.invoiceNumber || ''}
+            onChange={(e) => onChange({invoiceNumber: e.target.value})}
             error={errors.invoiceNumber}
             placeholder="Optional"
             autoComplete="off"

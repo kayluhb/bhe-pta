@@ -1,12 +1,12 @@
-import { sqliteTable, text, real, integer } from 'drizzle-orm/sqlite-core';
-import { sql } from 'drizzle-orm';
+import {sql} from 'drizzle-orm';
+import {integer, real, sqliteTable, text} from 'drizzle-orm/sqlite-core';
 
 export const submissions = sqliteTable('submissions', {
   id: text('id').primaryKey(),
   requesterName: text('requester_name').notNull(),
   requesterEmail: text('requester_email').notNull(),
   requesterPhone: text('requester_phone'),
-  status: text('status', { enum: ['pending', 'approved', 'rejected', 'needs_info'] })
+  status: text('status', {enum: ['pending', 'approved', 'rejected', 'needs_info']})
     .notNull()
     .default('pending'),
   totalAmount: real('total_amount').notNull().default(0),
@@ -17,7 +17,9 @@ export const submissions = sqliteTable('submissions', {
 
 export const receiptEntries = sqliteTable('receipt_entries', {
   id: text('id').primaryKey(),
-  submissionId: text('submission_id').notNull().references(() => submissions.id, { onDelete: 'cascade' }),
+  submissionId: text('submission_id')
+    .notNull()
+    .references(() => submissions.id, {onDelete: 'cascade'}),
   receiptDate: text('receipt_date').notNull(),
   description: text('description').notNull(),
   amount: real('amount').notNull(),
@@ -29,7 +31,9 @@ export const receiptEntries = sqliteTable('receipt_entries', {
 
 export const fileAttachments = sqliteTable('file_attachments', {
   id: text('id').primaryKey(),
-  submissionId: text('submission_id').notNull().references(() => submissions.id, { onDelete: 'cascade' }),
+  submissionId: text('submission_id')
+    .notNull()
+    .references(() => submissions.id, {onDelete: 'cascade'}),
   r2Key: text('r2_key').notNull(),
   originalFilename: text('original_filename').notNull(),
   contentType: text('content_type').notNull(),

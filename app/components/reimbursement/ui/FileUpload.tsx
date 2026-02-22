@@ -1,4 +1,4 @@
-import { useCallback, useState, useId } from 'react';
+import {useCallback, useId, useState} from 'react';
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -23,22 +23,25 @@ export function FileUpload({
   const inputId = `${id}-file-input`;
   const errorId = `${id}-error`;
 
-  const handleFile = useCallback((file: File) => {
-    setLocalError(null);
+  const handleFile = useCallback(
+    (file: File) => {
+      setLocalError(null);
 
-    if (file.size > maxSize) {
-      setLocalError(`File too large. Maximum size is ${Math.round(maxSize / 1024 / 1024)}MB`);
-      return;
-    }
+      if (file.size > maxSize) {
+        setLocalError(`File too large. Maximum size is ${Math.round(maxSize / 1024 / 1024)}MB`);
+        return;
+      }
 
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
-    if (!allowedTypes.includes(file.type)) {
-      setLocalError('Invalid file type. Allowed: JPEG, PNG, WebP, PDF');
-      return;
-    }
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+      if (!allowedTypes.includes(file.type)) {
+        setLocalError('Invalid file type. Allowed: JPEG, PNG, WebP, PDF');
+        return;
+      }
 
-    onFileSelect(file);
-  }, [maxSize, onFileSelect]);
+      onFileSelect(file);
+    },
+    [maxSize, onFileSelect],
+  );
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -50,23 +53,29 @@ export function FileUpload({
     }
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDragActive(false);
 
-    if (disabled) return;
+      if (disabled) return;
 
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFile(e.dataTransfer.files[0]);
-    }
-  }, [disabled, handleFile]);
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleFile(e.dataTransfer.files[0]);
+      }
+    },
+    [disabled, handleFile],
+  );
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      handleFile(e.target.files[0]);
-    }
-  }, [handleFile]);
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files[0]) {
+        handleFile(e.target.files[0]);
+      }
+    },
+    [handleFile],
+  );
 
   const displayError = error || localError;
 
@@ -99,8 +108,19 @@ export function FileUpload({
           aria-describedby={displayError ? errorId : undefined}
           aria-invalid={displayError ? true : undefined}
         />
-        <svg className="mx-auto h-12 w-12 text-charcoal/60" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-          <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <svg
+          className="mx-auto h-12 w-12 text-charcoal/60"
+          stroke="currentColor"
+          fill="none"
+          viewBox="0 0 48 48"
+          aria-hidden="true"
+        >
+          <path
+            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
         <p className="mt-2 text-sm text-charcoal/70">
           <span className="font-medium text-eagle-blue">Click to upload</span> or drag and drop
@@ -110,7 +130,9 @@ export function FileUpload({
         </p>
       </div>
       {displayError && (
-        <p id={errorId} role="alert" className="mt-1 text-sm text-red-600">{displayError}</p>
+        <p id={errorId} role="alert" className="mt-1 text-sm text-red-600">
+          {displayError}
+        </p>
       )}
     </div>
   );

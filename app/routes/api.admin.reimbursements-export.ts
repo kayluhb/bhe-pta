@@ -1,10 +1,10 @@
-import type { Route } from "./+types/api.admin.reimbursements-export";
-import { requireAdmin } from "~/lib/admin/auth";
+import {requireAdmin} from '~/lib/admin/auth';
+import type {Route} from './+types/api.admin.reimbursements-export';
 
 function escapeCsvValue(value: string | number | null | undefined): string {
-  if (value === null || value === undefined) return "";
+  if (value === null || value === undefined) return '';
   const str = String(value);
-  if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
     return `"${str.replace(/"/g, '""')}"`;
   }
   return str;
@@ -25,13 +25,13 @@ interface ExportRow {
   receipt_amount: number | null;
 }
 
-export async function loader({ request, context }: Route.LoaderArgs) {
+export async function loader({request, context}: Route.LoaderArgs) {
   const auth = await requireAdmin(request, context.cloudflare.env);
   if (auth instanceof Response) return auth;
 
   const url = new URL(request.url);
-  const statusFilter = url.searchParams.get("status");
-  const idsParam = url.searchParams.get("ids");
+  const statusFilter = url.searchParams.get('status');
+  const idsParam = url.searchParams.get('ids');
 
   const db = context.cloudflare.env.REIMBURSEMENT_DB;
 
@@ -46,41 +46,39 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   const conditions: string[] = [];
 
   if (idsParam) {
-    const ids = idsParam.split(",").filter(Boolean);
+    const ids = idsParam.split(',').filter(Boolean);
     if (ids.length > 0) {
-      conditions.push(`s.id IN (${ids.map(() => "?").join(", ")})`);
+      conditions.push(`s.id IN (${ids.map(() => '?').join(', ')})`);
       params.push(...ids);
     }
   } else if (statusFilter) {
-    conditions.push(`s.status = ?`);
+    conditions.push('s.status = ?');
     params.push(statusFilter);
   }
 
   if (conditions.length > 0) {
-    query += ` WHERE ${conditions.join(" AND ")}`;
+    query += ` WHERE ${conditions.join(' AND ')}`;
   }
 
-  query += ` ORDER BY s.submitted_at DESC, r.sort_order`;
+  query += ' ORDER BY s.submitted_at DESC, r.sort_order';
 
-  const stmt = params.length
-    ? db.prepare(query).bind(...params)
-    : db.prepare(query);
+  const stmt = params.length ? db.prepare(query).bind(...params) : db.prepare(query);
 
   const results = await stmt.all<ExportRow>();
 
   const headers = [
-    "Submission ID",
-    "Date",
-    "Requester",
-    "Email",
-    "Total Amount",
-    "Status",
-    "Notes",
-    "Receipt Date",
-    "Description",
-    "Vendor",
-    "Budget Account",
-    "Receipt Amount",
+    'Submission ID',
+    'Date',
+    'Requester',
+    'Email',
+    'Total Amount',
+    'Status',
+    'Notes',
+    'Receipt Date',
+    'Description',
+    'Vendor',
+    'Budget Account',
+    'Receipt Amount',
   ];
 
   const rows = results.results.map((row) =>
@@ -99,15 +97,15 @@ export async function loader({ request, context }: Route.LoaderArgs) {
       row.receipt_amount,
     ]
       .map(escapeCsvValue)
-      .join(",")
+      .join(','),
   );
 
-  const csv = [headers.join(","), ...rows].join("\n");
+  const csv = [headers.join(','), ...rows].join('\n');
 
   return new Response(csv, {
     headers: {
-      "Content-Type": "text/csv",
-      "Content-Disposition": `attachment; filename="reimbursements-${new Date().toISOString().slice(0, 10)}.csv"`,
+      'Content-Type': 'text/csv',
+      'Content-Disposition': `attachment; filename="reimbursements-${new Date().toISOString().slice(0, 10)}.csv"`,
     },
   });
 }

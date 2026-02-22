@@ -1,13 +1,12 @@
-import type { Route } from "./+types/reimbursement";
-import { FormWizard } from "~/components/reimbursement/FormWizard";
+import {FormWizard} from '~/components/reimbursement/FormWizard';
+import type {Route} from './+types/reimbursement';
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Reimbursement | Barton Hills Elementary PTA" },
+    {title: 'Reimbursement | Barton Hills Elementary PTA'},
     {
-      name: "description",
-      content:
-        "Submit a PTA reimbursement or check request for Barton Hills Elementary.",
+      name: 'description',
+      content: 'Submit a PTA reimbursement or check request for Barton Hills Elementary.',
     },
   ];
 }
@@ -21,7 +20,7 @@ export default function Reimbursement() {
           className="absolute inset-0 opacity-[0.05]"
           style={{
             backgroundImage:
-              "repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)",
+              'repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)',
           }}
         />
         <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">

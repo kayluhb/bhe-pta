@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import {Link} from 'react-router';
 
 interface NewsCardProps {
   date: string;
@@ -7,7 +7,7 @@ interface NewsCardProps {
   to?: string;
 }
 
-export function NewsCard({ date, title, excerpt, to }: NewsCardProps) {
+export function NewsCard({date, title, excerpt, to}: NewsCardProps) {
   const content = (
     <div className="group bg-white rounded-lg shadow-md border-t-4 border-eagle-blue overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 h-full flex flex-col">
       <div className="p-6 flex flex-col flex-1">

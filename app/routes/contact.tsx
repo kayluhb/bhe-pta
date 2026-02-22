@@ -1,13 +1,13 @@
-import type { Route } from "./+types/contact";
-import { NewsletterSignup } from "~/components/NewsletterSignup";
+import {NewsletterSignup} from '~/components/NewsletterSignup';
+import type {Route} from './+types/contact';
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Contact | Barton Hills Elementary PTA" },
+    {title: 'Contact | Barton Hills Elementary PTA'},
     {
-      name: "description",
+      name: 'description',
       content:
-        "Get in touch with the Barton Hills Elementary PTA. Subscribe to newsletters and follow us on social media.",
+        'Get in touch with the Barton Hills Elementary PTA. Subscribe to newsletters and follow us on social media.',
     },
   ];
 }
@@ -23,7 +23,7 @@ export default function Contact() {
           className="absolute inset-0 opacity-[0.05]"
           style={{
             backgroundImage:
-              "repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)",
+              'repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)',
           }}
         />
         <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
@@ -44,9 +44,7 @@ export default function Contact() {
       <section className="bg-white py-16 md:py-24">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">
-              Follow Us
-            </h2>
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">Follow Us</h2>
             <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
           </div>
 
@@ -67,9 +65,7 @@ export default function Contact() {
                 <h3 className="font-heading font-bold text-lg text-charcoal group-hover:text-eagle-blue transition-colors">
                   Facebook
                 </h3>
-                <p className="text-sm text-charcoal/70">
-                  @bartonhillspta
-                </p>
+                <p className="text-sm text-charcoal/70">@bartonhillspta</p>
               </div>
               <svg
                 className="h-5 w-5 text-charcoal/30 group-hover:text-eagle-blue transition-colors ml-auto shrink-0"
@@ -199,9 +195,7 @@ export default function Contact() {
                       </svg>
                     </div>
                     <div>
-                      <p className="font-heading font-bold text-charcoal">
-                        Address
-                      </p>
+                      <p className="font-heading font-bold text-charcoal">Address</p>
                       <p className="text-charcoal/70 mt-1">
                         2108 Barton Hills Drive
                         <br />
@@ -228,12 +222,8 @@ export default function Contact() {
                       </svg>
                     </div>
                     <div>
-                      <p className="font-heading font-bold text-charcoal">
-                        School Hours
-                      </p>
-                      <p className="text-charcoal/70 mt-1">
-                        7:40 a.m. - 3:10 p.m.
-                      </p>
+                      <p className="font-heading font-bold text-charcoal">School Hours</p>
+                      <p className="text-charcoal/70 mt-1">7:40 a.m. - 3:10 p.m.</p>
                     </div>
                   </div>
                 </div>
@@ -241,9 +231,7 @@ export default function Contact() {
 
               {/* Right: Phone, Fax, Email */}
               <div className="p-8 md:p-10">
-                <h3 className="font-heading font-bold text-lg text-charcoal mb-6">
-                  Get in Touch
-                </h3>
+                <h3 className="font-heading font-bold text-lg text-charcoal mb-6">Get in Touch</h3>
                 <div className="space-y-5">
                   <div className="flex items-start gap-4">
                     <div className="shrink-0 h-10 w-10 rounded-lg bg-eagle-blue/10 flex items-center justify-center text-eagle-blue">
@@ -263,9 +251,7 @@ export default function Contact() {
                       </svg>
                     </div>
                     <div>
-                      <p className="font-heading font-bold text-charcoal">
-                        Phone
-                      </p>
+                      <p className="font-heading font-bold text-charcoal">Phone</p>
                       <a
                         href="tel:+15124142013"
                         className="text-eagle-blue hover:text-spirit-gold transition-colors mt-1 inline-block"
@@ -293,9 +279,7 @@ export default function Contact() {
                       </svg>
                     </div>
                     <div>
-                      <p className="font-heading font-bold text-charcoal">
-                        Fax
-                      </p>
+                      <p className="font-heading font-bold text-charcoal">Fax</p>
                       <p className="text-charcoal/70 mt-1">(512) 841-3849</p>
                     </div>
                   </div>
@@ -318,9 +302,7 @@ export default function Contact() {
                       </svg>
                     </div>
                     <div>
-                      <p className="font-heading font-bold text-charcoal">
-                        Email
-                      </p>
+                      <p className="font-heading font-bold text-charcoal">Email</p>
                       <a
                         href="mailto:bhe@austinisd.org"
                         className="text-eagle-blue hover:text-spirit-gold transition-colors mt-1 inline-block"
@@ -334,9 +316,7 @@ export default function Contact() {
                       >
                         pta@bheeagles.com
                       </a>
-                      <span className="text-charcoal/70 text-sm ml-1">
-                        (PTA)
-                      </span>
+                      <span className="text-charcoal/70 text-sm ml-1">(PTA)</span>
                     </div>
                   </div>
                 </div>
