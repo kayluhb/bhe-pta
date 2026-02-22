@@ -4,7 +4,7 @@ export interface Newsletter {
   date: string;
   excerpt: string;
   url: string;
-  source: "school" | "pta";
+  source: 'school' | 'pta';
 }
 
 export interface CalendarEvent {
@@ -15,4 +15,5 @@ export interface CalendarEvent {
   allDay: boolean;
   category: string;
   description?: string;
+  source?: 'school' | 'pta';
 }
