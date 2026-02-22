@@ -13,28 +13,28 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="w-full">
         {label && (
-          <label htmlFor={inputId} className="block text-sm font-medium text-charcoal/80 mb-1">
+          <label className="block text-sm font-medium text-charcoal/80 mb-1" htmlFor={inputId}>
             {label}
             {required && (
-              <span className="text-red-500 ml-1" aria-hidden="true">
+              <span aria-hidden="true" className="text-red-500 ml-1">
                 *
               </span>
             )}
           </label>
         )}
         <input
-          ref={ref}
-          id={inputId}
-          aria-invalid={error ? true : undefined}
           aria-describedby={errorId}
+          aria-invalid={error ? true : undefined}
           className={`w-full px-3 py-2 border rounded-lg shadow-sm text-charcoal placeholder:text-charcoal/60 focus:outline-none focus:ring-2 focus:ring-eagle-blue focus:border-eagle-blue disabled:bg-charcoal/5 disabled:text-charcoal/50 ${
             error ? 'border-red-500' : 'border-charcoal/20'
           } ${className}`}
+          id={inputId}
+          ref={ref}
           required={required}
           {...props}
         />
         {error && (
-          <p id={errorId} role="alert" className="mt-1 text-sm text-red-600">
+          <p className="mt-1 text-sm text-red-600" id={errorId} role="alert">
             {error}
           </p>
         )}

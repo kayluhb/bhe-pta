@@ -122,12 +122,13 @@ export function useFormState() {
   const addReceipt = useCallback(() => {
     setState((prev) => {
       if (prev.receipts.length >= 4) return prev;
+      const lastReceipt = prev.receipts[prev.receipts.length - 1];
       return {
         ...prev,
         receipts: [
           ...prev.receipts,
           {
-            date: '',
+            date: lastReceipt?.date || '',
             description: '',
             amount: 0,
             placeOfPurchase: '',

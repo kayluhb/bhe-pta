@@ -61,7 +61,7 @@ export function ReviewSubmit({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form className="space-y-6" onSubmit={handleSubmit}>
       <div className="bg-white p-6 rounded-lg shadow-sm border border-charcoal/10">
         <h2 className="text-xl font-semibold text-charcoal mb-6">Review Your Request</h2>
 
@@ -128,7 +128,7 @@ export function ReviewSubmit({
           </h3>
           <div className="space-y-3">
             {data.receipts.map((receipt, index) => (
-              <div key={index} className="bg-warm-white p-4 rounded-lg">
+              <div className="bg-warm-white p-4 rounded-lg" key={index}>
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <p className="font-medium text-charcoal">{receipt.description}</p>
@@ -163,19 +163,19 @@ export function ReviewSubmit({
             </h3>
             <ul className="bg-warm-white rounded-lg divide-y divide-charcoal/10">
               {data.files.map((file) => (
-                <li key={file.key} className="p-3 flex items-center space-x-3">
+                <li className="p-3 flex items-center space-x-3" key={file.key}>
                   <svg
+                    aria-hidden="true"
                     className="w-5 h-5 text-charcoal/70"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
-                    aria-hidden="true"
                   >
                     <path
+                      d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
                     />
                   </svg>
                   <span className="text-charcoal">{file.filename}</span>
@@ -194,17 +194,17 @@ export function ReviewSubmit({
         <div className="p-4 bg-eagle-blue/10 border border-eagle-blue/20 rounded-lg">
           <p className="text-sm text-eagle-blue">
             By submitting this request, you confirm that all information is accurate and the
-            expenses are eligible for PTA reimbursement. Sales tax should not be included in the
-            amounts above.
+            expenses are eligible for PTA reimbursement.
+            <br /> <strong>Sales tax cannot be reimbursed</strong> and should not be included.
           </p>
         </div>
       </div>
 
       <div className="flex justify-between">
-        <Button type="button" variant="outline" onClick={onBack} disabled={isSubmitting}>
+        <Button disabled={isSubmitting} onClick={onBack} type="button" variant="outline">
           Back
         </Button>
-        <Button type="submit" isLoading={isSubmitting}>
+        <Button isLoading={isSubmitting} type="submit">
           {isSubmitting ? 'Submitting...' : 'Submit Request'}
         </Button>
       </div>

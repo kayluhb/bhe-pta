@@ -207,8 +207,8 @@ export default function About() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {initiatives.map((item) => (
               <div
-                key={item.title}
                 className="group bg-warm-white rounded-lg shadow-md border-b-4 border-spirit-gold p-8 transition-all duration-200 hover:shadow-lg hover:-translate-y-1"
+                key={item.title}
               >
                 <div className="h-14 w-14 rounded-full bg-eagle-blue/10 flex items-center justify-center mb-5 text-eagle-blue">
                   {item.icon}
@@ -237,8 +237,8 @@ export default function About() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {boardMembers.map((member, i) => (
               <div
-                key={i}
                 className="bg-white rounded-lg shadow-md p-8 text-center transition-all duration-200 hover:shadow-lg"
+                key={i}
               >
                 {/* Circular photo placeholder */}
                 <div className="mx-auto h-24 w-24 rounded-full bg-eagle-blue/10 border-4 border-spirit-gold/30 flex items-center justify-center mb-5">
@@ -281,9 +281,9 @@ export default function About() {
             <div className="space-y-3">
               {documents.map((doc) => (
                 <a
-                  key={doc.title}
-                  href="#"
                   className="flex items-center gap-4 bg-warm-white rounded-lg p-5 shadow-sm border border-charcoal/5 hover:shadow-md hover:border-spirit-gold/30 transition-all duration-200 group"
+                  href="#"
+                  key={doc.title}
                 >
                   <div className="shrink-0 h-10 w-10 rounded-lg bg-eagle-blue/10 flex items-center justify-center text-eagle-blue group-hover:bg-eagle-blue group-hover:text-white transition-colors">
                     <svg

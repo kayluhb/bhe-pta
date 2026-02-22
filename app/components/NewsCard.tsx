@@ -26,17 +26,17 @@ export function NewsCard({date, title, excerpt, to}: NewsCardProps) {
           <span className="mt-4 inline-flex items-center text-sm font-semibold text-eagle-blue group-hover:text-spirit-gold transition-colors">
             Read more<span className="sr-only"> about {title}</span>
             <svg
+              aria-hidden="true"
               className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5"
               fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
               stroke="currentColor"
-              aria-hidden="true"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
             >
               <path
+                d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
               />
             </svg>
           </span>
@@ -47,7 +47,7 @@ export function NewsCard({date, title, excerpt, to}: NewsCardProps) {
 
   if (to) {
     return (
-      <Link to={to} className="block h-full">
+      <Link className="block h-full" to={to}>
         {content}
       </Link>
     );

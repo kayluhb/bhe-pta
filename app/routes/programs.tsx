@@ -185,8 +185,8 @@ export default function Programs() {
         <div className="max-w-5xl mx-auto px-4 space-y-8">
           {programs.map((program) => (
             <div
-              key={program.name}
               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200"
+              key={program.name}
             >
               {/* Color accent bar */}
               <div className={`h-2 ${program.color}`} />
@@ -228,8 +228,8 @@ export default function Programs() {
             community members. Get involved and help us continue to make a difference.
           </p>
           <Link
-            to="/get-involved"
             className="mt-8 inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
+            to="/get-involved"
           >
             Get Involved
           </Link>

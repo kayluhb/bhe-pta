@@ -102,11 +102,17 @@ export async function action({request, context}: Route.ActionArgs) {
     }
 
     // Step 2: Generate text-only PDF
+    const payableTo = formData.get('payableTo') as string | null;
+    const receiptNumber = formData.get('receiptNumber') as string | null;
+    const pdfTitle = payableTo
+      ? `${payableTo}: Receipt ${receiptNumber || '1'}`
+      : 'Receipt Transcript';
+
     const doc = new jsPDF();
 
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('Converted Receipt Transcript', 105, 20, {align: 'center'});
+    doc.text(pdfTitle, 105, 20, {align: 'center'});
 
     doc.setDrawColor(200);
     doc.line(20, 26, 190, 26);
@@ -150,17 +156,14 @@ export async function action({request, context}: Route.ActionArgs) {
         }),
       ];
 
-      // Store original file separately only if it's not already a PDF
-      let originalKey: string | undefined;
-      if (!isPDF) {
-        const ext = file.name.split('.').pop() || 'jpg';
-        originalKey = `uploads/${timestamp}-${crypto.randomUUID()}-${sanitizedName}.${ext}`;
-        uploads.push(
-          env.R2_BUCKET.put(originalKey, fileBytes, {
-            httpMetadata: {contentType: file.type},
-          }),
-        );
-      }
+      // Store original file separately
+      const ext = file.name.split('.').pop() || (isPDF ? 'pdf' : 'jpg');
+      const originalKey = `uploads/${timestamp}-${crypto.randomUUID()}-${sanitizedName}.${ext}`;
+      uploads.push(
+        env.R2_BUCKET.put(originalKey, fileBytes, {
+          httpMetadata: {contentType: file.type},
+        }),
+      );
 
       await Promise.all(uploads);
 
@@ -169,16 +172,12 @@ export async function action({request, context}: Route.ActionArgs) {
         filename: `${sanitizedName}-converted.pdf`,
         contentType: 'application/pdf',
         size: pdfBuffer.length,
-        ...(originalKey
-          ? {
-              original: {
-                key: originalKey,
-                filename: file.name,
-                contentType: file.type,
-                size: file.size,
-              },
-            }
-          : {}),
+        original: {
+          key: originalKey,
+          filename: file.name,
+          contentType: file.type,
+          size: file.size,
+        },
       });
     }
 

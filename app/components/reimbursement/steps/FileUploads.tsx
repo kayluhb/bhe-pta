@@ -9,6 +9,7 @@ interface FileUploadsProps {
   onRemoveFile: (key: string) => void;
   onNext: () => void;
   onBack: () => void;
+  payableTo: string;
   turnstileToken: string | null;
   onResetTurnstile: () => void;
 }
@@ -19,6 +20,7 @@ export function FileUploads({
   onRemoveFile,
   onNext,
   onBack,
+  payableTo,
   turnstileToken,
   onResetTurnstile,
 }: FileUploadsProps) {
@@ -31,7 +33,8 @@ export function FileUploads({
         clearUpload(upload.id);
       }
     }
-    const results = await uploadFile(file);
+    const receiptNumber = files.length + 1;
+    const results = await uploadFile(file, payableTo, receiptNumber);
     if (results) {
       for (const result of results) {
         onAddFile(result);
@@ -56,7 +59,7 @@ export function FileUploads({
   const maxFiles = 8;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form className="space-y-6" onSubmit={handleSubmit}>
       <div className="bg-white p-6 rounded-lg shadow-sm border border-charcoal/10">
         <h2 className="text-xl font-semibold text-charcoal mb-2">Upload Receipts</h2>
         <p className="text-charcoal/70 mb-6">
@@ -64,18 +67,22 @@ export function FileUploads({
         </p>
 
         {files.length < maxFiles && (
-          <FileUpload disabled={isUploading} label="Upload receipt file" onFileSelect={handleFileSelect} />
+          <FileUpload
+            disabled={isUploading}
+            label="Upload receipt file"
+            onFileSelect={handleFileSelect}
+          />
         )}
 
         {/* Upload Progress */}
         {uploads.length > 0 && (
-          <div className="mt-4 space-y-2" role="status" aria-live="polite">
+          <div aria-live="polite" className="mt-4 space-y-2" role="status">
             {uploads.map((upload) => (
               <div
-                key={upload.id}
                 className={`p-3 rounded-lg ${
                   upload.status === 'error' ? 'bg-red-50' : 'bg-eagle-blue/10'
                 }`}
+                key={upload.id}
               >
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-sm font-medium truncate">{upload.filename}</span>
@@ -100,10 +107,10 @@ export function FileUploads({
                   <div className="flex justify-between items-center">
                     <p className="text-sm text-red-600">{upload.error}</p>
                     <button
-                      type="button"
-                      onClick={() => clearUpload(upload.id)}
-                      className="text-sm font-medium text-charcoal/70 hover:text-charcoal ml-3 shrink-0"
                       aria-label={`Dismiss error for ${upload.filename}`}
+                      className="text-sm font-medium text-charcoal/70 hover:text-charcoal ml-3 shrink-0"
+                      onClick={() => clearUpload(upload.id)}
+                      type="button"
                     >
                       Dismiss
                     </button>
@@ -123,30 +130,30 @@ export function FileUploads({
             <ul className="space-y-2">
               {files.map((file) => (
                 <li
-                  key={file.key}
                   className="flex items-center justify-between p-3 bg-warm-white rounded-lg"
+                  key={file.key}
                 >
                   <div className="flex items-center space-x-3">
                     <svg
+                      aria-hidden="true"
                       className="w-8 h-8 text-charcoal/70"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
-                      aria-hidden="true"
                     >
                       <path
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                       />
                     </svg>
                     <div>
                       <a
-                        href={`/api/reimbursement/file?key=${encodeURIComponent(file.key)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
                         className="text-sm font-medium text-eagle-blue hover:underline truncate max-w-xs block"
+                        href={`/api/reimbursement/file?key=${encodeURIComponent(file.key)}`}
+                        rel="noopener noreferrer"
+                        target="_blank"
                       >
                         {file.filename}
                       </a>
@@ -154,10 +161,10 @@ export function FileUploads({
                     </div>
                   </div>
                   <button
-                    type="button"
-                    onClick={() => onRemoveFile(file.key)}
                     aria-label={`Remove ${file.filename}`}
                     className="text-red-600 hover:text-red-800 text-sm font-medium"
+                    onClick={() => onRemoveFile(file.key)}
+                    type="button"
                   >
                     Remove
                   </button>
@@ -175,10 +182,10 @@ export function FileUploads({
       </div>
 
       <div className="flex justify-between">
-        <Button type="button" variant="outline" onClick={onBack}>
+        <Button onClick={onBack} type="button" variant="outline">
           Back
         </Button>
-        <Button type="submit" disabled={isUploading}>
+        <Button disabled={isUploading} type="submit">
           {isUploading ? 'Uploading...' : 'Next: Review'}
         </Button>
       </div>

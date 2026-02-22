@@ -253,9 +253,9 @@ export default function Events() {
           {/* Month Navigation */}
           <div className="flex items-center justify-between mb-8">
             <button
-              onClick={goToPrevMonth}
-              className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-white shadow-md border border-charcoal/10 text-charcoal/70 hover:text-eagle-blue hover:border-eagle-blue transition-colors cursor-pointer"
               aria-label="Previous month"
+              className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-white shadow-md border border-charcoal/10 text-charcoal/70 hover:text-eagle-blue hover:border-eagle-blue transition-colors cursor-pointer"
+              onClick={goToPrevMonth}
             >
               <svg
                 aria-hidden="true"
@@ -273,22 +273,22 @@ export default function Events() {
               </svg>
             </button>
 
-            <div className="text-center" aria-live="polite" aria-atomic="true">
+            <div aria-atomic="true" aria-live="polite" className="text-center">
               <h2 className="text-2xl md:text-3xl font-heading font-bold text-charcoal">
                 {MONTH_NAMES[currentMonth]} {currentYear}
               </h2>
               <button
-                onClick={goToToday}
                 className="mt-1 text-xs font-heading font-semibold text-eagle-blue hover:text-spirit-gold transition-colors cursor-pointer"
+                onClick={goToToday}
               >
                 Today
               </button>
             </div>
 
             <button
-              onClick={goToNextMonth}
-              className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-white shadow-md border border-charcoal/10 text-charcoal/70 hover:text-eagle-blue hover:border-eagle-blue transition-colors cursor-pointer"
               aria-label="Next month"
+              className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-white shadow-md border border-charcoal/10 text-charcoal/70 hover:text-eagle-blue hover:border-eagle-blue transition-colors cursor-pointer"
+              onClick={goToNextMonth}
             >
               <svg
                 aria-hidden="true"
@@ -315,8 +315,8 @@ export default function Events() {
                 const style = getCategoryStyle(event.category);
                 return (
                   <div
-                    key={event.id}
                     className={`flex items-center gap-3 rounded-lg border px-4 py-3 ${style.bg} ${style.border}`}
+                    key={event.id}
                   >
                     <span
                       className={`text-xs font-heading font-semibold uppercase tracking-wider ${style.text}`}
@@ -333,19 +333,19 @@ export default function Events() {
 
           {/* Calendar Grid */}
           <Calendar
-            year={currentYear}
-            month={currentMonth}
             events={calendarAndListEvents}
+            month={currentMonth}
             onEventClick={handleEventClick}
+            year={currentYear}
           />
 
           {/* Subscribe links */}
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6">
             <a
-              href="https://calendar.google.com/calendar/render?cid=http%3A%2F%2Fbartonhills.austinschools.org%2Fevents%2Fcalendar.ics"
-              target="_blank"
-              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-heading font-semibold text-eagle-blue hover:text-spirit-gold transition-colors"
+              href="https://calendar.google.com/calendar/render?cid=http%3A%2F%2Fbartonhills.austinschools.org%2Fevents%2Fcalendar.ics"
+              rel="noopener noreferrer"
+              target="_blank"
             >
               Subscribe to School Calendar
               <svg
@@ -365,10 +365,10 @@ export default function Events() {
               <span className="sr-only">(opens in new tab)</span>
             </a>
             <a
-              href="https://calendar.google.com/calendar/render?cid=pta%40bheeagles.com"
-              target="_blank"
-              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-heading font-semibold text-eagle-blue hover:text-spirit-gold transition-colors"
+              href="https://calendar.google.com/calendar/render?cid=pta%40bheeagles.com"
+              rel="noopener noreferrer"
+              target="_blank"
             >
               Subscribe to PTA Calendar
               <svg
@@ -408,7 +408,7 @@ export default function Events() {
           ) : (
             <div className="space-y-5">
               {calendarAndListEvents.map((event) => (
-                <EventListItem key={event.id} event={event} />
+                <EventListItem event={event} key={event.id} />
               ))}
             </div>
           )}
@@ -430,8 +430,8 @@ function EventListItem({event}: {event: CalendarEvent}) {
 
   return (
     <article
-      id={`event-${event.id}`}
       className="group flex items-center bg-white rounded-lg shadow-md border-l-4 border-spirit-gold overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
+      id={`event-${event.id}`}
     >
       {/* Date Badge */}
       <div className="flex flex-col items-center justify-center bg-white text-creek-green px-4 py-4 min-w-[72px]">

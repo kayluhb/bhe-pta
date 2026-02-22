@@ -53,14 +53,14 @@ export function Layout({children}: {children: React.ReactNode}) {
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta content="width=device-width, initial-scale=1" name="viewport" />
         <Meta />
         <Links />
       </head>
       <body className="font-body bg-warm-white text-charcoal">
         <a
-          href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-[100] focus:bg-spirit-gold focus:text-night-blue focus:px-4 focus:py-2 focus:font-bold"
+          href="#main-content"
         >
           Skip to main content
         </a>
@@ -75,7 +75,7 @@ export function Layout({children}: {children: React.ReactNode}) {
 function DJBeckettBadge() {
   return (
     <div className="disco-badge fixed top-20 right-4 z-50 pointer-events-none bg-spirit-gold text-night-blue font-heading font-bold px-5 py-3 rounded-xl shadow-lg text-sm">
-      <img src="/disco.png" alt="" className="w-16 mx-auto mb-2" />
+      <img alt="" className="w-16 mx-auto mb-2" src="/disco.png" />
       <span className="block text-center">🎵 Now Playing 🎵</span>
       <span className="block text-center text-lg">DJ Beckett</span>
     </div>
@@ -88,7 +88,7 @@ export default function App() {
   return (
     <div className={`min-h-screen flex flex-col${isDiscoMode ? ' disco-active' : ''}`}>
       <Header />
-      <main id="main-content" className="flex-1">
+      <main className="flex-1" id="main-content">
         <Outlet />
       </main>
       <Footer />
@@ -98,13 +98,13 @@ export default function App() {
 }
 
 function EagleEyes() {
-  const [leftPupil, setLeftPupil] = useState({ x: 0, y: 0 });
-  const [rightPupil, setRightPupil] = useState({ x: 0, y: 0 });
+  const [leftPupil, setLeftPupil] = useState({x: 0, y: 0});
+  const [rightPupil, setRightPupil] = useState({x: 0, y: 0});
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     const calcPupil = (eyeId: string, maxR: number) => {
       const eye = document.getElementById(eyeId);
-      if (!eye) return { x: 0, y: 0 };
+      if (!eye) return {x: 0, y: 0};
       const rect = eye.getBoundingClientRect();
       const cx = rect.left + rect.width / 2;
       const cy = rect.top + rect.height / 2;
@@ -112,7 +112,7 @@ function EagleEyes() {
       const dy = e.clientY - cy;
       const angle = Math.atan2(dy, dx);
       const dist = Math.min(Math.hypot(dx, dy) / 120, 1);
-      return { x: dist * Math.cos(angle) * maxR, y: dist * Math.sin(angle) * maxR };
+      return {x: dist * Math.cos(angle) * maxR, y: dist * Math.sin(angle) * maxR};
     };
     setLeftPupil(calcPupil('eagle-left-eye', 4));
     setRightPupil(calcPupil('eagle-right-eye', 4));
@@ -128,7 +128,7 @@ function EagleEyes() {
   const white = '#faf8f5';
 
   return (
-    <div className="select-none" aria-hidden="true">
+    <div aria-hidden="true" className="select-none">
       <svg
         className="mx-auto h-48 w-48 sm:h-56 sm:w-56 md:h-64 md:w-64"
         fill="none"
@@ -147,10 +147,34 @@ function EagleEyes() {
           strokeWidth={2.5}
         />
         {/* Neck feather texture lines */}
-        <path d="M72 130 Q100 145, 128 130" fill="none" opacity={0.4} stroke={stroke} strokeWidth={1.5} />
-        <path d="M68 145 Q100 162, 132 145" fill="none" opacity={0.3} stroke={stroke} strokeWidth={1.5} />
-        <path d="M65 160 Q100 178, 135 160" fill="none" opacity={0.25} stroke={stroke} strokeWidth={1.5} />
-        <path d="M64 175 Q100 192, 136 175" fill="none" opacity={0.2} stroke={stroke} strokeWidth={1.5} />
+        <path
+          d="M72 130 Q100 145, 128 130"
+          fill="none"
+          opacity={0.4}
+          stroke={stroke}
+          strokeWidth={1.5}
+        />
+        <path
+          d="M68 145 Q100 162, 132 145"
+          fill="none"
+          opacity={0.3}
+          stroke={stroke}
+          strokeWidth={1.5}
+        />
+        <path
+          d="M65 160 Q100 178, 135 160"
+          fill="none"
+          opacity={0.25}
+          stroke={stroke}
+          strokeWidth={1.5}
+        />
+        <path
+          d="M64 175 Q100 192, 136 175"
+          fill="none"
+          opacity={0.2}
+          stroke={stroke}
+          strokeWidth={1.5}
+        />
 
         {/* Head shape — broad at brow, tapering down */}
         <path
@@ -224,14 +248,38 @@ function EagleEyes() {
           strokeWidth={2}
         />
         {/* Beak hook / nostril detail */}
-        <path d="M96 88 L100 92 L104 88" fill="none" stroke={stroke} strokeLinecap="round" strokeWidth={1.5} />
+        <path
+          d="M96 88 L100 92 L104 88"
+          fill="none"
+          stroke={stroke}
+          strokeLinecap="round"
+          strokeWidth={1.5}
+        />
         {/* Beak center line */}
         <path d="M100 80 L100 96" fill="none" opacity={0.3} stroke={stroke} strokeWidth={1} />
 
         {/* Head tuft feathers */}
-        <path d="M88 22 Q92 8, 100 14" fill="none" stroke={stroke} strokeLinecap="round" strokeWidth={2} />
-        <path d="M100 20 Q100 6, 105 12" fill="none" stroke={stroke} strokeLinecap="round" strokeWidth={2} />
-        <path d="M112 22 Q108 8, 100 14" fill="none" stroke={stroke} strokeLinecap="round" strokeWidth={2} />
+        <path
+          d="M88 22 Q92 8, 100 14"
+          fill="none"
+          stroke={stroke}
+          strokeLinecap="round"
+          strokeWidth={2}
+        />
+        <path
+          d="M100 20 Q100 6, 105 12"
+          fill="none"
+          stroke={stroke}
+          strokeLinecap="round"
+          strokeWidth={2}
+        />
+        <path
+          d="M112 22 Q108 8, 100 14"
+          fill="none"
+          stroke={stroke}
+          strokeLinecap="round"
+          strokeWidth={2}
+        />
       </svg>
     </div>
   );
@@ -252,7 +300,7 @@ export function ErrorBoundary({error}: Route.ErrorBoundaryProps) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main id="main-content" className="flex-1 pt-16 p-4 container mx-auto">
+        <main className="flex-1 pt-16 p-4 container mx-auto" id="main-content">
           <h1 className="text-3xl font-heading font-bold text-eagle-blue">Error</h1>
           <p className="mt-2 text-charcoal">{details}</p>
           {stack && (
@@ -269,7 +317,7 @@ export function ErrorBoundary({error}: Route.ErrorBoundaryProps) {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main id="main-content" className="flex-1 flex items-center justify-center py-16 px-4">
+      <main className="flex-1 flex items-center justify-center py-16 px-4" id="main-content">
         <div className="text-center max-w-lg">
           <EagleEyes />
           <h1 className="text-6xl font-heading font-bold text-eagle-blue mt-6">404</h1>
@@ -277,8 +325,8 @@ export function ErrorBoundary({error}: Route.ErrorBoundaryProps) {
             This eagle has searched far and wide, but that page doesn't exist.
           </p>
           <Link
-            to="/"
             className="inline-block mt-8 bg-eagle-blue text-white font-heading font-bold text-sm px-6 py-3 rounded-full hover:bg-eagle-blue/90 transition-colors"
+            to="/"
           >
             Fly Back Home
           </Link>

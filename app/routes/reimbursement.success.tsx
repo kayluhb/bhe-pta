@@ -47,10 +47,10 @@ export default function ReimbursementSuccess() {
                 viewBox="0 0 24 24"
               >
                 <path
+                  d="M5 13l4 4L19 7"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M5 13l4 4L19 7"
                 />
               </svg>
             </div>
@@ -70,8 +70,8 @@ export default function ReimbursementSuccess() {
 
             <div className="space-y-3">
               <Link
-                to="/reimbursement"
                 className="block w-full py-2 px-4 bg-eagle-blue text-white rounded-lg font-medium hover:bg-eagle-blue/90 transition-colors"
+                to="/reimbursement"
               >
                 Submit Another Request
               </Link>

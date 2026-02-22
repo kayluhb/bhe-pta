@@ -184,8 +184,8 @@ export default function AdminReimbursementDetail() {
           <div className="flex items-center gap-4">
             <span className="text-sm text-white/80 hidden sm:inline">{user.name}</span>
             <a
-              href="/api/auth/logout"
               className="text-sm text-white/70 hover:text-white underline underline-offset-2 transition-colors"
+              href="/api/auth/logout"
             >
               Logout
             </a>
@@ -198,8 +198,8 @@ export default function AdminReimbursementDetail() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-4">
             <a
-              href="/admin/reimbursements"
               className="text-sm text-eagle-blue hover:text-eagle-blue/80 font-medium font-body transition-colors"
+              href="/admin/reimbursements"
             >
               &larr; Back to list
             </a>
@@ -245,16 +245,16 @@ export default function AdminReimbursementDetail() {
           <div className="space-y-4">
             <div>
               <label
-                htmlFor="status-select"
                 className="block text-sm font-medium text-charcoal font-body mb-1"
+                htmlFor="status-select"
               >
                 Status
               </label>
               <select
-                id="status-select"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
                 className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body w-full sm:w-auto"
+                id="status-select"
+                onChange={(e) => setStatus(e.target.value)}
+                value={status}
               >
                 <option value="pending">Pending</option>
                 <option value="approved">Approved</option>
@@ -264,18 +264,18 @@ export default function AdminReimbursementDetail() {
             </div>
             <div>
               <label
-                htmlFor="admin-notes"
                 className="block text-sm font-medium text-charcoal font-body mb-1"
+                htmlFor="admin-notes"
               >
                 Admin Notes
               </label>
               <textarea
-                id="admin-notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={3}
                 className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
+                id="admin-notes"
+                onChange={(e) => setNotes(e.target.value)}
                 placeholder="Optional notes..."
+                rows={3}
+                value={notes}
               />
             </div>
             {feedback && (
@@ -291,10 +291,10 @@ export default function AdminReimbursementDetail() {
               </div>
             )}
             <button
-              type="button"
-              onClick={handleStatusUpdate}
-              disabled={saving}
               className="inline-flex items-center gap-2 rounded-lg bg-eagle-blue px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-eagle-blue/90 transition-colors font-body disabled:opacity-50"
+              disabled={saving}
+              onClick={handleStatusUpdate}
+              type="button"
             >
               {saving ? 'Saving...' : 'Save'}
             </button>
@@ -312,26 +312,41 @@ export default function AdminReimbursementDetail() {
                 <caption className="sr-only">Receipt entries</caption>
                 <thead>
                   <tr className="border-b border-gray-200 bg-gray-50/50">
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body" scope="col">
+                    <th
+                      className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body"
+                      scope="col"
+                    >
                       Date
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body" scope="col">
+                    <th
+                      className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body"
+                      scope="col"
+                    >
                       Description
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body" scope="col">
+                    <th
+                      className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body"
+                      scope="col"
+                    >
                       Vendor
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body" scope="col">
+                    <th
+                      className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body"
+                      scope="col"
+                    >
                       Budget Account
                     </th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body text-right" scope="col">
+                    <th
+                      className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body text-right"
+                      scope="col"
+                    >
                       Amount
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {receipts.map((r) => (
-                    <tr key={r.id} className="hover:bg-gray-50/50 transition-colors">
+                    <tr className="hover:bg-gray-50/50 transition-colors" key={r.id}>
                       <td className="px-4 py-3 text-sm text-charcoal font-body whitespace-nowrap">
                         {formatDate(r.receipt_date)}
                       </td>
@@ -350,8 +365,8 @@ export default function AdminReimbursementDetail() {
                   {/* Total row */}
                   <tr className="bg-gray-50/50 font-semibold">
                     <td
-                      colSpan={4}
                       className="px-4 py-3 text-sm text-charcoal font-body text-right"
+                      colSpan={4}
                     >
                       Total
                     </td>
@@ -375,15 +390,21 @@ export default function AdminReimbursementDetail() {
             {submission.pdf_key && (
               <div className="mb-4">
                 <a
-                  href={`/api/admin/reimbursements/file?key=${encodeURIComponent(submission.pdf_key)}`}
                   className="inline-flex items-center gap-2 rounded-lg bg-eagle-blue px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-eagle-blue/90 transition-colors font-body"
+                  href={`/api/admin/reimbursements/file?key=${encodeURIComponent(submission.pdf_key)}`}
                 >
-                  <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    aria-hidden="true"
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
+                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                     />
                   </svg>
                   Download PDF
@@ -394,7 +415,7 @@ export default function AdminReimbursementDetail() {
             {files.length > 0 && (
               <ul className="divide-y divide-gray-100">
                 {files.map((f) => (
-                  <li key={f.id} className="flex items-center justify-between py-3 gap-4">
+                  <li className="flex items-center justify-between py-3 gap-4" key={f.id}>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-charcoal font-body truncate">
                         {f.original_filename}
@@ -404,8 +425,8 @@ export default function AdminReimbursementDetail() {
                       </p>
                     </div>
                     <a
-                      href={`/api/admin/reimbursements/file?key=${encodeURIComponent(f.r2_key)}`}
                       className="text-sm text-eagle-blue hover:text-eagle-blue/80 font-medium font-body transition-colors whitespace-nowrap"
+                      href={`/api/admin/reimbursements/file?key=${encodeURIComponent(f.r2_key)}`}
                     >
                       Download
                     </a>
@@ -424,10 +445,10 @@ export default function AdminReimbursementDetail() {
             undone.
           </p>
           <button
-            type="button"
-            onClick={handleDelete}
-            disabled={deleting}
             className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 transition-colors font-body disabled:opacity-50"
+            disabled={deleting}
+            onClick={handleDelete}
+            type="button"
           >
             {deleting ? 'Deleting...' : 'Delete Submission'}
           </button>

@@ -106,17 +106,17 @@ export function NewsletterSignup() {
       <div className="max-w-2xl mx-auto px-4">
         <div className="bg-white rounded-lg shadow-lg p-8 md:p-12 text-center border-t-4 border-spirit-gold">
           <svg
+            aria-hidden="true"
             className="mx-auto h-12 w-12 text-spirit-gold"
             fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
             stroke="currentColor"
-            aria-hidden="true"
+            strokeWidth={1.5}
+            viewBox="0 0 24 24"
           >
             <path
+              d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
               strokeLinecap="round"
               strokeLinejoin="round"
-              d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
             />
           </svg>
           <h2 className="mt-4 text-2xl md:text-3xl font-heading font-bold text-charcoal">
@@ -132,26 +132,26 @@ export function NewsletterSignup() {
           ) : (
             <form className="mt-8 space-y-4" onSubmit={handleSubscribe}>
               <div className="flex flex-col sm:flex-row gap-3">
-                <label htmlFor="newsletter-email" className="sr-only">
+                <label className="sr-only" htmlFor="newsletter-email">
                   Email address
                 </label>
                 <input
-                  id="newsletter-email"
-                  type="email"
-                  placeholder="Enter your email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1 px-5 py-3 rounded-full border border-charcoal/20 focus:outline-none focus:border-eagle-blue focus:ring-2 focus:ring-eagle-blue/20 text-charcoal placeholder:text-charcoal/70"
-                  required
-                  aria-required="true"
                   aria-describedby={status === 'error' ? 'subscribe-error' : undefined}
                   aria-invalid={status === 'error' ? true : undefined}
+                  aria-required="true"
+                  className="flex-1 px-5 py-3 rounded-full border border-charcoal/20 focus:outline-none focus:border-eagle-blue focus:ring-2 focus:ring-eagle-blue/20 text-charcoal placeholder:text-charcoal/70"
                   disabled={status === 'submitting'}
+                  id="newsletter-email"
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email address"
+                  required
+                  type="email"
+                  value={email}
                 />
                 <button
-                  type="submit"
-                  disabled={status === 'submitting' || !turnstileToken}
                   className="bg-spirit-gold text-night-blue font-heading font-bold px-8 py-3 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25 shrink-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={status === 'submitting' || !turnstileToken}
+                  type="submit"
                 >
                   {status === 'submitting' ? 'Subscribing...' : 'Subscribe'}
                 </button>
@@ -159,7 +159,7 @@ export function NewsletterSignup() {
             </form>
           )}
           {status === 'error' && (
-            <p id="subscribe-error" role="alert" className="mt-3 text-sm text-red-600">
+            <p className="mt-3 text-sm text-red-600" id="subscribe-error" role="alert">
               {message}
             </p>
           )}
