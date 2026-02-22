@@ -4,11 +4,11 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const key = url.searchParams.get("key");
 
-  if (!key || !key.startsWith("archive/")) {
+  if (!key || key.includes("..")) {
     return Response.json({ error: "Invalid key" }, { status: 400 });
   }
 
-  const r2 = context.cloudflare.env.R2_BUCKET;
+  const r2 = context.cloudflare.env.R2_ARCHIVE;
   if (!r2) {
     return Response.json({ error: "Storage not available" }, { status: 503 });
   }

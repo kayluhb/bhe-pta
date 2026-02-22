@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import type { Route } from "./+types/parents";
 
 export function meta({}: Route.MetaArgs) {
@@ -25,8 +26,18 @@ const quickLinks = [
     url: "https://portal.austinisd.org/",
     description: "Access grades, attendance, and student information",
     icon: (
-      <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+      <svg
+        className="h-7 w-7"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+        />
       </svg>
     ),
   },
@@ -35,8 +46,18 @@ const quickLinks = [
     url: "https://www.schoolcafe.com",
     description: "View daily menus and manage lunch accounts",
     icon: (
-      <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v5.25a2.25 2.25 0 004.5 0V3m-2.25 5.25V21M15.75 3v18m0-18c-1.864 0-3.375 2.015-3.375 4.5s1.511 4.5 3.375 4.5" />
+      <svg
+        className="h-7 w-7"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M6.75 3v5.25a2.25 2.25 0 004.5 0V3m-2.25 5.25V21M15.75 3v18m0-18c-1.864 0-3.375 2.015-3.375 4.5s1.511 4.5 3.375 4.5"
+        />
       </svg>
     ),
   },
@@ -45,8 +66,18 @@ const quickLinks = [
     url: "https://bartonhills.austinschools.org",
     description: "Barton Hills Elementary official AISD page",
     icon: (
-      <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+      <svg
+        className="h-7 w-7"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z"
+        />
       </svg>
     ),
   },
@@ -55,8 +86,38 @@ const quickLinks = [
     url: "https://www.austinisd.org",
     description: "District news, policies, and resources",
     icon: (
-      <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.62 48.62 0 0112 20.904a48.62 48.62 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.636 50.636 0 00-2.658-.813A59.906 59.906 0 0112 3.493a59.903 59.903 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
+      <svg
+        className="h-7 w-7"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.62 48.62 0 0112 20.904a48.62 48.62 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.636 50.636 0 00-2.658-.813A59.906 59.906 0 0112 3.493a59.903 59.903 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"
+        />
+      </svg>
+    ),
+  },
+  {
+    title: "PTA Reimbursement",
+    to: "/reimbursement",
+    description: "Submit expense reimbursement requests to the PTA",
+    icon: (
+      <svg
+        className="h-7 w-7"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"
+        />
       </svg>
     ),
   },
@@ -88,8 +149,80 @@ export default function Parents() {
         </div>
       </section>
 
-      {/* ── 2. School Overview Card ──────────────────────────────────────── */}
+      {/* ── 2. Quick Links ───────────────────────────────────────────────── */}
       <section className="bg-warm-white py-16 md:py-24">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">
+              Quick Links
+            </h2>
+            <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
+            <p className="mt-4 text-charcoal/70 max-w-2xl mx-auto">
+              Helpful resources for Barton Hills Elementary families
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {quickLinks.map((link) => {
+              const cardClass =
+                "group bg-white rounded-lg shadow-md p-6 border-l-4 border-eagle-blue hover:shadow-lg hover:-translate-y-1 transition-all duration-200";
+              const inner = (
+                <div className="flex items-start gap-4">
+                  <div className="shrink-0 h-12 w-12 rounded-lg bg-eagle-blue/10 flex items-center justify-center text-eagle-blue group-hover:bg-eagle-blue group-hover:text-white transition-colors">
+                    {link.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-heading font-bold text-charcoal group-hover:text-eagle-blue transition-colors">
+                      {link.title}
+                    </h3>
+                    <p className="mt-1 text-sm text-charcoal/70">
+                      {link.description}
+                    </p>
+                    <span className="mt-3 inline-flex items-center gap-1 text-sm font-heading font-bold text-eagle-blue group-hover:text-spirit-gold transition-colors">
+                      {"to" in link ? "Go" : "Visit"}
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={2.5}
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                        />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              );
+
+              if ("to" in link && link.to) {
+                return (
+                  <Link key={link.title} to={link.to} className={cardClass}>
+                    {inner}
+                  </Link>
+                );
+              }
+              return (
+                <a
+                  key={link.title}
+                  href={"url" in link ? link.url : "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cardClass}
+                >
+                  {inner}
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 3. School Overview Card ──────────────────────────────────────── */}
+      <section className="bg-white py-16 md:py-24">
         <div className="max-w-4xl mx-auto px-4">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="bg-eagle-blue p-6 md:p-8">
@@ -121,8 +254,8 @@ export default function Parents() {
         </div>
       </section>
 
-      {/* ── 3. Contact Info ──────────────────────────────────────────────── */}
-      <section className="bg-white py-16 md:py-24">
+      {/* ── 4. Contact Info ──────────────────────────────────────────────── */}
+      <section className="bg-warm-white py-16 md:py-24">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-10">
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">
@@ -133,7 +266,7 @@ export default function Parents() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Phone */}
-            <div className="bg-warm-white rounded-lg shadow-md p-6 text-center">
+            <div className="bg-white rounded-lg shadow-md p-6 text-center">
               <div className="mx-auto h-12 w-12 rounded-full bg-eagle-blue/10 flex items-center justify-center text-eagle-blue mb-4">
                 <svg
                   className="h-6 w-6"
@@ -161,7 +294,7 @@ export default function Parents() {
             </div>
 
             {/* Fax */}
-            <div className="bg-warm-white rounded-lg shadow-md p-6 text-center">
+            <div className="bg-white rounded-lg shadow-md p-6 text-center">
               <div className="mx-auto h-12 w-12 rounded-full bg-eagle-blue/10 flex items-center justify-center text-eagle-blue mb-4">
                 <svg
                   className="h-6 w-6"
@@ -184,7 +317,7 @@ export default function Parents() {
             </div>
 
             {/* Email */}
-            <div className="bg-warm-white rounded-lg shadow-md p-6 text-center">
+            <div className="bg-white rounded-lg shadow-md p-6 text-center">
               <div className="mx-auto h-12 w-12 rounded-full bg-eagle-blue/10 flex items-center justify-center text-eagle-blue mb-4">
                 <svg
                   className="h-6 w-6"
@@ -212,7 +345,7 @@ export default function Parents() {
             </div>
 
             {/* Address */}
-            <div className="bg-warm-white rounded-lg shadow-md p-6 text-center">
+            <div className="bg-white rounded-lg shadow-md p-6 text-center">
               <div className="mx-auto h-12 w-12 rounded-full bg-eagle-blue/10 flex items-center justify-center text-eagle-blue mb-4">
                 <svg
                   className="h-6 w-6"
@@ -242,63 +375,6 @@ export default function Parents() {
                 Austin, TX 78704
               </p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 4. Quick Links ───────────────────────────────────────────────── */}
-      <section className="bg-warm-white py-16 md:py-24">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">
-              Quick Links
-            </h2>
-            <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
-            <p className="mt-4 text-charcoal/70 max-w-2xl mx-auto">
-              Helpful resources for Barton Hills Elementary families
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {quickLinks.map((link) => (
-              <a
-                key={link.title}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group bg-white rounded-lg shadow-md p-6 border-l-4 border-eagle-blue hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="shrink-0 h-12 w-12 rounded-lg bg-eagle-blue/10 flex items-center justify-center text-eagle-blue group-hover:bg-eagle-blue group-hover:text-white transition-colors">
-                    {link.icon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-heading font-bold text-charcoal group-hover:text-eagle-blue transition-colors">
-                      {link.title}
-                    </h3>
-                    <p className="mt-1 text-sm text-charcoal/70">
-                      {link.description}
-                    </p>
-                    <span className="mt-3 inline-flex items-center gap-1 text-sm font-heading font-bold text-eagle-blue group-hover:text-spirit-gold transition-colors">
-                      Visit
-                      <svg
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={2.5}
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                        />
-                      </svg>
-                    </span>
-                  </div>
-                </div>
-              </a>
-            ))}
           </div>
         </div>
       </section>

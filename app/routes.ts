@@ -32,6 +32,8 @@ export default [
   route("api/admin/bulk-delete", "./routes/api.admin.bulk-delete.ts"),
   route("api/admin/reimbursements/:id/status", "./routes/api.admin.reimbursement-status.ts"),
   route("api/admin/reimbursements/:id/delete", "./routes/api.admin.reimbursement-delete.ts"),
+  route("privacy", "./routes/privacy.tsx"),
+  route("terms", "./routes/terms.tsx"),
   route("api/subscribe", "./routes/api.subscribe.ts"),
   route("api/auth/google", "./routes/api.auth.google.ts"),
   route("api/auth/callback", "./routes/api.auth.callback.ts"),

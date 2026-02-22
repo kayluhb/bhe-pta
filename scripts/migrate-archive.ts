@@ -17,7 +17,7 @@ const BACKUP_ROOT = resolve(
 const UPLOADS_DIR = join(BACKUP_ROOT, "uploads");
 const GALLERY_DIR = join(BACKUP_ROOT, "gallery");
 const OUTPUT_FILE = resolve(__dirname, "../app/data/archive.ts");
-const R2_PREFIX = "archive";
+const R2_PREFIX = "";
 const DRY_RUN = process.argv.includes("--dry-run");
 
 // Years to scan (school content years)
@@ -278,7 +278,7 @@ function uploadToR2(
 ): boolean {
   try {
     execSync(
-      `wrangler r2 object put "pta-reimbursement-uploads/${r2Key}" --file="${sourcePath}" --content-type="${contentType}"`,
+      `wrangler r2 object put "pta-archive/${r2Key}" --file="${sourcePath}" --content-type="${contentType}" --remote`,
       { stdio: "pipe", timeout: 30000 }
     );
     return true;
@@ -430,7 +430,9 @@ function main() {
     }
     yearNames.add(finalName.toLowerCase());
 
-    const r2Key = `${R2_PREFIX}/${entry.schoolYear}/${finalName}`;
+    const r2Key = R2_PREFIX
+      ? `${R2_PREFIX}/${entry.schoolYear}/${finalName}`
+      : `${entry.schoolYear}/${finalName}`;
     const contentType = mimeType(entry.ext);
 
     process.stdout.write(
@@ -475,7 +477,9 @@ function main() {
       }
 
       if (thumbPath) {
-        const thumbR2Key = `${R2_PREFIX}/${entry.schoolYear}/thumbs/${finalName}`;
+        const thumbR2Key = R2_PREFIX
+          ? `${R2_PREFIX}/${entry.schoolYear}/thumbs/${finalName}`
+          : `${entry.schoolYear}/thumbs/${finalName}`;
         const thumbSuccess = uploadToR2(thumbPath, thumbR2Key, contentType);
         if (thumbSuccess) {
           thumbnailR2Key = thumbR2Key;

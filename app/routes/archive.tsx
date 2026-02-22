@@ -125,7 +125,7 @@ export default function Archive({ loaderData }: Route.ComponentProps) {
               </svg>
             </button>
             <img
-              src={`/api/archive/file?key=${encodeURIComponent(lightboxItem.r2Key)}`}
+              src={`https://archive.bheeagles.com/${lightboxItem.r2Key}`}
               alt={lightboxItem.title}
               className="w-full h-auto max-h-[85vh] object-contain rounded-lg"
             />
@@ -228,9 +228,9 @@ function ItemCard({
   item: ArchiveItem;
   onImageClick: (item: ArchiveItem) => void;
 }) {
-  const fileUrl = `/api/archive/file?key=${encodeURIComponent(item.r2Key)}`;
+  const fileUrl = `https://archive.bheeagles.com/${item.r2Key}`;
   const thumbUrl = item.thumbnailR2Key
-    ? `/api/archive/file?key=${encodeURIComponent(item.thumbnailR2Key)}`
+    ? `https://archive.bheeagles.com/${item.thumbnailR2Key}`
     : item.type === "image"
       ? fileUrl
       : null;

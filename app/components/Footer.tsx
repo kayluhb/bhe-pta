@@ -132,11 +132,25 @@ export function Footer() {
 
       {/* Bottom Bar */}
       <div className="border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <p className="text-center text-xs text-white/70">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <p className="text-xs text-white/70">
             &copy; {new Date().getFullYear()} Barton Hills Elementary PTA. All
             rights reserved.
           </p>
+          <div className="flex items-center gap-4">
+            <Link
+              to="/privacy"
+              className="text-xs text-white/70 hover:text-spirit-gold transition-colors"
+            >
+              Privacy Policy
+            </Link>
+            <Link
+              to="/terms"
+              className="text-xs text-white/70 hover:text-spirit-gold transition-colors"
+            >
+              Terms of Use
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

@@ -10,6 +10,7 @@ interface Env {
   MAILCHIMP_API_KEY: string;
   REIMBURSEMENT_DB: D1Database;
   R2_BUCKET: R2Bucket;
+  R2_ARCHIVE: R2Bucket;
   RESEND_API_KEY: string;
   NOTIFICATION_EMAIL: string;
   R2_ACCESS_KEY_ID: string;

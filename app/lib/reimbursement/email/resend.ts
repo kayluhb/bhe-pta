@@ -1,41 +1,46 @@
-import { Resend } from 'resend';
+import { Resend } from "resend";
 
 interface EmailParams {
-  submission: {
-    id: string;
-    totalAmount: number;
-  };
-  requester: {
-    payableTo: string;
-    email: string;
-    phone?: string;
-    address: string;
-    dateCheckNeeded: string;
-  };
-  receipts: Array<{
-    description: string;
-    amount: number;
-    budgetAccount: string;
-  }>;
-  pdfBuffer: Uint8Array;
-  fileAttachments?: Array<{ filename: string; content: Uint8Array; contentType: string }>;
-  notificationEmail: string;
-  resendApiKey: string;
+	submission: {
+		id: string;
+		totalAmount: number;
+	};
+	requester: {
+		payableTo: string;
+		email: string;
+		phone?: string;
+		address: string;
+		dateCheckNeeded: string;
+	};
+	receipts: Array<{
+		description: string;
+		amount: number;
+		budgetAccount: string;
+	}>;
+	pdfBuffer: Uint8Array;
+	pdfFilename: string;
+	fileAttachments?: Array<{
+		filename: string;
+		content: Uint8Array;
+		contentType: string;
+	}>;
+	notificationEmail: string;
+	resendApiKey: string;
 }
 
 function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(amount);
+	return new Intl.NumberFormat("en-US", {
+		style: "currency",
+		currency: "USD",
+	}).format(amount);
 }
 
 function generateEmailHTML(
-  submission: EmailParams['submission'],
-  requester: EmailParams['requester'],
-  receipts: EmailParams['receipts']
+	submission: EmailParams["submission"],
+	requester: EmailParams["requester"],
+	receipts: EmailParams["receipts"],
 ): string {
-  return `
+	return `
     <!DOCTYPE html>
     <html>
     <head>
@@ -59,7 +64,7 @@ function generateEmailHTML(
         <div class="info-section">
           <p style="margin: 0;"><strong>Payable to:</strong> ${requester.payableTo}</p>
           <p style="margin: 4px 0 0;"><strong>Email:</strong> ${requester.email}</p>
-          ${requester.phone ? `<p style="margin: 4px 0 0;"><strong>Phone:</strong> ${requester.phone}</p>` : ''}
+          ${requester.phone ? `<p style="margin: 4px 0 0;"><strong>Phone:</strong> ${requester.phone}</p>` : ""}
           <p style="margin: 4px 0 0;"><strong>Address:</strong> ${requester.address}</p>
           <p style="margin: 4px 0 0;"><strong>Check Needed By:</strong> ${requester.dateCheckNeeded}</p>
           <p style="margin: 4px 0 0;"><strong>Reference ID:</strong> ${submission.id}</p>
@@ -76,16 +81,16 @@ function generateEmailHTML(
           </thead>
           <tbody>
             ${receipts
-              .map(
-                (r) => `
+							.map(
+								(r) => `
               <tr>
                 <td>${r.description}</td>
                 <td>${r.budgetAccount}</td>
                 <td style="text-align: right;">${formatCurrency(r.amount)}</td>
               </tr>
-            `
-              )
-              .join('')}
+            `,
+							)
+							.join("")}
           </tbody>
         </table>
 
@@ -104,10 +109,10 @@ function generateEmailHTML(
 }
 
 function generateConfirmationHTML(
-  submission: EmailParams['submission'],
-  requester: EmailParams['requester']
+	submission: EmailParams["submission"],
+	requester: EmailParams["requester"],
 ): string {
-  return `
+	return `
     <!DOCTYPE html>
     <html>
     <head>
@@ -145,44 +150,55 @@ function generateConfirmationHTML(
   `;
 }
 
-export async function sendNotificationEmail(params: EmailParams): Promise<void> {
-  const { submission, requester, receipts, pdfBuffer, fileAttachments, notificationEmail, resendApiKey } = params;
+export async function sendNotificationEmail(
+	params: EmailParams,
+): Promise<void> {
+	const {
+		submission,
+		requester,
+		receipts,
+		pdfBuffer,
+		pdfFilename,
+		fileAttachments,
+		notificationEmail,
+		resendApiKey,
+	} = params;
 
-  const resend = new Resend(resendApiKey);
+	const resend = new Resend(resendApiKey);
 
-  // Convert Uint8Array to base64
-  const pdfBase64 = Buffer.from(pdfBuffer).toString('base64');
+	// Convert Uint8Array to base64
+	const pdfBase64 = Buffer.from(pdfBuffer).toString("base64");
 
-  // Send notification to PTA
-  await resend.emails.send({
-    from: 'PTA Reimbursement <noreply@resend.dev>',
-    to: [notificationEmail],
-    replyTo: requester.email,
-    subject: `New Check Request from ${requester.payableTo} - ${formatCurrency(submission.totalAmount)}`,
-    html: generateEmailHTML(submission, requester, receipts),
-    attachments: [
-      {
-        filename: `check-request-${submission.id}.pdf`,
-        content: pdfBase64,
-      },
-      ...(fileAttachments ?? []).map((f) => ({
-        filename: f.filename,
-        content: Buffer.from(f.content).toString('base64'),
-      })),
-    ],
-  });
+	// Send notification to PTA
+	await resend.emails.send({
+		from: "PTA Reimbursement <noreply@resend.dev>",
+		to: [notificationEmail],
+		replyTo: requester.email,
+		subject: `New Check Request from ${requester.payableTo} - ${formatCurrency(submission.totalAmount)}`,
+		html: generateEmailHTML(submission, requester, receipts),
+		attachments: [
+			{
+				filename: pdfFilename,
+				content: pdfBase64,
+			},
+			...(fileAttachments ?? []).map((f) => ({
+				filename: f.filename,
+				content: Buffer.from(f.content).toString("base64"),
+			})),
+		],
+	});
 
-  // Send confirmation to requester
-  await resend.emails.send({
-    from: 'PTA Reimbursement <noreply@resend.dev>',
-    to: [requester.email],
-    subject: 'Your Check Request Has Been Received',
-    html: generateConfirmationHTML(submission, requester),
-    attachments: [
-      {
-        filename: `check-request-${submission.id}.pdf`,
-        content: pdfBase64,
-      },
-    ],
-  });
+	// Send confirmation to requester
+	await resend.emails.send({
+		from: "PTA Reimbursement <noreply@resend.dev>",
+		to: [requester.email],
+		subject: "Your Check Request Has Been Received",
+		html: generateConfirmationHTML(submission, requester),
+		attachments: [
+			{
+				filename: pdfFilename,
+				content: pdfBase64,
+			},
+		],
+	});
 }
