@@ -269,18 +269,18 @@ export function Calendar({year, month, events, onEventClick}: CalendarProps) {
 
   return (
     <div
-      role="grid"
       aria-label={`${MONTH_NAMES[month]} ${year} calendar`}
       className="bg-white rounded-lg shadow-md overflow-hidden"
+      role="grid"
     >
       {/* Day headers */}
-      <div role="row" className="grid grid-cols-7 bg-eagle-blue">
+      <div className="grid grid-cols-7 bg-eagle-blue" role="row">
         {DAY_NAMES.map((name, i) => (
           <div
-            key={name}
-            role="columnheader"
             aria-label={DAY_NAMES_FULL[i]}
             className="py-2.5 text-center text-xs font-heading font-bold uppercase tracking-wider text-white/90"
+            key={name}
+            role="columnheader"
           >
             {name}
           </div>
@@ -314,7 +314,7 @@ export function Calendar({year, month, events, onEventClick}: CalendarProps) {
               {layerCount > 0 && (
                 <div className="px-0.5 pt-1 pb-0.5 space-y-0.5 border-b border-charcoal/5">
                   {Array.from({length: layerCount}, (_, layerIdx) => (
-                    <div key={layerIdx} className="grid grid-cols-7 h-5 md:h-6">
+                    <div className="grid grid-cols-7 h-5 md:h-6" key={layerIdx}>
                       {visibleSegments
                         .filter((s) => s.layer === layerIdx)
                         .map((segment) => {
@@ -324,10 +324,10 @@ export function Calendar({year, month, events, onEventClick}: CalendarProps) {
 
                           return (
                             <button
-                              key={segment.event.id}
-                              onClick={() => onEventClick?.(segment.event.id)}
                               aria-label={segment.event.title}
                               className={`${color.barBg} ${color.barText} text-[10px] md:text-xs font-semibold truncate px-1 md:px-2 h-5 md:h-6 leading-5 md:leading-6 hover:brightness-110 transition cursor-pointer shadow-sm ${roundedL} ${roundedR}`}
+                              key={segment.event.id}
+                              onClick={() => onEventClick?.(segment.event.id)}
                               style={{
                                 gridColumn: `${segment.startCol + 1} / span ${segment.spanCols}`,
                               }}
@@ -343,7 +343,7 @@ export function Calendar({year, month, events, onEventClick}: CalendarProps) {
               )}
 
               {/* Day cells */}
-              <div role="row" className="grid grid-cols-7">
+              <div className="grid grid-cols-7" role="row">
                 {weekDays.map((day, col) => {
                   const dayEvents = day ? (singleDayMap.get(day) ?? []) : [];
                   const isToday = isCurrentMonth && day === todayDate;
@@ -353,12 +353,12 @@ export function Calendar({year, month, events, onEventClick}: CalendarProps) {
 
                   return (
                     <div
-                      key={col}
-                      role="gridcell"
                       aria-label={fullDate}
                       className={`min-h-[48px] md:min-h-[80px] border-r border-b border-charcoal/10 p-1 md:p-1.5 ${
                         day === null ? 'bg-charcoal/[0.02]' : 'bg-white'
                       }`}
+                      key={col}
+                      role="gridcell"
                     >
                       {day !== null && (
                         <>
@@ -376,10 +376,10 @@ export function Calendar({year, month, events, onEventClick}: CalendarProps) {
                                 const color = getCategoryColor(event.category);
                                 return (
                                   <button
-                                    key={event.id}
-                                    onClick={() => onEventClick?.(event.id)}
                                     aria-label={`${event.title} on ${fullDate}`}
                                     className={`w-2 h-2 rounded-full ${color.barBg} hover:opacity-80 transition-opacity cursor-pointer`}
+                                    key={event.id}
+                                    onClick={() => onEventClick?.(event.id)}
                                     title={event.title}
                                   />
                                 );
@@ -397,10 +397,10 @@ export function Calendar({year, month, events, onEventClick}: CalendarProps) {
                               const color = getCategoryColor(event.category);
                               return (
                                 <button
-                                  key={event.id}
-                                  onClick={() => onEventClick?.(event.id)}
                                   aria-label={`${event.title} on ${fullDate}`}
                                   className={`w-full text-left text-xs leading-tight font-medium px-1.5 py-0.5 rounded truncate ${color.bg} ${color.text} hover:opacity-80 transition-opacity cursor-pointer`}
+                                  key={event.id}
+                                  onClick={() => onEventClick?.(event.id)}
                                   title={event.title}
                                 >
                                   {event.title}
@@ -409,8 +409,8 @@ export function Calendar({year, month, events, onEventClick}: CalendarProps) {
                             })}
                             {(dayEvents.length > 3 || hiddenSpanning > 0) && (
                               <span
-                                className="text-[10px] text-charcoal/70 px-1"
                                 aria-label={`${dayEvents.length - Math.min(dayEvents.length, 3) + hiddenSpanning} more events`}
+                                className="text-[10px] text-charcoal/70 px-1"
                               >
                                 +{dayEvents.length - Math.min(dayEvents.length, 3) + hiddenSpanning}{' '}
                                 more
@@ -437,10 +437,10 @@ export function CategoryLegend() {
   return (
     <div className="flex flex-wrap gap-4">
       {Object.entries(categoryColors).map(([name, colors]) => (
-        <div key={name} className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5" key={name}>
           <span
-            className={`inline-block w-3 h-3 rounded-full ${colors.barBg}`}
             aria-hidden="true"
+            className={`inline-block w-3 h-3 rounded-full ${colors.barBg}`}
           />
           <span className="text-xs text-charcoal/70 font-medium">{name}</span>
         </div>

@@ -67,6 +67,7 @@ D1 (SQLite) schema lives in `migrations/`. Tables: `submissions`, `receipt_entri
 
 ## Key Conventions
 
+- **Props and attributes**: Alphabetize JSX/TSX props and HTML attributes where possible (e.g. `className` before `href`, `id` before `onClick`).
 - **Path alias**: `~/` maps to `app/` (configured in `tsconfig.cloudflare.json`)
 - **Styling**: Tailwind v4 with custom theme in `app/app.css`. Brand colors: `eagle-blue`, `spirit-gold`, `creek-green`, `warm-white`, `night-blue`, `charcoal`. Fonts: `font-heading` (Montserrat), `font-body` (Inter)
 - **Type generation**: React Router auto-generates route types in `.react-router/types/`. Use `Route.LoaderArgs` and `Route.ComponentProps` from the generated type file for each route.

@@ -31,7 +31,7 @@ export function EventCard({month, day, title, description, to}: EventCardProps) 
 
   if (to) {
     return (
-      <Link to={to} className="block">
+      <Link className="block" to={to}>
         {content}
       </Link>
     );
