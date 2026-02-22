@@ -2,6 +2,12 @@ import { Link } from "react-router";
 import type { Route } from "./+types/home";
 import { EventCard } from "~/components/EventCard";
 import { NewsCard } from "~/components/NewsCard";
+import {
+  mockEvents,
+  mockNewsletters,
+  mockPtaNewsletters,
+} from "~/lib/mock-data";
+// Types are inferred from the loader via Route.ComponentProps
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -14,61 +20,64 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-// ─── Placeholder Data ───────────────────────────────────────────────────────
+// ─── Loader ──────────────────────────────────────────────────────────────────
 
-const events = [
-  {
-    month: "Feb",
-    day: "14",
-    title: "Valentine's Day Dance",
-    description: "Join us for the annual BHE Valentine's celebration",
-  },
-  {
-    month: "Feb",
-    day: "28",
-    title: "PTA General Meeting",
-    description: "Monthly meeting in the cafeteria at 6:30 PM",
-  },
-  {
-    month: "Mar",
-    day: "7",
-    title: "Spirit Night at Torchy's Tacos",
-    description: "Mention BHE and 15% goes to the PTA",
-  },
-  {
-    month: "Mar",
-    day: "14",
-    title: "Science Fair",
-    description: "Students present their science projects",
-  },
-  {
-    month: "Mar",
-    day: "21",
-    title: "Spring Carnival",
-    description: "Our biggest fundraiser of the year!",
-  },
-];
+export async function loader({ context }: Route.LoaderArgs) {
+  let events = mockEvents;
+  let schoolNews = mockNewsletters;
+  let ptaNews = mockPtaNewsletters;
 
-const news = [
-  {
-    date: "February 7, 2026",
-    title: "Eagle Update — February 7",
-    excerpt:
-      "This week's update from Principal Achtermann covers important announcements, upcoming events, and community highlights for Barton Hills families.",
-  },
-  {
-    date: "February 1, 2026",
-    title: "February PTA Newsletter",
-    excerpt:
-      "Updates on the Annual Fund campaign progress, upcoming volunteer opportunities, and a preview of spring events for the BHE community.",
-  },
-  {
-    date: "January 24, 2026",
-    title: "Eagle Update — January 24",
-    excerpt:
-      "Curriculum updates, community announcements, and reminders for the weeks ahead from Principal Achtermann.",
-  },
-];
+  try {
+    const kvEvents = await context.cloudflare.env.BHE_CALENDAR.get(
+      "events",
+      "json"
+    );
+    if (kvEvents) events = kvEvents as typeof events;
+    const kvSchool = await context.cloudflare.env.BHE_NEWSLETTERS.get(
+      "latest",
+      "json"
+    );
+    if (kvSchool) schoolNews = kvSchool as typeof schoolNews;
+    const kvPta = await context.cloudflare.env.BHE_PTA_NEWSLETTERS.get(
+      "latest",
+      "json"
+    );
+    if (kvPta) ptaNews = kvPta as typeof ptaNews;
+  } catch {
+    // KV not available — use mock data
+  }
+
+  const allNews = [...schoolNews, ...ptaNews]
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, 3);
+  const upcomingEvents = events
+    .filter((e) => new Date(e.start) >= new Date())
+    .sort((a, b) => a.start.localeCompare(b.start))
+    .slice(0, 5);
+
+  return { events: upcomingEvents, news: allNews };
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function formatEventMonth(dateStr: string): string {
+  const date = dateStr.includes("T") ? new Date(dateStr) : new Date(dateStr + "T00:00:00");
+  return date.toLocaleDateString("en-US", { month: "short" });
+}
+
+function formatEventDay(dateStr: string): string {
+  const date = dateStr.includes("T") ? new Date(dateStr) : new Date(dateStr + "T00:00:00");
+  return date.getDate().toString();
+}
+
+function formatNewsDate(dateStr: string): string {
+  const date = new Date(dateStr + "T00:00:00");
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
 
 const programs = [
   {
@@ -154,7 +163,8 @@ function SectionHeader({
 
 // ─── Homepage Component ─────────────────────────────────────────────────────
 
-export default function Home() {
+export default function Home({ loaderData }: Route.ComponentProps) {
+  const { events, news } = loaderData;
   return (
     <main>
       {/* ── 1. Hero Section ─────────────────────────────────────────────── */}
@@ -216,11 +226,11 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {events.map((event) => (
               <EventCard
-                key={`${event.month}-${event.day}`}
-                month={event.month}
-                day={event.day}
+                key={event.id}
+                month={formatEventMonth(event.start)}
+                day={formatEventDay(event.start)}
                 title={event.title}
-                description={event.description}
+                description={event.description || event.category}
               />
             ))}
           </div>
@@ -263,11 +273,11 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {news.map((item) => (
               <NewsCard
-                key={item.title}
-                date={item.date}
+                key={item.id}
+                date={formatNewsDate(item.date)}
                 title={item.title}
                 excerpt={item.excerpt}
-                to="/news"
+                to={item.url !== "#" ? item.url : "/news"}
               />
             ))}
           </div>
