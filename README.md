@@ -1,79 +1,44 @@
-# Welcome to React Router!
+# Bryker Heights Elementary PTA Website
 
-A modern, production-ready template for building full-stack React applications using React Router.
+The official website for the Bryker Heights Elementary PTA, built with React Router 7 and deployed on Cloudflare Workers.
 
-## Features
+## Stack
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+- React Router 7 (SSR)
+- Cloudflare Workers
+- Tailwind CSS v4
+- TypeScript
 
-## Getting Started
+## Development
 
-### Installation
-
-Install the dependencies:
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-### Development
-
-Start the development server with HMR:
+Start the dev server:
 
 ```bash
 npm run dev
 ```
 
-Your application will be available at `http://localhost:5173`.
+The site will be available at `http://localhost:5173`.
 
-## Previewing the Production Build
+## Commands
 
-Preview the production build locally:
-
-```bash
-npm run preview
-```
-
-## Building for Production
-
-Create a production build:
-
-```bash
-npm run build
-```
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Local dev server with HMR |
+| `npm run build` | Production build |
+| `npm run deploy` | Build + deploy to Cloudflare Workers |
+| `npm run typecheck` | Full type check |
+| `npm run preview` | Build + local preview |
 
 ## Deployment
 
-Deployment is done using the Wrangler CLI.
+Deploy to Cloudflare Workers:
 
-To build and deploy directly to production:
-
-```sh
+```bash
 npm run deploy
 ```
-
-To deploy a preview URL:
-
-```sh
-npx wrangler versions upload
-```
-
-You can then promote a version to production after verification or roll it out progressively.
-
-```sh
-npx wrangler versions deploy
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
-
----
-
-Built with ❤️ using React Router.
