@@ -10,4 +10,5 @@ export default [
   route("parents", "./routes/parents.tsx"),
   route("sponsors", "./routes/sponsors.tsx"),
   route("contact", "./routes/contact.tsx"),
+  route("dev/sync-calendar", "./routes/dev.sync-calendar.tsx"),
 ] satisfies RouteConfig;

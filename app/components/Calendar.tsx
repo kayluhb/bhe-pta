@@ -32,8 +32,8 @@ function parseDate(dateStr: string): { year: number; month: number; day: number 
   return { year: y, month: m - 1, day: d };
 }
 
-/** Get all dates an event spans, within a given month */
-function getEventDaysInMonth(
+/** Get all dates an event spans, within a given month. Exported for use on events page. */
+export function getEventDaysInMonth(
   event: CalendarEvent,
   year: number,
   month: number

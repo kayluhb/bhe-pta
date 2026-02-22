@@ -3,19 +3,19 @@ import type { Route } from "./+types/home";
 import { EventCard } from "~/components/EventCard";
 import { NewsCard } from "~/components/NewsCard";
 import {
-  mockEvents,
   mockNewsletters,
   mockPtaNewsletters,
 } from "~/lib/mock-data";
+import type { CalendarEvent } from "~/lib/types";
 // Types are inferred from the loader via Route.ComponentProps
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Barton Hills Elementary PTA" },
+    { title: "Barton Hills Elementary PTA | Soaring Together Since 1964" },
     {
       name: "description",
       content:
-        "Barton Hills Elementary PTA — supporting students, teachers, and families in Austin, TX.",
+        "Barton Hills Elementary PTA - Supporting our school community through parent involvement, fundraising, and advocacy.",
     },
   ];
 }
@@ -23,7 +23,7 @@ export function meta({}: Route.MetaArgs) {
 // ─── Loader ──────────────────────────────────────────────────────────────────
 
 export async function loader({ context }: Route.LoaderArgs) {
-  let events = mockEvents;
+  let events: CalendarEvent[] = [];
   let schoolNews = mockNewsletters;
   let ptaNews = mockPtaNewsletters;
 
@@ -166,7 +166,7 @@ function SectionHeader({
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { events, news } = loaderData;
   return (
-    <main>
+    <div>
       {/* ── 1. Hero Section ─────────────────────────────────────────────── */}
       <section className="relative min-h-[60vh] flex items-center bg-gradient-to-br from-eagle-blue to-night-blue overflow-hidden">
         {/* Diagonal gold accent stripe */}
@@ -196,12 +196,14 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             fundraising, and advocacy
           </p>
           <div className="mt-10 flex flex-wrap gap-4">
-            <Link
-              to="/get-involved"
+            <a
+              href="https://bhe-pta-annual-fund-drive-2025-26.cheddarup.com/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
             >
               Join PTA
-            </Link>
+            </a>
             <Link
               to="/sponsors"
               className="inline-flex items-center border-2 border-white text-white font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-white/10 transition-all duration-200"
@@ -368,15 +370,17 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 Membership helps support students, teachers, staff, and programs
                 that make Barton Hills great.
               </p>
-              <Link
-                to="/get-involved"
+              <a
+                href="https://bhe-pta-annual-fund-drive-2025-26.cheddarup.com/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="mt-5 inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
               >
                 Join Now
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                 </svg>
-              </Link>
+              </a>
             </div>
 
             {/* Annual Fund Card */}
@@ -514,6 +518,6 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

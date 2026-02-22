@@ -3,11 +3,11 @@ import type { Route } from "./+types/get-involved";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Get Involved — Barton Hills Elementary PTA" },
+    { title: "Get Involved | Barton Hills Elementary PTA" },
     {
       name: "description",
       content:
-        "Volunteer, donate, and join the Barton Hills Elementary PTA. Learn about the Annual Fund, volunteer opportunities, and how to make a difference.",
+        "Volunteer, join the PTA, and support the Annual Fund at Barton Hills Elementary.",
     },
   ];
 }
@@ -67,7 +67,7 @@ const oneTimeVolunteer = [
 
 export default function GetInvolved() {
   return (
-    <main>
+    <div>
       {/* ── 1. Page Banner ───────────────────────────────────────────────── */}
       <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
         <div
@@ -298,7 +298,9 @@ export default function GetInvolved() {
             </p>
             <div className="mt-8">
               <a
-                href="#"
+                href="https://bhe-pta-annual-fund-drive-2025-26.cheddarup.com/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center bg-eagle-blue text-white font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-eagle-blue/90 transition-all duration-200 hover:shadow-lg"
               >
                 Join & Pay Membership
@@ -339,6 +341,6 @@ export default function GetInvolved() {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }
