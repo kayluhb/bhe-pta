@@ -5,10 +5,10 @@
   "scripts": {
     "build": "react-router build",
     "cf-typegen": "wrangler types",
-    "deploy": "npm run build && wrangler deploy",
     "dev": "react-router dev",
     "postinstall": "npm run cf-typegen",
     "preview": "npm run build && vite preview",
+    "prod:deploy": "npm run build && wrangler deploy",
     "typecheck": "npm run cf-typegen && react-router typegen && tsc -b",
     "refresh": "curl -s -X POST https://bheeagles.com/api/refresh -H \"Authorization: Bearer $SESSION_SECRET\" | jq ."
   },

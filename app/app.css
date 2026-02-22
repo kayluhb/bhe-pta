@@ -2,7 +2,7 @@
 
 @theme {
   --color-eagle-blue: #1a6b3a;
-  --color-spirit-gold: #b8922e;
+  --color-spirit-gold: #d4a843;
   --color-creek-green: #2d6a4f;
   --color-warm-white: #faf8f5;
   --color-night-blue: #0a2a15;
@@ -29,7 +29,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid #b8922e;
+    outline: 2px solid #d4a843;
     outline-offset: 2px;
   }
 }
@@ -37,7 +37,7 @@
 /* Disco Eagle Easter Egg */
 @keyframes disco-bg {
   0% {
-    background-color: #b8922e;
+    background-color: #d4a843;
   }
   16% {
     background-color: #ff69b4;
@@ -55,7 +55,7 @@
     background-color: #84cc16;
   }
   100% {
-    background-color: #b8922e;
+    background-color: #d4a843;
   }
 }
 

@@ -98,24 +98,24 @@ export default function App() {
 }
 
 function EagleEyes() {
-  const [leftPupil, setLeftPupil] = useState({x: 0, y: 0});
-  const [rightPupil, setRightPupil] = useState({x: 0, y: 0});
+  const [leftPupil, setLeftPupil] = useState({ x: 0, y: 0 });
+  const [rightPupil, setRightPupil] = useState({ x: 0, y: 0 });
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
-    const calcPupil = (eyeId: string) => {
+    const calcPupil = (eyeId: string, maxR: number) => {
       const eye = document.getElementById(eyeId);
-      if (!eye) return {x: 0, y: 0};
+      if (!eye) return { x: 0, y: 0 };
       const rect = eye.getBoundingClientRect();
       const cx = rect.left + rect.width / 2;
       const cy = rect.top + rect.height / 2;
       const dx = e.clientX - cx;
       const dy = e.clientY - cy;
       const angle = Math.atan2(dy, dx);
-      const dist = Math.min(Math.hypot(dx, dy) / 80, 1);
-      return {x: dist * Math.cos(angle) * 3, y: dist * Math.sin(angle) * 2};
+      const dist = Math.min(Math.hypot(dx, dy) / 120, 1);
+      return { x: dist * Math.cos(angle) * maxR, y: dist * Math.sin(angle) * maxR };
     };
-    setLeftPupil(calcPupil('eagle-left-eye'));
-    setRightPupil(calcPupil('eagle-right-eye'));
+    setLeftPupil(calcPupil('eagle-left-eye', 4));
+    setRightPupil(calcPupil('eagle-right-eye', 4));
   }, []);
 
   useEffect(() => {
@@ -123,73 +123,116 @@ function EagleEyes() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [handleMouseMove]);
 
-  const pupilChar = '\u25CF';
-
-  // prettier-ignore
-  const lines = [
-    '                    ___',
-    "                _,-'   `-._",
-    "              ,'             `.",
-    "            ,'    __     __    `.",
-    '           /    ,[  ]   [  ],    \\',
-    "          /     `--'     `--'     \\",
-    '         |    ___           ___    |',
-    '         |   /   \\  ,",   /   \\   |',
-    '          \\  \\___/ / | \\  \\___/  /',
-    "           `.     /  |  \\      ,'",
-    "        ____`-._ \\  |  / _,-'____",
-    "      ,'    `-._`-._|_,-'_,-'    `.",
-    "    ,'          `-.___,-'          `.",
-    '   /       _,---._       _,---._     \\',
-    "  /      ,'       `.   ,'       `.    \\",
-    ' /      /           \\ /           \\    \\',
-    '|      |             V             |    |',
-    ' \\      \\           / \\           /    /',
-    "  \\      `.       ,'   `.       ,'    /",
-    "   \\       `-._,-'       `-._,-'    /",
-    "    `.                             ,'",
-    "      `.                         ,'",
-    "        `-.                   ,-'",
-    "           `-._           _,-'",
-    "               `--.___,--'",
-  ];
+  const stroke = '#1a6b3a';
+  const gold = '#d4a843';
+  const white = '#faf8f5';
 
   return (
-    <div className="relative select-none" aria-hidden="true">
-      <pre className="font-mono text-eagle-blue text-xs sm:text-sm md:text-base leading-tight">
-        {lines.map((line, i) => (
-          <span key={i} className="block">
-            {line}
-            {'\n'}
-          </span>
-        ))}
-      </pre>
-      {/* Left eye */}
-      <span
-        id="eagle-left-eye"
-        className="absolute font-mono text-spirit-gold text-xs sm:text-sm md:text-base"
-        style={{
-          top: 'calc(16% + 0.1em)',
-          left: 'calc(38% + 0.5em)',
-          transform: `translate(${leftPupil.x}px, ${leftPupil.y}px)`,
-          transition: 'transform 0.05s linear',
-        }}
+    <div className="select-none" aria-hidden="true">
+      <svg
+        className="mx-auto h-48 w-48 sm:h-56 sm:w-56 md:h-64 md:w-64"
+        fill="none"
+        viewBox="0 0 200 200"
+        xmlns="http://www.w3.org/2000/svg"
       >
-        {pupilChar}
-      </span>
-      {/* Right eye */}
-      <span
-        id="eagle-right-eye"
-        className="absolute font-mono text-spirit-gold text-xs sm:text-sm md:text-base"
-        style={{
-          top: 'calc(16% + 0.1em)',
-          left: 'calc(56% + 0.2em)',
-          transform: `translate(${rightPupil.x}px, ${rightPupil.y}px)`,
-          transition: 'transform 0.05s linear',
-        }}
-      >
-        {pupilChar}
-      </span>
+        {/* Feathered neck / chest */}
+        <path
+          d="M100 200 C60 200, 35 175, 38 145 C40 125, 55 115, 65 110
+             L100 105 L135 110
+             C145 115, 160 125, 162 145
+             C165 175, 140 200, 100 200Z"
+          fill={stroke}
+          opacity={0.12}
+          stroke={stroke}
+          strokeWidth={2.5}
+        />
+        {/* Neck feather texture lines */}
+        <path d="M72 130 Q100 145, 128 130" fill="none" opacity={0.4} stroke={stroke} strokeWidth={1.5} />
+        <path d="M68 145 Q100 162, 132 145" fill="none" opacity={0.3} stroke={stroke} strokeWidth={1.5} />
+        <path d="M65 160 Q100 178, 135 160" fill="none" opacity={0.25} stroke={stroke} strokeWidth={1.5} />
+        <path d="M64 175 Q100 192, 136 175" fill="none" opacity={0.2} stroke={stroke} strokeWidth={1.5} />
+
+        {/* Head shape — broad at brow, tapering down */}
+        <path
+          d="M100 18
+             C68 18, 38 40, 36 72
+             C35 88, 42 100, 55 108
+             L100 115
+             L145 108
+             C158 100, 165 88, 164 72
+             C162 40, 132 18, 100 18Z"
+          fill={white}
+          stroke={stroke}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={3}
+        />
+
+        {/* Brow ridge — left */}
+        <path
+          d="M46 62 C52 48, 68 42, 82 50"
+          fill="none"
+          stroke={stroke}
+          strokeLinecap="round"
+          strokeWidth={3.5}
+        />
+        {/* Brow ridge — right */}
+        <path
+          d="M154 62 C148 48, 132 42, 118 50"
+          fill="none"
+          stroke={stroke}
+          strokeLinecap="round"
+          strokeWidth={3.5}
+        />
+
+        {/* Eye sockets */}
+        <ellipse cx={75} cy={68} fill={white} rx={16} ry={14} stroke={stroke} strokeWidth={2.5} />
+        <ellipse cx={125} cy={68} fill={white} rx={16} ry={14} stroke={stroke} strokeWidth={2.5} />
+
+        {/* Irises */}
+        <circle cx={75} cy={68} fill={gold} opacity={0.35} r={10} />
+        <circle cx={125} cy={68} fill={gold} opacity={0.35} r={10} />
+
+        {/* Pupils — these track the mouse */}
+        <circle
+          cx={75 + leftPupil.x}
+          cy={68 + leftPupil.y}
+          fill={stroke}
+          id="eagle-left-eye"
+          r={5}
+        />
+        <circle
+          cx={125 + rightPupil.x}
+          cy={68 + rightPupil.y}
+          fill={stroke}
+          id="eagle-right-eye"
+          r={5}
+        />
+
+        {/* Eye shine highlights */}
+        <circle cx={72 + leftPupil.x * 0.5} cy={65 + leftPupil.y * 0.5} fill={white} r={2} />
+        <circle cx={122 + rightPupil.x * 0.5} cy={65 + rightPupil.y * 0.5} fill={white} r={2} />
+
+        {/* Beak — sharp hooked shape */}
+        <path
+          d="M93 80 L100 78 L107 80
+             L108 88 L104 96 L100 102
+             L96 96 L92 88 Z"
+          fill={gold}
+          stroke={stroke}
+          strokeLinejoin="round"
+          strokeWidth={2}
+        />
+        {/* Beak hook / nostril detail */}
+        <path d="M96 88 L100 92 L104 88" fill="none" stroke={stroke} strokeLinecap="round" strokeWidth={1.5} />
+        {/* Beak center line */}
+        <path d="M100 80 L100 96" fill="none" opacity={0.3} stroke={stroke} strokeWidth={1} />
+
+        {/* Head tuft feathers */}
+        <path d="M88 22 Q92 8, 100 14" fill="none" stroke={stroke} strokeLinecap="round" strokeWidth={2} />
+        <path d="M100 20 Q100 6, 105 12" fill="none" stroke={stroke} strokeLinecap="round" strokeWidth={2} />
+        <path d="M112 22 Q108 8, 100 14" fill="none" stroke={stroke} strokeLinecap="round" strokeWidth={2} />
+      </svg>
     </div>
   );
 }
