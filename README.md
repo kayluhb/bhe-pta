@@ -1,6 +1,6 @@
-# Bryker Heights Elementary PTA Website
+# Barton Hills Elementary PTA Website
 
-The official website for the Bryker Heights Elementary PTA, built with React Router 7 and deployed on Cloudflare Workers.
+The official website for the Barton Hills Elementary PTA, built with React Router 7 and deployed on Cloudflare Workers.
 
 ## Stack
 
