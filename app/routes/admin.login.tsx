@@ -1,8 +1,9 @@
 import {verifySession} from '~/lib/admin/auth';
+import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/admin.login';
 
-export function meta() {
-  return [{title: 'Sign In | Barton Hills Elementary PTA Admin'}];
+export function meta({matches}: Route.MetaArgs) {
+  return mergeParentMeta(matches, [{title: 'Sign In | Barton Hills Elementary PTA Admin'}]);
 }
 
 export async function loader({request, context}: Route.LoaderArgs) {

@@ -1,10 +1,11 @@
 import {useState} from 'react';
 import {useLoaderData} from 'react-router';
 import {requireAdmin, type SessionPayload} from '~/lib/admin/auth';
+import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/admin.reimbursement-detail';
 
-export function meta() {
-  return [{title: 'Submission Details | Admin'}];
+export function meta({matches}: Route.MetaArgs) {
+  return mergeParentMeta(matches, [{title: 'Submission Details | Admin'}]);
 }
 
 interface Submission {

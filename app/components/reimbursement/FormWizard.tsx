@@ -64,7 +64,31 @@ export function FormWizard() {
       </div>
 
       {currentStep === 0 && (
-        <RequesterInfo data={state.requester} onChange={updateRequester} onNext={nextStep} />
+        <>
+          <div className="max-w-2xl mx-auto mb-10 rounded-lg border border-charcoal/10 bg-white p-6 shadow-sm">
+            <h2 className="font-heading text-lg font-semibold text-charcoal">
+              Check Request / Reimbursement
+            </h2>
+            <p className="mt-3 text-charcoal/80">
+              Use this form to request reimbursement for PTA-related purchases. Submit everything
+              online—no need to print or drop anything off. You’ll get a confirmation email after
+              submitting.
+            </p>
+            <ul className="mt-4 list-inside list-disc space-y-1 text-sm text-charcoal/80">
+              <li>
+                <strong>Sales tax is not reimbursed</strong>—do not include it in your amounts.
+              </li>
+              <li>
+                You may include up to four items per request. Submit another request for more.
+              </li>
+              <li>
+                Upload a receipt (photo or scan) for each item. A receipt is required for every
+                line.
+              </li>
+            </ul>
+          </div>
+          <RequesterInfo data={state.requester} onChange={updateRequester} onNext={nextStep} />
+        </>
       )}
 
       {currentStep === 1 && (

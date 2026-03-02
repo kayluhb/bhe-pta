@@ -1,13 +1,14 @@
+import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/privacy';
 
-export function meta({}: Route.MetaArgs) {
-  return [
+export function meta({matches}: Route.MetaArgs) {
+  return mergeParentMeta(matches, [
     {title: 'Privacy Policy | Barton Hills Elementary PTA'},
     {
       name: 'description',
       content: 'Privacy policy for the Barton Hills Elementary PTA website.',
     },
-  ];
+  ]);
 }
 
 export default function Privacy() {

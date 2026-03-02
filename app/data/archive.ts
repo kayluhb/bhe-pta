@@ -1,3 +1,8 @@
+import type {ArchivePost} from './archive-posts';
+import {archivePostData} from './archive-posts';
+
+export type {ArchivePost} from './archive-posts';
+
 export interface ArchiveItem {
   id: string;
   title: string;
@@ -12,9 +17,10 @@ export interface ArchiveYear {
   year: string;
   description?: string;
   items: ArchiveItem[];
+  posts?: ArchivePost[];
 }
 
-export const archiveData: ArchiveYear[] = [
+const archiveItemData: ArchiveYear[] = [
   {
     year: '2021-2022',
     items: [
@@ -5157,3 +5163,11 @@ export const archiveData: ArchiveYear[] = [
     ],
   },
 ];
+
+// Merge blog posts into archive years by school year
+const postsByYear = new Map(archivePostData.map((y) => [y.year, y.posts]));
+
+export const archiveData: ArchiveYear[] = archiveItemData.map((year) => ({
+  ...year,
+  posts: postsByYear.get(year.year),
+}));

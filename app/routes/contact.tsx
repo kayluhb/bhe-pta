@@ -1,15 +1,16 @@
 import {NewsletterSignup} from '~/components/NewsletterSignup';
+import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/contact';
 
-export function meta({}: Route.MetaArgs) {
-  return [
+export function meta({matches}: Route.MetaArgs) {
+  return mergeParentMeta(matches, [
     {title: 'Contact | Barton Hills Elementary PTA'},
     {
       name: 'description',
       content:
         'Get in touch with the Barton Hills Elementary PTA. Subscribe to newsletters and follow us on social media.',
     },
-  ];
+  ]);
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────

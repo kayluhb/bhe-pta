@@ -1,18 +1,19 @@
 import {useCallback, useRef, useState} from 'react';
 import {useLoaderData} from 'react-router';
 import {Calendar, CategoryLegend, getEventDaysInMonth} from '~/components/Calendar';
+import {mergeParentMeta} from '~/lib/meta';
 import type {CalendarEvent} from '~/lib/types';
 import type {Route} from './+types/events';
 
-export function meta({}: Route.MetaArgs) {
-  return [
+export function meta({matches}: Route.MetaArgs) {
+  return mergeParentMeta(matches, [
     {title: 'Events Calendar | Barton Hills Elementary PTA'},
     {
       name: 'description',
       content:
         'View upcoming events, PTA meetings, spirit nights, and school activities at Barton Hills Elementary.',
     },
-  ];
+  ]);
 }
 
 export async function loader({context}: Route.LoaderArgs) {
