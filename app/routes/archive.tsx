@@ -1,17 +1,18 @@
 import {useEffect, useRef, useState} from 'react';
-import type {ArchiveItem} from '~/data/archive';
+import type {ArchiveItem, ArchivePost, ArchiveYear} from '~/data/archive';
 import {archiveData} from '~/data/archive';
+import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/archive';
 
-export function meta({}: Route.MetaArgs) {
-  return [
+export function meta({matches}: Route.MetaArgs) {
+  return mergeParentMeta(matches, [
     {title: 'Our History | Barton Hills Elementary PTA'},
     {
       name: 'description',
       content:
-        'Browse the Barton Hills Elementary PTA archive — photos, newsletters, event flyers, and carnival memories from years past.',
+        'Browse the Barton Hills Elementary PTA archive — blog posts, photos, newsletters, and memories from years past.',
     },
-  ];
+  ]);
 }
 
 export function loader({}: Route.LoaderArgs) {
@@ -38,8 +39,8 @@ export default function Archive({loaderData}: Route.ComponentProps) {
             Our History
           </h1>
           <p className="mt-4 text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
-            A look back at the Barton Hills Elementary PTA community through the years — photos,
-            newsletters, and memories from our Eagle family.
+            A look back at the Barton Hills Elementary PTA community through the years — blog posts,
+            photos, newsletters, and memories from our Eagle family.
           </p>
           <div className="mt-6 h-1 w-20 bg-spirit-gold rounded-full mx-auto" />
         </div>
@@ -190,11 +191,13 @@ function YearSection({
   defaultOpen,
   onImageClick,
 }: {
-  yearData: (typeof archiveData)[number];
+  yearData: ArchiveYear;
   defaultOpen: boolean;
   onImageClick: (item: ArchiveItem) => void;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  const postCount = yearData.posts?.length ?? 0;
+  const itemCount = yearData.items.length;
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-charcoal/5 overflow-hidden">
@@ -219,7 +222,17 @@ function YearSection({
         </div>
         <div className="flex items-center gap-3">
           <span className="text-xs font-medium text-charcoal/40">
-            {yearData.items.length} {yearData.items.length === 1 ? 'item' : 'items'}
+            {postCount > 0 && (
+              <>
+                {postCount} {postCount === 1 ? 'post' : 'posts'}
+                {itemCount > 0 && ' · '}
+              </>
+            )}
+            {itemCount > 0 && (
+              <>
+                {itemCount} {itemCount === 1 ? 'item' : 'items'}
+              </>
+            )}
           </span>
           <svg
             aria-hidden="true"
@@ -236,18 +249,151 @@ function YearSection({
 
       {open && (
         <div
-          className="px-6 pb-6 border-t border-charcoal/5"
+          className="border-t border-charcoal/5"
           id={`year-panel-${yearData.year}`}
           role="region"
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-5">
-            {yearData.items
-              .slice()
-              .sort((a, b) => new Date(b.date ?? '').getTime() - new Date(a.date ?? '').getTime())
-              .map((item) => (
-                <ItemCard item={item} key={item.id} onImageClick={onImageClick} />
-              ))}
+          {/* ── Posts ── */}
+          {yearData.posts && yearData.posts.length > 0 && (
+            <div className="px-6 pt-5 pb-2">
+              <div className="space-y-3">
+                {yearData.posts.map((post) => (
+                  <PostCard key={post.id} post={post} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Media Items ── */}
+          {yearData.items.length > 0 && (
+            <MediaSection items={yearData.items} onImageClick={onImageClick} />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Post Card ──────────────────────────────────────────────────────────────
+
+function formatPostDate(dateStr: string): string {
+  const d = new Date(`${dateStr}T12:00:00`);
+  return d.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'});
+}
+
+function PostCard({post}: {post: ArchivePost}) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <article className="group rounded-lg border border-charcoal/8 bg-charcoal/[0.01] overflow-hidden transition-colors hover:border-eagle-blue/20">
+      <button
+        className="w-full text-left px-5 py-4 cursor-pointer"
+        onClick={() => setExpanded(!expanded)}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2 mb-1">
+              <time className="text-xs font-medium text-charcoal/50" dateTime={post.date}>
+                {formatPostDate(post.date)}
+              </time>
+              {post.category && post.category !== 'News' && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-spirit-gold/15 text-spirit-gold">
+                  {post.category}
+                </span>
+              )}
+            </div>
+            <h3 className="text-base font-heading font-semibold text-charcoal group-hover:text-eagle-blue transition-colors leading-snug">
+              {post.title}
+            </h3>
+            {!expanded && post.excerpt && (
+              <p className="mt-1.5 text-sm text-charcoal/60 line-clamp-2 leading-relaxed">
+                {post.excerpt}
+              </p>
+            )}
           </div>
+          <svg
+            aria-hidden="true"
+            className={`h-4 w-4 text-charcoal/30 shrink-0 mt-1.5 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            viewBox="0 0 24 24"
+          >
+            <path d="M19.5 8.25l-7.5 7.5-7.5-7.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+      </button>
+
+      {expanded && (
+        <div className="px-5 pb-5 border-t border-charcoal/5">
+          <div
+            className="prose prose-sm max-w-none pt-4
+              prose-headings:font-heading prose-headings:text-charcoal
+              prose-p:text-charcoal/80 prose-p:leading-relaxed
+              prose-a:text-eagle-blue prose-a:no-underline hover:prose-a:underline
+              prose-img:rounded-lg prose-img:max-h-96 prose-img:w-auto
+              prose-table:text-sm
+              [&_img]:my-3 [&_table]:my-3"
+            dangerouslySetInnerHTML={{__html: post.content}}
+          />
+        </div>
+      )}
+    </article>
+  );
+}
+
+// ─── Media Section (collapsible) ────────────────────────────────────────────
+
+function MediaSection({
+  items,
+  onImageClick,
+}: {
+  items: ArchiveItem[];
+  onImageClick: (item: ArchiveItem) => void;
+}) {
+  const [showMedia, setShowMedia] = useState(false);
+
+  return (
+    <div className="px-6 pb-5 pt-3">
+      <button
+        className="flex items-center gap-2 text-sm font-heading font-semibold text-charcoal/50 hover:text-eagle-blue transition-colors cursor-pointer"
+        onClick={() => setShowMedia(!showMedia)}
+      >
+        <svg
+          aria-hidden="true"
+          className="h-4 w-4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.5}
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+        Photos &amp; Documents ({items.length})
+        <svg
+          aria-hidden="true"
+          className={`h-3.5 w-3.5 transition-transform duration-200 ${showMedia ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          viewBox="0 0 24 24"
+        >
+          <path d="M19.5 8.25l-7.5 7.5-7.5-7.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+
+      {showMedia && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-4">
+          {items
+            .slice()
+            .sort((a, b) => new Date(b.date ?? '').getTime() - new Date(a.date ?? '').getTime())
+            .map((item) => (
+              <ItemCard item={item} key={item.id} onImageClick={onImageClick} />
+            ))}
         </div>
       )}
     </div>

@@ -1,15 +1,16 @@
 import {Link} from 'react-router';
+import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/programs';
 
-export function meta({}: Route.MetaArgs) {
-  return [
+export function meta({matches}: Route.MetaArgs) {
+  return mergeParentMeta(matches, [
     {title: 'Programs | Barton Hills Elementary PTA'},
     {
       name: 'description',
       content:
         'Explore PTA programs: Cultural Arts, Reflections, Greenworks, scholarships, and more.',
     },
-  ];
+  ]);
 }
 
 // ─── Data ────────────────────────────────────────────────────────────────────

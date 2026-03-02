@@ -1,13 +1,14 @@
+import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/terms';
 
-export function meta({}: Route.MetaArgs) {
-  return [
+export function meta({matches}: Route.MetaArgs) {
+  return mergeParentMeta(matches, [
     {title: 'Terms of Use | Barton Hills Elementary PTA'},
     {
       name: 'description',
       content: 'Terms of use for the Barton Hills Elementary PTA website.',
     },
-  ];
+  ]);
 }
 
 export default function Terms() {

@@ -1,14 +1,15 @@
 import {Link, useSearchParams} from 'react-router';
+import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/reimbursement.success';
 
-export function meta({}: Route.MetaArgs) {
-  return [
+export function meta({matches}: Route.MetaArgs) {
+  return mergeParentMeta(matches, [
     {title: 'Request Submitted | Barton Hills Elementary PTA'},
     {
       name: 'description',
       content: 'Your reimbursement request has been submitted successfully.',
     },
-  ];
+  ]);
 }
 
 export default function ReimbursementSuccess() {

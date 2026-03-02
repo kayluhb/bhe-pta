@@ -1,14 +1,15 @@
 import {FormWizard} from '~/components/reimbursement/FormWizard';
+import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/reimbursement';
 
-export function meta({}: Route.MetaArgs) {
-  return [
+export function meta({matches}: Route.MetaArgs) {
+  return mergeParentMeta(matches, [
     {title: 'Reimbursement | Barton Hills Elementary PTA'},
     {
       name: 'description',
       content: 'Submit a PTA reimbursement or check request for Barton Hills Elementary.',
     },
-  ];
+  ]);
 }
 
 export default function Reimbursement() {

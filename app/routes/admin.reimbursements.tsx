@@ -1,10 +1,11 @@
 import {useState} from 'react';
 import {useLoaderData, useNavigate, useRevalidator} from 'react-router';
 import {requireAdmin, type SessionPayload} from '~/lib/admin/auth';
+import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/admin.reimbursements';
 
-export function meta() {
-  return [{title: 'Admin | Barton Hills Elementary PTA'}];
+export function meta({matches}: Route.MetaArgs) {
+  return mergeParentMeta(matches, [{title: 'Admin | Barton Hills Elementary PTA'}]);
 }
 
 const VALID_SORT_COLUMNS = [

@@ -1,20 +1,21 @@
 import {Link} from 'react-router';
 import {EventCard} from '~/components/EventCard';
 import {NewsCard} from '~/components/NewsCard';
+import {mergeParentMeta} from '~/lib/meta';
 import {mockNewsletters, mockPtaNewsletters} from '~/lib/mock-data';
 import {getRandomSponsors} from '~/lib/sponsors';
 import type {CalendarEvent} from '~/lib/types';
 import type {Route} from './+types/home';
 
-export function meta({}: Route.MetaArgs) {
-  return [
+export function meta({matches}: Route.MetaArgs) {
+  return mergeParentMeta(matches, [
     {title: 'Barton Hills Elementary PTA | Soaring Together Since 1964'},
     {
       name: 'description',
       content:
         'Barton Hills Elementary PTA - Supporting our school community through parent involvement, fundraising, and advocacy.',
     },
-  ];
+  ]);
 }
 
 // ─── Loader ──────────────────────────────────────────────────────────────────

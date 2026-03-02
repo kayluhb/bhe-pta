@@ -1,18 +1,19 @@
 import {useRef, useState} from 'react';
 import {useLoaderData} from 'react-router';
 import {NewsletterSignup} from '~/components/NewsletterSignup';
+import {mergeParentMeta} from '~/lib/meta';
 import {mockNewsletters, mockPtaNewsletters} from '~/lib/mock-data';
 import type {Newsletter} from '~/lib/types';
 import type {Route} from './+types/news';
 
-export function meta({}: Route.MetaArgs) {
-  return [
+export function meta({matches}: Route.MetaArgs) {
+  return mergeParentMeta(matches, [
     {title: 'News & Updates | Barton Hills Elementary PTA'},
     {
       name: 'description',
       content: 'Read the latest Eagle Updates from Principal Achtermann and PTA newsletters.',
     },
-  ];
+  ]);
 }
 
 export async function loader({context}: Route.LoaderArgs) {

@@ -169,7 +169,7 @@ export async function sendNotificationEmail(params: EmailParams): Promise<void> 
 
   // Send notification to PTA
   await resend.emails.send({
-    from: 'PTA Reimbursement <noreply@mail.bheeagles.com>',
+    from: 'PTA Reimbursement <reimbursements@mail.bheeagles.com>',
     to: [notificationEmail],
     replyTo: requester.email,
     subject: `New Check Request from ${requester.payableTo} - ${formatCurrency(submission.totalAmount)}`,
@@ -188,7 +188,7 @@ export async function sendNotificationEmail(params: EmailParams): Promise<void> 
 
   // Send confirmation to requester
   await resend.emails.send({
-    from: 'PTA Reimbursement <noreply@mail.bheeagles.com>',
+    from: 'PTA Reimbursement <reimbursements@mail.bheeagles.com>',
     to: [requester.email],
     subject: 'Your Check Request Has Been Received',
     html: generateConfirmationHTML(submission, requester),

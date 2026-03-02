@@ -1,15 +1,16 @@
+import {mergeParentMeta} from '~/lib/meta';
 import {tiers} from '~/lib/sponsors';
 import type {Route} from './+types/sponsors';
 
-export function meta({}: Route.MetaArgs) {
-  return [
+export function meta({matches}: Route.MetaArgs) {
+  return mergeParentMeta(matches, [
     {title: 'Local Business Sponsors | Barton Hills Elementary PTA'},
     {
       name: 'description',
       content:
         'Become a local business sponsor of Barton Hills Elementary PTA. Your sponsorship supports students, teachers, and programs.',
     },
-  ];
+  ]);
 }
 
 // ─── Data ────────────────────────────────────────────────────────────────────

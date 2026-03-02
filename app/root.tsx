@@ -26,6 +26,12 @@ export function meta() {
     {property: 'og:title', content: 'Barton Hills Elementary PTA'},
     {property: 'og:description', content: 'Supporting our school community since 1964'},
     {property: 'og:type', content: 'website'},
+    {property: 'og:image', content: 'https://bheeagles.com/og-image.png'},
+    {property: 'og:image:width', content: '850'},
+    {property: 'og:image:height', content: '850'},
+    {property: 'og:image:alt', content: 'Barton Hills Elementary School eagle logo'},
+    {name: 'twitter:card', content: 'summary'},
+    {name: 'twitter:image', content: 'https://bheeagles.com/og-image.png'},
     {name: 'apple-mobile-web-app-title', content: 'BHE PTA'},
   ];
 }

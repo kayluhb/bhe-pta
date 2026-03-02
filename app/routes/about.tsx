@@ -1,14 +1,15 @@
+import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/about';
 
-export function meta({}: Route.MetaArgs) {
-  return [
+export function meta({matches}: Route.MetaArgs) {
+  return mergeParentMeta(matches, [
     {title: 'About | Barton Hills Elementary PTA'},
     {
       name: 'description',
       content:
         'Learn about the BHE PTA mission, initiatives, leadership, and how we support Barton Hills Elementary.',
     },
-  ];
+  ]);
 }
 
 // ─── Data ────────────────────────────────────────────────────────────────────
