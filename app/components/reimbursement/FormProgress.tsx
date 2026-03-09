@@ -6,11 +6,11 @@ interface FormProgressProps {
 export function FormProgress({currentStep, steps}: FormProgressProps) {
   return (
     <nav aria-label="Progress" className="mb-8">
-      <ol className="flex items-center justify-between">
+      <ol className="flex items-center">
         {steps.map((step, index) => (
           <li
             aria-current={index === currentStep ? 'step' : undefined}
-            className="flex items-center"
+            className={`flex items-center ${index < steps.length - 1 ? 'flex-1' : ''}`}
             key={step}
           >
             <div className="flex flex-col items-center">
@@ -60,7 +60,7 @@ export function FormProgress({currentStep, steps}: FormProgressProps) {
             {index < steps.length - 1 && (
               <div
                 aria-hidden="true"
-                className={`hidden sm:block w-16 md:w-24 h-0.5 mx-2 ${
+                className={`hidden sm:block flex-1 h-0.5 mx-2 ${
                   index < currentStep ? 'bg-eagle-blue' : 'bg-charcoal/20'
                 }`}
               />

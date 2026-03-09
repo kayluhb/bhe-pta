@@ -28,10 +28,6 @@ interface PDFData {
   };
 }
 
-function truncateText(text: string, maxLength: number): string {
-  return text.length > maxLength ? text.substring(0, maxLength - 2) + '..' : text;
-}
-
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -127,32 +123,48 @@ export async function generatePDF(data: PDFData): Promise<Uint8Array> {
 
   yPos += 8;
 
+  // Table column positions and widths
+  const cols = {
+    date: {x: 22, w: 18},
+    desc: {x: 42, w: 46},
+    place: {x: 90, w: 23},
+    account: {x: 115, w: 51},
+    amount: {x: 168, w: 22},
+  };
+
   // Table header
   doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
-  doc.text('Date', 22, yPos);
-  doc.text('Description', 42, yPos);
-  doc.text('Place', 90, yPos);
-  doc.text('Account', 115, yPos);
-  doc.text('Amount', 168, yPos);
+  doc.text('Date', cols.date.x, yPos);
+  doc.text('Description', cols.desc.x, yPos);
+  doc.text('Place', cols.place.x, yPos);
+  doc.text('Account', cols.account.x, yPos);
+  doc.text('Amount', cols.amount.x, yPos);
 
   yPos += 8;
 
-  // Table rows
+  // Table rows with text wrapping
   doc.setFont('helvetica', 'normal');
+  const lineHeight = 4;
   receipts.forEach((receipt, index) => {
+    const descLines = doc.splitTextToSize(receipt.description, cols.desc.w);
+    const placeLines = doc.splitTextToSize(receipt.placeOfPurchase || '-', cols.place.w);
+    const accountLines = doc.splitTextToSize(receipt.budgetAccount, cols.account.w);
+    const maxLines = Math.max(descLines.length, placeLines.length, accountLines.length);
+    const rowHeight = Math.max(8, maxLines * lineHeight + 4);
+
     if (index % 2 === 1) {
       doc.setFillColor(250, 250, 250);
-      doc.rect(20, yPos - 5, 170, 8, 'F');
+      doc.rect(20, yPos - 5, 170, rowHeight, 'F');
     }
 
-    doc.text(formatDate(receipt.date), 22, yPos);
-    doc.text(truncateText(receipt.description, 22), 42, yPos);
-    doc.text(truncateText(receipt.placeOfPurchase || '-', 12), 90, yPos);
-    doc.text(truncateText(receipt.budgetAccount, 24), 115, yPos);
-    doc.text(formatCurrency(receipt.amount), 168, yPos);
+    doc.text(formatDate(receipt.date), cols.date.x, yPos);
+    doc.text(descLines, cols.desc.x, yPos);
+    doc.text(placeLines, cols.place.x, yPos);
+    doc.text(accountLines, cols.account.x, yPos);
+    doc.text(formatCurrency(receipt.amount), cols.amount.x, yPos);
 
-    yPos += 8;
+    yPos += rowHeight;
   });
 
   // Total line

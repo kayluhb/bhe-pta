@@ -19,6 +19,7 @@
     "@aws-sdk/client-s3": "^3.995.0",
     "@aws-sdk/s3-request-presigner": "^3.995.0",
     "cheerio": "^1.2.0",
+    "fflate": "^0.8.2",
     "ical.js": "^2.2.1",
     "isbot": "^5.1.35",
     "jspdf": "^3.0.4",

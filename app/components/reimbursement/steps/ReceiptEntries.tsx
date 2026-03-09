@@ -73,24 +73,18 @@ export function ReceiptEntries({
                   value={receipt.date}
                 />
 
-                <div className="w-full">
-                  <Input
-                    label="Amount to Reimburse"
-                    min="0"
-                    onChange={(e) =>
-                      onUpdate(index, {amount: Number.parseFloat(e.target.value) || 0})
-                    }
-                    placeholder="0.00"
-                    required
-                    step="0.01"
-                    type="number"
-                    value={receipt.amount || ''}
-                  />
-                  <p className="mt-1 text-xs text-charcoal/70">
-                    Note: <strong>Sales tax cannot be reimbursed</strong> and should not be
-                    included.
-                  </p>
-                </div>
+                <Input
+                  label="Amount to Reimburse"
+                  min="0"
+                  onChange={(e) =>
+                    onUpdate(index, {amount: Number.parseFloat(e.target.value) || 0})
+                  }
+                  placeholder="0.00"
+                  required
+                  step="0.01"
+                  type="number"
+                  value={receipt.amount || ''}
+                />
 
                 <div className="md:col-span-2">
                   <Input
@@ -128,6 +122,18 @@ export function ReceiptEntries({
           </button>
         )}
       </div>
+
+      <label className="flex items-start gap-2 cursor-pointer">
+        <input
+          className="mt-0.5 h-4 w-4 rounded border-charcoal/20 text-eagle-blue focus:ring-eagle-blue"
+          required
+          type="checkbox"
+        />
+        <span className="text-sm text-charcoal/70">
+          I confirm my amounts <strong>do not include sales tax</strong>. Sales tax cannot be
+          reimbursed.
+        </span>
+      </label>
 
       <div className="flex justify-between">
         <Button onClick={onBack} type="button" variant="outline">
