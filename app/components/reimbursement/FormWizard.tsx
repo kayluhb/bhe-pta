@@ -1,3 +1,4 @@
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {useNavigate} from 'react-router';
 import {useFormState} from '~/hooks/useFormState';
 import {useTurnstile} from '~/hooks/useTurnstile';
@@ -9,6 +10,7 @@ import {RequesterInfo} from './steps/RequesterInfo';
 import {ReviewSubmit} from './steps/ReviewSubmit';
 
 const STEPS = ['Request Info', 'Receipts', 'Budget', 'Files', 'Review'];
+const HELP_SEEN_KEY = 'bhe-reimbursement-info-seen';
 
 export function FormWizard() {
   const navigate = useNavigate();
@@ -55,23 +57,88 @@ export function FormWizard() {
     navigate(`/reimbursement/success?id=${result.submissionId}`);
   };
 
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const [showHelp, setShowHelp] = useState(false);
+
+  const closeHelp = useCallback(() => {
+    setShowHelp(false);
+    try {
+      localStorage.setItem(HELP_SEEN_KEY, '1');
+    } catch (e) {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem(HELP_SEEN_KEY)) {
+        setShowHelp(true);
+      }
+    } catch (e) {
+      setShowHelp(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (showHelp) {
+      if (!dialog.open) dialog.showModal();
+    } else {
+      if (dialog.open) dialog.close();
+    }
+  }, [showHelp]);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    const handleCancel = (e: Event) => {
+      e.preventDefault();
+      closeHelp();
+    };
+    dialog.addEventListener('cancel', handleCancel);
+    return () => dialog.removeEventListener('cancel', handleCancel);
+  }, [closeHelp]);
+
   return (
     <div className="max-w-2xl mx-auto">
-      <FormProgress currentStep={currentStep} steps={STEPS} />
-
-      <div aria-live="polite" className="sr-only" role="status">
-        Step {currentStep + 1} of {STEPS.length}: {STEPS[currentStep]}
-      </div>
-
-      {currentStep === 0 && (
-        <>
-          <div className="max-w-2xl mx-auto mb-10 rounded-lg border border-charcoal/10 bg-white p-6 shadow-sm">
-            <h2 className="font-heading text-lg font-semibold text-charcoal">
+      {/* Help dialog */}
+      <dialog
+        aria-describedby="help-dialog-desc"
+        aria-labelledby="help-dialog-title"
+        className="max-w-lg w-full m-auto rounded-lg border border-charcoal/10 bg-white p-0 shadow-xl backdrop:bg-black/40 backdrop:backdrop-blur-sm"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) closeHelp();
+        }}
+        ref={dialogRef}
+      >
+        <div className="p-6" role="document">
+          <div className="flex items-start justify-between">
+            <h2 className="font-heading text-lg font-semibold text-charcoal" id="help-dialog-title">
               Check Request / Reimbursement
             </h2>
+            <button
+              aria-label="Close dialog"
+              className="ml-4 shrink-0 rounded-full p-1 text-charcoal/50 hover:bg-charcoal/5 hover:text-charcoal transition-colors"
+              onClick={closeHelp}
+              ref={closeButtonRef}
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
+          <div id="help-dialog-desc">
             <p className="mt-3 text-charcoal/80">
               Use this form to request reimbursement for PTA-related purchases. Submit everything
-              online—no need to print or drop anything off. You’ll get a confirmation email after
+              online—no need to print or drop anything off. You'll get a confirmation email after
               submitting.
             </p>
             <ul className="mt-4 list-inside list-disc space-y-1 text-sm text-charcoal/80">
@@ -87,7 +154,25 @@ export function FormWizard() {
               </li>
             </ul>
           </div>
-          <RequesterInfo data={state.requester} onChange={updateRequester} onNext={nextStep} />
+          <button
+            className="mt-6 w-full rounded-lg bg-eagle-blue px-4 py-2.5 font-heading font-semibold text-white hover:bg-eagle-blue/90 transition-colors"
+            onClick={closeHelp}
+            type="button"
+          >
+            Got it
+          </button>
+        </div>
+      </dialog>
+
+      <FormProgress currentStep={currentStep} steps={STEPS} />
+
+      <div aria-live="polite" className="sr-only" role="status">
+        Step {currentStep + 1} of {STEPS.length}: {STEPS[currentStep]}
+      </div>
+
+      {currentStep === 0 && (
+        <>
+          <RequesterInfo data={state.requester} onChange={updateRequester} onNext={nextStep} onShowHelp={() => setShowHelp(true)} />
         </>
       )}
 

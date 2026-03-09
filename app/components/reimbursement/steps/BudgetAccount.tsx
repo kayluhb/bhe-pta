@@ -197,6 +197,89 @@ function SearchableSelect({
   );
 }
 
+function SuggestHelper({onSuggest}: {onSuggest: (account: string) => void}) {
+  const [description, setDescription] = useState('');
+  const [suggesting, setSuggesting] = useState(false);
+  const [suggested, setSuggested] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
+
+  const handleSuggest = async () => {
+    if (!description.trim()) return;
+    setSuggesting(true);
+    setSuggested(null);
+    try {
+      const response = await fetch('/api/reimbursement/suggest-budget', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          receipts: [{description: description.trim(), amount: 0}],
+        }),
+      });
+      if (response.ok) {
+        const data = (await response.json()) as {
+          suggestions: ({account: string; confidence: string} | null)[];
+        };
+        const result = data.suggestions?.[0];
+        if (result) {
+          setSuggested(result.account);
+          onSuggest(result.account);
+        }
+      }
+    } finally {
+      setSuggesting(false);
+    }
+  };
+
+  if (!expanded) {
+    return (
+      <button
+        className="mt-3 text-sm text-eagle-blue hover:text-eagle-blue/80 underline underline-offset-2"
+        onClick={() => setExpanded(true)}
+        type="button"
+      >
+        Not sure which account to choose? Describe your purchase
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-3 rounded-lg border border-charcoal/10 bg-warm-white p-4">
+      <p className="text-sm font-medium text-charcoal/80 mb-2">
+        Describe what you purchased and we'll suggest an account
+      </p>
+      <div className="flex gap-2">
+        <input
+          className="flex-1 px-3 py-2 border border-charcoal/20 rounded-lg text-sm text-charcoal placeholder:text-charcoal/70 focus:outline-none focus:ring-2 focus:ring-eagle-blue focus:border-eagle-blue"
+          disabled={suggesting}
+          onChange={(e) => setDescription(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleSuggest();
+            }
+          }}
+          placeholder="e.g., Supplies for the spring fling"
+          type="text"
+          value={description}
+        />
+        <Button
+          disabled={!description.trim() || suggesting}
+          onClick={handleSuggest}
+          type="button"
+          variant="outline"
+        >
+          {suggesting ? 'Suggesting...' : 'Suggest'}
+        </Button>
+      </div>
+      {suggested && (
+        <p className="mt-2 text-sm text-creek-green">
+          Suggested: <strong>{suggested}</strong>
+        </p>
+      )}
+    </div>
+  );
+}
+
 export function BudgetAccount({
   budget,
   receipts,
@@ -226,12 +309,15 @@ export function BudgetAccount({
         </p>
 
         <div className="space-y-6">
-          <SearchableSelect
-            label="Budget Account to Debit"
-            onChange={(value) => onUpdateBudget({primaryAccount: value})}
-            required
-            value={budget.primaryAccount}
-          />
+          <div>
+            <SearchableSelect
+              label="Budget Account to Debit"
+              onChange={(value) => onUpdateBudget({primaryAccount: value})}
+              required
+              value={budget.primaryAccount}
+            />
+            <SuggestHelper onSuggest={(account) => onUpdateBudget({primaryAccount: account})} />
+          </div>
 
           {receipts.length > 1 && (
             <div className="border-t pt-4">

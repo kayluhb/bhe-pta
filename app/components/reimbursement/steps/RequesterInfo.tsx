@@ -6,10 +6,11 @@ interface RequesterInfoProps {
   data: RequesterData;
   onChange: (data: Partial<RequesterData>) => void;
   onNext: () => void;
+  onShowHelp?: () => void;
   errors?: Record<string, string>;
 }
 
-export function RequesterInfo({data, onChange, onNext, errors = {}}: RequesterInfoProps) {
+export function RequesterInfo({data, onChange, onNext, onShowHelp, errors = {}}: RequesterInfoProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onNext();
@@ -18,7 +19,19 @@ export function RequesterInfo({data, onChange, onNext, errors = {}}: RequesterIn
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
       <div className="bg-white p-6 rounded-lg shadow-sm border border-charcoal/10">
-        <h2 className="text-xl font-semibold text-charcoal mb-4">Check Request Information</h2>
+        <div className="flex items-center gap-2 mb-4">
+          <h2 className="text-xl font-semibold text-charcoal">Check Request Information</h2>
+          {onShowHelp && (
+            <button
+              aria-label="Show form instructions"
+              className="h-6 w-6 rounded-full border border-charcoal/20 bg-white text-charcoal/50 hover:bg-charcoal/5 hover:text-charcoal flex items-center justify-center text-xs font-semibold transition-colors"
+              onClick={onShowHelp}
+              type="button"
+            >
+              <span aria-hidden="true">?</span>
+            </button>
+          )}
+        </div>
         <p className="text-charcoal/70 mb-6">
           Please provide the payment details for your reimbursement request.
           <br />

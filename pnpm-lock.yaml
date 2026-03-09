@@ -17,6 +17,9 @@ importers:
       cheerio:
         specifier: ^1.2.0
         version: 1.2.0
+      fflate:
+        specifier: ^0.8.2
+        version: 0.8.2
       ical.js:
         specifier: ^2.2.1
         version: 2.2.1

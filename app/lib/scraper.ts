@@ -25,10 +25,20 @@ export async function scrapeSchoolNews(): Promise<Newsletter[]> {
 
     if (title && href) {
       const url = href.startsWith('http') ? href : `https://bartonhills.austinschools.org${href}`;
+
+      // Try datetime from <time>, then parse date from URL path (/news/YYYY/MM/DD/...)
+      let date = dateText;
+      if (!date) {
+        const urlDateMatch = href.match(/\/(\d{4})\/(\d{2})\/(\d{2})\//);
+        if (urlDateMatch) {
+          date = `${urlDateMatch[1]}-${urlDateMatch[2]}-${urlDateMatch[3]}`;
+        }
+      }
+
       newsletters.push({
         id: `school-${i}`,
         title,
-        date: dateText || new Date().toISOString().split('T')[0],
+        date: date || new Date().toISOString().split('T')[0],
         excerpt: excerpt.slice(0, 200),
         url,
         source: 'school',

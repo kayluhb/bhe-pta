@@ -39,8 +39,10 @@ export async function loader({context}: Route.LoaderArgs) {
   const allNews = [...schoolNews, ...ptaNews]
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, 3);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
   const upcomingEvents = events
-    .filter((e) => new Date(e.start) >= new Date())
+    .filter((e) => new Date(e.start) >= today)
     .sort((a, b) => a.start.localeCompare(b.start))
     .slice(0, 6);
 
@@ -223,7 +225,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
   return (
     <div>
       {/* ── 1. Hero Section ─────────────────────────────────────────────── */}
-      <section className="relative min-h-[60vh] flex items-center bg-gradient-to-br from-eagle-blue to-night-blue overflow-hidden">
+      <section className="relative min-h-[40vh] flex items-center bg-gradient-to-br from-eagle-blue to-night-blue overflow-hidden">
         {/* Diagonal gold accent stripe */}
         <div
           aria-hidden="true"
@@ -244,16 +246,16 @@ export default function Home({loaderData}: Route.ComponentProps) {
           className="absolute -left-10 bottom-1/3 w-60 h-1.5 bg-spirit-gold/20 rotate-[135deg]"
         />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 py-20 md:py-28 lg:py-32 w-full">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-bold text-white leading-tight max-w-3xl">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 py-12 md:py-16 lg:py-20 w-full">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white leading-tight max-w-3xl">
             Soaring Together <span className="block text-spirit-gold">Since 1964</span>
           </h1>
           <p className="mt-6 text-lg md:text-xl text-white/80 max-w-2xl leading-relaxed">
             Supporting our school community through parent involvement, fundraising, and advocacy
           </p>
-          <div className="mt-10">
+          <div className="mt-6">
             <Link
-              className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
+              className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-base px-6 py-3 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
               to="/get-involved"
             >
               Join PTA
@@ -273,6 +275,109 @@ export default function Home({loaderData}: Route.ComponentProps) {
       <section className="bg-warm-white py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4">
           <SectionHeader>Upcoming Events</SectionHeader>
+
+          {/* ── Spring Fling Featured Banner ──────────────────────────── */}
+          <div className="mb-8 relative overflow-hidden rounded-xl bg-gradient-to-r from-night-blue via-eagle-blue to-night-blue shadow-xl border border-spirit-gold/20">
+            {/* Background promo image */}
+            <img
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full object-cover opacity-15"
+              src="/spring-fling-2026.jpg"
+            />
+            {/* Decorative elements */}
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 opacity-10"
+              style={{
+                backgroundImage:
+                  'repeating-linear-gradient(135deg, transparent, transparent 40px, #d4a843 40px, #d4a843 41px)',
+              }}
+            />
+            <div
+              aria-hidden="true"
+              className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-spirit-gold/10 blur-2xl"
+            />
+            <div
+              aria-hidden="true"
+              className="absolute -left-8 -bottom-8 h-32 w-32 rounded-full bg-spirit-gold/10 blur-2xl"
+            />
+
+            <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 px-6 py-8 md:px-10 md:py-10">
+              {/* Promo image */}
+              <div className="shrink-0 w-36 h-44 rounded-lg overflow-hidden shadow-lg ring-2 ring-spirit-gold/30 hidden md:block">
+                <img
+                  alt="Spring Fling 2026 — Homecoming Through the Eras"
+                  className="w-full h-full object-cover"
+                  src="/spring-fling-2026.jpg"
+                />
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 text-center md:text-left">
+                <p className="text-spirit-gold font-heading font-bold text-sm uppercase tracking-widest">
+                  Adults-Only Fundraiser
+                </p>
+                <h3 className="mt-1 text-2xl md:text-3xl font-heading font-bold text-white">
+                  Spring Fling: Homecoming Through the Eras
+                </h3>
+                <div className="mt-3 flex flex-wrap items-center justify-center md:justify-start gap-x-5 gap-y-1 text-white/90 text-sm font-heading">
+                  <span className="inline-flex items-center gap-1.5">
+                    <svg aria-hidden="true" className="h-4 w-4 text-spirit-gold" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                      <path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    April 2, 2026
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <svg aria-hidden="true" className="h-4 w-4 text-spirit-gold" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                      <path d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    7:00 PM
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <svg aria-hidden="true" className="h-4 w-4 text-spirit-gold" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                      <path d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    Brodie Homestead
+                  </span>
+                </div>
+                <p className="mt-2 text-white/70 leading-relaxed max-w-xl">
+                  Live DJ, dancing, food &amp; drinks, and a silent auction. Dust off your varsity
+                  vibes — it's one reunion you won't want to miss!
+                </p>
+                <p className="mt-2 text-spirit-gold/80 text-sm font-heading font-bold">
+                  Early bird pricing available through March 23
+                </p>
+              </div>
+
+              {/* CTA */}
+              <div className="shrink-0">
+                <a
+                  className="inline-flex items-center gap-2 bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
+                  href="https://bhe-spring-fling-2026.cheddarup.com"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  Get Tickets
+                  <svg
+                    aria-hidden="true"
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {events.map((event) => (

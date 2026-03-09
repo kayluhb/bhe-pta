@@ -197,10 +197,10 @@ export default function AdminReimbursements() {
     }
   };
 
-  const handleExportSelected = () => {
+  const handleDownloadFiles = () => {
     if (selected.size === 0) return;
     const ids = Array.from(selected).join(',');
-    window.location.href = `/api/admin/reimbursements/export?ids=${encodeURIComponent(ids)}`;
+    window.location.href = `/api/admin/bulk-download?ids=${encodeURIComponent(ids)}`;
   };
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -211,10 +211,6 @@ export default function AdminReimbursements() {
     const qs = params.toString();
     navigate(qs ? `?${qs}` : '.');
   };
-
-  const exportUrl = filters.status
-    ? `/api/admin/reimbursements/export?status=${filters.status}`
-    : '/api/admin/reimbursements/export';
 
   return (
     <div className="min-h-screen bg-warm-white">
@@ -238,45 +234,22 @@ export default function AdminReimbursements() {
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Filter Bar */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-medium text-charcoal font-body" htmlFor="status-filter">
-              Status:
-            </label>
-            <select
-              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
-              id="status-filter"
-              onChange={handleStatusChange}
-              value={filters.status}
-            >
-              {STATUS_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <a
-            className="inline-flex items-center gap-2 rounded-lg bg-eagle-blue px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-eagle-blue/90 transition-colors font-body"
-            href={exportUrl}
+        <div className="flex items-center gap-3 mb-6">
+          <label className="text-sm font-medium text-charcoal font-body" htmlFor="status-filter">
+            Status:
+          </label>
+          <select
+            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
+            id="status-filter"
+            onChange={handleStatusChange}
+            value={filters.status}
           >
-            <svg
-              aria-hidden="true"
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-              />
-            </svg>
-            Export CSV
-          </a>
+            {STATUS_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Bulk Action Bar */}
@@ -310,9 +283,9 @@ export default function AdminReimbursements() {
             <button
               className="rounded-md bg-spirit-gold px-3 py-1.5 text-xs font-medium text-charcoal hover:bg-spirit-gold/90 disabled:opacity-50 transition-colors"
               disabled={bulkLoading}
-              onClick={handleExportSelected}
+              onClick={handleDownloadFiles}
             >
-              Export Selected
+              Download Files
             </button>
             <div className="h-4 w-px bg-gray-300" />
             <button
