@@ -19,7 +19,7 @@ const VALID_SORT_COLUMNS = [
 
 const VALID_ORDERS = ['asc', 'desc'] as const;
 
-const VALID_STATUSES = ['pending', 'approved', 'rejected', 'needs_info'] as const;
+const VALID_STATUSES = ['pending', 'approved', 'check_delivered', 'rejected', 'needs_info'] as const;
 
 interface Submission {
   id: number;
@@ -84,6 +84,7 @@ const STATUS_OPTIONS = [
   {value: '', label: 'All'},
   {value: 'pending', label: 'Pending'},
   {value: 'approved', label: 'Approved'},
+  {value: 'check_delivered', label: 'Check Delivered'},
   {value: 'rejected', label: 'Rejected'},
   {value: 'needs_info', label: 'Needs Info'},
 ];
@@ -91,6 +92,7 @@ const STATUS_OPTIONS = [
 function StatusBadge({status}: {status: string}) {
   const styles: Record<string, string> = {
     approved: 'bg-creek-green/15 text-creek-green border-creek-green/30',
+    check_delivered: 'bg-purple-100 text-purple-700 border-purple-300',
     pending: 'bg-spirit-gold/15 text-spirit-gold border-spirit-gold/30',
     rejected: 'bg-red-100 text-red-700 border-red-300',
     needs_info: 'bg-eagle-blue/10 text-eagle-blue border-eagle-blue/30',
@@ -98,6 +100,7 @@ function StatusBadge({status}: {status: string}) {
 
   const labels: Record<string, string> = {
     approved: 'Approved',
+    check_delivered: 'Check Delivered',
     pending: 'Pending',
     rejected: 'Rejected',
     needs_info: 'Needs Info',
@@ -279,6 +282,13 @@ export default function AdminReimbursements() {
               onClick={() => handleBulkStatus('needs_info')}
             >
               Needs Info
+            </button>
+            <button
+              className="rounded-md bg-purple-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-purple-700 disabled:opacity-50 transition-colors"
+              disabled={bulkLoading}
+              onClick={() => handleBulkStatus('check_delivered')}
+            >
+              Check Delivered
             </button>
             <button
               className="rounded-md bg-spirit-gold px-3 py-1.5 text-xs font-medium text-charcoal hover:bg-spirit-gold/90 disabled:opacity-50 transition-colors"

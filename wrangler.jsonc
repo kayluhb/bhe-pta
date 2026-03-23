@@ -39,6 +39,6 @@
     "binding": "AI"
   },
   "triggers": {
-    "crons": ["0 23 * * *"]
+    "crons": ["0 2 * * *"]
   }
 }

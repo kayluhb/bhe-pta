@@ -74,6 +74,7 @@ export async function loader({request, params, context}: Route.LoaderArgs) {
 function StatusBadge({status}: {status: string}) {
   const styles: Record<string, string> = {
     approved: 'bg-creek-green/15 text-creek-green border-creek-green/30',
+    check_delivered: 'bg-purple-100 text-purple-700 border-purple-300',
     pending: 'bg-spirit-gold/15 text-spirit-gold border-spirit-gold/30',
     rejected: 'bg-red-100 text-red-700 border-red-300',
     needs_info: 'bg-eagle-blue/10 text-eagle-blue border-eagle-blue/30',
@@ -81,6 +82,7 @@ function StatusBadge({status}: {status: string}) {
 
   const labels: Record<string, string> = {
     approved: 'Approved',
+    check_delivered: 'Check Delivered',
     pending: 'Pending',
     rejected: 'Rejected',
     needs_info: 'Needs Info',
@@ -259,6 +261,7 @@ export default function AdminReimbursementDetail() {
               >
                 <option value="pending">Pending</option>
                 <option value="approved">Approved</option>
+                <option value="check_delivered">Check Delivered</option>
                 <option value="rejected">Rejected</option>
                 <option value="needs_info">Needs Info</option>
               </select>

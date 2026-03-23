@@ -1,7 +1,8 @@
 import {requireAdmin} from '~/lib/admin/auth';
+import {sendCheckDeliveredEmail} from '~/lib/reimbursement/email/resend';
 import type {Route} from './+types/api.admin.reimbursement-status';
 
-const VALID_STATUSES = ['pending', 'approved', 'rejected', 'needs_info'];
+const VALID_STATUSES = ['pending', 'approved', 'rejected', 'needs_info', 'check_delivered'];
 
 export async function action({request, params, context}: Route.ActionArgs) {
   const auth = await requireAdmin(request, context.cloudflare.env);
@@ -27,6 +28,21 @@ export async function action({request, params, context}: Route.ActionArgs) {
 
   if (result.meta.changes === 0) {
     return Response.json({error: 'Submission not found'}, {status: 404});
+  }
+
+  if (body.status === 'check_delivered') {
+    const sub = await db
+      .prepare('SELECT requester_name, requester_email FROM submissions WHERE id = ?')
+      .bind(id)
+      .first<{requester_name: string; requester_email: string}>();
+
+    if (sub) {
+      await sendCheckDeliveredEmail({
+        requesterName: sub.requester_name,
+        requesterEmail: sub.requester_email,
+        resendApiKey: context.cloudflare.env.RESEND_API_KEY,
+      });
+    }
   }
 
   return Response.json({success: true});

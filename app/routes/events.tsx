@@ -1,6 +1,6 @@
 import {useCallback, useRef, useState} from 'react';
 import {useLoaderData} from 'react-router';
-import {Calendar, CategoryLegend, getEventDaysInMonth} from '~/components/Calendar';
+import {Calendar, CategoryLegend, getEventDaysInMonth, WeekCalendar} from '~/components/Calendar';
 import {mergeParentMeta} from '~/lib/meta';
 import type {CalendarEvent} from '~/lib/types';
 import type {Route} from './+types/events';
@@ -158,6 +158,33 @@ function isMonthLongEvent(event: CalendarEvent, year: number, month: number): bo
   return days.length >= daysInMonth;
 }
 
+function getWeekStartCT(): Date {
+  const now = new Date();
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: CT,
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  }).formatToParts(now);
+  const y = Number(parts.find((p) => p.type === 'year')?.value ?? '0');
+  const m = Number(parts.find((p) => p.type === 'month')?.value ?? '1') - 1;
+  const d = Number(parts.find((p) => p.type === 'day')?.value ?? '1');
+  const today = new Date(y, m, d);
+  today.setDate(today.getDate() - today.getDay());
+  return today;
+}
+
+function formatWeekRange(weekStart: Date): string {
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 6);
+  const startStr = weekStart.toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
+  if (weekStart.getMonth() === weekEnd.getMonth()) {
+    return `${startStr} – ${weekEnd.getDate()}, ${weekEnd.getFullYear()}`;
+  }
+  const endStr = weekEnd.toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
+  return `${startStr} – ${endStr}, ${weekEnd.getFullYear()}`;
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function Events() {
@@ -174,6 +201,27 @@ export default function Events() {
   const [currentYear, setCurrentYear] = useState(initYear);
   const [currentMonth, setCurrentMonth] = useState(initMonth);
   const eventListRef = useRef<HTMLDivElement>(null);
+  const [weekStart, setWeekStart] = useState(() => getWeekStartCT());
+
+  const goToPrevWeek = useCallback(() => {
+    setWeekStart((prev) => {
+      const d = new Date(prev);
+      d.setDate(d.getDate() - 7);
+      return d;
+    });
+  }, []);
+
+  const goToNextWeek = useCallback(() => {
+    setWeekStart((prev) => {
+      const d = new Date(prev);
+      d.setDate(d.getDate() + 7);
+      return d;
+    });
+  }, []);
+
+  const goToThisWeek = useCallback(() => {
+    setWeekStart(getWeekStartCT());
+  }, []);
 
   const goToPrevMonth = useCallback(() => {
     setCurrentMonth((m) => {
@@ -251,8 +299,77 @@ export default function Events() {
       {/* ── Calendar Section ──────────────────────────────────────────────── */}
       <section className="bg-warm-white py-16 md:py-24">
         <div className="max-w-5xl mx-auto px-4">
+          {/* ─── Mobile: Week View ─── */}
+          <div className="md:hidden">
+            <div className="flex items-center justify-between mb-6">
+              <button
+                aria-label="Previous week"
+                className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-white shadow-md border border-charcoal/10 text-charcoal/70 hover:text-eagle-blue hover:border-eagle-blue transition-colors cursor-pointer"
+                onClick={goToPrevWeek}
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M15.75 19.5L8.25 12l7.5-7.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+
+              <div className="text-center">
+                <h2 className="text-xl font-heading font-bold text-charcoal">
+                  {formatWeekRange(weekStart)}
+                </h2>
+                <button
+                  className="mt-1 text-xs font-heading font-semibold text-eagle-blue hover:text-spirit-gold transition-colors cursor-pointer"
+                  onClick={goToThisWeek}
+                  type="button"
+                >
+                  This Week
+                </button>
+              </div>
+
+              <button
+                aria-label="Next week"
+                className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-white shadow-md border border-charcoal/10 text-charcoal/70 hover:text-eagle-blue hover:border-eagle-blue transition-colors cursor-pointer"
+                onClick={goToNextWeek}
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M8.25 4.5l7.5 7.5-7.5 7.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="mb-6">
+              <CategoryLegend />
+            </div>
+
+            <WeekCalendar
+              events={events}
+              onEventClick={handleEventClick}
+              weekStart={weekStart}
+            />
+          </div>
+
+          {/* ─── Desktop: Month View ─── */}
           {/* Month Navigation */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="hidden md:flex items-center justify-between mb-8">
             <button
               aria-label="Previous month"
               className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-white shadow-md border border-charcoal/10 text-charcoal/70 hover:text-eagle-blue hover:border-eagle-blue transition-colors cursor-pointer"
@@ -305,7 +422,7 @@ export default function Events() {
           </div>
 
           {/* Category Legend */}
-          <div className="mb-6">
+          <div className="mb-6 hidden md:block">
             <CategoryLegend />
           </div>
 
@@ -316,7 +433,7 @@ export default function Events() {
                 const style = getCategoryStyle(event.category);
                 return (
                   <div
-                    className={`flex items-center gap-3 rounded-lg border px-4 py-3 ${style.bg} ${style.border}`}
+                    className={`hidden md:flex items-center gap-3 rounded-lg border px-4 py-3 ${style.bg} ${style.border}`}
                     key={event.id}
                   >
                     <span
@@ -333,12 +450,14 @@ export default function Events() {
           )}
 
           {/* Calendar Grid */}
-          <Calendar
-            events={calendarAndListEvents}
-            month={currentMonth}
-            onEventClick={handleEventClick}
-            year={currentYear}
-          />
+          <div className="hidden md:block">
+            <Calendar
+              events={calendarAndListEvents}
+              month={currentMonth}
+              onEventClick={handleEventClick}
+              year={currentYear}
+            />
+          </div>
 
           {/* Subscribe links */}
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6">
