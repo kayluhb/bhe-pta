@@ -1,7 +1,8 @@
 import {requireAdmin} from '~/lib/admin/auth';
+import {sendCheckDeliveredEmail} from '~/lib/reimbursement/email/resend';
 import type {Route} from './+types/api.admin.bulk-status';
 
-const VALID_STATUSES = ['pending', 'approved', 'rejected', 'needs_info'];
+const VALID_STATUSES = ['pending', 'approved', 'rejected', 'needs_info', 'check_delivered'];
 
 export async function action({request, context}: Route.ActionArgs) {
   const auth = await requireAdmin(request, context.cloudflare.env);
@@ -28,6 +29,25 @@ export async function action({request, context}: Route.ActionArgs) {
     )
     .bind(body.status, ...body.ids)
     .run();
+
+  if (body.status === 'check_delivered') {
+    const subs = await db
+      .prepare(
+        `SELECT requester_name, requester_email FROM submissions WHERE id IN (${placeholders})`,
+      )
+      .bind(...body.ids)
+      .all<{requester_name: string; requester_email: string}>();
+
+    await Promise.allSettled(
+      subs.results.map((sub) =>
+        sendCheckDeliveredEmail({
+          requesterName: sub.requester_name,
+          requesterEmail: sub.requester_email,
+          resendApiKey: context.cloudflare.env.RESEND_API_KEY,
+        }),
+      ),
+    );
+  }
 
   return Response.json({success: true, updated: body.ids.length});
 }

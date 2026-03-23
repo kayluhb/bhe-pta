@@ -1,3 +1,4 @@
+import {useState, type MouseEvent} from 'react';
 import type {CalendarEvent} from '~/lib/types';
 
 // ─── Category Colors ──────────────────────────────────────────────────────────
@@ -172,6 +173,25 @@ function computeWeekSegments(
   return segments;
 }
 
+// ─── Shared Helpers ──────────────────────────────────────────────────────────
+
+function eventTooltip(event: CalendarEvent): string {
+  return event.description ? `${event.title}\n${event.description}` : event.title;
+}
+
+function formatTime(dateStr: string): string | null {
+  if (!dateStr.includes('T')) return null;
+  const date =
+    dateStr.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(dateStr)
+      ? new Date(dateStr)
+      : new Date(dateStr + '-06:00');
+  return date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZone: 'America/Chicago',
+  });
+}
+
 // ─── Calendar Component ───────────────────────────────────────────────────────
 
 const MAX_SPANNING_LAYERS = 3;
@@ -267,7 +287,27 @@ export function Calendar({year, month, events, onEventClick}: CalendarProps) {
   const todayDate = Number(todayParts.find((p) => p.type === 'day')!.value);
   const isCurrentMonth = todayYear === year && todayMonth === month;
 
+  const [tooltip, setTooltip] = useState<{
+    title: string;
+    description?: string;
+    x: number;
+    y: number;
+  } | null>(null);
+
+  const showTooltip = (calEvent: CalendarEvent, e: MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setTooltip({
+      title: calEvent.title,
+      description: calEvent.description,
+      x: rect.left + rect.width / 2,
+      y: rect.bottom + 4,
+    });
+  };
+
+  const hideTooltip = () => setTooltip(null);
+
   return (
+    <>
     <div
       aria-label={`${MONTH_NAMES[month]} ${year} calendar`}
       className="bg-white rounded-lg shadow-md overflow-hidden"
@@ -328,10 +368,11 @@ export function Calendar({year, month, events, onEventClick}: CalendarProps) {
                               className={`${color.barBg} ${color.barText} text-[10px] md:text-xs font-semibold truncate px-1 md:px-2 h-5 md:h-6 leading-5 md:leading-6 hover:brightness-110 transition cursor-pointer shadow-sm ${roundedL} ${roundedR}`}
                               key={segment.event.id}
                               onClick={() => onEventClick?.(segment.event.id)}
+                              onMouseEnter={(e) => showTooltip(segment.event, e)}
+                              onMouseLeave={hideTooltip}
                               style={{
                                 gridColumn: `${segment.startCol + 1} / span ${segment.spanCols}`,
                               }}
-                              title={segment.event.title}
                             >
                               {segment.event.title}
                             </button>
@@ -380,7 +421,7 @@ export function Calendar({year, month, events, onEventClick}: CalendarProps) {
                                     className={`w-2 h-2 rounded-full ${color.barBg} hover:opacity-80 transition-opacity cursor-pointer`}
                                     key={event.id}
                                     onClick={() => onEventClick?.(event.id)}
-                                    title={event.title}
+                                    title={eventTooltip(event)}
                                   />
                                 );
                               })}
@@ -401,7 +442,8 @@ export function Calendar({year, month, events, onEventClick}: CalendarProps) {
                                   className={`w-full text-left text-xs leading-tight font-medium px-1.5 py-0.5 rounded truncate ${color.bg} ${color.text} hover:opacity-80 transition-opacity cursor-pointer`}
                                   key={event.id}
                                   onClick={() => onEventClick?.(event.id)}
-                                  title={event.title}
+                                  onMouseEnter={(e) => showTooltip(event, e)}
+                                  onMouseLeave={hideTooltip}
                                 >
                                   {event.title}
                                 </button>
@@ -427,6 +469,126 @@ export function Calendar({year, month, events, onEventClick}: CalendarProps) {
           );
         })}
       </div>
+    </div>
+    {tooltip && (
+      <div
+        className="fixed z-50 bg-night-blue text-white text-xs rounded-lg px-3 py-2 shadow-lg max-w-xs pointer-events-none"
+        style={{
+          left: tooltip.x,
+          top: tooltip.y,
+          transform: 'translateX(-50%)',
+        }}
+      >
+        <p className="font-heading font-semibold text-sm">{tooltip.title}</p>
+        {tooltip.description && (
+          <p className="mt-1 text-white/80 leading-relaxed">{tooltip.description}</p>
+        )}
+      </div>
+    )}
+    </>
+  );
+}
+
+// ─── Week Calendar Component (Mobile) ─────────────────────────────────────────
+
+interface WeekCalendarProps {
+  events: CalendarEvent[];
+  weekStart: Date;
+  onEventClick?: (eventId: string) => void;
+}
+
+export function WeekCalendar({events, weekStart, onEventClick}: WeekCalendarProps) {
+  const days = Array.from({length: 7}, (_, i) => {
+    const d = new Date(weekStart);
+    d.setDate(d.getDate() + i);
+    return d;
+  });
+
+  const now = new Date();
+  const todayParts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Chicago',
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  }).formatToParts(now);
+  const todayYear = Number(todayParts.find((p) => p.type === 'year')?.value ?? '0');
+  const todayMonth = Number(todayParts.find((p) => p.type === 'month')?.value ?? '1') - 1;
+  const todayDate = Number(todayParts.find((p) => p.type === 'day')?.value ?? '0');
+
+  return (
+    <div className="bg-white rounded-lg shadow-md overflow-hidden divide-y divide-charcoal/10">
+      {days.map((day) => {
+        const isToday =
+          day.getFullYear() === todayYear &&
+          day.getMonth() === todayMonth &&
+          day.getDate() === todayDate;
+
+        const dayEvents = events.filter((event) => {
+          const start = parseDate(event.start);
+          const end = parseDate(event.end);
+          const startD = new Date(start.year, start.month, start.day);
+          const endD = event.allDay
+            ? new Date(end.year, end.month, end.day - 1)
+            : new Date(end.year, end.month, end.day);
+          return day >= startD && day <= endD;
+        });
+
+        const dayName = day.toLocaleDateString('en-US', {weekday: 'short'});
+        const monthDay = day.toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
+        const dayKey = `${day.getFullYear()}-${day.getMonth()}-${day.getDate()}`;
+
+        return (
+          <div className={isToday ? 'bg-eagle-blue/5' : ''} key={dayKey}>
+            <div className="flex items-center gap-2 px-3 py-2">
+              <span
+                className={`text-xs font-heading font-bold uppercase tracking-wider ${isToday ? 'text-eagle-blue' : 'text-charcoal/50'}`}
+              >
+                {dayName}
+              </span>
+              <span
+                className={`text-sm font-heading font-semibold ${isToday ? 'text-eagle-blue' : 'text-charcoal/70'}`}
+              >
+                {monthDay}
+              </span>
+              {isToday && (
+                <span className="text-[10px] font-heading font-bold uppercase tracking-wider text-eagle-blue bg-eagle-blue/10 px-1.5 py-0.5 rounded-full">
+                  Today
+                </span>
+              )}
+            </div>
+            {dayEvents.length > 0 ? (
+              <div className="px-3 pb-2 space-y-1">
+                {dayEvents.map((event) => {
+                  const color = getCategoryColor(event.category);
+                  const startTime = formatTime(event.start);
+                  return (
+                    <button
+                      className={`w-full text-left flex items-center gap-2 px-2.5 py-1.5 rounded-md ${color.bg} ${color.text} cursor-pointer hover:opacity-80 transition-opacity`}
+                      key={event.id}
+                      onClick={() => onEventClick?.(event.id)}
+                      title={eventTooltip(event)}
+                      type="button"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={`w-1.5 h-1.5 rounded-full shrink-0 ${color.barBg}`}
+                      />
+                      <span className="text-sm font-medium truncate">{event.title}</span>
+                      {startTime && (
+                        <span className="text-xs opacity-70 ml-auto shrink-0">{startTime}</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="px-3 pb-2">
+                <span className="text-xs text-charcoal/30 italic">No events</span>
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

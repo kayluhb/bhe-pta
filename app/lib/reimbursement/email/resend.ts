@@ -150,6 +150,52 @@ function generateConfirmationHTML(
   `;
 }
 
+interface CheckDeliveredParams {
+  requesterName: string;
+  requesterEmail: string;
+  resendApiKey: string;
+}
+
+function formatCheckDeliveredHTML(name: string): string {
+  const messages = [
+    `Hi ${name}, your check is ready! It's with Kathy in the front office. Swing by to pick it up when you get a chance.`,
+    `Hey ${name}! Just a heads up — your check is at the front office with Kathy. Come grab it whenever you can!`,
+    `Hi ${name}! Wanted to let you know your check is ready and waiting with Kathy in the front office. Pick it up anytime!`,
+    `Hey ${name}, your check is with Kathy at the front office! Stop by whenever it's convenient to pick it up.`,
+    `Hi ${name}, good news — your check is ready! Kathy has it at the front office, so just swing by when you have a moment.`,
+  ];
+
+  const message = messages[Math.floor(Math.random() * messages.length)];
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; }
+      </style>
+    </head>
+    <body>
+      <p>${message}</p>
+      <p>Thanks!</p>
+    </body>
+    </html>
+  `;
+}
+
+export async function sendCheckDeliveredEmail(params: CheckDeliveredParams): Promise<void> {
+  const {requesterName, requesterEmail, resendApiKey} = params;
+  const resend = new Resend(resendApiKey);
+
+  await resend.emails.send({
+    from: 'PTA Treasurer <treasurer@mail.bheeagles.com>',
+    replyTo: 'treasurer@bheeagles.com',
+    to: [requesterEmail],
+    subject: 'Your check is ready!',
+    html: formatCheckDeliveredHTML(requesterName),
+  });
+}
+
 export async function sendNotificationEmail(params: EmailParams): Promise<void> {
   const {
     submission,
