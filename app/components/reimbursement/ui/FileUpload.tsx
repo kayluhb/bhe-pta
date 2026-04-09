@@ -1,7 +1,7 @@
 import {useCallback, useId, useState} from 'react';
 
 interface FileUploadProps {
-  onFileSelect: (file: File) => void;
+  onFileSelect: (files: File[]) => void;
   accept?: string;
   maxSize?: number;
   label?: string;
@@ -23,22 +23,27 @@ export function FileUpload({
   const inputId = `${id}-file-input`;
   const errorId = `${id}-error`;
 
-  const handleFile = useCallback(
-    (file: File) => {
+  const handleFiles = useCallback(
+    (fileList: FileList) => {
       setLocalError(null);
-
-      if (file.size > maxSize) {
-        setLocalError(`File too large. Maximum size is ${Math.round(maxSize / 1024 / 1024)}MB`);
-        return;
-      }
-
+      const valid: File[] = [];
       const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
-      if (!allowedTypes.includes(file.type)) {
-        setLocalError('Invalid file type. Allowed: JPEG, PNG, WebP, PDF');
-        return;
+
+      for (const file of Array.from(fileList)) {
+        if (file.size > maxSize) {
+          setLocalError(`File too large. Maximum size is ${Math.round(maxSize / 1024 / 1024)}MB`);
+          return;
+        }
+        if (!allowedTypes.includes(file.type)) {
+          setLocalError('Invalid file type. Allowed: JPEG, PNG, WebP, PDF');
+          return;
+        }
+        valid.push(file);
       }
 
-      onFileSelect(file);
+      if (valid.length > 0) {
+        onFileSelect(valid);
+      }
     },
     [maxSize, onFileSelect],
   );
@@ -61,20 +66,20 @@ export function FileUpload({
 
       if (disabled) return;
 
-      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-        handleFile(e.dataTransfer.files[0]);
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleFiles(e.dataTransfer.files);
       }
     },
-    [disabled, handleFile],
+    [disabled, handleFiles],
   );
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files && e.target.files[0]) {
-        handleFile(e.target.files[0]);
+      if (e.target.files && e.target.files.length > 0) {
+        handleFiles(e.target.files);
       }
     },
-    [handleFile],
+    [handleFiles],
   );
 
   const displayError = error || localError;
@@ -105,6 +110,7 @@ export function FileUpload({
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
           disabled={disabled}
           id={inputId}
+          multiple
           onChange={handleChange}
           type="file"
         />

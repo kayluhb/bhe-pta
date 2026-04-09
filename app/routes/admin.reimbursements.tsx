@@ -31,6 +31,8 @@ interface Submission {
   updated_at: string;
 }
 
+const PAGE_SIZE = 25;
+
 export async function loader({request, context}: Route.LoaderArgs) {
   const auth = await requireAdmin(request, context.cloudflare.env);
   if (auth instanceof Response) return auth;
@@ -40,6 +42,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
   const statusFilter = url.searchParams.get('status') || '';
   const sort = url.searchParams.get('sort') || 'submitted_at';
   const order = url.searchParams.get('order') || 'desc';
+  const page = Math.max(1, Number(url.searchParams.get('page')) || 1);
 
   // Validate sort column and order against allowlists
   const validSort = VALID_SORT_COLUMNS.includes(sort as (typeof VALID_SORT_COLUMNS)[number])
@@ -48,35 +51,54 @@ export async function loader({request, context}: Route.LoaderArgs) {
   const validOrder = VALID_ORDERS.includes(order as (typeof VALID_ORDERS)[number]) ? order : 'desc';
 
   const db = context.cloudflare.env.REIMBURSEMENT_DB;
+  const offset = (page - 1) * PAGE_SIZE;
 
   let submissions: Submission[];
+  let totalCount: number;
 
   if (statusFilter && VALID_STATUSES.includes(statusFilter as (typeof VALID_STATUSES)[number])) {
-    const result = await db
-      .prepare(
-        `SELECT id, requester_name, requester_email, total_amount, status, submitted_at, updated_at
-         FROM submissions
-         WHERE status = ?
-         ORDER BY ${validSort} ${validOrder}`,
-      )
-      .bind(statusFilter)
-      .all<Submission>();
+    const [result, countResult] = await Promise.all([
+      db
+        .prepare(
+          `SELECT id, requester_name, requester_email, total_amount, status, submitted_at, updated_at
+           FROM submissions
+           WHERE status = ?
+           ORDER BY ${validSort} ${validOrder}
+           LIMIT ? OFFSET ?`,
+        )
+        .bind(statusFilter, PAGE_SIZE, offset)
+        .all<Submission>(),
+      db
+        .prepare('SELECT COUNT(*) as count FROM submissions WHERE status = ?')
+        .bind(statusFilter)
+        .first<{count: number}>(),
+    ]);
     submissions = result.results;
+    totalCount = countResult?.count ?? 0;
   } else {
-    const result = await db
-      .prepare(
-        `SELECT id, requester_name, requester_email, total_amount, status, submitted_at, updated_at
-         FROM submissions
-         ORDER BY ${validSort} ${validOrder}`,
-      )
-      .all<Submission>();
+    const [result, countResult] = await Promise.all([
+      db
+        .prepare(
+          `SELECT id, requester_name, requester_email, total_amount, status, submitted_at, updated_at
+           FROM submissions
+           ORDER BY ${validSort} ${validOrder}
+           LIMIT ? OFFSET ?`,
+        )
+        .bind(PAGE_SIZE, offset)
+        .all<Submission>(),
+      db.prepare('SELECT COUNT(*) as count FROM submissions').first<{count: number}>(),
+    ]);
     submissions = result.results;
+    totalCount = countResult?.count ?? 0;
   }
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   return {
     submissions,
     user,
     filters: {status: statusFilter, sort: validSort, order: validOrder},
+    pagination: {page, totalPages, totalCount},
   };
 }
 
@@ -133,7 +155,7 @@ function formatAmount(amount: number): string {
 }
 
 export default function AdminReimbursements() {
-  const {submissions, user, filters} = useLoaderData<typeof loader>();
+  const {submissions, user, filters, pagination} = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const revalidator = useRevalidator();
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -158,14 +180,14 @@ export default function AdminReimbursements() {
     });
   };
 
-  const handleBulkStatus = async (status: string) => {
+  const handleBulkStatus = async (status: string, options?: {skipEmail?: boolean}) => {
     if (selected.size === 0) return;
     setBulkLoading(true);
     try {
       const res = await fetch('/api/admin/bulk-status', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ids: Array.from(selected), status}),
+        body: JSON.stringify({ids: Array.from(selected), status, ...options}),
       });
       if (res.ok) {
         setSelected(new Set());
@@ -206,13 +228,19 @@ export default function AdminReimbursements() {
     window.location.href = `/api/admin/bulk-download?ids=${encodeURIComponent(ids)}`;
   };
 
-  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const buildSearch = (overrides: Record<string, string | undefined>) => {
     const params = new URLSearchParams();
-    if (e.target.value) params.set('status', e.target.value);
-    if (filters.sort !== 'submitted_at') params.set('sort', filters.sort);
-    if (filters.order !== 'desc') params.set('order', filters.order);
+    const merged = {status: filters.status, sort: filters.sort, order: filters.order, page: String(pagination.page), ...overrides};
+    if (merged.status) params.set('status', merged.status);
+    if (merged.sort !== 'submitted_at') params.set('sort', merged.sort);
+    if (merged.order !== 'desc') params.set('order', merged.order);
+    if (merged.page && merged.page !== '1') params.set('page', merged.page);
     const qs = params.toString();
-    navigate(qs ? `?${qs}` : '.');
+    return qs ? `?${qs}` : '/admin';
+  };
+
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    navigate(buildSearch({status: e.target.value, page: '1'}));
   };
 
   return (
@@ -287,8 +315,17 @@ export default function AdminReimbursements() {
               className="rounded-md bg-purple-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-purple-700 disabled:opacity-50 transition-colors"
               disabled={bulkLoading}
               onClick={() => handleBulkStatus('check_delivered')}
+              title="Mark as check delivered and send notification email"
             >
               Check Delivered
+            </button>
+            <button
+              className="rounded-md border border-purple-300 bg-white px-3 py-1.5 text-xs font-medium text-purple-600 hover:bg-purple-50 disabled:opacity-50 transition-colors"
+              disabled={bulkLoading}
+              onClick={() => handleBulkStatus('check_delivered', {skipEmail: true})}
+              title="Mark as check delivered without sending email"
+            >
+              Check Delivered (no email)
             </button>
             <button
               className="rounded-md bg-spirit-gold px-3 py-1.5 text-xs font-medium text-charcoal hover:bg-spirit-gold/90 disabled:opacity-50 transition-colors"
@@ -424,11 +461,40 @@ export default function AdminReimbursements() {
           )}
         </div>
 
-        {/* Count */}
-        {submissions.length > 0 && (
-          <p className="mt-3 text-sm text-gray-400 font-body">
-            {submissions.length} submission{submissions.length !== 1 ? 's' : ''}
-          </p>
+        {/* Pagination */}
+        {pagination.totalCount > 0 && (
+          <div className="mt-4 flex items-center justify-between">
+            <p className="text-sm text-gray-400 font-body">
+              {pagination.totalCount} submission{pagination.totalCount !== 1 ? 's' : ''}
+              {pagination.totalPages > 1 && ` — page ${pagination.page} of ${pagination.totalPages}`}
+            </p>
+            {pagination.totalPages > 1 && (
+              <div className="flex items-center gap-1">
+                <a
+                  aria-disabled={pagination.page <= 1}
+                  className={`rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${
+                    pagination.page <= 1
+                      ? 'pointer-events-none border-gray-200 text-gray-300'
+                      : 'border-gray-300 text-charcoal hover:bg-gray-50'
+                  }`}
+                  href={buildSearch({page: String(pagination.page - 1)})}
+                >
+                  Previous
+                </a>
+                <a
+                  aria-disabled={pagination.page >= pagination.totalPages}
+                  className={`rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${
+                    pagination.page >= pagination.totalPages
+                      ? 'pointer-events-none border-gray-200 text-gray-300'
+                      : 'border-gray-300 text-charcoal hover:bg-gray-50'
+                  }`}
+                  href={buildSearch({page: String(pagination.page + 1)})}
+                >
+                  Next
+                </a>
+              </div>
+            )}
+          </div>
         )}
       </main>
     </div>

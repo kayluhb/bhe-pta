@@ -8,7 +8,7 @@ export async function action({request, context}: Route.ActionArgs) {
   const auth = await requireAdmin(request, context.cloudflare.env);
   if (auth instanceof Response) return auth;
 
-  const body = (await request.json()) as {ids?: string[]; status?: string};
+  const body = (await request.json()) as {ids?: string[]; status?: string; skipEmail?: boolean};
 
   if (!body.ids || !Array.isArray(body.ids) || body.ids.length === 0) {
     return Response.json({error: 'No submissions selected'}, {status: 400});
@@ -30,7 +30,7 @@ export async function action({request, context}: Route.ActionArgs) {
     .bind(body.status, ...body.ids)
     .run();
 
-  if (body.status === 'check_delivered') {
+  if (body.status === 'check_delivered' && !body.skipEmail) {
     const subs = await db
       .prepare(
         `SELECT requester_name, requester_email FROM submissions WHERE id IN (${placeholders})`,

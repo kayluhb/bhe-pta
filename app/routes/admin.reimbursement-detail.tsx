@@ -129,7 +129,13 @@ export default function AdminReimbursementDetail() {
     type: 'success' | 'error';
     message: string;
   } | null>(null);
+  const [skipEmail, setSkipEmail] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadFeedback, setUploadFeedback] = useState<{
+    type: 'success' | 'error';
+    message: string;
+  } | null>(null);
 
   const handleStatusUpdate = async () => {
     setSaving(true);
@@ -138,7 +144,7 @@ export default function AdminReimbursementDetail() {
       const res = await fetch(`/api/admin/reimbursements/${submission.id}/status`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({status, notes}),
+        body: JSON.stringify({status, notes, ...(skipEmail && {skipEmail: true})}),
       });
       if (!res.ok) {
         const text = await res.text();
@@ -171,6 +177,35 @@ export default function AdminReimbursementDetail() {
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed to delete submission.');
       setDeleting(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setUploadFeedback(null);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch(`/api/admin/reimbursements/${submission.id}/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) {
+        const data = (await res.json()) as {error?: string};
+        throw new Error(data.error || 'Upload failed');
+      }
+      setUploadFeedback({type: 'success', message: `Uploaded ${file.name} successfully.`});
+      setTimeout(() => window.location.reload(), 1000);
+    } catch (err) {
+      setUploadFeedback({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'Upload failed.',
+      });
+    } finally {
+      setUploading(false);
+      e.target.value = '';
     }
   };
 
@@ -266,6 +301,17 @@ export default function AdminReimbursementDetail() {
                 <option value="needs_info">Needs Info</option>
               </select>
             </div>
+            {status === 'check_delivered' && (
+              <label className="flex items-center gap-2 text-sm font-body text-charcoal">
+                <input
+                  checked={skipEmail}
+                  className="h-4 w-4 rounded border-gray-300 text-eagle-blue focus:ring-eagle-blue"
+                  onChange={(e) => setSkipEmail(e.target.checked)}
+                  type="checkbox"
+                />
+                Don&apos;t send notification email
+              </label>
+            )}
             <div>
               <label
                 className="block text-sm font-medium text-charcoal font-body mb-1"
@@ -385,61 +431,107 @@ export default function AdminReimbursementDetail() {
         )}
 
         {/* File Attachments */}
-        {(files.length > 0 || submission.pdf_key) && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-heading font-semibold text-charcoal mb-4">
-              File Attachments
-            </h2>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-heading font-semibold text-charcoal mb-4">
+            File Attachments
+          </h2>
 
-            {submission.pdf_key && (
-              <div className="mb-4">
-                <a
-                  className="inline-flex items-center gap-2 rounded-lg bg-eagle-blue px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-eagle-blue/90 transition-colors font-body"
-                  href={`/api/admin/reimbursements/file?key=${encodeURIComponent(submission.pdf_key)}`}
+          {submission.pdf_key && (
+            <div className="mb-4">
+              <a
+                className="inline-flex items-center gap-2 rounded-lg bg-eagle-blue px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-eagle-blue/90 transition-colors font-body"
+                href={`/api/admin/reimbursements/file?key=${encodeURIComponent(submission.pdf_key)}`}
+              >
+                <svg
+                  aria-hidden="true"
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <svg
-                    aria-hidden="true"
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                  <path
+                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                  />
+                </svg>
+                Download PDF
+              </a>
+            </div>
+          )}
+
+          {files.length > 0 && (
+            <ul className="divide-y divide-gray-100 mb-4">
+              {files.map((f) => (
+                <li className="flex items-center justify-between py-3 gap-4" key={f.id}>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-charcoal font-body truncate">
+                      {f.original_filename}
+                    </p>
+                    <p className="text-xs text-gray-500 font-body">
+                      {f.content_type} &middot; {formatFileSize(f.file_size)}
+                    </p>
+                  </div>
+                  <a
+                    className="text-sm text-eagle-blue hover:text-eagle-blue/80 font-medium font-body transition-colors whitespace-nowrap"
+                    href={`/api/admin/reimbursements/file?key=${encodeURIComponent(f.r2_key)}`}
                   >
-                    <path
-                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                    />
-                  </svg>
-                  Download PDF
-                </a>
+                    Download
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {/* Upload receipt */}
+          <div className="border-t border-gray-100 pt-4">
+            <label className="block text-sm font-medium text-charcoal font-body mb-2">
+              Add Receipt
+            </label>
+            <p className="text-xs text-gray-500 font-body mb-3">
+              Upload an image or PDF — it will be processed with AI and added to this submission.
+            </p>
+            <label
+              className={`inline-flex items-center gap-2 rounded-lg border border-dashed border-gray-300 px-4 py-2 text-sm font-medium text-charcoal shadow-sm hover:border-eagle-blue hover:text-eagle-blue transition-colors font-body cursor-pointer ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+            >
+              <svg
+                aria-hidden="true"
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M12 4v16m8-8H4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                />
+              </svg>
+              {uploading ? 'Processing...' : 'Choose file'}
+              <input
+                accept="image/jpeg,image/png,image/webp,application/pdf"
+                className="sr-only"
+                disabled={uploading}
+                onChange={handleFileUpload}
+                type="file"
+              />
+            </label>
+            {uploadFeedback && (
+              <div
+                className={`mt-3 text-sm font-body px-3 py-2 rounded-lg ${
+                  uploadFeedback.type === 'success'
+                    ? 'bg-creek-green/10 text-creek-green'
+                    : 'bg-red-50 text-red-700'
+                }`}
+                role="alert"
+              >
+                {uploadFeedback.message}
               </div>
             )}
-
-            {files.length > 0 && (
-              <ul className="divide-y divide-gray-100">
-                {files.map((f) => (
-                  <li className="flex items-center justify-between py-3 gap-4" key={f.id}>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-charcoal font-body truncate">
-                        {f.original_filename}
-                      </p>
-                      <p className="text-xs text-gray-500 font-body">
-                        {f.content_type} &middot; {formatFileSize(f.file_size)}
-                      </p>
-                    </div>
-                    <a
-                      className="text-sm text-eagle-blue hover:text-eagle-blue/80 font-medium font-body transition-colors whitespace-nowrap"
-                      href={`/api/admin/reimbursements/file?key=${encodeURIComponent(f.r2_key)}`}
-                    >
-                      Download
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
           </div>
-        )}
+        </div>
 
         {/* Delete Section */}
         <div className="bg-white rounded-xl shadow-sm border border-red-200 p-6">
