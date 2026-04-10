@@ -1,5 +1,5 @@
-import {useState} from 'react';
-import {useLoaderData} from 'react-router';
+import {useEffect, useState} from 'react';
+import {useLoaderData, useRevalidator} from 'react-router';
 import {requireAdmin, type SessionPayload} from '~/lib/admin/auth';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/admin.reimbursement-detail';
@@ -9,7 +9,7 @@ export function meta({matches}: Route.MetaArgs) {
 }
 
 interface Submission {
-  id: number;
+  id: string;
   requester_name: string;
   requester_email: string;
   requester_phone: string | null;
@@ -22,8 +22,8 @@ interface Submission {
 }
 
 interface ReceiptEntry {
-  id: number;
-  submission_id: number;
+  id: string;
+  submission_id: string;
   receipt_date: string;
   description: string;
   amount: number;
@@ -33,8 +33,8 @@ interface ReceiptEntry {
 }
 
 interface FileAttachment {
-  id: number;
-  submission_id: number;
+  id: string;
+  submission_id: string;
   r2_key: string;
   original_filename: string;
   content_type: string;
@@ -122,26 +122,173 @@ function formatFileSize(bytes: number): string {
 
 export default function AdminReimbursementDetail() {
   const {submission, receipts, files, user} = useLoaderData<typeof loader>();
+  const revalidator = useRevalidator();
   const [status, setStatus] = useState(submission.status);
   const [notes, setNotes] = useState(submission.admin_notes ?? '');
+  const [requesterName, setRequesterName] = useState(submission.requester_name);
+  const [requesterEmail, setRequesterEmail] = useState(submission.requester_email);
+  const [requesterPhone, setRequesterPhone] = useState(submission.requester_phone ?? '');
   const [saving, setSaving] = useState(false);
+  const [savingContact, setSavingContact] = useState(false);
   const [feedback, setFeedback] = useState<{
+    type: 'success' | 'error';
+    message: string;
+  } | null>(null);
+  const [contactFeedback, setContactFeedback] = useState<{
     type: 'success' | 'error';
     message: string;
   } | null>(null);
   const [skipEmail, setSkipEmail] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [removingLineId, setRemovingLineId] = useState<string | null>(null);
+  const [removingAttachmentId, setRemovingAttachmentId] = useState<string | null>(null);
+  const [regeneratingPdf, setRegeneratingPdf] = useState(false);
+  const [removingPdf, setRemovingPdf] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadFeedback, setUploadFeedback] = useState<{
     type: 'success' | 'error';
     message: string;
   } | null>(null);
 
+  useEffect(() => {
+    setRequesterName(submission.requester_name);
+    setRequesterEmail(submission.requester_email);
+    setRequesterPhone(submission.requester_phone ?? '');
+  }, [submission.requester_name, submission.requester_email, submission.requester_phone]);
+
+  const handleContactSave = async () => {
+    setSavingContact(true);
+    setContactFeedback(null);
+    try {
+      const res = await fetch(`/api/admin/reimbursements/${encodeURIComponent(submission.id)}/contact`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          requester_name: requesterName,
+          requester_email: requesterEmail,
+          requester_phone: requesterPhone.trim() === '' ? null : requesterPhone.trim(),
+        }),
+      });
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as {error?: string};
+        throw new Error(data.error || (await res.text()) || 'Failed to save contact info');
+      }
+      setContactFeedback({type: 'success', message: 'Contact info saved.'});
+      revalidator.revalidate();
+    } catch (err) {
+      setContactFeedback({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'An unknown error occurred.',
+      });
+    } finally {
+      setSavingContact(false);
+    }
+  };
+
+  const handleRemoveLineItem = async (receiptId: string) => {
+    if (
+      !window.confirm(
+        'Remove this line item? The submission total will be recalculated. This cannot be undone.',
+      )
+    ) {
+      return;
+    }
+    setRemovingLineId(receiptId);
+    try {
+      const res = await fetch(
+        `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/receipts/${encodeURIComponent(receiptId)}`,
+        {method: 'DELETE'},
+      );
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as {error?: string};
+        throw new Error(data.error || 'Failed to remove line item');
+      }
+      revalidator.revalidate();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to remove line item.');
+    } finally {
+      setRemovingLineId(null);
+    }
+  };
+
+  const attachmentBusy = removingAttachmentId !== null || removingPdf || regeneratingPdf;
+
+  const handleRemoveAttachment = async (attachmentId: string, filename: string) => {
+    if (
+      !window.confirm(
+        `Remove attachment "${filename}"? The file will be deleted from storage. This cannot be undone.`,
+      )
+    ) {
+      return;
+    }
+    setRemovingAttachmentId(attachmentId);
+    try {
+      const res = await fetch(
+        `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/attachments/${encodeURIComponent(attachmentId)}`,
+        {method: 'DELETE'},
+      );
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as {error?: string};
+        throw new Error(data.error || 'Failed to remove attachment');
+      }
+      revalidator.revalidate();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to remove attachment.');
+    } finally {
+      setRemovingAttachmentId(null);
+    }
+  };
+
+  const handleRegeneratePdf = async () => {
+    setRegeneratingPdf(true);
+    try {
+      const res = await fetch(
+        `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/pdf/regenerate`,
+        {method: 'POST'},
+      );
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as {error?: string};
+        throw new Error(data.error || 'Failed to regenerate PDF');
+      }
+      revalidator.revalidate();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to regenerate PDF.');
+    } finally {
+      setRegeneratingPdf(false);
+    }
+  };
+
+  const handleRemovePdf = async () => {
+    if (
+      !window.confirm(
+        'Remove the submission PDF? The file will be deleted from storage. This cannot be undone.',
+      )
+    ) {
+      return;
+    }
+    setRemovingPdf(true);
+    try {
+      const res = await fetch(
+        `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/pdf`,
+        {method: 'DELETE'},
+      );
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as {error?: string};
+        throw new Error(data.error || 'Failed to remove PDF');
+      }
+      revalidator.revalidate();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to remove PDF.');
+    } finally {
+      setRemovingPdf(false);
+    }
+  };
+
   const handleStatusUpdate = async () => {
     setSaving(true);
     setFeedback(null);
     try {
-      const res = await fetch(`/api/admin/reimbursements/${submission.id}/status`, {
+      const res = await fetch(`/api/admin/reimbursements/${encodeURIComponent(submission.id)}/status`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({status, notes, ...(skipEmail && {skipEmail: true})}),
@@ -166,7 +313,7 @@ export default function AdminReimbursementDetail() {
     if (!window.confirm('Are you sure you want to delete this submission?')) return;
     setDeleting(true);
     try {
-      const res = await fetch(`/api/admin/reimbursements/${submission.id}/delete`, {
+      const res = await fetch(`/api/admin/reimbursements/${encodeURIComponent(submission.id)}/delete`, {
         method: 'DELETE',
       });
       if (!res.ok) {
@@ -188,7 +335,7 @@ export default function AdminReimbursementDetail() {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const res = await fetch(`/api/admin/reimbursements/${submission.id}/upload`, {
+      const res = await fetch(`/api/admin/reimbursements/${encodeURIComponent(submission.id)}/upload`, {
         method: 'POST',
         body: formData,
       });
@@ -249,32 +396,85 @@ export default function AdminReimbursementDetail() {
         {/* Submission Info Card */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-heading font-semibold text-charcoal mb-4">Submission Info</h2>
-          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm font-body">
-            <div>
-              <dt className="text-gray-500">Requester Name</dt>
-              <dd className="text-charcoal font-medium">{submission.requester_name}</dd>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm font-body">
+            <div className="sm:col-span-2">
+              <label
+                className="block text-sm font-medium text-charcoal font-body mb-1"
+                htmlFor="requester-name"
+              >
+                Requester name
+              </label>
+              <input
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
+                id="requester-name"
+                onChange={(e) => setRequesterName(e.target.value)}
+                type="text"
+                value={requesterName}
+              />
             </div>
             <div>
-              <dt className="text-gray-500">Email</dt>
-              <dd className="text-charcoal font-medium">{submission.requester_email}</dd>
+              <label
+                className="block text-sm font-medium text-charcoal font-body mb-1"
+                htmlFor="requester-email"
+              >
+                Email
+              </label>
+              <input
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
+                id="requester-email"
+                onChange={(e) => setRequesterEmail(e.target.value)}
+                type="email"
+                value={requesterEmail}
+              />
             </div>
-            {submission.requester_phone && (
-              <div>
-                <dt className="text-gray-500">Phone</dt>
-                <dd className="text-charcoal font-medium">{submission.requester_phone}</dd>
+            <div>
+              <label
+                className="block text-sm font-medium text-charcoal font-body mb-1"
+                htmlFor="requester-phone"
+              >
+                Phone
+              </label>
+              <input
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
+                id="requester-phone"
+                onChange={(e) => setRequesterPhone(e.target.value)}
+                type="tel"
+                value={requesterPhone}
+              />
+            </div>
+            <div>
+              <p className="text-gray-500 mb-1">Submitted</p>
+              <p className="text-charcoal font-medium">{formatDate(submission.submitted_at)}</p>
+            </div>
+            <div>
+              <p className="text-gray-500 mb-1">Total amount</p>
+              <p className="text-charcoal font-semibold text-base">
+                {formatAmount(submission.total_amount)}
+              </p>
+            </div>
+            {contactFeedback && (
+              <div
+                className={`sm:col-span-2 text-sm font-body px-3 py-2 rounded-lg ${
+                  contactFeedback.type === 'success'
+                    ? 'bg-creek-green/10 text-creek-green'
+                    : 'bg-red-50 text-red-700'
+                }`}
+                role="alert"
+              >
+                {contactFeedback.message}
               </div>
             )}
-            <div>
-              <dt className="text-gray-500">Submitted</dt>
-              <dd className="text-charcoal font-medium">{formatDate(submission.submitted_at)}</dd>
+            <div className="sm:col-span-2">
+              <button
+                className="inline-flex items-center gap-2 rounded-lg bg-eagle-blue px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-eagle-blue/90 transition-colors font-body disabled:opacity-50"
+                disabled={savingContact}
+                onClick={handleContactSave}
+                type="button"
+              >
+                {savingContact ? 'Saving...' : 'Save contact info'}
+              </button>
             </div>
-            <div>
-              <dt className="text-gray-500">Total Amount</dt>
-              <dd className="text-charcoal font-semibold text-base">
-                {formatAmount(submission.total_amount)}
-              </dd>
-            </div>
-          </dl>
+          </div>
         </div>
 
         {/* Status Update Form */}
@@ -392,6 +592,12 @@ export default function AdminReimbursementDetail() {
                     >
                       Amount
                     </th>
+                    <th
+                      className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body text-right w-28"
+                      scope="col"
+                    >
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -410,6 +616,16 @@ export default function AdminReimbursementDetail() {
                       <td className="px-4 py-3 text-sm text-charcoal font-body text-right tabular-nums">
                         {formatAmount(r.amount)}
                       </td>
+                      <td className="px-4 py-3 text-sm text-right">
+                        <button
+                          className="text-red-600 hover:text-red-700 font-medium font-body disabled:opacity-50"
+                          disabled={removingLineId !== null || attachmentBusy}
+                          onClick={() => handleRemoveLineItem(r.id)}
+                          type="button"
+                        >
+                          {removingLineId === r.id ? 'Removing…' : 'Remove'}
+                        </button>
+                      </td>
                     </tr>
                   ))}
                   {/* Total row */}
@@ -423,6 +639,7 @@ export default function AdminReimbursementDetail() {
                     <td className="px-4 py-3 text-sm text-charcoal font-body text-right tabular-nums">
                       {formatAmount(receiptsTotal)}
                     </td>
+                    <td className="px-4 py-3" />
                   </tr>
                 </tbody>
               </table>
@@ -436,30 +653,57 @@ export default function AdminReimbursementDetail() {
             File Attachments
           </h2>
 
-          {submission.pdf_key && (
-            <div className="mb-4">
-              <a
-                className="inline-flex items-center gap-2 rounded-lg bg-eagle-blue px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-eagle-blue/90 transition-colors font-body"
-                href={`/api/admin/reimbursements/file?key=${encodeURIComponent(submission.pdf_key)}`}
+          <div className="mb-4">
+            <p className="text-sm text-gray-500 font-body mb-2">Check request PDF</p>
+            <div className="flex flex-wrap items-center gap-3">
+              {submission.pdf_key ? (
+                <>
+                  <a
+                    className="inline-flex items-center gap-2 rounded-lg bg-eagle-blue px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-eagle-blue/90 transition-colors font-body"
+                    href={`/api/admin/reimbursements/file?key=${encodeURIComponent(submission.pdf_key)}`}
+                  >
+                    <svg
+                      aria-hidden="true"
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                      />
+                    </svg>
+                    Download PDF
+                  </a>
+                  <button
+                    className="text-sm text-red-600 hover:text-red-700 font-medium font-body disabled:opacity-50"
+                    disabled={attachmentBusy || removingLineId !== null}
+                    onClick={handleRemovePdf}
+                    type="button"
+                  >
+                    {removingPdf ? 'Removing…' : 'Remove PDF'}
+                  </button>
+                </>
+              ) : (
+                <p className="text-sm text-charcoal/80 font-body">No PDF on file.</p>
+              )}
+              <button
+                className="text-sm text-eagle-blue hover:text-eagle-blue/80 font-medium font-body disabled:opacity-50"
+                disabled={attachmentBusy || removingLineId !== null}
+                onClick={handleRegeneratePdf}
+                type="button"
               >
-                <svg
-                  aria-hidden="true"
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                  />
-                </svg>
-                Download PDF
-              </a>
+                {regeneratingPdf ? 'Regenerating…' : 'Regenerate PDF'}
+              </button>
             </div>
-          )}
+            <p className="text-xs text-gray-500 font-body mt-2 max-w-xl">
+              Rebuilds the check-request PDF from the submission and line items in the database.
+              Address and some original form fields are not stored and show as — in the PDF.
+            </p>
+          </div>
 
           {files.length > 0 && (
             <ul className="divide-y divide-gray-100 mb-4">
@@ -473,12 +717,22 @@ export default function AdminReimbursementDetail() {
                       {f.content_type} &middot; {formatFileSize(f.file_size)}
                     </p>
                   </div>
-                  <a
-                    className="text-sm text-eagle-blue hover:text-eagle-blue/80 font-medium font-body transition-colors whitespace-nowrap"
-                    href={`/api/admin/reimbursements/file?key=${encodeURIComponent(f.r2_key)}`}
-                  >
-                    Download
-                  </a>
+                  <div className="flex items-center gap-4 shrink-0">
+                    <a
+                      className="text-sm text-eagle-blue hover:text-eagle-blue/80 font-medium font-body transition-colors whitespace-nowrap"
+                      href={`/api/admin/reimbursements/file?key=${encodeURIComponent(f.r2_key)}`}
+                    >
+                      Download
+                    </a>
+                    <button
+                      className="text-sm text-red-600 hover:text-red-700 font-medium font-body disabled:opacity-50 whitespace-nowrap"
+                      disabled={attachmentBusy || removingLineId !== null}
+                      onClick={() => handleRemoveAttachment(f.id, f.original_filename)}
+                      type="button"
+                    >
+                      {removingAttachmentId === f.id ? 'Removing…' : 'Remove'}
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -486,9 +740,7 @@ export default function AdminReimbursementDetail() {
 
           {/* Upload receipt */}
           <div className="border-t border-gray-100 pt-4">
-            <label className="block text-sm font-medium text-charcoal font-body mb-2">
-              Add Receipt
-            </label>
+            <p className="block text-sm font-medium text-charcoal font-body mb-2">Add Receipt</p>
             <p className="text-xs text-gray-500 font-body mb-3">
               Upload an image or PDF — it will be processed with AI and added to this submission.
             </p>

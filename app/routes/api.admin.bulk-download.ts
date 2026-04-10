@@ -102,7 +102,11 @@ export async function loader({request, context}: Route.LoaderArgs) {
 
   const zipped = zipSync(zipFiles);
 
-  return new Response(zipped, {
+  const body = zipped.buffer.slice(
+    zipped.byteOffset,
+    zipped.byteOffset + zipped.byteLength,
+  ) as ArrayBuffer;
+  return new Response(body, {
     headers: {
       'Content-Disposition': 'attachment; filename="reimbursement-files.zip"',
       'Content-Type': 'application/zip',

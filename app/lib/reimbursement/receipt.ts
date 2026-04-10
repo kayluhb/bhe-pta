@@ -107,10 +107,23 @@ Omit fields that aren't present. Return ONLY valid JSON, no markdown fencing or 
   }
 
   const geminiResult = (await geminiResponse!.json()) as {
-    candidates?: Array<{content?: {parts?: Array<{text?: string}>}}>;
+    candidates?: Array<{content?: {parts?: Array<{text?: string; thought?: boolean}>}}>;
   };
 
-  const rawText = geminiResult.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+  // Gemini 2.5 models return multi-part responses where thinking parts come first.
+  // Find the last non-thought part that contains text (the actual response).
+  const parts = geminiResult.candidates?.[0]?.content?.parts ?? [];
+  let rawText: string | undefined;
+  for (let i = parts.length - 1; i >= 0; i--) {
+    if (parts[i].text && !parts[i].thought) {
+      rawText = parts[i].text!.trim();
+      break;
+    }
+  }
+  if (!rawText) {
+    // Fallback: try the first part with any text
+    rawText = parts.find((p) => p.text)?.text?.trim();
+  }
   if (!rawText) {
     return {error: 'Could not extract data from file.', status: 422};
   }
@@ -172,7 +185,7 @@ function parseReceiptJSON(rawText: string): ReceiptData {
 
     return Object.keys(extracted).length > 0
       ? extracted
-      : {notes: rawText.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/, '').trim()};
+      : {};
   }
 }
 
