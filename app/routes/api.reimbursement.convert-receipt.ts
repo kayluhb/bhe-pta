@@ -1,9 +1,11 @@
-import jsPDF from 'jspdf';
+import {
+  ACCEPTED_TYPES,
+  MAX_FILE_SIZE,
+  extractReceiptData,
+  generateReceiptPDF,
+} from '~/lib/reimbursement/receipt';
 import {requireTurnstile} from '~/lib/turnstile';
 import type {Route} from './+types/api.reimbursement.convert-receipt';
-
-const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 export async function action({request, context}: Route.ActionArgs) {
   try {
@@ -32,140 +34,41 @@ export async function action({request, context}: Route.ActionArgs) {
 
     const env = context.cloudflare.env;
 
-    // Step 1: Extract text using Gemini vision model
-    const fileBytes = new Uint8Array(await file.arrayBuffer());
-
-    // Encode file as base64 for Gemini API
-    let binary = '';
-    for (let i = 0; i < fileBytes.length; i++) {
-      binary += String.fromCharCode(fileBytes[i]);
+    // Extract receipt data via Gemini
+    const result = await extractReceiptData(file, env.GEMINI_API_KEY);
+    if ('error' in result) {
+      return Response.json({error: result.error}, {status: result.status});
     }
-    const base64Data = btoa(binary);
+    const {receipt} = result;
 
-    const isPDF = file.type === 'application/pdf';
-    const prompt = isPDF
-      ? 'Transcribe all visible text in this receipt PDF exactly as it appears. Include all numbers, dates, amounts, item names, and totals. Output only the transcribed text, nothing else.'
-      : 'Transcribe all visible text in this receipt image exactly as it appears. Include all numbers, dates, amounts, item names, and totals. Output only the transcribed text, nothing else.';
-
-    const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${env.GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  inline_data: {
-                    mime_type: file.type,
-                    data: base64Data,
-                  },
-                },
-                {text: prompt},
-              ],
-            },
-          ],
-          generationConfig: {
-            maxOutputTokens: 2048,
-          },
-        }),
-      },
-    );
-
-    if (!geminiResponse.ok) {
-      const errBody = await geminiResponse.text();
-      console.error('Gemini API error:', geminiResponse.status, errBody);
-      return Response.json(
-        {
-          error: 'Failed to process image with Gemini. Please try uploading it directly.',
-        },
-        {status: 502},
-      );
-    }
-
-    const geminiResult = (await geminiResponse.json()) as {
-      candidates?: Array<{
-        content?: {parts?: Array<{text?: string}>};
-      }>;
-    };
-
-    const extractedText = geminiResult.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-
-    if (!extractedText) {
-      return Response.json(
-        {
-          error: 'Could not extract text from image. Please upload the file directly.',
-        },
-        {status: 422},
-      );
-    }
-
-    // Step 2: Generate text-only PDF
+    // Generate formatted PDF
     const payableTo = formData.get('payableTo') as string | null;
     const receiptNumber = formData.get('receiptNumber') as string | null;
     const pdfTitle = payableTo
       ? `${payableTo}: Receipt ${receiptNumber || '1'}`
       : 'Receipt Transcript';
+    const pdfBuffer = generateReceiptPDF(receipt, pdfTitle);
 
-    const doc = new jsPDF();
-
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text(pdfTitle, 105, 20, {align: 'center'});
-
-    doc.setDrawColor(200);
-    doc.line(20, 26, 190, 26);
-
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    const lines = doc.splitTextToSize(extractedText, 170) as string[];
-    const lineHeight = 5;
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const footerY = pageHeight - 15;
-    let currentY = 36;
-
-    for (const line of lines) {
-      if (currentY + lineHeight > footerY) {
-        doc.addPage();
-        currentY = 20;
-      }
-      doc.text(line, 20, currentY);
-      currentY += lineHeight;
-    }
-
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'italic');
-    doc.setTextColor(128);
-    doc.text('Automatically transcribed from uploaded image.', 105, pageHeight - 10, {
-      align: 'center',
-    });
-
-    const pdfBuffer = new Uint8Array(doc.output('arraybuffer'));
-
-    // Step 3: Upload PDF and original to R2
+    // Upload PDF and original to R2
+    const fileBytes = new Uint8Array(await file.arrayBuffer());
+    const isPDF = file.type === 'application/pdf';
     const timestamp = Date.now();
     const baseName = file.name.replace(/\.[^.]+$/, '');
     const sanitizedName = baseName.replace(/[^a-zA-Z0-9.-]/g, '_');
     const pdfKey = `uploads/${timestamp}-${crypto.randomUUID()}-${sanitizedName}.pdf`;
 
     if (env.R2_BUCKET) {
-      const uploads: Promise<R2Object>[] = [
+      const ext = file.name.split('.').pop() || (isPDF ? 'pdf' : 'jpg');
+      const originalKey = `uploads/${timestamp}-${crypto.randomUUID()}-${sanitizedName}.${ext}`;
+
+      await Promise.all([
         env.R2_BUCKET.put(pdfKey, pdfBuffer, {
           httpMetadata: {contentType: 'application/pdf'},
         }),
-      ];
-
-      // Store original file separately
-      const ext = file.name.split('.').pop() || (isPDF ? 'pdf' : 'jpg');
-      const originalKey = `uploads/${timestamp}-${crypto.randomUUID()}-${sanitizedName}.${ext}`;
-      uploads.push(
         env.R2_BUCKET.put(originalKey, fileBytes, {
           httpMetadata: {contentType: file.type},
         }),
-      );
-
-      await Promise.all(uploads);
+      ]);
 
       return Response.json({
         key: pdfKey,
@@ -185,7 +88,6 @@ export async function action({request, context}: Route.ActionArgs) {
       `[Dev] Converted receipt PDF generated for: ${file.name} (${pdfBuffer.length} bytes)`,
     );
 
-    // Step 4: Return file metadata
     return Response.json({
       key: pdfKey,
       filename: `${sanitizedName}-converted.pdf`,

@@ -10,6 +10,7 @@
     "postinstall": "pnpm run cf-typegen",
     "preview": "pnpm run build && vite preview",
     "prod:deploy": "pnpm run build && wrangler deploy",
+    "prod:migrate": "wrangler d1 migrations apply pta-reimbursement-db --remote",
     "lint": "biome check .",
     "lint:fix": "biome check --fix .",
     "typecheck": "pnpm run cf-typegen && react-router typegen && tsc -b",

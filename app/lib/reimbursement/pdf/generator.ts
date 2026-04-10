@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 
-interface PDFData {
+export interface PDFData {
   submission: {
     id: string;
     submittedAt: string;
