@@ -9,7 +9,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
   if (auth instanceof Response) return auth;
 
   const id = params.id;
-  const body = (await request.json()) as {status?: string; notes?: string};
+  const body = (await request.json()) as {status?: string; notes?: string; skipEmail?: boolean};
 
   if (!body.status || !VALID_STATUSES.includes(body.status)) {
     return Response.json(
@@ -30,7 +30,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
     return Response.json({error: 'Submission not found'}, {status: 404});
   }
 
-  if (body.status === 'check_delivered') {
+  if (body.status === 'check_delivered' && !body.skipEmail) {
     const sub = await db
       .prepare('SELECT requester_name, requester_email FROM submissions WHERE id = ?')
       .bind(id)

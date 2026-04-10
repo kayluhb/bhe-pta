@@ -68,6 +68,22 @@ export const requesterSchema = z.object({
   invoiceNumber: z.string().optional(),
 });
 
+/** Admin-only update of submission contact fields (matches `submissions` columns). */
+export const adminSubmissionContactSchema = z.object({
+  requester_name: z.string().min(1, 'Name is required'),
+  requester_email: z.string().email('Valid email is required'),
+  requester_phone: z
+    .union([z.string(), z.null()])
+    .optional()
+    .transform((v) => {
+      if (v === undefined || v === null) return null;
+      const t = v.trim();
+      return t === '' ? null : t;
+    }),
+});
+
+export type AdminSubmissionContact = z.infer<typeof adminSubmissionContactSchema>;
+
 export const receiptSchema = z.object({
   date: z.string().min(1, 'Date is required'),
   description: z.string().min(1, 'Description is required'),

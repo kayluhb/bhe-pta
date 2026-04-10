@@ -26,18 +26,20 @@ export function FileUploads({
 }: FileUploadsProps) {
   const {uploadFile, clearUpload, uploads} = useFileUpload(turnstileToken, onResetTurnstile);
 
-  const handleFileSelect = async (file: File) => {
+  const handleFileSelect = async (selectedFiles: File[]) => {
     // Clear any failed uploads so the user gets a fresh state
     for (const upload of uploads) {
       if (upload.status === 'error') {
         clearUpload(upload.id);
       }
     }
-    const receiptNumber = files.length + 1;
-    const results = await uploadFile(file, payableTo, receiptNumber);
-    if (results) {
-      for (const result of results) {
-        onAddFile(result);
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const receiptNumber = files.length + i + 1;
+      const results = await uploadFile(selectedFiles[i], payableTo, receiptNumber);
+      if (results) {
+        for (const result of results) {
+          onAddFile(result);
+        }
       }
     }
   };
