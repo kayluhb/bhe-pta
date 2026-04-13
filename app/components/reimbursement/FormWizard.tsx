@@ -4,12 +4,11 @@ import {useFormState} from '~/hooks/useFormState';
 import {useTurnstile} from '~/hooks/useTurnstile';
 import {FormProgress} from './FormProgress';
 import {BudgetAccount} from './steps/BudgetAccount';
-import {FileUploads} from './steps/FileUploads';
 import {ReceiptEntries} from './steps/ReceiptEntries';
 import {RequesterInfo} from './steps/RequesterInfo';
 import {ReviewSubmit} from './steps/ReviewSubmit';
 
-const STEPS = ['Request Info', 'Receipts', 'Budget', 'Files', 'Review'];
+const STEPS = ['Request Info', 'Receipts', 'Budget', 'Review'];
 const HELP_SEEN_KEY = 'bhe-reimbursement-info-seen';
 
 export function FormWizard() {
@@ -22,8 +21,9 @@ export function FormWizard() {
     updateReceipt,
     addReceipt,
     removeReceipt,
-    addFile,
-    removeFile,
+    replaceReceiptFiles,
+    removeFileFromReceipt,
+    flattenFilesForSubmit,
     updateBudget,
     nextStep,
     prevStep,
@@ -42,7 +42,7 @@ export function FormWizard() {
           ...r,
           budgetAccount: getReceiptBudgetAccount(i),
         })),
-        files: state.files,
+        files: flattenFilesForSubmit(),
         budget: state.budget,
         turnstileToken,
       }),
@@ -149,8 +149,8 @@ export function FormWizard() {
                 You may include up to four items per request. Submit another request for more.
               </li>
               <li>
-                Upload a receipt (photo or scan) for each item. A receipt is required for every
-                line.
+                On the Receipts step, use the upload under each line to attach a photo or scan (optional
+                per line). Uploading again replaces that line&apos;s file.
               </li>
             </ul>
           </div>
@@ -178,13 +178,19 @@ export function FormWizard() {
 
       {currentStep === 1 && (
         <ReceiptEntries
+          filesByReceipt={state.filesByReceipt}
           onAdd={addReceipt}
           onBack={prevStep}
           onNext={nextStep}
           onRemove={removeReceipt}
+          onRemoveFileFromReceipt={removeFileFromReceipt}
+          onReplaceReceiptFiles={replaceReceiptFiles}
+          onResetTurnstile={resetTurnstile}
           onUpdate={updateReceipt}
+          payableTo={state.requester.payableTo}
           receipts={state.receipts}
           totalAmount={totalAmount}
+          turnstileToken={turnstileToken}
         />
       )}
 
@@ -196,23 +202,11 @@ export function FormWizard() {
           onUpdateBudget={updateBudget}
           onUpdateReceipt={updateReceipt}
           receipts={state.receipts}
-        />
-      )}
-
-      {currentStep === 3 && (
-        <FileUploads
-          files={state.files}
-          onAddFile={addFile}
-          onBack={prevStep}
-          onNext={nextStep}
-          onRemoveFile={removeFile}
-          onResetTurnstile={resetTurnstile}
-          payableTo={state.requester.payableTo}
           turnstileToken={turnstileToken}
         />
       )}
 
-      {currentStep === 4 && (
+      {currentStep === 3 && (
         <ReviewSubmit
           data={state}
           getReceiptBudgetAccount={getReceiptBudgetAccount}

@@ -2,6 +2,10 @@ import jsPDF from 'jspdf';
 
 export interface PDFData {
   submission: {
+    checkAmount?: number | null;
+    checkNumber?: string | null;
+    dateApproved?: string | null;
+    datePaid?: string | null;
     id: string;
     submittedAt: string;
     totalAmount: number;
@@ -42,6 +46,28 @@ function formatDate(dateString: string): string {
     month: 'short',
     day: 'numeric',
   });
+}
+
+function treasurerRowHeight(
+  doc: jsPDF,
+  boxX: number,
+  y: number,
+  innerRight: number,
+  label: string,
+  value: string,
+): number {
+  const labelX = boxX + 3;
+  const valueStart = boxX + 36;
+  const valueWidth = Math.max(14, innerRight - valueStart);
+  const lineGap = 4;
+  doc.text(label, labelX, y);
+  if (value) {
+    const lines = doc.splitTextToSize(value, valueWidth);
+    doc.text(lines, valueStart, y);
+    return Math.max(8, lines.length * lineGap + 4);
+  }
+  doc.line(valueStart, y + 1, innerRight, y + 1);
+  return 8;
 }
 
 export async function generatePDF(data: PDFData): Promise<Uint8Array> {
@@ -182,33 +208,34 @@ export async function generatePDF(data: PDFData): Promise<Uint8Array> {
   doc.setDrawColor(0);
   doc.setTextColor(0);
 
-  // Treasurer's Notes box
+  // Treasurer section (filled lines when admin has saved data)
   const boxX = 20;
   const boxW = 90;
-  const boxH = 52;
+  const innerRight = boxX + boxW - 2;
   let boxY = yPos + 7;
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
 
-  boxY += 0;
-  doc.text('Date Received:', boxX + 3, boxY);
-  doc.line(boxX + 35, boxY + 1, boxX + 70, boxY + 1);
+  const dateReceivedStr = formatDate(submission.submittedAt);
+  const dateApprovedStr = submission.dateApproved?.trim()
+    ? formatDate(submission.dateApproved.trim())
+    : '';
+  const datePaidStr = submission.datePaid?.trim()
+    ? formatDate(submission.datePaid.trim())
+    : '';
+  const checkNumStr = submission.checkNumber?.trim() ?? '';
+  const checkAmtStr =
+    submission.checkAmount != null && !Number.isNaN(Number(submission.checkAmount))
+      ? formatCurrency(Number(submission.checkAmount))
+      : '';
 
-  boxY += 8;
-  doc.text('Date Approved:', boxX + 3, boxY);
-  doc.line(boxX + 35, boxY + 1, boxX + 70, boxY + 1);
+  boxY += treasurerRowHeight(doc, boxX, boxY, innerRight, 'Date Received:', dateReceivedStr);
+  boxY += treasurerRowHeight(doc, boxX, boxY, innerRight, 'Date Approved:', dateApprovedStr);
+  boxY += treasurerRowHeight(doc, boxX, boxY, innerRight, 'Date Paid:', datePaidStr);
+  boxY += treasurerRowHeight(doc, boxX, boxY, innerRight, 'Check Number:', checkNumStr);
+  boxY += treasurerRowHeight(doc, boxX, boxY, innerRight, 'Amount of Check:', checkAmtStr);
 
-  boxY += 8;
-  doc.text('Date Paid:', boxX + 3, boxY);
-  doc.line(boxX + 25, boxY + 1, boxX + 70, boxY + 1);
-
-  boxY += 8;
-  doc.text('Check Number:', boxX + 3, boxY);
-  doc.line(boxX + 35, boxY + 1, boxX + 70, boxY + 1);
-
-  boxY += 8;
-  doc.text('Amount of Check:', boxX + 3, boxY);
-  doc.line(boxX + 40, boxY + 1, boxX + 70, boxY + 1);
+  const boxH = Math.max(52, boxY - (yPos + 7) + 6);
 
   // Signature lines
   yPos += boxH + 14;

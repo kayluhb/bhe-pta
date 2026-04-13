@@ -40,6 +40,11 @@
 	"ai": {
 		"binding": "AI"
 	},
+	// Non-empty values: use .dev.vars locally; use `wrangler secret put` in production (overrides these).
+	"vars": {
+		"DATA_REFRESH_SECRET": "",
+		"FILE_URL_SIGNING_SECRET": ""
+	},
 	"triggers": {
 		"crons": [
 			"0 2 * * *"

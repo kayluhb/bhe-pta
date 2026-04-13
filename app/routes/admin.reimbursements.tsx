@@ -154,12 +154,31 @@ function formatAmount(amount: number): string {
   return `$${Number(amount).toFixed(2)}`;
 }
 
+function formatBytes(n: number): string {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+interface R2OrphanRow {
+  key: string;
+  size: number;
+  uploaded: string | null;
+}
+
 export default function AdminReimbursements() {
   const {submissions, user, filters, pagination} = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const revalidator = useRevalidator();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkLoading, setBulkLoading] = useState(false);
+  const [r2CleanupOpen, setR2CleanupOpen] = useState(false);
+  const [r2DeleteLoading, setR2DeleteLoading] = useState(false);
+  const [r2Error, setR2Error] = useState<string | null>(null);
+  const [r2Orphans, setR2Orphans] = useState<R2OrphanRow[]>([]);
+  const [r2ScanLoading, setR2ScanLoading] = useState(false);
+  const [r2SelectedKeys, setR2SelectedKeys] = useState<Set<string>>(new Set());
+  const [r2ScanWarning, setR2ScanWarning] = useState<string | null>(null);
 
   const allSelected = submissions.length > 0 && selected.size === submissions.length;
 
@@ -243,6 +262,99 @@ export default function AdminReimbursements() {
     navigate(buildSearch({status: e.target.value, page: '1'}));
   };
 
+  const closeR2Cleanup = () => {
+    if (r2DeleteLoading || r2ScanLoading) return;
+    setR2CleanupOpen(false);
+    setR2Error(null);
+    setR2Orphans([]);
+    setR2SelectedKeys(new Set());
+    setR2ScanWarning(null);
+  };
+
+  const scanR2Orphans = async () => {
+    setR2ScanLoading(true);
+    setR2Error(null);
+    setR2ScanWarning(null);
+    setR2SelectedKeys(new Set());
+    try {
+      const res = await fetch('/api/admin/reimbursements/r2-cleanup');
+      const data = (await res.json()) as {
+        count?: number;
+        error?: string;
+        listIncomplete?: boolean;
+        listWarning?: string;
+        orphaned?: R2OrphanRow[];
+      };
+      if (!res.ok) {
+        setR2Error(data.error || 'Scan failed');
+        setR2Orphans([]);
+        setR2ScanWarning(null);
+        return;
+      }
+      setR2Orphans(data.orphaned ?? []);
+      setR2ScanWarning(
+        data.listIncomplete
+          ? (data.listWarning ??
+              'Listing stopped before every object was scanned. Some unused objects may be missing; try again after deleting found orphans, or check Worker/subrequest limits for very large buckets.')
+          : null,
+      );
+    } catch {
+      setR2Error('Network error while scanning');
+      setR2Orphans([]);
+    } finally {
+      setR2ScanLoading(false);
+    }
+  };
+
+  const toggleR2Key = (key: string) => {
+    setR2SelectedKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  const toggleAllR2Orphans = () => {
+    if (r2Orphans.length === 0) return;
+    const allSelected = r2SelectedKeys.size === r2Orphans.length;
+    if (allSelected) setR2SelectedKeys(new Set());
+    else setR2SelectedKeys(new Set(r2Orphans.map((o) => o.key)));
+  };
+
+  const deleteSelectedR2Orphans = async () => {
+    if (r2SelectedKeys.size === 0) return;
+    if (
+      !window.confirm(
+        `Permanently delete ${r2SelectedKeys.size} object${r2SelectedKeys.size !== 1 ? 's' : ''} from R2? This cannot be undone.`,
+      )
+    )
+      return;
+    setR2DeleteLoading(true);
+    setR2Error(null);
+    try {
+      const res = await fetch('/api/admin/reimbursements/r2-cleanup', {
+        body: JSON.stringify({keys: Array.from(r2SelectedKeys)}),
+        headers: {'Content-Type': 'application/json'},
+        method: 'POST',
+      });
+      const data = (await res.json()) as {deleted?: number; error?: string; rejected?: number};
+      if (!res.ok) {
+        setR2Error(data.error || 'Delete failed');
+        return;
+      }
+      setR2SelectedKeys(new Set());
+      await scanR2Orphans();
+    } catch {
+      setR2Error('Network error while deleting');
+    } finally {
+      setR2DeleteLoading(false);
+    }
+  };
+
+  const r2AllOrphansSelected =
+    r2Orphans.length > 0 && r2SelectedKeys.size === r2Orphans.length;
+
   return (
     <div className="min-h-screen bg-warm-white">
       {/* Admin Header */}
@@ -265,7 +377,7 @@ export default function AdminReimbursements() {
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Filter Bar */}
-        <div className="flex items-center gap-3 mb-6">
+        <div className="flex flex-wrap items-center gap-3 mb-6">
           <label className="text-sm font-medium text-charcoal font-body" htmlFor="status-filter">
             Status:
           </label>
@@ -281,6 +393,18 @@ export default function AdminReimbursements() {
               </option>
             ))}
           </select>
+          <button
+            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-charcoal shadow-sm hover:bg-gray-50 font-body transition-colors"
+            onClick={() => {
+              setR2CleanupOpen(true);
+              setR2Error(null);
+              setR2Orphans([]);
+              setR2SelectedKeys(new Set());
+            }}
+            type="button"
+          >
+            Unused R2 files…
+          </button>
         </div>
 
         {/* Bulk Action Bar */}
@@ -294,6 +418,7 @@ export default function AdminReimbursements() {
               className="rounded-md bg-creek-green px-3 py-1.5 text-xs font-medium text-white hover:bg-creek-green/90 disabled:opacity-50 transition-colors"
               disabled={bulkLoading}
               onClick={() => handleBulkStatus('approved')}
+              type="button"
             >
               Approve
             </button>
@@ -301,6 +426,7 @@ export default function AdminReimbursements() {
               className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
               disabled={bulkLoading}
               onClick={() => handleBulkStatus('rejected')}
+              type="button"
             >
               Reject
             </button>
@@ -308,6 +434,7 @@ export default function AdminReimbursements() {
               className="rounded-md bg-eagle-blue px-3 py-1.5 text-xs font-medium text-white hover:bg-eagle-blue/90 disabled:opacity-50 transition-colors"
               disabled={bulkLoading}
               onClick={() => handleBulkStatus('needs_info')}
+              type="button"
             >
               Needs Info
             </button>
@@ -316,6 +443,7 @@ export default function AdminReimbursements() {
               disabled={bulkLoading}
               onClick={() => handleBulkStatus('check_delivered')}
               title="Mark as check delivered and send notification email"
+              type="button"
             >
               Check Delivered
             </button>
@@ -324,6 +452,7 @@ export default function AdminReimbursements() {
               disabled={bulkLoading}
               onClick={() => handleBulkStatus('check_delivered', {skipEmail: true})}
               title="Mark as check delivered without sending email"
+              type="button"
             >
               Check Delivered (no email)
             </button>
@@ -331,6 +460,7 @@ export default function AdminReimbursements() {
               className="rounded-md bg-spirit-gold px-3 py-1.5 text-xs font-medium text-charcoal hover:bg-spirit-gold/90 disabled:opacity-50 transition-colors"
               disabled={bulkLoading}
               onClick={handleDownloadFiles}
+              type="button"
             >
               Download Files
             </button>
@@ -339,12 +469,14 @@ export default function AdminReimbursements() {
               className="rounded-md border border-red-300 bg-white px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
               disabled={bulkLoading}
               onClick={handleBulkDelete}
+              type="button"
             >
               Delete
             </button>
             <button
               className="ml-auto text-xs text-gray-500 hover:text-charcoal transition-colors"
               onClick={() => setSelected(new Set())}
+              type="button"
             >
               Clear selection
             </button>
@@ -497,6 +629,159 @@ export default function AdminReimbursements() {
           </div>
         )}
       </main>
+
+      {r2CleanupOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <button
+            aria-label="Close dialog"
+            className="absolute inset-0 bg-charcoal/40"
+            disabled={r2DeleteLoading || r2ScanLoading}
+            onClick={closeR2Cleanup}
+            type="button"
+          />
+          <div
+            aria-labelledby="r2-cleanup-title"
+            aria-modal="true"
+            className="relative z-10 max-h-[85vh] w-full max-w-3xl overflow-hidden rounded-xl bg-white shadow-xl border border-gray-200 flex flex-col"
+            role="dialog"
+          >
+            <div className="flex items-start justify-between gap-4 border-b border-gray-200 px-5 py-4">
+              <div>
+                <h2 className="text-lg font-heading font-semibold text-charcoal" id="r2-cleanup-title">
+                  Unused R2 objects
+                </h2>
+                <p className="mt-1 text-sm text-gray-600 font-body">
+                  Lists objects under <code className="text-xs bg-gray-100 px-1 rounded">uploads/</code> and{' '}
+                  <code className="text-xs bg-gray-100 px-1 rounded">submissions/</code> that are not linked from
+                  the database (submission PDFs or file attachments). Abandoned uploads and orphaned files after DB
+                  changes appear here.
+                </p>
+              </div>
+              <button
+                className="rounded-md p-1 text-gray-500 hover:bg-gray-100 hover:text-charcoal"
+                disabled={r2DeleteLoading || r2ScanLoading}
+                onClick={closeR2Cleanup}
+                type="button"
+              >
+                <span className="sr-only">Close</span>
+                <span aria-hidden>×</span>
+              </button>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 border-b border-gray-100 px-5 py-3 bg-gray-50/80">
+              <button
+                className="rounded-md bg-eagle-blue px-3 py-1.5 text-sm font-medium text-white hover:bg-eagle-blue/90 disabled:opacity-50 font-body"
+                disabled={r2ScanLoading || r2DeleteLoading}
+                onClick={scanR2Orphans}
+                type="button"
+              >
+                {r2ScanLoading ? 'Scanning…' : 'Scan bucket'}
+              </button>
+              <button
+                className="rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 font-body"
+                disabled={r2SelectedKeys.size === 0 || r2DeleteLoading || r2ScanLoading}
+                onClick={deleteSelectedR2Orphans}
+                type="button"
+              >
+                {r2DeleteLoading ? 'Deleting…' : `Delete selected (${r2SelectedKeys.size})`}
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-auto px-5 py-3">
+              {r2Error && (
+                <p className="mb-3 rounded-md bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-800 font-body">
+                  {r2Error}
+                </p>
+              )}
+              {r2ScanWarning && (
+                <p className="mb-3 rounded-md bg-amber-50 border border-amber-200 px-3 py-2 text-sm text-amber-950 font-body">
+                  {r2ScanWarning}
+                </p>
+              )}
+              {r2Orphans.length === 0 && !r2ScanLoading && (
+                <p className="text-sm text-gray-500 font-body">
+                  {r2Error ? '' : 'Run a scan to find objects that are not referenced by any submission.'}
+                </p>
+              )}
+              {r2Orphans.length > 0 && (
+                <div className="overflow-x-auto rounded-lg border border-gray-200">
+                  <table className="w-full text-left text-sm">
+                    <caption className="sr-only">Orphaned R2 objects</caption>
+                    <thead>
+                      <tr className="border-b border-gray-200 bg-gray-50/50">
+                        <th className="w-10 px-3 py-2" scope="col">
+                          <input
+                            aria-label="Select all orphaned objects"
+                            checked={r2AllOrphansSelected}
+                            className="h-4 w-4 rounded border-gray-300 text-eagle-blue focus:ring-eagle-blue"
+                            onChange={toggleAllR2Orphans}
+                            type="checkbox"
+                          />
+                        </th>
+                        <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body" scope="col">
+                          Key
+                        </th>
+                        <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body whitespace-nowrap" scope="col">
+                          Size
+                        </th>
+                        <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body whitespace-nowrap hidden sm:table-cell" scope="col">
+                          Uploaded
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 font-mono text-xs">
+                      {r2Orphans.map((row) => (
+                        <tr className="hover:bg-gray-50/50" key={row.key}>
+                          <td className="px-3 py-2">
+                            <input
+                              aria-label={`Select ${row.key}`}
+                              checked={r2SelectedKeys.has(row.key)}
+                              className="h-4 w-4 rounded border-gray-300 text-eagle-blue focus:ring-eagle-blue"
+                              onChange={() => toggleR2Key(row.key)}
+                              type="checkbox"
+                            />
+                          </td>
+                          <td className="px-3 py-2">
+                            <a
+                              aria-label={`View file ${row.key} in new tab`}
+                              className="break-all font-mono text-eagle-blue hover:text-eagle-blue/80 underline-offset-2 hover:underline"
+                              href={`/api/admin/reimbursements/file?key=${encodeURIComponent(row.key)}`}
+                              rel="noopener noreferrer"
+                              target="_blank"
+                            >
+                              {row.key}
+                            </a>
+                          </td>
+                          <td className="px-3 py-2 text-charcoal tabular-nums whitespace-nowrap">
+                            {formatBytes(row.size)}
+                          </td>
+                          <td className="px-3 py-2 text-gray-600 whitespace-nowrap hidden sm:table-cell">
+                            {row.uploaded
+                              ? new Date(row.uploaded).toLocaleString('en-US', {
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                  month: 'short',
+                                  year: 'numeric',
+                                })
+                              : '—'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              {r2Orphans.length > 0 && (
+                <p className="mt-2 text-xs text-gray-500 font-body">
+                  {r2Orphans.length} unused object{r2Orphans.length !== 1 ? 's' : ''} found. Only selected rows are
+                  deleted.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

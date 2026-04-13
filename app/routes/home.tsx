@@ -276,15 +276,16 @@ export default function Home({loaderData}: Route.ComponentProps) {
         <div className="max-w-7xl mx-auto px-4">
           <SectionHeader>Upcoming Events</SectionHeader>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
             {events.map((event) => (
-              <EventCard
-                day={formatEventDay(event.start)}
-                description={event.description || event.category}
-                key={event.id}
-                month={formatEventMonth(event.start)}
-                title={event.title}
-              />
+              <div className="min-h-0 h-full" key={event.id}>
+                <EventCard
+                  day={formatEventDay(event.start)}
+                  description={event.description || event.category}
+                  month={formatEventMonth(event.start)}
+                  title={event.title}
+                />
+              </div>
             ))}
           </div>
 

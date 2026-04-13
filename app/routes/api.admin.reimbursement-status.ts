@@ -21,9 +21,17 @@ export async function action({request, params, context}: Route.ActionArgs) {
   const db = context.cloudflare.env.REIMBURSEMENT_DB;
   const result = await db
     .prepare(
-      `UPDATE submissions SET status = ?, admin_notes = ?, updated_at = datetime('now') WHERE id = ?`,
+      `UPDATE submissions SET
+         status = ?,
+         admin_notes = ?,
+         date_approved = CASE
+           WHEN ? = 'approved' AND status != 'approved' THEN date('now')
+           ELSE date_approved
+         END,
+         updated_at = datetime('now')
+       WHERE id = ?`,
     )
-    .bind(body.status, body.notes ?? null, id)
+    .bind(body.status, body.notes ?? null, body.status, id)
     .run();
 
   if (result.meta.changes === 0) {

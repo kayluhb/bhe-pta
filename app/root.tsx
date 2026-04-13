@@ -141,45 +141,122 @@ function EagleEyes() {
         viewBox="0 0 200 200"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* Feathered neck / chest */}
+        <title>Decorative eagle</title>
+        {/* Body — folded wings, tail, chest, talons (drawn before head) */}
         <path
-          d="M100 200 C60 200, 35 175, 38 145 C40 125, 55 115, 65 110
-             L100 105 L135 110
-             C145 115, 160 125, 162 145
-             C165 175, 140 200, 100 200Z"
-          fill={stroke}
-          opacity={0.12}
+          d="M58 118 Q34 138 30 162 Q28 182 42 192 Q54 180 56 158 Q58 136 62 118 Z"
+          fill={white}
           stroke={stroke}
+          strokeLinejoin="round"
           strokeWidth={2.5}
         />
-        {/* Neck feather texture lines */}
         <path
-          d="M72 130 Q100 145, 128 130"
+          d="M142 118 Q166 138 170 162 Q172 182 158 192 Q146 180 144 158 Q142 136 138 118 Z"
+          fill={white}
+          stroke={stroke}
+          strokeLinejoin="round"
+          strokeWidth={2.5}
+        />
+        <path
+          d="M46 152 Q40 168 38 182"
+          fill="none"
+          opacity={0.45}
+          stroke={stroke}
+          strokeLinecap="round"
+          strokeWidth={1.5}
+        />
+        <path
+          d="M52 138 Q44 152 42 168"
           fill="none"
           opacity={0.4}
           stroke={stroke}
+          strokeLinecap="round"
           strokeWidth={1.5}
         />
         <path
-          d="M68 145 Q100 162, 132 145"
+          d="M154 152 Q160 168 162 182"
           fill="none"
-          opacity={0.3}
+          opacity={0.45}
           stroke={stroke}
+          strokeLinecap="round"
           strokeWidth={1.5}
         />
         <path
-          d="M65 160 Q100 178, 135 160"
+          d="M148 138 Q156 152 158 168"
           fill="none"
-          opacity={0.25}
+          opacity={0.4}
           stroke={stroke}
+          strokeLinecap="round"
           strokeWidth={1.5}
         />
         <path
-          d="M64 175 Q100 192, 136 175"
-          fill="none"
-          opacity={0.2}
+          d="M100 172 L82 198 L92 192 L100 186 L108 192 L118 198 Z"
+          fill={white}
           stroke={stroke}
+          strokeLinejoin="round"
+          strokeWidth={2.2}
+        />
+        <path
+          d="M100 174 L94 196 M100 174 L100 198 M100 174 L106 196"
+          fill="none"
+          opacity={0.35}
+          stroke={stroke}
+          strokeLinecap="round"
+          strokeWidth={1.3}
+        />
+        <path
+          d="M64 112 C56 118 54 138 60 158 C64 176 80 188 100 190 C120 188 136 176 140 158 C146 138 144 118 136 112 C128 107 115 108 100 109 C85 108 72 107 64 112 Z"
+          fill={white}
+          stroke={stroke}
+          strokeLinejoin="round"
+          strokeWidth={2.8}
+        />
+        <path
+          d="M76 128 Q100 142 124 128"
+          fill="none"
+          opacity={0.35}
+          stroke={stroke}
+          strokeLinecap="round"
           strokeWidth={1.5}
+        />
+        <path
+          d="M72 145 Q100 162 128 145"
+          fill="none"
+          opacity={0.28}
+          stroke={stroke}
+          strokeLinecap="round"
+          strokeWidth={1.5}
+        />
+        <path
+          d="M70 162 Q100 178 130 162"
+          fill="none"
+          opacity={0.22}
+          stroke={stroke}
+          strokeLinecap="round"
+          strokeWidth={1.5}
+        />
+        <path
+          d="M82 186 L74 198 M82 186 L82 199 M82 186 L90 198"
+          fill="none"
+          stroke={stroke}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2.2}
+        />
+        <path
+          d="M118 186 L110 198 M118 186 L118 199 M118 186 L126 198"
+          fill="none"
+          stroke={stroke}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2.2}
+        />
+        <path
+          d="M68 199 L132 199"
+          opacity={0.45}
+          stroke={stroke}
+          strokeLinecap="round"
+          strokeWidth={2.5}
         />
 
         {/* Head shape — broad at brow, tapering down */}

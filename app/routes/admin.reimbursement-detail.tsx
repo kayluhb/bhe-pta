@@ -19,6 +19,10 @@ interface Submission {
   submitted_at: string;
   updated_at: string;
   admin_notes: string | null;
+  check_amount: number | null;
+  check_number: string | null;
+  date_approved?: string | null;
+  date_paid?: string | null;
 }
 
 interface ReceiptEntry {
@@ -120,6 +124,17 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function isoDateForInput(value: string | null | undefined): string {
+  if (value == null || !String(value).trim()) return '';
+  const t = String(value).trim();
+  return t.length >= 10 ? t.slice(0, 10) : t;
+}
+
+function checkAmountInputFromDb(value: number | null): string {
+  if (value == null || Number.isNaN(Number(value))) return '';
+  return String(value);
+}
+
 export default function AdminReimbursementDetail() {
   const {submission, receipts, files, user} = useLoaderData<typeof loader>();
   const revalidator = useRevalidator();
@@ -149,12 +164,33 @@ export default function AdminReimbursementDetail() {
     type: 'success' | 'error';
     message: string;
   } | null>(null);
+  const [nudgeFeedback, setNudgeFeedback] = useState<{
+    type: 'success' | 'error';
+    message: string;
+  } | null>(null);
+  const [nudgeSending, setNudgeSending] = useState(false);
+  const [checkAmountInput, setCheckAmountInput] = useState(() =>
+    checkAmountInputFromDb(submission.check_amount),
+  );
+  const [checkNumber, setCheckNumber] = useState(submission.check_number ?? '');
+  const [datePaid, setDatePaid] = useState(() => isoDateForInput(submission.date_paid));
+  const [savingTreasurer, setSavingTreasurer] = useState(false);
+  const [treasurerFeedback, setTreasurerFeedback] = useState<{
+    type: 'success' | 'error';
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     setRequesterName(submission.requester_name);
     setRequesterEmail(submission.requester_email);
     setRequesterPhone(submission.requester_phone ?? '');
   }, [submission.requester_name, submission.requester_email, submission.requester_phone]);
+
+  useEffect(() => {
+    setCheckAmountInput(checkAmountInputFromDb(submission.check_amount));
+    setCheckNumber(submission.check_number ?? '');
+    setDatePaid(isoDateForInput(submission.date_paid));
+  }, [submission.check_amount, submission.check_number, submission.date_paid]);
 
   const handleContactSave = async () => {
     setSavingContact(true);
@@ -182,6 +218,63 @@ export default function AdminReimbursementDetail() {
       });
     } finally {
       setSavingContact(false);
+    }
+  };
+
+  const handleTreasurerSave = async () => {
+    setSavingTreasurer(true);
+    setTreasurerFeedback(null);
+    let check_amount: number | null = null;
+    if (checkAmountInput.trim() !== '') {
+      const n = Number(checkAmountInput);
+      if (Number.isNaN(n) || n < 0) {
+        setTreasurerFeedback({
+          type: 'error',
+          message: 'Check amount must be a valid non-negative number.',
+        });
+        setSavingTreasurer(false);
+        return;
+      }
+      check_amount = n;
+    }
+    try {
+      const res = await fetch(
+        `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/treasurer-fields`,
+        {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            check_amount,
+            check_number: checkNumber.trim() === '' ? null : checkNumber.trim(),
+            date_paid: datePaid.trim() === '' ? null : datePaid.trim(),
+          }),
+        },
+      );
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        pdfRegenerated?: boolean;
+        success?: boolean;
+        warning?: string;
+      };
+      if (!res.ok) {
+        throw new Error(data.error || (await res.text()) || 'Failed to save');
+      }
+      setTreasurerFeedback({
+        type: 'success',
+        message: data.warning
+          ? data.warning
+          : data.pdfRegenerated
+            ? 'Check details saved and the request PDF was updated.'
+            : 'Check details saved.',
+      });
+      revalidator.revalidate();
+    } catch (err) {
+      setTreasurerFeedback({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'An unknown error occurred.',
+      });
+    } finally {
+      setSavingTreasurer(false);
     }
   };
 
@@ -281,6 +374,29 @@ export default function AdminReimbursementDetail() {
       alert(err instanceof Error ? err.message : 'Failed to remove PDF.');
     } finally {
       setRemovingPdf(false);
+    }
+  };
+
+  const handleCashCheckNudge = async () => {
+    setNudgeSending(true);
+    setNudgeFeedback(null);
+    try {
+      const res = await fetch(
+        `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/cash-check-nudge`,
+        {method: 'POST'},
+      );
+      const data = (await res.json().catch(() => ({}))) as {error?: string};
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to send reminder');
+      }
+      setNudgeFeedback({type: 'success', message: 'Reminder email sent.'});
+    } catch (err) {
+      setNudgeFeedback({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'Failed to send reminder.',
+      });
+    } finally {
+      setNudgeSending(false);
     }
   };
 
@@ -477,6 +593,97 @@ export default function AdminReimbursementDetail() {
           </div>
         </div>
 
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-heading font-semibold text-charcoal mb-4">
+            Check &amp; treasurer
+          </h2>
+          <p className="text-sm text-gray-600 font-body mb-4">
+            On the PDF, <strong className="font-medium text-charcoal">Date received</strong> is the
+            submission date. <strong className="font-medium text-charcoal">Date approved</strong> is set
+            automatically when you save status as Approved (including from the list bulk action).
+            Saving check details below updates the stored request PDF automatically.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm font-body">
+            <div>
+              <p className="text-sm font-medium text-charcoal font-body mb-1">Date approved</p>
+              <p className="text-charcoal rounded-lg border border-gray-200 bg-gray-50/80 px-3 py-2">
+                {submission.date_approved?.trim()
+                  ? formatDate(submission.date_approved)
+                  : '— Saved automatically when status becomes Approved.'}
+              </p>
+            </div>
+            <div>
+              <label
+                className="block text-sm font-medium text-charcoal font-body mb-1"
+                htmlFor="treasurer-date-paid"
+              >
+                Date paid
+              </label>
+              <input
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
+                id="treasurer-date-paid"
+                onChange={(e) => setDatePaid(e.target.value)}
+                type="date"
+                value={datePaid}
+              />
+            </div>
+            <div>
+              <label
+                className="block text-sm font-medium text-charcoal font-body mb-1"
+                htmlFor="treasurer-check-number"
+              >
+                Check number
+              </label>
+              <input
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
+                id="treasurer-check-number"
+                onChange={(e) => setCheckNumber(e.target.value)}
+                type="text"
+                value={checkNumber}
+              />
+            </div>
+            <div>
+              <label
+                className="block text-sm font-medium text-charcoal font-body mb-1"
+                htmlFor="treasurer-check-amount"
+              >
+                Amount on check
+              </label>
+              <input
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
+                id="treasurer-check-amount"
+                min={0}
+                onChange={(e) => setCheckAmountInput(e.target.value)}
+                step="0.01"
+                type="number"
+                value={checkAmountInput}
+              />
+            </div>
+            {treasurerFeedback && (
+              <div
+                className={`sm:col-span-2 text-sm font-body px-3 py-2 rounded-lg ${
+                  treasurerFeedback.type === 'success'
+                    ? 'bg-creek-green/10 text-creek-green'
+                    : 'bg-red-50 text-red-700'
+                }`}
+                role="alert"
+              >
+                {treasurerFeedback.message}
+              </div>
+            )}
+            <div className="sm:col-span-2">
+              <button
+                className="inline-flex items-center gap-2 rounded-lg bg-eagle-blue px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-eagle-blue/90 transition-colors font-body disabled:opacity-50"
+                disabled={savingTreasurer}
+                onClick={handleTreasurerSave}
+                type="button"
+              >
+                {savingTreasurer ? 'Saving...' : 'Save check details'}
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Status Update Form */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-heading font-semibold text-charcoal mb-4">Update Status</h2>
@@ -511,6 +718,38 @@ export default function AdminReimbursementDetail() {
                 />
                 Don&apos;t send notification email
               </label>
+            )}
+            {submission.status === 'check_delivered' && (
+              <div className="rounded-lg border border-purple-200 bg-purple-50/40 p-4 space-y-3">
+                <div>
+                  <p className="text-sm font-medium text-charcoal font-body">Cash check reminder</p>
+                  <p className="text-sm text-gray-600 font-body mt-1">
+                    Sends a polite email to the requester asking them to cash or deposit their check
+                    when they can. Same tone as the treasurer notifications; includes the amount and
+                    a note about picking up from the front office if needed.
+                  </p>
+                </div>
+                {nudgeFeedback && (
+                  <div
+                    className={`text-sm font-body px-3 py-2 rounded-lg ${
+                      nudgeFeedback.type === 'success'
+                        ? 'bg-creek-green/10 text-creek-green'
+                        : 'bg-red-50 text-red-700'
+                    }`}
+                    role="alert"
+                  >
+                    {nudgeFeedback.message}
+                  </div>
+                )}
+                <button
+                  className="inline-flex items-center gap-2 rounded-lg border border-purple-300 bg-white px-4 py-2 text-sm font-medium text-purple-900 shadow-sm hover:bg-purple-50 transition-colors font-body disabled:opacity-50"
+                  disabled={nudgeSending}
+                  onClick={handleCashCheckNudge}
+                  type="button"
+                >
+                  {nudgeSending ? 'Sending…' : 'Send reminder email'}
+                </button>
+              </div>
             )}
             <div>
               <label
@@ -660,7 +899,7 @@ export default function AdminReimbursementDetail() {
                 <>
                   <a
                     className="inline-flex items-center gap-2 rounded-lg bg-eagle-blue px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-eagle-blue/90 transition-colors font-body"
-                    href={`/api/admin/reimbursements/file?key=${encodeURIComponent(submission.pdf_key)}`}
+                    href={`/api/admin/reimbursements/file?key=${encodeURIComponent(submission.pdf_key)}&download=1`}
                   >
                     <svg
                       aria-hidden="true"
@@ -710,9 +949,15 @@ export default function AdminReimbursementDetail() {
               {files.map((f) => (
                 <li className="flex items-center justify-between py-3 gap-4" key={f.id}>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-charcoal font-body truncate">
+                    <a
+                      className="text-sm font-medium text-eagle-blue hover:text-eagle-blue/80 hover:underline font-body truncate block min-w-0"
+                      href={`/api/admin/reimbursements/file?key=${encodeURIComponent(f.r2_key)}`}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                      title="Open in browser"
+                    >
                       {f.original_filename}
-                    </p>
+                    </a>
                     <p className="text-xs text-gray-500 font-body">
                       {f.content_type} &middot; {formatFileSize(f.file_size)}
                     </p>
@@ -720,7 +965,9 @@ export default function AdminReimbursementDetail() {
                   <div className="flex items-center gap-4 shrink-0">
                     <a
                       className="text-sm text-eagle-blue hover:text-eagle-blue/80 font-medium font-body transition-colors whitespace-nowrap"
-                      href={`/api/admin/reimbursements/file?key=${encodeURIComponent(f.r2_key)}`}
+                      href={`/api/admin/reimbursements/file?key=${encodeURIComponent(f.r2_key)}&download=1`}
+                      rel="noopener noreferrer"
+                      target="_blank"
                     >
                       Download
                     </a>

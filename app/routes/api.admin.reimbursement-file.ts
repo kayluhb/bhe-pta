@@ -20,11 +20,14 @@ export async function loader({request, context}: Route.LoaderArgs) {
   }
 
   const filename = key.split('/').pop() || 'download';
+  const forceDownload =
+    url.searchParams.get('download') === '1' || url.searchParams.get('attachment') === '1';
+  const disposition = forceDownload ? 'attachment' : 'inline';
 
   return new Response(object.body, {
     headers: {
       'Content-Type': object.httpMetadata?.contentType || 'application/octet-stream',
-      'Content-Disposition': `attachment; filename="${filename}"`,
+      'Content-Disposition': `${disposition}; filename="${filename}"`,
     },
   });
 }

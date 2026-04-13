@@ -13,6 +13,7 @@ interface BudgetAccountProps {
   onUpdateReceipt: (index: number, data: Partial<ReceiptData>) => void;
   onNext: () => void;
   onBack: () => void;
+  turnstileToken: string | null;
 }
 
 function SearchableSelect({
@@ -197,7 +198,13 @@ function SearchableSelect({
   );
 }
 
-function SuggestHelper({onSuggest}: {onSuggest: (account: string) => void}) {
+function SuggestHelper({
+  onSuggest,
+  turnstileToken,
+}: {
+  onSuggest: (account: string) => void;
+  turnstileToken: string | null;
+}) {
   const [description, setDescription] = useState('');
   const [suggesting, setSuggesting] = useState(false);
   const [suggested, setSuggested] = useState<string | null>(null);
@@ -210,7 +217,10 @@ function SuggestHelper({onSuggest}: {onSuggest: (account: string) => void}) {
     try {
       const response = await fetch('/api/reimbursement/suggest-budget', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          ...(turnstileToken ? {'X-Turnstile-Token': turnstileToken} : {}),
+        },
         body: JSON.stringify({
           receipts: [{description: description.trim(), amount: 0}],
         }),
@@ -263,8 +273,9 @@ function SuggestHelper({onSuggest}: {onSuggest: (account: string) => void}) {
           value={description}
         />
         <Button
-          disabled={!description.trim() || suggesting}
+          disabled={!description.trim() || suggesting || !turnstileToken}
           onClick={handleSuggest}
+          title={!turnstileToken ? 'Complete the verification below first' : undefined}
           type="button"
           variant="outline"
         >
@@ -287,6 +298,7 @@ export function BudgetAccount({
   onUpdateReceipt,
   onNext,
   onBack,
+  turnstileToken,
 }: BudgetAccountProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -316,7 +328,10 @@ export function BudgetAccount({
               required
               value={budget.primaryAccount}
             />
-            <SuggestHelper onSuggest={(account) => onUpdateBudget({primaryAccount: account})} />
+            <SuggestHelper
+              onSuggest={(account) => onUpdateBudget({primaryAccount: account})}
+              turnstileToken={turnstileToken}
+            />
           </div>
 
           {receipts.length > 1 && (
@@ -370,7 +385,7 @@ export function BudgetAccount({
           Back
         </Button>
         <Button disabled={!budget.primaryAccount} type="submit">
-          Next: Upload Files
+          Next: Review
         </Button>
       </div>
     </form>

@@ -44,8 +44,13 @@ export async function action({request, params, context}: Route.ActionArgs) {
       return Response.json({error: 'File too large. Maximum 10MB.'}, {status: 400});
     }
 
-    // Extract receipt data via Gemini
-    const result = await extractReceiptData(file, env.GEMINI_API_KEY);
+    const fileBytes = new Uint8Array(await file.arrayBuffer());
+    if (fileBytes.byteLength === 0) {
+      return Response.json({error: 'Uploaded file was empty.'}, {status: 400});
+    }
+
+    // Extract receipt data via Gemini (same bytes as R2 original — single read for Workers)
+    const result = await extractReceiptData(fileBytes, file.type, env.GEMINI_API_KEY);
     if ('error' in result) {
       return Response.json({error: result.error}, {status: result.status});
     }
@@ -64,7 +69,6 @@ export async function action({request, params, context}: Route.ActionArgs) {
     const receiptTitle = `${submission.requester_name}: ${sanitizedName}`;
     const pdfBuffer = generateReceiptPDF(receipt, receiptTitle);
 
-    const fileBytes = new Uint8Array(await file.arrayBuffer());
     const isPDF = file.type === 'application/pdf';
     const timestamp = Date.now();
     const pdfKey = `submissions/${submissionId}/${timestamp}-${sanitizedName}-converted.pdf`;
@@ -102,7 +106,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
           originalKey,
           file.name,
           file.type,
-          file.size,
+          fileBytes.byteLength,
           nextSort + 1,
         ),
     ]);
@@ -117,6 +121,6 @@ export async function action({request, params, context}: Route.ActionArgs) {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error('Admin upload error:', message, error);
-    return Response.json({error: `Failed to process upload: ${message}`}, {status: 500});
+    return Response.json({error: 'Failed to process upload. Please try again.'}, {status: 500});
   }
 }

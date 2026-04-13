@@ -22,6 +22,10 @@ interface Env {
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
   SESSION_SECRET: string;
+  /** Bearer token for POST /api/refresh (not the admin session signing secret). */
+  DATA_REFRESH_SECRET?: string;
+  /** HMAC secret for time-limited public preview URLs (GET /api/reimbursement/file). */
+  FILE_URL_SIGNING_SECRET?: string;
 }
 
 declare module 'react-router' {
@@ -105,24 +109,52 @@ export default {
       return Response.redirect(url.toString(), 301);
     }
 
-    // Manual refresh endpoint — requires SESSION_SECRET as bearer token
+    // Manual refresh endpoint — requires DATA_REFRESH_SECRET as bearer token
     if (url.pathname === '/api/refresh' && request.method === 'POST') {
       const auth = request.headers.get('Authorization');
-      if (auth !== `Bearer ${env.SESSION_SECRET}`) {
+      const token = env.DATA_REFRESH_SECRET;
+      if (!token || auth !== `Bearer ${token}`) {
         return new Response('Unauthorized', {status: 401});
       }
       const log = await runDataRefresh(env);
       return Response.json({ok: true, log});
     }
 
-    return requestHandler(request, {
+    const response = await requestHandler(request, {
       cloudflare: {env, ctx},
+    });
+
+    const headers = new Headers(response.headers);
+    headers.set('X-Content-Type-Options', 'nosniff');
+    headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    headers.set('X-Frame-Options', 'SAMEORIGIN');
+    const csp = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://www.google.com https://www.gstatic.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com data:",
+      "img-src 'self' data: https: blob:",
+      "connect-src 'self' https://challenges.cloudflare.com",
+      "frame-src https://challenges.cloudflare.com",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "frame-ancestors 'self'",
+    ].join('; ');
+    headers.set('Content-Security-Policy', csp);
+
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers,
     });
   },
 
-  async scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext) {
+  async scheduled(controller: ScheduledController, env: Env, _ctx: ExecutionContext) {
     console.log(`Cron triggered: ${controller.cron}`);
     const log = await runDataRefresh(env);
-    log.forEach((msg) => console.log(msg));
+    for (const msg of log) {
+      console.log(msg);
+    }
   },
 } satisfies ExportedHandler<Env>;

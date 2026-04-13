@@ -156,7 +156,14 @@ interface CheckDeliveredParams {
   resendApiKey: string;
 }
 
-function formatCheckDeliveredHTML(name: string): string {
+function firstNameFromDisplayName(fullName: string): string {
+  const trimmed = fullName.trim();
+  if (!trimmed) return 'there';
+  return trimmed.split(/\s+/)[0] ?? trimmed;
+}
+
+function formatCheckDeliveredHTML(fullName: string): string {
+  const name = firstNameFromDisplayName(fullName);
   const messages = [
     `Hi ${name}, your check is ready! It's with Kathy in the front office. Swing by to pick it up when you get a chance.`,
     `Hey ${name}! Just a heads up — your check is at the front office with Kathy. Come grab it whenever you can!`,
@@ -193,6 +200,53 @@ export async function sendCheckDeliveredEmail(params: CheckDeliveredParams): Pro
     to: [requesterEmail],
     subject: 'Your check is ready!',
     html: formatCheckDeliveredHTML(requesterName),
+  });
+}
+
+interface CashCheckNudgeParams {
+  requesterName: string;
+  requesterEmail: string;
+  resendApiKey: string;
+  totalAmountFormatted: string;
+}
+
+function formatCashCheckNudgeHTML(name: string, totalAmountFormatted: string): string {
+  const amountLine = `This reimbursement was for <strong>${totalAmountFormatted}</strong>.`;
+  const messages = [
+    `Hi ${name}, hope you&apos;re doing well! When you have a moment, could you cash or deposit your PTA reimbursement check? ${amountLine} Uncashed checks make our bookkeeping a little harder, and we&apos;d really appreciate you taking care of it when it&apos;s convenient. Thank you!`,
+    `Hi ${name} — just a gentle reminder from the PTA treasurer. If you haven&apos;t already, please cash or deposit your reimbursement check when you can. ${amountLine} It helps us close the books on our side. Thanks so much!`,
+    `Hey ${name}, friendly nudge: whenever you get a chance, could you cash or deposit your reimbursement check? ${amountLine} No rush — we just want to make sure nothing gets misplaced. We appreciate you!`,
+  ];
+
+  const message = messages[Math.floor(Math.random() * messages.length)];
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; }
+      </style>
+    </head>
+    <body>
+      <p>${message}</p>
+      <p>If you still need to pick up your check, it should be with Kathy in the front office — same as before.</p>
+      <p>Thanks!<br/>PTA Treasurer</p>
+    </body>
+    </html>
+  `;
+}
+
+export async function sendCashCheckNudgeEmail(params: CashCheckNudgeParams): Promise<void> {
+  const {requesterName, requesterEmail, resendApiKey, totalAmountFormatted} = params;
+  const resend = new Resend(resendApiKey);
+
+  await resend.emails.send({
+    from: 'PTA Treasurer <treasurer@mail.bheeagles.com>',
+    replyTo: 'treasurer@bheeagles.com',
+    to: [requesterEmail],
+    subject: 'Friendly reminder: your reimbursement check',
+    html: formatCashCheckNudgeHTML(requesterName, totalAmountFormatted),
   });
 }
 
