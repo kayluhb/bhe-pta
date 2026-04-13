@@ -81,7 +81,7 @@ Convert a QuickBooks "Profit and Loss Detail" CSV into the PTA budget spreadshee
 | Teacher Grants Spring | Teacher grant program for Spring |
 | School Improvements | School Improvements |
 
-**Carry-Forward Section** (these live in the CARRY-FORWARD section, not EXPENSES): Academic Enrichment carry-forward, Teacher grant carry forward, Required minimum cash reserve.
+**Static/Carry-Forward** (these live in the CARRY-FORWARD section, NOT in EXPENSES): Academic Enrichment carry-forward, Teacher grant carry forward, Required minimum cash reserve. These are always $2,500, $10,000, and $15,000 respectively — never mapped from P&L.
 
 ## CSV Format
 

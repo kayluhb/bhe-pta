@@ -1,40 +1,53 @@
 import {useCallback, useState} from 'react';
 import type {FileData} from '~/lib/reimbursement/validation';
 
-interface UploadProgress {
+export interface UploadProgress {
   id: string;
   filename: string;
   progress: number;
   status: 'pending' | 'uploading' | 'complete' | 'error';
   error?: string;
+  /** 0-based receipt row this upload belongs to (for inline progress UI). */
+  receiptRowIndex: number;
 }
 
 export function useFileUpload(turnstileToken: string | null, onResetTurnstile?: () => void) {
   const [uploads, setUploads] = useState<Map<string, UploadProgress>>(new Map());
 
   const uploadFile = useCallback(
-    async (file: File, payableTo?: string, receiptNumber?: number): Promise<FileData[] | null> => {
+    async (file: File, receiptRowIndex: number, payableTo?: string): Promise<FileData[] | null> => {
       const id = crypto.randomUUID();
+      const receiptLineIndex = receiptRowIndex + 1;
 
       setUploads((prev) => {
         const next = new Map(prev);
-        next.set(id, {id, filename: file.name, progress: 0, status: 'pending'});
+        next.set(id, {
+          id,
+          filename: file.name,
+          progress: 0,
+          status: 'pending',
+          receiptRowIndex,
+        });
         return next;
       });
 
       try {
-        // Send all files (images and PDFs) through the convert-receipt endpoint
-        // for OCR text extraction and simple PDF generation
         setUploads((prev) => {
           const next = new Map(prev);
-          next.set(id, {id, filename: file.name, progress: 30, status: 'uploading'});
+          next.set(id, {
+            id,
+            filename: file.name,
+            progress: 30,
+            status: 'uploading',
+            receiptRowIndex,
+          });
           return next;
         });
 
         const formData = new FormData();
         formData.append('file', file);
         if (payableTo) formData.append('payableTo', payableTo);
-        if (receiptNumber) formData.append('receiptNumber', String(receiptNumber));
+        formData.append('receiptNumber', String(receiptLineIndex));
 
         const response = await fetch('/api/reimbursement/convert-receipt', {
           method: 'POST',
@@ -48,30 +61,53 @@ export function useFileUpload(turnstileToken: string | null, onResetTurnstile?: 
         }
 
         const result = (await response.json()) as FileData & {
-          original?: FileData;
+          original?: FileData & {fileAccessExp?: number; fileAccessSig?: string};
+          fileAccessExp?: number;
+          fileAccessSig?: string;
         };
+
+        if (!result.original?.key) {
+          throw new Error(
+            'Upload did not return the original receipt file. Both the original and converted copy are required—please try again.',
+          );
+        }
 
         setUploads((prev) => {
           const next = new Map(prev);
-          next.set(id, {id, filename: file.name, progress: 100, status: 'complete'});
+          next.set(id, {
+            id,
+            filename: file.name,
+            progress: 100,
+            status: 'complete',
+            receiptRowIndex,
+          });
           return next;
         });
 
-        // Reset Turnstile so a fresh token is available for the next request
         onResetTurnstile?.();
 
-        const files: FileData[] = [
+        return [
           {
             key: result.key,
             filename: result.filename,
             contentType: result.contentType,
             size: result.size,
+            receiptLineIndex,
+            ...(result.fileAccessExp != null && result.fileAccessSig
+              ? {fileAccessExp: result.fileAccessExp, fileAccessSig: result.fileAccessSig}
+              : {}),
+          },
+          {
+            ...result.original,
+            receiptLineIndex,
+            ...(result.original.fileAccessExp != null && result.original.fileAccessSig
+              ? {
+                  fileAccessExp: result.original.fileAccessExp,
+                  fileAccessSig: result.original.fileAccessSig,
+                }
+              : {}),
           },
         ];
-        if (result.original) {
-          files.push(result.original);
-        }
-        return files;
       } catch (error) {
         setUploads((prev) => {
           const next = new Map(prev);
@@ -81,6 +117,7 @@ export function useFileUpload(turnstileToken: string | null, onResetTurnstile?: 
             progress: 0,
             status: 'error',
             error: error instanceof Error ? error.message : 'Upload failed',
+            receiptRowIndex,
           });
           return next;
         });

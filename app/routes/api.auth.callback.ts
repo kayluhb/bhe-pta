@@ -1,18 +1,38 @@
 import {signSession} from '~/lib/admin/auth';
+import {verifyGoogleIdToken} from '~/lib/admin/google-id-token';
 import type {Route} from './+types/api.auth.callback';
+
+const OAUTH_STATE_COOKIE = 'oauth_state';
+
+function getCookie(request: Request, name: string): string | null {
+  const raw = request.headers.get('Cookie') ?? '';
+  for (const part of raw.split(';')) {
+    const trimmed = part.trim();
+    const prefix = `${name}=`;
+    if (trimmed.startsWith(prefix)) {
+      return decodeURIComponent(trimmed.slice(prefix.length));
+    }
+  }
+  return null;
+}
 
 export async function loader({request, context}: Route.LoaderArgs) {
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
+  const state = url.searchParams.get('state');
 
   if (!code) {
     return new Response('Missing authorization code', {status: 400});
   }
 
+  const expectedState = getCookie(request, OAUTH_STATE_COOKIE);
+  if (!state || !expectedState || state !== expectedState) {
+    return new Response('Invalid or missing OAuth state', {status: 400});
+  }
+
   const origin = url.origin;
   const {GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, SESSION_SECRET} = context.cloudflare.env;
 
-  // Exchange code for tokens
   const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
     headers: {
@@ -27,6 +47,10 @@ export async function loader({request, context}: Route.LoaderArgs) {
     }),
   });
 
+  if (!tokenResponse.ok) {
+    return new Response('Token exchange failed', {status: 401});
+  }
+
   const tokenData = (await tokenResponse.json()) as {id_token?: string};
   const idToken = tokenData.id_token;
 
@@ -34,27 +58,26 @@ export async function loader({request, context}: Route.LoaderArgs) {
     return new Response('Failed to get ID token from Google', {status: 400});
   }
 
-  // Decode JWT payload (no verification needed — received directly from Google over HTTPS)
-  const payloadPart = idToken.split('.')[1];
-  const decoded = JSON.parse(atob(payloadPart.replace(/-/g, '+').replace(/_/g, '/'))) as {
-    email?: string;
-    name?: string;
-    picture?: string;
-  };
-
-  const {email, name, picture} = decoded;
-
-  if (!email || !email.endsWith('@bheeagles.com')) {
+  const user = await verifyGoogleIdToken(idToken, GOOGLE_CLIENT_ID);
+  if (!user) {
     return new Response('Access denied. Only @bheeagles.com accounts are allowed.', {status: 403});
   }
 
-  const cookieValue = await signSession({email, name: name ?? email, picture}, SESSION_SECRET);
+  const cookieValue = await signSession(
+    {email: user.email, name: user.name, picture: user.picture},
+    SESSION_SECRET,
+  );
 
-  return new Response(null, {
-    status: 302,
-    headers: {
-      Location: `${origin}/admin`,
-      'Set-Cookie': `admin_session=${cookieValue}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=86400`,
-    },
-  });
+  const headers = new Headers();
+  headers.append(
+    'Set-Cookie',
+    `${OAUTH_STATE_COOKIE}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`,
+  );
+  headers.append(
+    'Set-Cookie',
+    `admin_session=${cookieValue}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=86400`,
+  );
+  headers.set('Location', `${origin}/admin`);
+
+  return new Response(null, {status: 302, headers});
 }

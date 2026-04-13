@@ -1,26 +1,44 @@
 import {Button} from '~/components/reimbursement/ui/Button';
 import {Input} from '~/components/reimbursement/ui/Input';
-import type {ReceiptData} from '~/lib/reimbursement/validation';
+import {useFileUpload} from '~/hooks/useFileUpload';
+import type {FileData, ReceiptData} from '~/lib/reimbursement/validation';
+import {ReceiptLineFiles} from './ReceiptLineFiles';
 
 interface ReceiptEntriesProps {
   receipts: ReceiptData[];
+  filesByReceipt: FileData[][];
   onUpdate: (index: number, data: Partial<ReceiptData>) => void;
   onAdd: () => void;
   onRemove: (index: number) => void;
+  onReplaceReceiptFiles: (receiptIndex: number, files: FileData[]) => void;
+  onRemoveFileFromReceipt: (receiptIndex: number, key: string) => void;
   onNext: () => void;
   onBack: () => void;
   totalAmount: number;
+  payableTo: string;
+  turnstileToken: string | null;
+  onResetTurnstile: () => void;
 }
 
 export function ReceiptEntries({
   receipts,
+  filesByReceipt,
   onUpdate,
   onAdd,
   onRemove,
+  onReplaceReceiptFiles,
+  onRemoveFileFromReceipt,
   onNext,
   onBack,
   totalAmount,
+  payableTo,
+  turnstileToken,
+  onResetTurnstile,
 }: ReceiptEntriesProps) {
+  const {uploadFile, clearUpload, uploads} = useFileUpload(turnstileToken, onResetTurnstile);
+
+  const isAnyUploading = uploads.some((u) => u.status === 'uploading' || u.status === 'pending');
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onNext();
@@ -39,7 +57,9 @@ export function ReceiptEntries({
         <div className="flex justify-between items-center mb-4">
           <div>
             <h2 className="text-xl font-semibold text-charcoal">Receipt Details</h2>
-            <p className="text-charcoal/70 mt-1">Add up to 4 receipts for reimbursement.</p>
+            <p className="text-charcoal/70 mt-1">
+              Add up to 4 receipts. Attach a photo or PDF on each line (optional).
+            </p>
           </div>
           <div aria-live="polite" className="text-right">
             <p className="text-sm text-charcoal/70">Total</p>
@@ -108,6 +128,18 @@ export function ReceiptEntries({
                   </p>
                 </div>
               </div>
+
+              <ReceiptLineFiles
+                clearUpload={clearUpload}
+                disabled={isAnyUploading}
+                onRemoveFile={(key) => onRemoveFileFromReceipt(index, key)}
+                onReplaceRowFiles={(files) => onReplaceReceiptFiles(index, files)}
+                payableTo={payableTo}
+                receiptRowIndex={index}
+                rowFiles={filesByReceipt[index] ?? []}
+                rowUploads={uploads.filter((u) => u.receiptRowIndex === index)}
+                uploadFile={uploadFile}
+              />
             </div>
           ))}
         </div>
@@ -139,7 +171,9 @@ export function ReceiptEntries({
         <Button onClick={onBack} type="button" variant="outline">
           Back
         </Button>
-        <Button type="submit">Next: Budget Account</Button>
+        <Button disabled={isAnyUploading} type="submit">
+          {isAnyUploading ? 'Uploading...' : 'Next: Budget Account'}
+        </Button>
       </div>
     </form>
   );

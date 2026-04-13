@@ -189,6 +189,7 @@ function formatWeekRange(weekStart: Date): string {
 
 export default function Events() {
   const {events} = useLoaderData<typeof loader>();
+
   // Use CT-aware date parts so server (UTC) and client agree on the current month
   const now = new Date();
   const nowCT = new Intl.DateTimeFormat('en-US', {
@@ -351,7 +352,11 @@ export default function Events() {
                   strokeWidth={2}
                   viewBox="0 0 24 24"
                 >
-                  <path d="M8.25 4.5l7.5 7.5-7.5 7.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path
+                    d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </button>
             </div>
@@ -360,11 +365,7 @@ export default function Events() {
               <CategoryLegend />
             </div>
 
-            <WeekCalendar
-              events={events}
-              onEventClick={handleEventClick}
-              weekStart={weekStart}
-            />
+            <WeekCalendar events={events} onEventClick={handleEventClick} weekStart={weekStart} />
           </div>
 
           {/* ─── Desktop: Month View ─── */}
@@ -374,6 +375,7 @@ export default function Events() {
               aria-label="Previous month"
               className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-white shadow-md border border-charcoal/10 text-charcoal/70 hover:text-eagle-blue hover:border-eagle-blue transition-colors cursor-pointer"
               onClick={goToPrevMonth}
+              type="button"
             >
               <svg
                 aria-hidden="true"
@@ -398,6 +400,7 @@ export default function Events() {
               <button
                 className="mt-1 text-xs font-heading font-semibold text-eagle-blue hover:text-spirit-gold transition-colors cursor-pointer"
                 onClick={goToToday}
+                type="button"
               >
                 Today
               </button>
@@ -407,6 +410,7 @@ export default function Events() {
               aria-label="Next month"
               className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-white shadow-md border border-charcoal/10 text-charcoal/70 hover:text-eagle-blue hover:border-eagle-blue transition-colors cursor-pointer"
               onClick={goToNextMonth}
+              type="button"
             >
               <svg
                 aria-hidden="true"
@@ -434,6 +438,7 @@ export default function Events() {
                 return (
                   <div
                     className={`hidden md:flex items-center gap-3 rounded-lg border px-4 py-3 ${style.bg} ${style.border}`}
+                    id={`event-${event.id}`}
                     key={event.id}
                   >
                     <span

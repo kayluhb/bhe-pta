@@ -18,6 +18,10 @@ interface ExportRow {
   total_amount: number;
   status: string;
   admin_notes: string | null;
+  check_amount: number | null;
+  check_number: string | null;
+  date_approved: string | null;
+  date_paid: string | null;
   receipt_date: string | null;
   description: string | null;
   vendor: string | null;
@@ -37,6 +41,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
 
   let query = `
     SELECT s.id, s.submitted_at, s.requester_name, s.requester_email, s.total_amount, s.status, s.admin_notes,
+           s.check_amount, s.check_number, s.date_approved, s.date_paid,
            r.receipt_date, r.description, r.vendor, r.category, r.amount as receipt_amount
     FROM submissions s
     LEFT JOIN receipt_entries r ON r.submission_id = s.id
@@ -74,6 +79,10 @@ export async function loader({request, context}: Route.LoaderArgs) {
     'Total Amount',
     'Status',
     'Notes',
+    'Date Approved',
+    'Date Paid',
+    'Check Number',
+    'Check Amount',
     'Receipt Date',
     'Description',
     'Vendor',
@@ -90,6 +99,10 @@ export async function loader({request, context}: Route.LoaderArgs) {
       row.total_amount,
       row.status,
       row.admin_notes,
+      row.date_approved,
+      row.date_paid,
+      row.check_number,
+      row.check_amount,
       row.receipt_date,
       row.description,
       row.vendor,

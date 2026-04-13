@@ -29,6 +29,7 @@ export default [
   route('admin/reimbursements/:id', './routes/admin.reimbursement-detail.tsx'),
   route('api/admin/reimbursements/export', './routes/api.admin.reimbursements-export.ts'),
   route('api/admin/reimbursements/file', './routes/api.admin.reimbursement-file.ts'),
+  route('api/admin/reimbursements/r2-cleanup', './routes/api.admin.reimbursement-r2-cleanup.ts'),
   route('api/admin/bulk-status', './routes/api.admin.bulk-status.ts'),
   route('api/admin/bulk-delete', './routes/api.admin.bulk-delete.ts'),
   route('api/admin/bulk-download', './routes/api.admin.bulk-download.ts'),
@@ -38,11 +39,19 @@ export default [
     './routes/api.admin.reimbursement-attachment-delete.ts',
   ),
   route(
+    'api/admin/reimbursements/:id/treasurer-fields',
+    './routes/api.admin.reimbursement-treasurer-fields.ts',
+  ),
+  route(
     'api/admin/reimbursements/:id/pdf/regenerate',
     './routes/api.admin.reimbursement-pdf-regenerate.ts',
   ),
   route('api/admin/reimbursements/:id/pdf', './routes/api.admin.reimbursement-pdf-delete.ts'),
   route('api/admin/reimbursements/:id/receipts/:receiptId', './routes/api.admin.reimbursement-receipt-delete.ts'),
+  route(
+    'api/admin/reimbursements/:id/cash-check-nudge',
+    './routes/api.admin.reimbursement-cash-check-nudge.ts',
+  ),
   route('api/admin/reimbursements/:id/status', './routes/api.admin.reimbursement-status.ts'),
   route('api/admin/reimbursements/:id/delete', './routes/api.admin.reimbursement-delete.ts'),
   route('api/admin/reimbursements/:id/upload', './routes/api.admin.reimbursement-upload.ts'),

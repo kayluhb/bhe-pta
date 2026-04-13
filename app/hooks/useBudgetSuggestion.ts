@@ -24,7 +24,7 @@ export function useBudgetSuggestion() {
     suggestions: [],
   });
 
-  const fetchSuggestions = useCallback(async (receipts: ReceiptInput[]) => {
+  const fetchSuggestions = useCallback(async (receipts: ReceiptInput[], turnstileToken?: string | null) => {
     if (receipts.length === 0) return;
 
     setState({error: null, loading: true, suggestions: []});
@@ -32,7 +32,10 @@ export function useBudgetSuggestion() {
     try {
       const response = await fetch('/api/reimbursement/suggest-budget', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          ...(turnstileToken ? {'X-Turnstile-Token': turnstileToken} : {}),
+        },
         body: JSON.stringify({
           receipts: receipts.map((r) => ({
             amount: r.amount,

@@ -25,9 +25,16 @@ export async function action({request, context}: Route.ActionArgs) {
   const placeholders = body.ids.map(() => '?').join(', ');
   await db
     .prepare(
-      `UPDATE submissions SET status = ?, updated_at = datetime('now') WHERE id IN (${placeholders})`,
+      `UPDATE submissions SET
+         status = ?,
+         date_approved = CASE
+           WHEN ? = 'approved' AND status != 'approved' THEN date('now')
+           ELSE date_approved
+         END,
+         updated_at = datetime('now')
+       WHERE id IN (${placeholders})`,
     )
-    .bind(body.status, ...body.ids)
+    .bind(body.status, body.status, ...body.ids)
     .run();
 
   if (body.status === 'check_delivered' && !body.skipEmail) {
@@ -38,8 +45,16 @@ export async function action({request, context}: Route.ActionArgs) {
       .bind(...body.ids)
       .all<{requester_name: string; requester_email: string}>();
 
+    const uniqueRecipients = new Map<string, {requester_name: string; requester_email: string}>();
+    for (const sub of subs.results) {
+      const normalizedEmail = sub.requester_email.trim().toLowerCase();
+      if (!uniqueRecipients.has(normalizedEmail)) {
+        uniqueRecipients.set(normalizedEmail, sub);
+      }
+    }
+
     await Promise.allSettled(
-      subs.results.map((sub) =>
+      Array.from(uniqueRecipients.values()).map((sub) =>
         sendCheckDeliveredEmail({
           requesterName: sub.requester_name,
           requesterEmail: sub.requester_email,

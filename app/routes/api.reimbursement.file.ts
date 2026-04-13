@@ -1,11 +1,27 @@
+import {verifyFileAccess} from '~/lib/reimbursement/file-url-signature';
+import {isValidStagingUploadKey} from '~/lib/reimbursement/r2-staging';
 import type {Route} from './+types/api.reimbursement.file';
 
 export async function loader({request, context}: Route.LoaderArgs) {
   const url = new URL(request.url);
   const key = url.searchParams.get('key');
+  const expRaw = url.searchParams.get('exp');
+  const sig = url.searchParams.get('sig');
 
-  if (!key || !key.startsWith('uploads/')) {
+  const expSec = expRaw ? Number.parseInt(expRaw, 10) : Number.NaN;
+
+  if (!key || !isValidStagingUploadKey(key)) {
     return Response.json({error: 'Invalid key'}, {status: 400});
+  }
+
+  const secret = context.cloudflare.env.FILE_URL_SIGNING_SECRET;
+  if (!secret || !sig || !Number.isFinite(expSec)) {
+    return Response.json({error: 'Missing or invalid access token'}, {status: 403});
+  }
+
+  const valid = await verifyFileAccess(key, expSec, sig, secret);
+  if (!valid) {
+    return Response.json({error: 'Invalid or expired access token'}, {status: 403});
   }
 
   const r2 = context.cloudflare.env.R2_BUCKET;

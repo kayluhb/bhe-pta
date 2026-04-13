@@ -2,7 +2,15 @@ import {generatePDF} from '~/lib/reimbursement/pdf/generator';
 import type {Route} from './+types/api.reimbursement.pdf';
 
 interface PDFRequestData {
-  submission?: {id?: string; submittedAt: string; totalAmount: number};
+  submission?: {
+    checkAmount?: number | null;
+    checkNumber?: string | null;
+    dateApproved?: string | null;
+    datePaid?: string | null;
+    id?: string;
+    submittedAt: string;
+    totalAmount: number;
+  };
   requester: {
     payableTo: string;
     email: string;

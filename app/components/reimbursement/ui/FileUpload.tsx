@@ -87,7 +87,10 @@ export function FileUpload({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-charcoal/80 mb-1" htmlFor={inputId}>
+        <label
+          className="block text-sm font-medium text-charcoal/80 mb-1 sr-only"
+          htmlFor={inputId}
+        >
           {label}
         </label>
       )}

@@ -1,5 +1,5 @@
 import {sendNotificationEmail} from '~/lib/reimbursement/email/resend';
-import {buildPdfFilename, buildReceiptFilename, slugifyName} from '~/lib/reimbursement/filename';
+import {buildPdfFilename, slugifyName} from '~/lib/reimbursement/filename';
 import {generatePDF} from '~/lib/reimbursement/pdf/generator';
 import {submissionSchema} from '~/lib/reimbursement/validation';
 import type {Route} from './+types/api.reimbursement.submit';
@@ -54,6 +54,35 @@ export async function action({request, context}: Route.ActionArgs) {
 
     const {requester, receipts, files, budget} = validationResult.data;
 
+    const db = context.cloudflare.env.REIMBURSEMENT_DB;
+    const r2 = context.cloudflare.env.R2_BUCKET;
+
+    if (files.length > 0 && db) {
+      const placeholders = files.map(() => '?').join(',');
+      const dup = await db
+        .prepare(`SELECT r2_key FROM file_attachments WHERE r2_key IN (${placeholders})`)
+        .bind(...files.map((f) => f.key))
+        .all<{r2_key: string}>();
+      if (dup.results.length > 0) {
+        return Response.json(
+          {error: 'One or more attachments were already used in another submission.'},
+          {status: 400},
+        );
+      }
+    }
+
+    if (files.length > 0 && r2) {
+      for (const file of files) {
+        const head = await r2.head(file.key);
+        if (!head) {
+          return Response.json(
+            {error: 'An uploaded file is missing or expired. Please re-upload your receipts.'},
+            {status: 400},
+          );
+        }
+      }
+    }
+
     // Calculate total
     const totalAmount = receipts.reduce((sum, r) => sum + r.amount, 0);
 
@@ -97,19 +126,14 @@ export async function action({request, context}: Route.ActionArgs) {
       });
     }
 
-    // Rename uploaded files to friendly names.
-    // Files arrive in pairs: converted PDF then original, for each upload.
-    // Name them as receipt-1, receipt-1-original, receipt-2, receipt-2-original, etc.
-    let receiptNumber = 0;
+    // Rename uploaded files to friendly names (receiptLineIndex from client matches form row).
     const renamedFiles = await Promise.all(
       files.map(async (file) => {
         const isOriginal = !file.filename.endsWith('-converted.pdf');
-        if (!isOriginal) {
-          receiptNumber++;
-        }
+        const lineIdx = file.receiptLineIndex;
         const ext = file.filename.split('.').pop() || 'pdf';
         const suffix = isOriginal ? `-original.${ext}` : '.pdf';
-        const friendlyName = `${slug}-receipt-${receiptNumber}${suffix}`;
+        const friendlyName = `${slug}-receipt-${lineIdx}${suffix}`;
         const newKey = `submissions/${submissionId}/${friendlyName}`;
 
         if (env.R2_BUCKET) {
@@ -127,7 +151,6 @@ export async function action({request, context}: Route.ActionArgs) {
     );
 
     // Save to D1 database
-    const db = env.REIMBURSEMENT_DB;
     await db.batch([
       db
         .prepare(

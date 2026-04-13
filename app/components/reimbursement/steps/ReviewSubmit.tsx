@@ -127,25 +127,51 @@ export function ReviewSubmit({
             Receipts ({data.receipts.length})
           </h3>
           <div className="space-y-3">
-            {data.receipts.map((receipt, index) => (
-              <div className="bg-warm-white p-4 rounded-lg" key={index}>
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <p className="font-medium text-charcoal">{receipt.description}</p>
-                    <p className="text-sm text-charcoal/70">
-                      {formatDate(receipt.date)}
-                      {receipt.placeOfPurchase && ` • ${receipt.placeOfPurchase}`}
-                    </p>
-                    <p className="text-xs text-eagle-blue mt-1">
-                      Account: {getReceiptBudgetAccount(index)}
+            {data.receipts.map((receipt, index) => {
+              const rowFiles = data.filesByReceipt[index] ?? [];
+              return (
+                <div className="bg-warm-white p-4 rounded-lg" key={index}>
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <p className="font-medium text-charcoal">{receipt.description}</p>
+                      <p className="text-sm text-charcoal/70">
+                        {formatDate(receipt.date)}
+                        {receipt.placeOfPurchase && ` • ${receipt.placeOfPurchase}`}
+                      </p>
+                      <p className="text-xs text-eagle-blue mt-1">
+                        Account: {getReceiptBudgetAccount(index)}
+                      </p>
+                    </div>
+                    <p className="font-semibold text-charcoal ml-4">
+                      {formatCurrency(receipt.amount)}
                     </p>
                   </div>
-                  <p className="font-semibold text-charcoal ml-4">
-                    {formatCurrency(receipt.amount)}
-                  </p>
+                  {rowFiles.length > 0 && (
+                    <ul className="mt-3 pt-3 border-t border-charcoal/10 space-y-1">
+                      {rowFiles.map((file) => (
+                        <li className="flex items-center gap-2 text-sm text-charcoal" key={file.key}>
+                          <svg
+                            aria-hidden="true"
+                            className="w-4 h-4 shrink-0 text-charcoal/70"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                            />
+                          </svg>
+                          <span>{file.filename}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <div className="mt-4 flex justify-end">
             <div className="text-right">
@@ -154,36 +180,6 @@ export function ReviewSubmit({
             </div>
           </div>
         </div>
-
-        {/* Files */}
-        {data.files.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-sm font-medium text-charcoal/70 uppercase tracking-wide mb-3">
-              Attached Files ({data.files.length})
-            </h3>
-            <ul className="bg-warm-white rounded-lg divide-y divide-charcoal/10">
-              {data.files.map((file) => (
-                <li className="p-3 flex items-center space-x-3" key={file.key}>
-                  <svg
-                    aria-hidden="true"
-                    className="w-5 h-5 text-charcoal/70"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                    />
-                  </svg>
-                  <span className="text-charcoal">{file.filename}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg" role="alert">

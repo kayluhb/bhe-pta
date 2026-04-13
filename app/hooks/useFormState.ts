@@ -39,7 +39,8 @@ function saveRequesterInfo(data: RequesterData) {
 export interface FormState {
   requester: RequesterData;
   receipts: ReceiptData[];
-  files: FileData[];
+  /** One array per receipt row; each entry holds converted + optional original from one upload. */
+  filesByReceipt: FileData[][];
   budget: BudgetSelectionData;
 }
 
@@ -63,21 +64,27 @@ const initialState: FormState = {
   },
   receipts: [
     {
-      date: '',
+      date: getTodayDate(),
       description: '',
       amount: 0,
       placeOfPurchase: '',
       budgetAccount: '',
     },
   ],
-  files: [],
+  filesByReceipt: [[]],
   budget: {
     primaryAccount: '',
     splitAccounts: false,
   },
 };
 
-const TOTAL_STEPS = 5; // Info, Receipts, Budget, Files, Review
+const TOTAL_STEPS = 4; // Info, Receipts, Budget, Review
+
+function reindexFilesByReceipt(rows: FileData[][]): FileData[][] {
+  return rows.map((files, i) =>
+    files.map((f) => ({...f, receiptLineIndex: i + 1})),
+  );
+}
 
 export function useFormState() {
   const [state, setState] = useState<FormState>(() => {
@@ -128,13 +135,14 @@ export function useFormState() {
         receipts: [
           ...prev.receipts,
           {
-            date: lastReceipt?.date || '',
+            date: lastReceipt?.date || getTodayDate(),
             description: '',
             amount: 0,
             placeOfPurchase: '',
             budgetAccount: '',
           },
         ],
+        filesByReceipt: [...prev.filesByReceipt, []],
       };
     });
   }, []);
@@ -142,28 +150,35 @@ export function useFormState() {
   const removeReceipt = useCallback((index: number) => {
     setState((prev) => {
       if (prev.receipts.length <= 1) return prev;
+      const newReceipts = prev.receipts.filter((_, i) => i !== index);
+      const newFiles = prev.filesByReceipt.filter((_, i) => i !== index);
       return {
         ...prev,
-        receipts: prev.receipts.filter((_, i) => i !== index),
+        receipts: newReceipts,
+        filesByReceipt: reindexFilesByReceipt(newFiles),
       };
     });
   }, []);
 
-  const addFile = useCallback((file: FileData) => {
+  const replaceReceiptFiles = useCallback((receiptIndex: number, newForRow: FileData[]) => {
     setState((prev) => {
-      if (prev.files.length >= 8) return prev;
-      return {
-        ...prev,
-        files: [...prev.files, file],
-      };
+      const line = receiptIndex + 1;
+      const stamped = newForRow.map((f) => ({...f, receiptLineIndex: line}));
+      const nextRows = [...prev.filesByReceipt];
+      nextRows[receiptIndex] = stamped;
+      const total = nextRows.reduce((s, row) => s + row.length, 0);
+      if (total > 8) return prev;
+      return {...prev, filesByReceipt: nextRows};
     });
   }, []);
 
-  const removeFile = useCallback((key: string) => {
-    setState((prev) => ({
-      ...prev,
-      files: prev.files.filter((f) => f.key !== key),
-    }));
+  const removeFileFromReceipt = useCallback((receiptIndex: number, key: string) => {
+    setState((prev) => {
+      const nextRows = prev.filesByReceipt.map((row, i) =>
+        i === receiptIndex ? row.filter((f) => f.key !== key) : row,
+      );
+      return {...prev, filesByReceipt: nextRows};
+    });
   }, []);
 
   const updateBudget = useCallback((data: Partial<BudgetSelectionData>) => {
@@ -194,13 +209,17 @@ export function useFormState() {
         ...(saved || {}),
         dateOfRequest: getTodayDate(),
       },
+      receipts: [{...initialState.receipts[0], date: getTodayDate()}],
     });
     setCurrentStep(0);
   }, []);
 
   const totalAmount = state.receipts.reduce((sum, r) => sum + (r.amount || 0), 0);
 
-  // Get effective budget account for each receipt
+  const flattenFilesForSubmit = useCallback((): FileData[] => {
+    return state.filesByReceipt.flat();
+  }, [state.filesByReceipt]);
+
   const getReceiptBudgetAccount = useCallback(
     (index: number): string => {
       if (state.budget.splitAccounts && state.receipts[index]?.budgetAccount) {
@@ -219,8 +238,9 @@ export function useFormState() {
     updateReceipt,
     addReceipt,
     removeReceipt,
-    addFile,
-    removeFile,
+    replaceReceiptFiles,
+    removeFileFromReceipt,
+    flattenFilesForSubmit,
     updateBudget,
     nextStep,
     prevStep,

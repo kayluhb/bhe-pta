@@ -1,3 +1,4 @@
+import {requireTurnstile} from '~/lib/turnstile';
 import {BUDGET_ACCOUNTS} from '~/lib/reimbursement/validation';
 import type {Route} from './+types/api.reimbursement.suggest-budget';
 
@@ -16,6 +17,11 @@ const validAccounts = new Set<string>(BUDGET_ACCOUNTS);
 
 export async function action({request, context}: Route.ActionArgs) {
   try {
+    const denied = await requireTurnstile(request, context.cloudflare.env.TURNSTILE_SECRET_KEY);
+    if (denied) {
+      return denied;
+    }
+
     const body = (await request.json()) as {receipts?: ReceiptInput[]};
 
     if (!body.receipts || !Array.isArray(body.receipts) || body.receipts.length === 0) {

@@ -1,5 +1,7 @@
 import {z} from 'zod';
 
+import {isValidStagingUploadKey} from '~/lib/reimbursement/r2-staging';
+
 export const BUDGET_ACCOUNTS = [
   'Academic enrichment',
   'ACPTA Mini-grants & Austin Ed grants',
@@ -84,6 +86,34 @@ export const adminSubmissionContactSchema = z.object({
 
 export type AdminSubmissionContact = z.infer<typeof adminSubmissionContactSchema>;
 
+const optionalIsoDate = z.preprocess((val) => {
+  if (val === undefined || val === null || val === '') return null;
+  if (typeof val === 'string') return val.trim() === '' ? null : val.trim();
+  return val;
+}, z.union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/), z.null()]));
+
+/** Admin-only treasurer / check fields (`submissions` columns). */
+export const adminTreasurerFieldsSchema = z.object({
+  check_amount: z.preprocess((val) => {
+    if (val === '' || val === undefined) return null;
+    if (val === null) return null;
+    if (typeof val === 'number') return val;
+    const n = Number(val);
+    return Number.isFinite(n) ? n : val;
+  }, z.union([z.number().nonnegative(), z.null()])),
+  check_number: z.preprocess((val) => {
+    if (val === undefined || val === null || val === '') return null;
+    if (typeof val === 'string') {
+      const t = val.trim();
+      return t === '' ? null : t;
+    }
+    return val;
+  }, z.union([z.string(), z.null()])),
+  date_paid: optionalIsoDate,
+});
+
+export type AdminTreasurerFields = z.infer<typeof adminTreasurerFieldsSchema>;
+
 export const receiptSchema = z.object({
   date: z.string().min(1, 'Date is required'),
   description: z.string().min(1, 'Description is required'),
@@ -93,10 +123,15 @@ export const receiptSchema = z.object({
 });
 
 export const fileSchema = z.object({
-  key: z.string(),
+  key: z.string().refine(isValidStagingUploadKey, 'Invalid or unrecognized file storage key'),
   filename: z.string(),
   contentType: z.string(),
   size: z.number(),
+  /** 1-based index matching the receipt row on the form (used for R2 friendly names). */
+  receiptLineIndex: z.number().int().min(1).max(4),
+  /** Signed preview URL params from convert-receipt (not persisted on submit). */
+  fileAccessExp: z.number().int().optional(),
+  fileAccessSig: z.string().optional(),
 });
 
 export const budgetSelectionSchema = z.object({
