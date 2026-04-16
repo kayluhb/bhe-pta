@@ -63,23 +63,26 @@ function newReceiptRow(): ReceiptData {
   };
 }
 
-const initialState: FormState = {
-  requester: {
-    payableTo: '',
-    email: '',
-    phone: '',
-    address: '',
-    dateOfRequest: getTodayDate(),
-    dateCheckNeeded: getTwoWeeksFromToday(),
-    invoiceNumber: '',
-  },
-  receipts: [newReceiptRow()],
-  filesByReceipt: [[]],
-  budget: {
-    primaryAccount: '',
-    splitAccounts: false,
-  },
-};
+/** Must not call `crypto.randomUUID()` at module scope (Cloudflare Workers disallow I/O in global scope). */
+function buildDefaultFormState(): FormState {
+  return {
+    requester: {
+      payableTo: '',
+      email: '',
+      phone: '',
+      address: '',
+      dateOfRequest: getTodayDate(),
+      dateCheckNeeded: getTwoWeeksFromToday(),
+      invoiceNumber: '',
+    },
+    receipts: [newReceiptRow()],
+    filesByReceipt: [[]],
+    budget: {
+      primaryAccount: '',
+      splitAccounts: false,
+    },
+  };
+}
 
 const TOTAL_STEPS = 4; // Info, Receipts, Budget, Review
 
@@ -92,17 +95,18 @@ function reindexFilesByReceipt(rows: FileData[][]): FileData[][] {
 export function useFormState() {
   const [state, setState] = useState<FormState>(() => {
     const saved = loadSavedRequesterInfo();
+    const base = buildDefaultFormState();
     if (saved) {
       return {
-        ...initialState,
+        ...base,
         requester: {
-          ...initialState.requester,
+          ...base.requester,
           ...saved,
           dateOfRequest: getTodayDate(),
         },
       };
     }
-    return initialState;
+    return base;
   });
   const [currentStep, setCurrentStep] = useState(0);
   const [fileError, setFileError] = useState<string | null>(null);
@@ -233,14 +237,14 @@ export function useFormState() {
 
   const reset = useCallback(() => {
     const saved = loadSavedRequesterInfo();
+    const base = buildDefaultFormState();
     setState({
-      ...initialState,
+      ...base,
       requester: {
-        ...initialState.requester,
+        ...base.requester,
         ...(saved || {}),
         dateOfRequest: getTodayDate(),
       },
-      receipts: [{...newReceiptRow(), date: getTodayDate()}],
     });
     setCurrentStep(0);
   }, []);
