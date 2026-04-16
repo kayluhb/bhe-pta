@@ -2,6 +2,10 @@ import {
   ACCEPTED_TYPES,
   MAX_FILE_SIZE,
 } from '~/lib/reimbursement/receipt';
+import {
+  issueReceiptUploadContinuationToken,
+  verifyReceiptUploadContinuationToken,
+} from '~/lib/reimbursement/receipt-upload-token';
 import {requireTurnstile} from '~/lib/turnstile';
 import type {Route} from './+types/api.reimbursement.convert-receipt';
 
@@ -14,10 +18,26 @@ export async function action({request, context}: Route.ActionArgs) {
   const startedAt = Date.now();
 
   try {
-    const denied = await requireTurnstile(request, context.cloudflare.env.TURNSTILE_SECRET_KEY);
-    if (denied) {
-      logConvertReceipt({requestId, outcome: 'turnstile_denied'});
-      return denied;
+    const env = context.cloudflare.env;
+    const continuationSecret = env.SESSION_SECRET || env.FILE_URL_SIGNING_SECRET;
+    const continuation = request.headers.get('X-Receipt-Upload-Token');
+
+    let authViaContinuation = false;
+    if (continuation && continuationSecret) {
+      authViaContinuation = await verifyReceiptUploadContinuationToken(
+        continuation,
+        continuationSecret,
+      );
+    }
+
+    if (!authViaContinuation) {
+      const denied = await requireTurnstile(request, env.TURNSTILE_SECRET_KEY);
+      if (denied) {
+        logConvertReceipt({requestId, outcome: 'turnstile_denied'});
+        return denied;
+      }
+    } else {
+      logConvertReceipt({requestId, outcome: 'auth_continuation_token'});
     }
 
     const formData = await request.formData();
@@ -54,8 +74,6 @@ export async function action({request, context}: Route.ActionArgs) {
       });
       return Response.json({error: 'File too large. Maximum 10MB.'}, {status: 400});
     }
-
-    const env = context.cloudflare.env;
 
     const payableTo = formData.get('payableTo') as string | null;
     const receiptNumber = formData.get('receiptNumber') as string | null;
@@ -130,8 +148,14 @@ export async function action({request, context}: Route.ActionArgs) {
       originalBytes: fileBytes.byteLength,
     });
 
+    let receiptUploadToken: string | undefined;
+    if (continuationSecret) {
+      receiptUploadToken = await issueReceiptUploadContinuationToken(continuationSecret);
+    }
+
     return Response.json({
       jobId,
+      receiptUploadToken,
       status: 'queued',
     });
   } catch (error) {

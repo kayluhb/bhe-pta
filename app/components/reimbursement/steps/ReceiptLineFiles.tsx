@@ -7,8 +7,15 @@ interface ReceiptLineFilesProps {
   receiptRowIndex: number;
   rowFiles: FileData[];
   rowUploads: UploadProgress[];
-  uploadFile: (file: File, receiptRowIndex: number, payableTo?: string) => Promise<FileData[] | null>;
+  uploadFile: (
+    file: File,
+    receiptRowIndex: number,
+    payableTo?: string,
+    options?: {uploadId?: string},
+  ) => Promise<FileData[] | null>;
+  registerPendingBatch: (items: Array<{id: string; file: File}>, receiptRowIndex: number) => void;
   clearUpload: (id: string) => void;
+  onBatchUploadComplete: () => void;
   onAppendRowFiles: (files: FileData[]) => boolean;
   onRemoveFile: (key: string) => void;
   payableTo: string;
@@ -43,7 +50,9 @@ export function ReceiptLineFiles({
   rowFiles,
   rowUploads,
   uploadFile,
+  registerPendingBatch,
   clearUpload,
+  onBatchUploadComplete,
   onAppendRowFiles,
   onRemoveFile,
   payableTo,
@@ -77,12 +86,25 @@ export function ReceiptLineFiles({
       );
     }
 
-    for (const file of filesToProcess) {
-      const results = await uploadFile(file, receiptRowIndex, payableTo);
-      if (results && !onAppendRowFiles(results)) {
-        setSelectionError('You can attach up to 8 files total across all receipts.');
+    const slots = filesToProcess.map((file) => ({id: crypto.randomUUID(), file}));
+    registerPendingBatch(slots, receiptRowIndex);
+
+    let hadError = false;
+    for (const {id, file} of slots) {
+      const results = await uploadFile(file, receiptRowIndex, payableTo, {uploadId: id});
+      if (!results) {
+        hadError = true;
         break;
       }
+      if (!onAppendRowFiles(results)) {
+        setSelectionError('You can attach up to 8 files total across all receipts.');
+        hadError = true;
+        break;
+      }
+    }
+
+    if (!hadError) {
+      onBatchUploadComplete();
     }
   };
 

@@ -37,7 +37,13 @@ export function ReceiptEntries({
   turnstileToken,
   onResetTurnstile,
 }: ReceiptEntriesProps) {
-  const {uploadFile, clearUpload, uploads} = useFileUpload(turnstileToken, onResetTurnstile);
+  const {
+    uploadFile,
+    clearUpload,
+    uploads,
+    registerPendingBatch,
+    clearReceiptUploadContinuation,
+  } = useFileUpload(turnstileToken);
 
   const isAnyUploading = uploads.some((u) => u.status === 'uploading' || u.status === 'pending');
   const totalAttachedFiles = filesByReceipt.reduce((sum, row) => sum + row.length, 0);
@@ -140,10 +146,15 @@ export function ReceiptEntries({
               <ReceiptLineFiles
                 clearUpload={clearUpload}
                 disabled={isAnyUploading}
+                onBatchUploadComplete={() => {
+                  clearReceiptUploadContinuation();
+                  onResetTurnstile();
+                }}
                 onRemoveFile={(key) => onRemoveFileFromReceipt(index, key)}
                 onAppendRowFiles={(files) => onAppendReceiptFiles(index, files)}
                 payableTo={payableTo}
                 receiptRowIndex={index}
+                registerPendingBatch={registerPendingBatch}
                 remainingFileSlots={Math.max(0, 8 - totalAttachedFiles)}
                 rowFiles={filesByReceipt[index] ?? []}
                 rowUploads={uploads.filter((u) => u.receiptRowIndex === index)}
