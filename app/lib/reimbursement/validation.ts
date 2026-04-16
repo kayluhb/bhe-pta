@@ -115,6 +115,8 @@ export const adminTreasurerFieldsSchema = z.object({
 export type AdminTreasurerFields = z.infer<typeof adminTreasurerFieldsSchema>;
 
 export const receiptSchema = z.object({
+  /** Stable React list key; not used by the server beyond optional passthrough. */
+  clientKey: z.string().optional(),
   date: z.string().min(1, 'Date is required'),
   description: z.string().min(1, 'Description is required'),
   amount: z.number().positive('Amount must be positive'),

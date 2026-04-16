@@ -52,6 +52,17 @@ const getTwoWeeksFromToday = () => {
   return date.toISOString().split('T')[0];
 };
 
+function newReceiptRow(): ReceiptData {
+  return {
+    clientKey: crypto.randomUUID(),
+    date: getTodayDate(),
+    description: '',
+    amount: 0,
+    placeOfPurchase: '',
+    budgetAccount: '',
+  };
+}
+
 const initialState: FormState = {
   requester: {
     payableTo: '',
@@ -62,15 +73,7 @@ const initialState: FormState = {
     dateCheckNeeded: getTwoWeeksFromToday(),
     invoiceNumber: '',
   },
-  receipts: [
-    {
-      date: getTodayDate(),
-      description: '',
-      amount: 0,
-      placeOfPurchase: '',
-      budgetAccount: '',
-    },
-  ],
+  receipts: [newReceiptRow()],
   filesByReceipt: [[]],
   budget: {
     primaryAccount: '',
@@ -136,6 +139,7 @@ export function useFormState() {
         receipts: [
           ...prev.receipts,
           {
+            clientKey: crypto.randomUUID(),
             date: lastReceipt?.date || getTodayDate(),
             description: '',
             amount: 0,
@@ -236,7 +240,7 @@ export function useFormState() {
         ...(saved || {}),
         dateOfRequest: getTodayDate(),
       },
-      receipts: [{...initialState.receipts[0], date: getTodayDate()}],
+      receipts: [{...newReceiptRow(), date: getTodayDate()}],
     });
     setCurrentStep(0);
   }, []);

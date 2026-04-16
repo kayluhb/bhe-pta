@@ -88,17 +88,21 @@ export function FileUpload({
 
   return (
     <div className="w-full">
-      {label && (
-        <label
-          className="block text-sm font-medium text-charcoal/80 mb-1 sr-only"
-          htmlFor={inputId}
-        >
-          {label}
-        </label>
-      )}
       <div className="relative">
+        <input
+          accept={accept}
+          aria-describedby={displayError ? errorId : undefined}
+          aria-invalid={displayError ? true : undefined}
+          aria-label={label}
+          className="sr-only"
+          disabled={disabled}
+          id={inputId}
+          multiple={multiple}
+          onChange={handleChange}
+          type="file"
+        />
         <label
-          className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+          className={`block border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
             dragActive ? 'border-eagle-blue bg-eagle-blue/10' : 'border-charcoal/20'
           } ${
             disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-charcoal/40'
@@ -109,17 +113,6 @@ export function FileUpload({
           onDragOver={handleDrag}
           onDrop={handleDrop}
         >
-        <input
-          accept={accept}
-          aria-describedby={displayError ? errorId : undefined}
-          aria-invalid={displayError ? true : undefined}
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-          disabled={disabled}
-          id={inputId}
-          multiple={multiple}
-          onChange={handleChange}
-          type="file"
-        />
           <svg
             aria-hidden="true"
             className="mx-auto h-12 w-12 text-charcoal/60"

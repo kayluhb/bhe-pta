@@ -74,7 +74,7 @@ export function ReceiptEntries({
           {receipts.map((receipt, index) => (
             <div
               className="p-4 bg-warm-white rounded-lg border border-charcoal/10"
-              key={`${receipt.date}-${receipt.description}-${receipt.amount}`}
+              key={receipt.clientKey ?? `receipt-${index}`}
             >
               <div className="flex justify-between items-center mb-4">
                 <h3 className="font-medium text-charcoal">Receipt {index + 1}</h3>

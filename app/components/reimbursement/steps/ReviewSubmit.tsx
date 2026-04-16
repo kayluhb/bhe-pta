@@ -141,7 +141,7 @@ export function ReviewSubmit({
               return (
                 <div
                   className="bg-warm-white p-4 rounded-lg"
-                  key={`${receipt.date}-${index}`}
+                  key={receipt.clientKey ?? `receipt-${index}`}
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
