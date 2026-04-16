@@ -10,6 +10,7 @@ export default [
   route('parents', './routes/parents.tsx'),
   route('sponsors', './routes/sponsors.tsx'),
   route('archive', './routes/archive.tsx'),
+  route('budget', './routes/budget.tsx'),
   route('api/archive/file', './routes/api.archive.file.ts'),
   route('contact', './routes/contact.tsx'),
   route('dev/sync-calendar', './routes/dev.sync-calendar.tsx'),

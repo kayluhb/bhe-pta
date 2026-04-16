@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/cloudflare';
 import {createRequestHandler} from 'react-router';
 import {fetchCalendarEvents, fetchPtaCalendarEvents} from '../app/lib/calendar';
 import {fetchMailchimpCampaigns} from '../app/lib/mailchimp';
@@ -19,6 +20,7 @@ interface Env {
   TURNSTILE_SECRET_KEY: string;
   AI: Ai;
   GEMINI_API_KEY: string;
+  SENTRY_DSN?: string;
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
   SESSION_SECRET: string;
@@ -101,7 +103,7 @@ async function runDataRefresh(env: Env): Promise<string[]> {
   return log;
 }
 
-export default {
+const handler = {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.hostname.startsWith('www.')) {
@@ -131,11 +133,11 @@ export default {
     headers.set('X-Frame-Options', 'SAMEORIGIN');
     const csp = [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://www.google.com https://www.gstatic.com",
+      "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://www.google.com https://www.gstatic.com https://static.cloudflareinsights.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com data:",
       "img-src 'self' data: https: blob:",
-      "connect-src 'self' https://challenges.cloudflare.com",
+      "connect-src 'self' https://challenges.cloudflare.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io",
       "frame-src https://challenges.cloudflare.com",
       "base-uri 'self'",
       "form-action 'self'",
@@ -158,3 +160,19 @@ export default {
     }
   },
 } satisfies ExportedHandler<Env>;
+
+export default Sentry.withSentry<Env>(
+  (env: Env) => {
+    if (!env.SENTRY_DSN) {
+      return undefined;
+    }
+
+    return {
+      dsn: env.SENTRY_DSN,
+      // Keep sampling conservative for free-tier quota.
+      tracesSampleRate: 0.1,
+      sendDefaultPii: true,
+    };
+  },
+  handler,
+);

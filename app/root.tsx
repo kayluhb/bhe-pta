@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react';
 import {useCallback, useEffect, useState} from 'react';
 import {
   isRouteErrorResponse,
@@ -15,25 +16,34 @@ import {Header} from './components/Header';
 import {useDiscoMode} from './hooks/useDiscoMode';
 import './app.css';
 
-export function meta() {
-  return [
+export async function loader({context}: Route.LoaderArgs) {
+  const dsn = context.cloudflare.env.SENTRY_DSN?.trim();
+  return {sentryDsn: dsn && dsn.length > 0 ? dsn : null};
+}
+
+export function meta({data}: Route.MetaArgs) {
+  const descriptors: Route.MetaDescriptors = [
     {title: 'Barton Hills Elementary PTA'},
     {
-      name: 'description',
       content:
         'Barton Hills Elementary PTA - Supporting our school community through parent involvement, fundraising, and advocacy since 1964.',
+      name: 'description',
     },
-    {property: 'og:title', content: 'Barton Hills Elementary PTA'},
-    {property: 'og:description', content: 'Supporting our school community since 1964'},
-    {property: 'og:type', content: 'website'},
-    {property: 'og:image', content: 'https://bheeagles.com/og-image.png'},
-    {property: 'og:image:width', content: '850'},
-    {property: 'og:image:height', content: '850'},
-    {property: 'og:image:alt', content: 'Barton Hills Elementary School eagle logo'},
-    {name: 'twitter:card', content: 'summary'},
-    {name: 'twitter:image', content: 'https://bheeagles.com/og-image.png'},
-    {name: 'apple-mobile-web-app-title', content: 'BHE PTA'},
+    {content: 'Barton Hills Elementary PTA', property: 'og:title'},
+    {content: 'Supporting our school community since 1964', property: 'og:description'},
+    {content: 'website', property: 'og:type'},
+    {content: 'https://bheeagles.com/og-image.png', property: 'og:image'},
+    {content: '850', property: 'og:image:width'},
+    {content: '850', property: 'og:image:height'},
+    {content: 'Barton Hills Elementary School eagle logo', property: 'og:image:alt'},
+    {content: 'summary', name: 'twitter:card'},
+    {content: 'https://bheeagles.com/og-image.png', name: 'twitter:image'},
+    {content: 'BHE PTA', name: 'apple-mobile-web-app-title'},
   ];
+  if (data?.sentryDsn) {
+    descriptors.push({content: data.sentryDsn, name: 'sentry-dsn'});
+  }
+  return descriptors;
 }
 
 export const links: Route.LinksFunction = () => [
@@ -372,6 +382,7 @@ export function ErrorBoundary({error}: Route.ErrorBoundaryProps) {
   const is404 = isRouteErrorResponse(error) && error.status === 404;
 
   if (!is404) {
+    Sentry.captureException(error);
     let details = 'An unexpected error occurred.';
     let stack: string | undefined;
     if (isRouteErrorResponse(error)) {
