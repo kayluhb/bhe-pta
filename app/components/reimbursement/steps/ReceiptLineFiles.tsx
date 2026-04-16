@@ -1,3 +1,4 @@
+import {useState} from 'react';
 import {FileUpload} from '~/components/reimbursement/ui/FileUpload';
 import type {UploadProgress} from '~/hooks/useFileUpload';
 import type {FileData} from '~/lib/reimbursement/validation';
@@ -8,10 +9,11 @@ interface ReceiptLineFilesProps {
   rowUploads: UploadProgress[];
   uploadFile: (file: File, receiptRowIndex: number, payableTo?: string) => Promise<FileData[] | null>;
   clearUpload: (id: string) => void;
-  onReplaceRowFiles: (files: FileData[]) => void;
+  onAppendRowFiles: (files: FileData[]) => boolean;
   onRemoveFile: (key: string) => void;
   payableTo: string;
   disabled: boolean;
+  remainingFileSlots: number;
 }
 
 function previewFileHref(file: FileData): string | null {
@@ -42,22 +44,45 @@ export function ReceiptLineFiles({
   rowUploads,
   uploadFile,
   clearUpload,
-  onReplaceRowFiles,
+  onAppendRowFiles,
   onRemoveFile,
   payableTo,
   disabled,
+  remainingFileSlots,
 }: ReceiptLineFilesProps) {
+  const [selectionError, setSelectionError] = useState<string | null>(null);
+
   const handleFileSelect = async (selectedFiles: File[]) => {
+    setSelectionError(null);
     for (const upload of rowUploads) {
       if (upload.status === 'error') {
         clearUpload(upload.id);
       }
     }
-    const file = selectedFiles[0];
-    if (!file) return;
-    const results = await uploadFile(file, receiptRowIndex, payableTo);
-    if (results) {
-      onReplaceRowFiles(results);
+
+    if (selectedFiles.length === 0) return;
+
+    const maxUploadsAllowed = Math.floor(remainingFileSlots / 2);
+    if (maxUploadsAllowed <= 0) {
+      setSelectionError('You have reached the 8-file limit. Remove a file before uploading more.');
+      return;
+    }
+
+    const filesToProcess =
+      selectedFiles.length > maxUploadsAllowed ? selectedFiles.slice(0, maxUploadsAllowed) : selectedFiles;
+
+    if (filesToProcess.length < selectedFiles.length) {
+      setSelectionError(
+        `Only ${filesToProcess.length} file(s) can be uploaded right now before hitting the 8-file limit.`,
+      );
+    }
+
+    for (const file of filesToProcess) {
+      const results = await uploadFile(file, receiptRowIndex, payableTo);
+      if (results && !onAppendRowFiles(results)) {
+        setSelectionError('You can attach up to 8 files total across all receipts.');
+        break;
+      }
     }
   };
 
@@ -67,14 +92,21 @@ export function ReceiptLineFiles({
     <div className="mt-4 pt-4 border-t border-charcoal/10">
       <h4 className="text-sm font-medium text-charcoal mb-2">Receipt attachment</h4>
       <p className="text-xs text-charcoal/70 mb-3">
-        Upload a photo or PDF for this line (optional). Uploading again replaces the current file.
+        Upload one or more photos/PDFs for this line (optional). Files are added to this receipt.
       </p>
 
       <FileUpload
         disabled={disabled || rowBusy}
         label="Upload receipt image or PDF"
+        multiple
         onFileSelect={handleFileSelect}
       />
+
+      {selectionError && (
+        <div className="mt-2 rounded-lg border border-red-200 bg-red-50 p-2" role="alert">
+          <p className="text-sm text-red-700">{selectionError}</p>
+        </div>
+      )}
 
       {rowUploads.length > 0 && (
         <div aria-live="polite" className="mt-3 space-y-2">

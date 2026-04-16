@@ -23,9 +23,18 @@ export function ReviewSubmit({
 }: ReviewSubmitProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [ackNoReceipts, setAckNoReceipts] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const totalFiles = data.filesByReceipt.reduce((sum, row) => sum + row.length, 0);
+    if (totalFiles === 0 && !ackNoReceipts) {
+      setError(
+        'This request does not currently include any receipt files. Please either attach at least one receipt or check the box below to confirm you are submitting without receipts.',
+      );
+      return;
+    }
 
     if (!turnstileToken) {
       setError('Please complete the verification challenge above.');
@@ -130,7 +139,10 @@ export function ReviewSubmit({
             {data.receipts.map((receipt, index) => {
               const rowFiles = data.filesByReceipt[index] ?? [];
               return (
-                <div className="bg-warm-white p-4 rounded-lg" key={index}>
+                <div
+                  className="bg-warm-white p-4 rounded-lg"
+                  key={`${receipt.date}-${index}`}
+                >
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <p className="font-medium text-charcoal">{receipt.description}</p>
@@ -180,6 +192,27 @@ export function ReviewSubmit({
             </div>
           </div>
         </div>
+
+        {data.filesByReceipt.every((row) => row.length === 0) && (
+          <div className="mb-6 p-4 bg-warm-white border border-charcoal/10 rounded-lg">
+            <p className="text-sm text-charcoal/80">
+              <strong>No receipt files are attached.</strong> Your request will not include any
+              supporting receipts unless they appear in the list above.
+            </p>
+            <label className="mt-3 flex items-start gap-2">
+              <input
+                checked={ackNoReceipts}
+                className="mt-0.5 h-4 w-4 rounded border-charcoal/20 text-eagle-blue focus:ring-eagle-blue"
+                onChange={(e) => setAckNoReceipts(e.target.checked)}
+                type="checkbox"
+              />
+              <span className="text-sm text-charcoal/70">
+                I understand that no receipt files are attached to this request and wish to submit
+                anyway.
+              </span>
+            </label>
+          </div>
+        )}
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg" role="alert">

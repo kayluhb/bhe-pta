@@ -201,12 +201,14 @@ export async function action({request, context}: Route.ActionArgs) {
       ),
     ]);
 
+    const pdfFileCount = files.filter((f) => f.contentType === 'application/pdf').length;
     console.log('Submission saved:', {
       id: submissionId,
       requester: requester.payableTo,
       totalAmount,
       receiptsCount: receipts.length,
       filesCount: files.length,
+      pdfFileCount,
     });
 
     // Send email notification if configured

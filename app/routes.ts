@@ -22,6 +22,10 @@ export default [
   route('api/reimbursement/upload-mock', './routes/api.reimbursement.upload-mock.ts'),
   route('api/reimbursement/pdf', './routes/api.reimbursement.pdf.ts'),
   route('api/reimbursement/convert-receipt', './routes/api.reimbursement.convert-receipt.ts'),
+  route(
+    'api/reimbursement/convert-receipt-status',
+    './routes/api.reimbursement.convert-receipt-status.ts',
+  ),
   route('api/reimbursement/suggest-budget', './routes/api.reimbursement.suggest-budget.ts'),
   route('api/reimbursement/file', './routes/api.reimbursement.file.ts'),
   route('admin/login', './routes/admin.login.tsx'),

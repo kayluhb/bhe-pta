@@ -102,6 +102,7 @@ export function useFormState() {
     return initialState;
   });
   const [currentStep, setCurrentStep] = useState(0);
+  const [fileError, setFileError] = useState<string | null>(null);
 
   // Persist requester info to localStorage when it changes
   useEffect(() => {
@@ -158,6 +159,7 @@ export function useFormState() {
         filesByReceipt: reindexFilesByReceipt(newFiles),
       };
     });
+    setFileError(null);
   }, []);
 
   const replaceReceiptFiles = useCallback((receiptIndex: number, newForRow: FileData[]) => {
@@ -167,9 +169,33 @@ export function useFormState() {
       const nextRows = [...prev.filesByReceipt];
       nextRows[receiptIndex] = stamped;
       const total = nextRows.reduce((s, row) => s + row.length, 0);
-      if (total > 8) return prev;
+      if (total > 8) {
+        setFileError('You can attach up to 8 files total across all receipts.');
+        return prev;
+      }
+      setFileError(null);
       return {...prev, filesByReceipt: nextRows};
     });
+  }, []);
+
+  const appendReceiptFiles = useCallback((receiptIndex: number, filesToAppend: FileData[]) => {
+    let didAppend = false;
+    setState((prev) => {
+      const line = receiptIndex + 1;
+      const stamped = filesToAppend.map((file) => ({...file, receiptLineIndex: line}));
+      const nextRows = [...prev.filesByReceipt];
+      const existing = nextRows[receiptIndex] ?? [];
+      nextRows[receiptIndex] = [...existing, ...stamped];
+      const total = nextRows.reduce((sum, row) => sum + row.length, 0);
+      if (total > 8) {
+        setFileError('You can attach up to 8 files total across all receipts.');
+        return prev;
+      }
+      didAppend = true;
+      setFileError(null);
+      return {...prev, filesByReceipt: nextRows};
+    });
+    return didAppend;
   }, []);
 
   const removeFileFromReceipt = useCallback((receiptIndex: number, key: string) => {
@@ -179,6 +205,7 @@ export function useFormState() {
       );
       return {...prev, filesByReceipt: nextRows};
     });
+    setFileError(null);
   }, []);
 
   const updateBudget = useCallback((data: Partial<BudgetSelectionData>) => {
@@ -223,7 +250,7 @@ export function useFormState() {
   const getReceiptBudgetAccount = useCallback(
     (index: number): string => {
       if (state.budget.splitAccounts && state.receipts[index]?.budgetAccount) {
-        return state.receipts[index].budgetAccount!;
+        return state.receipts[index]?.budgetAccount ?? '';
       }
       return state.budget.primaryAccount;
     },
@@ -234,11 +261,13 @@ export function useFormState() {
     state,
     currentStep,
     totalAmount,
+    fileError,
     updateRequester,
     updateReceipt,
     addReceipt,
     removeReceipt,
     replaceReceiptFiles,
+    appendReceiptFiles,
     removeFileFromReceipt,
     flattenFilesForSubmit,
     updateBudget,

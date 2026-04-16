@@ -7,10 +7,11 @@ import {ReceiptLineFiles} from './ReceiptLineFiles';
 interface ReceiptEntriesProps {
   receipts: ReceiptData[];
   filesByReceipt: FileData[][];
+  fileError?: string | null;
   onUpdate: (index: number, data: Partial<ReceiptData>) => void;
   onAdd: () => void;
   onRemove: (index: number) => void;
-  onReplaceReceiptFiles: (receiptIndex: number, files: FileData[]) => void;
+  onAppendReceiptFiles: (receiptIndex: number, files: FileData[]) => boolean;
   onRemoveFileFromReceipt: (receiptIndex: number, key: string) => void;
   onNext: () => void;
   onBack: () => void;
@@ -23,10 +24,11 @@ interface ReceiptEntriesProps {
 export function ReceiptEntries({
   receipts,
   filesByReceipt,
+  fileError,
   onUpdate,
   onAdd,
   onRemove,
-  onReplaceReceiptFiles,
+  onAppendReceiptFiles,
   onRemoveFileFromReceipt,
   onNext,
   onBack,
@@ -38,6 +40,7 @@ export function ReceiptEntries({
   const {uploadFile, clearUpload, uploads} = useFileUpload(turnstileToken, onResetTurnstile);
 
   const isAnyUploading = uploads.some((u) => u.status === 'uploading' || u.status === 'pending');
+  const totalAttachedFiles = filesByReceipt.reduce((sum, row) => sum + row.length, 0);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +72,10 @@ export function ReceiptEntries({
 
         <div className="space-y-6">
           {receipts.map((receipt, index) => (
-            <div className="p-4 bg-warm-white rounded-lg border border-charcoal/10" key={index}>
+            <div
+              className="p-4 bg-warm-white rounded-lg border border-charcoal/10"
+              key={`${receipt.date}-${receipt.description}-${receipt.amount}`}
+            >
               <div className="flex justify-between items-center mb-4">
                 <h3 className="font-medium text-charcoal">Receipt {index + 1}</h3>
                 {receipts.length > 1 && (
@@ -87,7 +93,7 @@ export function ReceiptEntries({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
                   label="Date of Purchase"
-                  onChange={(e) => onUpdate(index, {date: e.target.value})}
+                    onChange={(event) => onUpdate(index, {date: event.target.value})}
                   required
                   type="date"
                   value={receipt.date}
@@ -96,8 +102,8 @@ export function ReceiptEntries({
                 <Input
                   label="Amount to Reimburse"
                   min="0"
-                  onChange={(e) =>
-                    onUpdate(index, {amount: Number.parseFloat(e.target.value) || 0})
+                  onChange={(event) =>
+                    onUpdate(index, {amount: Number.parseFloat(event.target.value) || 0})
                   }
                   placeholder="0.00"
                   required
@@ -109,7 +115,7 @@ export function ReceiptEntries({
                 <div className="md:col-span-2">
                   <Input
                     label="Description"
-                    onChange={(e) => onUpdate(index, {description: e.target.value})}
+                    onChange={(event) => onUpdate(index, {description: event.target.value})}
                     placeholder="What was purchased?"
                     required
                     value={receipt.description}
@@ -119,7 +125,9 @@ export function ReceiptEntries({
                 <div className="md:col-span-2">
                   <Input
                     label="Place of Purchase"
-                    onChange={(e) => onUpdate(index, {placeOfPurchase: e.target.value})}
+                    onChange={(event) =>
+                      onUpdate(index, {placeOfPurchase: event.target.value})
+                    }
                     placeholder="Name of store or location of website"
                     value={receipt.placeOfPurchase || ''}
                   />
@@ -133,9 +141,10 @@ export function ReceiptEntries({
                 clearUpload={clearUpload}
                 disabled={isAnyUploading}
                 onRemoveFile={(key) => onRemoveFileFromReceipt(index, key)}
-                onReplaceRowFiles={(files) => onReplaceReceiptFiles(index, files)}
+                onAppendRowFiles={(files) => onAppendReceiptFiles(index, files)}
                 payableTo={payableTo}
                 receiptRowIndex={index}
+                remainingFileSlots={Math.max(0, 8 - totalAttachedFiles)}
                 rowFiles={filesByReceipt[index] ?? []}
                 rowUploads={uploads.filter((u) => u.receiptRowIndex === index)}
                 uploadFile={uploadFile}
@@ -143,6 +152,12 @@ export function ReceiptEntries({
             </div>
           ))}
         </div>
+
+        {fileError && (
+          <div className="mt-4 p-3 rounded-lg bg-red-50 border border-red-200" role="alert">
+            <p className="text-sm text-red-800">{fileError}</p>
+          </div>
+        )}
 
         {receipts.length < 4 && (
           <button
@@ -171,7 +186,7 @@ export function ReceiptEntries({
         <Button onClick={onBack} type="button" variant="outline">
           Back
         </Button>
-        <Button disabled={isAnyUploading} type="submit">
+        <Button disabled={isAnyUploading || !!fileError} type="submit">
           {isAnyUploading ? 'Uploading...' : 'Next: Budget Account'}
         </Button>
       </div>

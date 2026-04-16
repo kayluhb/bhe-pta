@@ -14,6 +14,47 @@ export interface UploadProgress {
 export function useFileUpload(turnstileToken: string | null, onResetTurnstile?: () => void) {
   const [uploads, setUploads] = useState<Map<string, UploadProgress>>(new Map());
 
+  const pollJobUntilComplete = useCallback(async (jobId: string) => {
+    const started = Date.now();
+    const timeoutMs = 120_000;
+    const pollMs = 1200;
+
+    while (Date.now() - started < timeoutMs) {
+      const statusResponse = await fetch(
+        `/api/reimbursement/convert-receipt-status?jobId=${encodeURIComponent(jobId)}`,
+      );
+      if (!statusResponse.ok) {
+        const errorData = (await statusResponse.json()) as {error?: string};
+        throw new Error(errorData.error || 'Failed to check conversion status');
+      }
+
+      const status = (await statusResponse.json()) as
+        | ({status: 'queued' | 'processing'} & Record<string, unknown>)
+        | ({status: 'error'; error?: string} & Record<string, unknown>)
+        | ({
+            status: 'complete';
+            key: string;
+            filename: string;
+            contentType: string;
+            size: number;
+            fileAccessExp?: number;
+            fileAccessSig?: string;
+            original?: FileData & {fileAccessExp?: number; fileAccessSig?: string};
+          } & Record<string, unknown>);
+
+      if (status.status === 'complete') {
+        return status;
+      }
+      if (status.status === 'error') {
+        throw new Error(status.error || 'Receipt conversion failed.');
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, pollMs));
+    }
+
+    throw new Error('Receipt processing timed out. Please try again.');
+  }, []);
+
   const uploadFile = useCallback(
     async (file: File, receiptRowIndex: number, payableTo?: string): Promise<FileData[] | null> => {
       const id = crypto.randomUUID();
@@ -60,11 +101,24 @@ export function useFileUpload(turnstileToken: string | null, onResetTurnstile?: 
           throw new Error(errorData.error || 'Processing failed');
         }
 
-        const result = (await response.json()) as FileData & {
-          original?: FileData & {fileAccessExp?: number; fileAccessSig?: string};
-          fileAccessExp?: number;
-          fileAccessSig?: string;
-        };
+        const queued = (await response.json()) as {jobId?: string};
+        if (!queued.jobId) {
+          throw new Error('Upload did not return a processing job. Please try again.');
+        }
+
+        setUploads((prev) => {
+          const next = new Map(prev);
+          next.set(id, {
+            id,
+            filename: file.name,
+            progress: 60,
+            status: 'uploading',
+            receiptRowIndex,
+          });
+          return next;
+        });
+
+        const result = await pollJobUntilComplete(queued.jobId);
 
         if (!result.original?.key) {
           throw new Error(
@@ -124,7 +178,7 @@ export function useFileUpload(turnstileToken: string | null, onResetTurnstile?: 
         return null;
       }
     },
-    [turnstileToken, onResetTurnstile],
+    [pollJobUntilComplete, turnstileToken, onResetTurnstile],
   );
 
   const clearUpload = useCallback((id: string) => {
