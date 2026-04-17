@@ -7,13 +7,12 @@ interface ReceiptLineFilesProps {
   receiptRowIndex: number;
   rowFiles: FileData[];
   rowUploads: UploadProgress[];
-  uploadFile: (
-    file: File,
+  registerPendingBatch: (items: Array<{id: string; file: File}>, receiptRowIndex: number) => void;
+  uploadFilesBatch: (
+    items: Array<{id: string; file: File}>,
     receiptRowIndex: number,
     payableTo?: string,
-    options?: {uploadId?: string},
-  ) => Promise<FileData[] | null>;
-  registerPendingBatch: (items: Array<{id: string; file: File}>, receiptRowIndex: number) => void;
+  ) => Promise<(FileData[] | null)[]>;
   clearUpload: (id: string) => void;
   onBatchUploadComplete: () => void;
   onAppendRowFiles: (files: FileData[]) => boolean;
@@ -45,12 +44,41 @@ function formatFileSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+/** Stable pick so the same upload doesn't flicker copy on re-renders. */
+function pickById(id: string, messages: readonly string[]) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (Math.imul(31, h) + id.charCodeAt(i)) | 0;
+  return messages[Math.abs(h) % messages.length];
+}
+
+/** Stagger indeterminate bars so parallel uploads don't pulse in lockstep. */
+function staggerDelayMs(id: string) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (Math.imul(31, h) + id.charCodeAt(i)) | 0;
+  return Math.abs(h) % 550;
+}
+
+const QUEUED_COPY = [
+  'In line behind the spirit wear order—almost your turn.',
+  'Saving your spot in the receipt conga line.',
+  'Queued like a silent-auction paddle. Hang tight.',
+] as const;
+
+const AI_ANALYSIS_COPY = [
+  'Our volunteer AI is squinting at this like a bake-sale price list.',
+  'Teaching a cloud robot PTA math—one line item at a time.',
+  'The digital treasurer is reading the fine print. No humans were caffeinated for this step.',
+  'Eagle-spirit machine learning is on the case. Spirit wear not required.',
+  'Robo-Treasurer™ is cross-checking totals. The popsicle budget thanks you.',
+  'Neural nets are doing the boring part so the real volunteers can do the fun part.',
+] as const;
+
 export function ReceiptLineFiles({
   receiptRowIndex,
   rowFiles,
   rowUploads,
-  uploadFile,
   registerPendingBatch,
+  uploadFilesBatch,
   clearUpload,
   onBatchUploadComplete,
   onAppendRowFiles,
@@ -73,7 +101,9 @@ export function ReceiptLineFiles({
 
     const maxUploadsAllowed = Math.floor(remainingFileSlots / 2);
     if (maxUploadsAllowed <= 0) {
-      setSelectionError('You have reached the 8-file limit. Remove a file before uploading more.');
+      setSelectionError(
+        'You have reached the limit (8 receipt images or PDFs; each upload stores 2 files). Remove a file before uploading more.',
+      );
       return;
     }
 
@@ -89,17 +119,18 @@ export function ReceiptLineFiles({
     const slots = filesToProcess.map((file) => ({id: crypto.randomUUID(), file}));
     registerPendingBatch(slots, receiptRowIndex);
 
-    let hadError = false;
-    for (const {id, file} of slots) {
-      const results = await uploadFile(file, receiptRowIndex, payableTo, {uploadId: id});
-      if (!results) {
+    const batchResults = await uploadFilesBatch(slots, receiptRowIndex, payableTo);
+
+    const anyUploadFailed = batchResults.some((r) => r === null);
+    const flatToAppend = batchResults.flatMap((r) => r ?? []);
+    let hadError = anyUploadFailed;
+
+    if (flatToAppend.length > 0) {
+      if (!onAppendRowFiles(flatToAppend)) {
+        setSelectionError(
+          'You can attach up to 8 receipt images or PDFs total (each upload adds an original and a converted copy).',
+        );
         hadError = true;
-        break;
-      }
-      if (!onAppendRowFiles(results)) {
-        setSelectionError('You can attach up to 8 files total across all receipts.');
-        hadError = true;
-        break;
       }
     }
 
@@ -139,22 +170,47 @@ export function ReceiptLineFiles({
               }`}
               key={upload.id}
             >
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-sm font-medium truncate">{upload.filename}</span>
-                <span className="text-sm text-charcoal/70">
-                  {upload.status === 'uploading' &&
-                    upload.progress <= 30 &&
-                    'Processing image...'}
-                  {upload.status === 'uploading' && upload.progress > 30 && `${upload.progress}%`}
+              <div className="flex justify-between items-start gap-2 mb-1">
+                <span className="text-sm font-medium truncate min-w-0">{upload.filename}</span>
+                <span className="text-sm text-charcoal/70 shrink-0 text-right">
+                  {upload.status === 'pending' && 'Queued'}
+                  {upload.status === 'uploading' && upload.progress <= 30 && 'Uploading…'}
+                  {upload.status === 'uploading' && upload.progress > 30 && upload.progress < 100 && (
+                    <>
+                      AI analysis
+                      <span className="sr-only">; still working, no exact percentage available</span>
+                    </>
+                  )}
                   {upload.status === 'complete' && 'Complete'}
                   {upload.status === 'error' && 'Failed'}
                 </span>
               </div>
-              {upload.status === 'uploading' && (
-                <div className="w-full bg-charcoal/10 rounded-full h-2">
+              {upload.status === 'pending' && (
+                <p className="text-xs text-charcoal/75 mb-2">
+                  {pickById(upload.id, QUEUED_COPY)}
+                </p>
+              )}
+              {upload.status === 'uploading' && upload.progress > 30 && upload.progress < 100 && (
+                <p className="text-xs text-charcoal/75 mb-2">
+                  {pickById(upload.id, AI_ANALYSIS_COPY)}
+                </p>
+              )}
+              {upload.status === 'uploading' && upload.progress <= 30 && (
+                <div className="h-2 w-full overflow-hidden rounded-full bg-charcoal/10">
                   <div
-                    className="bg-eagle-blue h-2 rounded-full transition-all"
+                    className="h-2 rounded-full bg-eagle-blue transition-[width] duration-300 ease-out"
                     style={{width: `${upload.progress}%`}}
+                  />
+                </div>
+              )}
+              {upload.status === 'uploading' && upload.progress > 30 && upload.progress < 100 && (
+                <div
+                  aria-hidden="true"
+                  className="relative h-2 w-full overflow-hidden rounded-full bg-charcoal/10"
+                >
+                  <div
+                    className="receipt-upload-indeterminate-segment absolute top-0 left-0 h-full w-[42%] rounded-full bg-eagle-blue"
+                    style={{animationDelay: `${staggerDelayMs(upload.id)}ms`}}
                   />
                 </div>
               )}

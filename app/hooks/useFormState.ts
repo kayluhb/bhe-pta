@@ -1,9 +1,10 @@
 import {useCallback, useEffect, useState} from 'react';
-import type {
-  BudgetSelectionData,
-  FileData,
-  ReceiptData,
-  RequesterData,
+import {
+  MAX_RECEIPT_FILE_RECORDS,
+  type BudgetSelectionData,
+  type FileData,
+  type ReceiptData,
+  type RequesterData,
 } from '~/lib/reimbursement/validation';
 
 const STORAGE_KEY = 'bhe-pta-requester-info';
@@ -177,8 +178,10 @@ export function useFormState() {
       const nextRows = [...prev.filesByReceipt];
       nextRows[receiptIndex] = stamped;
       const total = nextRows.reduce((s, row) => s + row.length, 0);
-      if (total > 8) {
-        setFileError('You can attach up to 8 files total across all receipts.');
+      if (total > MAX_RECEIPT_FILE_RECORDS) {
+        setFileError(
+          'You can attach up to 8 receipt images or PDFs total (each upload stores an original and a converted copy).',
+        );
         return prev;
       }
       setFileError(null);
@@ -195,8 +198,10 @@ export function useFormState() {
       const existing = nextRows[receiptIndex] ?? [];
       nextRows[receiptIndex] = [...existing, ...stamped];
       const total = nextRows.reduce((sum, row) => sum + row.length, 0);
-      if (total > 8) {
-        setFileError('You can attach up to 8 files total across all receipts.');
+      if (total > MAX_RECEIPT_FILE_RECORDS) {
+        setFileError(
+          'You can attach up to 8 receipt images or PDFs total (each upload stores an original and a converted copy).',
+        );
         return prev;
       }
       didAppend = true;

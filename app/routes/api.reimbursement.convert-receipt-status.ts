@@ -1,4 +1,8 @@
-import {FILE_ACCESS_TTL_SEC, signFileAccess} from '~/lib/reimbursement/file-url-signature';
+import {
+  FILE_ACCESS_TTL_SEC,
+  resolveFilePreviewSigningSecret,
+  signFileAccess,
+} from '~/lib/reimbursement/file-url-signature';
 import type {Route} from './+types/api.reimbursement.convert-receipt-status';
 
 interface JobRow {
@@ -50,8 +54,15 @@ export async function loader({request, context}: Route.LoaderArgs) {
     });
   }
 
-  const signingSecret = context.cloudflare.env.FILE_URL_SIGNING_SECRET;
-  if (!signingSecret || !row.converted_key || !row.converted_filename || !row.converted_size) {
+  if (!row.converted_key || !row.converted_filename || !row.converted_size) {
+    return Response.json(
+      {error: 'Receipt conversion finished but preview data is missing. Please try uploading again.'},
+      {status: 503},
+    );
+  }
+
+  const signingSecret = resolveFilePreviewSigningSecret(context.cloudflare.env);
+  if (!signingSecret) {
     return Response.json(
       {error: 'File preview signing is not configured for this environment.'},
       {status: 503},

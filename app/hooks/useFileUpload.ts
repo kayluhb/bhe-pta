@@ -11,11 +11,6 @@ export interface UploadProgress {
   receiptRowIndex: number;
 }
 
-export type UploadFileOptions = {
-  /** When set, this id was pre-registered as pending (e.g. multi-file batch). */
-  uploadId?: string;
-};
-
 export function useFileUpload(turnstileToken: string | null) {
   const [uploads, setUploads] = useState<Map<string, UploadProgress>>(new Map());
   /** HMAC token from last successful convert-receipt; allows follow-up uploads without Turnstile. */
@@ -62,7 +57,7 @@ export function useFileUpload(turnstileToken: string | null) {
     throw new Error('Receipt processing timed out. Please try again.');
   }, []);
 
-  /** Show all files as pending before sequential uploads (multi-select queue). */
+  /** Show all files as pending before uploads (multi-select batch). */
   const registerPendingBatch = useCallback(
     (items: Array<{id: string; file: File}>, receiptRowIndex: number) => {
       setUploads((prev) => {
@@ -86,42 +81,91 @@ export function useFileUpload(turnstileToken: string | null) {
     receiptUploadContinuationRef.current = null;
   }, []);
 
-  const uploadFile = useCallback(
+  const markUploadError = useCallback((id: string, filename: string, receiptRowIndex: number, message: string) => {
+    receiptUploadContinuationRef.current = null;
+    setUploads((prev) => {
+      const next = new Map(prev);
+      next.set(id, {
+        id,
+        filename,
+        progress: 0,
+        status: 'error',
+        error: message,
+        receiptRowIndex,
+      });
+      return next;
+    });
+  }, []);
+
+  const buildFileDataPair = useCallback(
+    (
+      result: Awaited<ReturnType<typeof pollJobUntilComplete>>,
+      receiptLineIndex: number,
+    ): FileData[] => {
+      if (!result.original?.key) {
+        throw new Error(
+          'Upload did not return the original receipt file. Both the original and converted copy are required—please try again.',
+        );
+      }
+      return [
+        {
+          key: result.key,
+          filename: result.filename,
+          contentType: result.contentType,
+          size: result.size,
+          receiptLineIndex,
+          ...(result.fileAccessExp != null && result.fileAccessSig
+            ? {fileAccessExp: result.fileAccessExp, fileAccessSig: result.fileAccessSig}
+            : {}),
+        },
+        {
+          ...result.original,
+          receiptLineIndex,
+          ...(result.original.fileAccessExp != null && result.original.fileAccessSig
+            ? {
+                fileAccessExp: result.original.fileAccessExp,
+                fileAccessSig: result.original.fileAccessSig,
+              }
+            : {}),
+        },
+      ];
+    },
+    [],
+  );
+
+  /**
+   * Upload many files in parallel after Turnstile (first POST only when no continuation token).
+   * All conversion jobs poll concurrently.
+   */
+  const uploadFilesBatch = useCallback(
     async (
-      file: File,
+      items: Array<{id: string; file: File}>,
       receiptRowIndex: number,
       payableTo?: string,
-      options?: UploadFileOptions,
-    ): Promise<FileData[] | null> => {
-      const id = options?.uploadId ?? crypto.randomUUID();
+    ): Promise<(FileData[] | null)[]> => {
       const receiptLineIndex = receiptRowIndex + 1;
+      const out: (FileData[] | null)[] = items.map(() => null);
 
-      if (!options?.uploadId) {
+      const setProgress = (id: string, filename: string, progress: number, receiptRow: number) => {
         setUploads((prev) => {
           const next = new Map(prev);
           next.set(id, {
             id,
-            filename: file.name,
-            progress: 0,
-            status: 'pending',
-            receiptRowIndex,
-          });
-          return next;
-        });
-      }
-
-      try {
-        setUploads((prev) => {
-          const next = new Map(prev);
-          next.set(id, {
-            id,
-            filename: file.name,
-            progress: 30,
+            filename,
+            progress,
             status: 'uploading',
-            receiptRowIndex,
+            receiptRowIndex: receiptRow,
           });
           return next;
         });
+      };
+
+      const postOne = async (
+        file: File,
+        id: string,
+        auth: 'turnstile' | 'continuation',
+      ): Promise<string> => {
+        setProgress(id, file.name, 30, receiptRowIndex);
 
         const formData = new FormData();
         formData.append('file', file);
@@ -129,8 +173,12 @@ export function useFileUpload(turnstileToken: string | null) {
         formData.append('receiptNumber', String(receiptLineIndex));
 
         const headers: Record<string, string> = {};
-        if (receiptUploadContinuationRef.current) {
-          headers['X-Receipt-Upload-Token'] = receiptUploadContinuationRef.current;
+        if (auth === 'continuation') {
+          const token = receiptUploadContinuationRef.current;
+          if (!token) {
+            throw new Error('Verification required');
+          }
+          headers['X-Receipt-Upload-Token'] = token;
         } else if (turnstileToken) {
           headers['X-Turnstile-Token'] = turnstileToken;
         }
@@ -154,78 +202,98 @@ export function useFileUpload(turnstileToken: string | null) {
           receiptUploadContinuationRef.current = queued.receiptUploadToken;
         }
 
-        setUploads((prev) => {
-          const next = new Map(prev);
-          next.set(id, {
-            id,
-            filename: file.name,
-            progress: 60,
-            status: 'uploading',
-            receiptRowIndex,
-          });
-          return next;
+        setProgress(id, file.name, 60, receiptRowIndex);
+        return queued.jobId;
+      };
+
+      const jobIds: (string | undefined)[] = new Array(items.length);
+
+      if (receiptUploadContinuationRef.current) {
+        const settled = await Promise.allSettled(
+          items.map(({file, id}) => postOne(file, id, 'continuation')),
+        );
+        settled.forEach((result, i) => {
+          if (result.status === 'fulfilled') {
+            jobIds[i] = result.value;
+          } else {
+            const msg =
+              result.reason instanceof Error ? result.reason.message : 'Upload failed';
+            markUploadError(items[i].id, items[i].file.name, receiptRowIndex, msg);
+          }
         });
-
-        const result = await pollJobUntilComplete(queued.jobId);
-
-        if (!result.original?.key) {
-          throw new Error(
-            'Upload did not return the original receipt file. Both the original and converted copy are required—please try again.',
-          );
+      } else if (items.length === 0) {
+        return out;
+      } else if (items.length === 1) {
+        const {file, id} = items[0];
+        try {
+          jobIds[0] = await postOne(file, id, 'turnstile');
+        } catch (error) {
+          const msg = error instanceof Error ? error.message : 'Upload failed';
+          markUploadError(id, file.name, receiptRowIndex, msg);
+          return out;
+        }
+      } else {
+        const {file, id} = items[0];
+        try {
+          jobIds[0] = await postOne(file, id, 'turnstile');
+        } catch (error) {
+          const msg = error instanceof Error ? error.message : 'Upload failed';
+          markUploadError(id, file.name, receiptRowIndex, msg);
+          for (let j = 1; j < items.length; j++) {
+            markUploadError(
+              items[j].id,
+              items[j].file.name,
+              receiptRowIndex,
+              'Canceled because an earlier upload failed.',
+            );
+          }
+          return out;
         }
 
-        setUploads((prev) => {
-          const next = new Map(prev);
-          next.set(id, {
-            id,
-            filename: file.name,
-            progress: 100,
-            status: 'complete',
-            receiptRowIndex,
-          });
-          return next;
+        const settled = await Promise.allSettled(
+          items.slice(1).map(({file: f, id: uid}) => postOne(f, uid, 'continuation')),
+        );
+        settled.forEach((result, j) => {
+          const idx = j + 1;
+          if (result.status === 'fulfilled') {
+            jobIds[idx] = result.value;
+          } else {
+            const msg =
+              result.reason instanceof Error ? result.reason.message : 'Upload failed';
+            markUploadError(items[idx].id, items[idx].file.name, receiptRowIndex, msg);
+          }
         });
-
-        return [
-          {
-            key: result.key,
-            filename: result.filename,
-            contentType: result.contentType,
-            size: result.size,
-            receiptLineIndex,
-            ...(result.fileAccessExp != null && result.fileAccessSig
-              ? {fileAccessExp: result.fileAccessExp, fileAccessSig: result.fileAccessSig}
-              : {}),
-          },
-          {
-            ...result.original,
-            receiptLineIndex,
-            ...(result.original.fileAccessExp != null && result.original.fileAccessSig
-              ? {
-                  fileAccessExp: result.original.fileAccessExp,
-                  fileAccessSig: result.original.fileAccessSig,
-                }
-              : {}),
-          },
-        ];
-      } catch (error) {
-        receiptUploadContinuationRef.current = null;
-        setUploads((prev) => {
-          const next = new Map(prev);
-          next.set(id, {
-            id,
-            filename: file.name,
-            progress: 0,
-            status: 'error',
-            error: error instanceof Error ? error.message : 'Upload failed',
-            receiptRowIndex,
-          });
-          return next;
-        });
-        return null;
       }
+
+      await Promise.allSettled(
+        items.map(async ({id, file}, i) => {
+          const jobId = jobIds[i];
+          if (!jobId) return;
+          try {
+            const result = await pollJobUntilComplete(jobId);
+            const pair = buildFileDataPair(result, receiptLineIndex);
+            setUploads((prev) => {
+              const next = new Map(prev);
+              next.set(id, {
+                id,
+                filename: file.name,
+                progress: 100,
+                status: 'complete',
+                receiptRowIndex,
+              });
+              return next;
+            });
+            out[i] = pair;
+          } catch (error) {
+            const msg = error instanceof Error ? error.message : 'Upload failed';
+            markUploadError(id, file.name, receiptRowIndex, msg);
+          }
+        }),
+      );
+
+      return out;
     },
-    [pollJobUntilComplete, turnstileToken],
+    [buildFileDataPair, markUploadError, pollJobUntilComplete, turnstileToken],
   );
 
   const clearUpload = useCallback((id: string) => {
@@ -242,11 +310,11 @@ export function useFileUpload(turnstileToken: string | null) {
   }, []);
 
   return {
-    uploadFile,
-    registerPendingBatch,
+    clearAllUploads,
     clearReceiptUploadContinuation,
     clearUpload,
-    clearAllUploads,
+    registerPendingBatch,
+    uploadFilesBatch,
     uploads: Array.from(uploads.values()),
   };
 }

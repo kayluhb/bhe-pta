@@ -2,6 +2,7 @@ import {Button} from '~/components/reimbursement/ui/Button';
 import {Input} from '~/components/reimbursement/ui/Input';
 import {useFileUpload} from '~/hooks/useFileUpload';
 import type {FileData, ReceiptData} from '~/lib/reimbursement/validation';
+import {MAX_RECEIPT_FILE_RECORDS} from '~/lib/reimbursement/validation';
 import {ReceiptLineFiles} from './ReceiptLineFiles';
 
 interface ReceiptEntriesProps {
@@ -38,11 +39,11 @@ export function ReceiptEntries({
   onResetTurnstile,
 }: ReceiptEntriesProps) {
   const {
-    uploadFile,
-    clearUpload,
-    uploads,
-    registerPendingBatch,
     clearReceiptUploadContinuation,
+    clearUpload,
+    registerPendingBatch,
+    uploadFilesBatch,
+    uploads,
   } = useFileUpload(turnstileToken);
 
   const isAnyUploading = uploads.some((u) => u.status === 'uploading' || u.status === 'pending');
@@ -155,10 +156,10 @@ export function ReceiptEntries({
                 payableTo={payableTo}
                 receiptRowIndex={index}
                 registerPendingBatch={registerPendingBatch}
-                remainingFileSlots={Math.max(0, 8 - totalAttachedFiles)}
+                remainingFileSlots={Math.max(0, MAX_RECEIPT_FILE_RECORDS - totalAttachedFiles)}
                 rowFiles={filesByReceipt[index] ?? []}
                 rowUploads={uploads.filter((u) => u.receiptRowIndex === index)}
-                uploadFile={uploadFile}
+                uploadFilesBatch={uploadFilesBatch}
               />
             </div>
           ))}

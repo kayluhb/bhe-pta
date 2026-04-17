@@ -63,6 +63,20 @@ dialog[open]::backdrop {
   }
 }
 
+/* Receipt upload: sliding segment while queue/AI runs (no real % from server) */
+@keyframes receipt-upload-indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+.receipt-upload-indeterminate-segment {
+  animation: receipt-upload-indeterminate 1.85s ease-in-out infinite;
+}
+
 /* Disco Eagle Easter Egg */
 @keyframes disco-bg {
   0% {

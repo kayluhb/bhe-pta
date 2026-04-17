@@ -123,6 +123,7 @@ export async function processReceiptConversionJob(
       .run();
 
     queueLog({jobId, outcome: 'error', error: message, totalMs: Date.now() - startedAt});
-    throw error;
+    // Do not rethrow: terminal failures are persisted; retrying would re-bill Gemini for the same job.
+    return;
   }
 }

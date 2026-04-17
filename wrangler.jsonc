@@ -47,7 +47,11 @@
     ],
     "consumers": [
       {
-        "queue": "bhe-pta-receipt-conversion"
+        "queue": "bhe-pta-receipt-conversion",
+        "max_batch_size": 5,
+        "max_batch_timeout": 10,
+        "max_retries": 3,
+        "max_concurrency": 3
       }
     ]
   },
