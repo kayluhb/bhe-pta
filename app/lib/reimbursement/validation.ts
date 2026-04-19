@@ -115,6 +115,8 @@ export const adminTreasurerFieldsSchema = z.object({
 export type AdminTreasurerFields = z.infer<typeof adminTreasurerFieldsSchema>;
 
 export const receiptSchema = z.object({
+  /** Stable React list key; not used by the server beyond optional passthrough. */
+  clientKey: z.string().optional(),
   date: z.string().min(1, 'Date is required'),
   description: z.string().min(1, 'Description is required'),
   amount: z.number().positive('Amount must be positive'),
@@ -139,10 +141,13 @@ export const budgetSelectionSchema = z.object({
   splitAccounts: z.boolean().default(false),
 });
 
+/** Stored rows per submission: each user upload adds converted + original (2 rows). 16 = 8 uploads. */
+export const MAX_RECEIPT_FILE_RECORDS = 16;
+
 export const submissionSchema = z.object({
   requester: requesterSchema,
   receipts: z.array(receiptSchema).min(1, 'At least one receipt is required').max(4),
-  files: z.array(fileSchema).max(8),
+  files: z.array(fileSchema).max(MAX_RECEIPT_FILE_RECORDS),
   budget: budgetSelectionSchema,
 });
 

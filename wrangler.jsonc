@@ -38,6 +38,23 @@
   "ai": {
     "binding": "AI"
   },
+  "queues": {
+    "producers": [
+      {
+        "binding": "RECEIPT_CONVERSION_QUEUE",
+        "queue": "bhe-pta-receipt-conversion"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "bhe-pta-receipt-conversion",
+        "max_batch_size": 5,
+        "max_batch_timeout": 10,
+        "max_retries": 3,
+        "max_concurrency": 3
+      }
+    ]
+  },
   "triggers": {
     "crons": ["0 2 * * *"]
   }

@@ -2,6 +2,7 @@ import * as Sentry from '@sentry/cloudflare';
 import {createRequestHandler} from 'react-router';
 import {fetchCalendarEvents, fetchPtaCalendarEvents} from '../app/lib/calendar';
 import {fetchMailchimpCampaigns} from '../app/lib/mailchimp';
+import {processReceiptConversionJob} from '../app/lib/reimbursement/receipt-conversion-queue';
 import {scrapeSchoolNews} from '../app/lib/scraper';
 
 interface Env {
@@ -28,6 +29,7 @@ interface Env {
   DATA_REFRESH_SECRET?: string;
   /** HMAC secret for time-limited public preview URLs (GET /api/reimbursement/file). */
   FILE_URL_SIGNING_SECRET?: string;
+  RECEIPT_CONVERSION_QUEUE: Queue;
 }
 
 declare module 'react-router' {
@@ -157,6 +159,25 @@ const handler = {
     const log = await runDataRefresh(env);
     for (const msg of log) {
       console.log(msg);
+    }
+  },
+
+  async queue(batch: MessageBatch<unknown>, env: Env, _ctx: ExecutionContext) {
+    for (const message of batch.messages) {
+      try {
+        const body = message.body;
+        if (!body || typeof body !== 'object' || !('jobId' in body)) {
+          console.error('[receipt-conversion-queue] invalid message payload', body);
+          message.ack();
+          continue;
+        }
+        const parsed = body as {jobId: string};
+        await processReceiptConversionJob(env, parsed);
+        message.ack();
+      } catch (error) {
+        console.error('[receipt-conversion-queue] worker queue consumer failed', error);
+        message.retry();
+      }
     }
   },
 } satisfies ExportedHandler<Env>;

@@ -25,6 +25,17 @@ async function loadReferencedKeys(db: D1Database): Promise<Set<string>> {
     const k = row.r2_key.trim();
     if (k) referenced.add(k);
   }
+  const conversionKeys = await db
+    .prepare(
+      `SELECT original_key AS k FROM receipt_conversion_jobs WHERE original_key IS NOT NULL
+       UNION ALL
+       SELECT converted_key AS k FROM receipt_conversion_jobs WHERE converted_key IS NOT NULL`,
+    )
+    .all<{k: string}>();
+  for (const row of conversionKeys.results) {
+    const k = row.k.trim();
+    if (k) referenced.add(k);
+  }
   return referenced;
 }
 

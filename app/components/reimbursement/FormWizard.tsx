@@ -21,13 +21,14 @@ export function FormWizard() {
     updateReceipt,
     addReceipt,
     removeReceipt,
-    replaceReceiptFiles,
+    appendReceiptFiles,
     removeFileFromReceipt,
     flattenFilesForSubmit,
     updateBudget,
     nextStep,
     prevStep,
     getReceiptBudgetAccount,
+    fileError,
   } = useFormState();
 
   const {token: turnstileToken, containerRef: turnstileRef, reset: resetTurnstile} = useTurnstile();
@@ -65,7 +66,7 @@ export function FormWizard() {
     setShowHelp(false);
     try {
       localStorage.setItem(HELP_SEEN_KEY, '1');
-    } catch (e) {}
+    } catch {}
   }, []);
 
   useEffect(() => {
@@ -73,7 +74,7 @@ export function FormWizard() {
       if (!localStorage.getItem(HELP_SEEN_KEY)) {
         setShowHelp(true);
       }
-    } catch (e) {
+    } catch {
       setShowHelp(true);
     }
   }, []);
@@ -91,8 +92,8 @@ export function FormWizard() {
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
-    const handleCancel = (e: Event) => {
-      e.preventDefault();
+    const handleCancel = (event: Event) => {
+      event.preventDefault();
       closeHelp();
     };
     dialog.addEventListener('cancel', handleCancel);
@@ -108,6 +109,11 @@ export function FormWizard() {
         className="max-w-lg w-full m-auto rounded-lg border border-charcoal/10 bg-white p-0 shadow-xl backdrop:bg-black/40 backdrop:backdrop-blur-sm"
         onClick={(e) => {
           if (e.target === e.currentTarget) closeHelp();
+        }}
+        onKeyDown={(e) => {
+          if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === 'Escape')) {
+            closeHelp();
+          }
         }}
         ref={dialogRef}
       >
@@ -179,12 +185,13 @@ export function FormWizard() {
       {currentStep === 1 && (
         <ReceiptEntries
           filesByReceipt={state.filesByReceipt}
+          fileError={fileError}
           onAdd={addReceipt}
           onBack={prevStep}
           onNext={nextStep}
           onRemove={removeReceipt}
           onRemoveFileFromReceipt={removeFileFromReceipt}
-          onReplaceReceiptFiles={replaceReceiptFiles}
+          onAppendReceiptFiles={appendReceiptFiles}
           onResetTurnstile={resetTurnstile}
           onUpdate={updateReceipt}
           payableTo={state.requester.payableTo}
@@ -219,7 +226,7 @@ export function FormWizard() {
       )}
 
       <div className="flex justify-center mt-6">
-        <div aria-label="Security verification" ref={turnstileRef} />
+        <div ref={turnstileRef} />
       </div>
     </div>
   );

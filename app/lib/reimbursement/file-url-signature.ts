@@ -54,3 +54,16 @@ export async function verifyFileAccess(
 
 /** Default preview URL lifetime (1 hour). */
 export const FILE_ACCESS_TTL_SEC = 3600;
+
+/**
+ * Secret for signing GET /api/reimbursement/file URLs. Prefer a dedicated
+ * FILE_URL_SIGNING_SECRET when set; otherwise match receipt upload continuation
+ * tokens (SESSION_SECRET) so preview works when only session signing is configured.
+ */
+export function resolveFilePreviewSigningSecret(env: {
+  FILE_URL_SIGNING_SECRET?: string;
+  SESSION_SECRET: string;
+}): string | undefined {
+  const s = env.FILE_URL_SIGNING_SECRET || env.SESSION_SECRET;
+  return s ? s : undefined;
+}

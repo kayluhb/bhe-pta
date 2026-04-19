@@ -1,13 +1,11 @@
 import {
   ACCEPTED_TYPES,
   MAX_FILE_SIZE,
-  extractReceiptData,
-  generateReceiptPDF,
-  parseSubmissionReceiptLineForPdf,
-  receiptFieldString,
-  type ReceiptData,
 } from '~/lib/reimbursement/receipt';
-import {FILE_ACCESS_TTL_SEC, signFileAccess} from '~/lib/reimbursement/file-url-signature';
+import {
+  issueReceiptUploadContinuationToken,
+  verifyReceiptUploadContinuationToken,
+} from '~/lib/reimbursement/receipt-upload-token';
 import {requireTurnstile} from '~/lib/turnstile';
 import type {Route} from './+types/api.reimbursement.convert-receipt';
 
@@ -15,30 +13,31 @@ function logConvertReceipt(payload: Record<string, unknown>) {
   console.log(`[convert-receipt] ${JSON.stringify(payload)}`);
 }
 
-function receiptExtractSummary(receipt: ReceiptData) {
-  const raw = receiptFieldString(receipt.raw_transcript);
-  return {
-    vendor: receiptFieldString(receipt.vendor_name) ? 'yes' : 'no',
-    lineItems: receipt.line_items?.length ?? 0,
-    hasTotal: receiptFieldString(receipt.total).length > 0,
-    hasSubtotal: receiptFieldString(receipt.subtotal).length > 0,
-    hasShipping: receiptFieldString(receipt.shipping).length > 0,
-    hasTip: receiptFieldString(receipt.tip).length > 0,
-    hasNotes: receiptFieldString(receipt.notes).length > 0,
-    hasRawTranscript: raw.length > 0,
-    rawTranscriptChars: raw.length,
-  };
-}
-
 export async function action({request, context}: Route.ActionArgs) {
   const requestId = crypto.randomUUID();
   const startedAt = Date.now();
 
   try {
-    const denied = await requireTurnstile(request, context.cloudflare.env.TURNSTILE_SECRET_KEY);
-    if (denied) {
-      logConvertReceipt({requestId, outcome: 'turnstile_denied'});
-      return denied;
+    const env = context.cloudflare.env;
+    const continuationSecret = env.SESSION_SECRET || env.FILE_URL_SIGNING_SECRET;
+    const continuation = request.headers.get('X-Receipt-Upload-Token');
+
+    let authViaContinuation = false;
+    if (continuation && continuationSecret) {
+      authViaContinuation = await verifyReceiptUploadContinuationToken(
+        continuation,
+        continuationSecret,
+      );
+    }
+
+    if (!authViaContinuation) {
+      const denied = await requireTurnstile(request, env.TURNSTILE_SECRET_KEY);
+      if (denied) {
+        logConvertReceipt({requestId, outcome: 'turnstile_denied'});
+        return denied;
+      }
+    } else {
+      logConvertReceipt({requestId, outcome: 'auth_continuation_token'});
     }
 
     const formData = await request.formData();
@@ -76,68 +75,30 @@ export async function action({request, context}: Route.ActionArgs) {
       return Response.json({error: 'File too large. Maximum 10MB.'}, {status: 400});
     }
 
-    const env = context.cloudflare.env;
-
     const payableTo = formData.get('payableTo') as string | null;
     const receiptNumber = formData.get('receiptNumber') as string | null;
 
-    // Read once: Workers may not allow a second file.arrayBuffer(); reuse for Gemini + R2 original.
+    // Read once: Workers may not allow a second file.arrayBuffer().
     const fileBytes = new Uint8Array(await file.arrayBuffer());
     if (fileBytes.byteLength === 0) {
       logConvertReceipt({requestId, outcome: 'reject', reason: 'empty_body', filename: file.name});
       return Response.json({error: 'Uploaded file was empty.'}, {status: 400});
     }
 
-    logConvertReceipt({
-      requestId,
-      phase: 'start',
-      filename: file.name,
-      contentType: file.type,
-      declaredSize: file.size,
-      byteLength: fileBytes.byteLength,
-      hasPayableTo: Boolean(payableTo?.trim()),
-      receiptNumber: receiptNumber || undefined,
-    });
-
-    // Extract receipt data via Gemini
-    const extractStarted = Date.now();
-    const result = await extractReceiptData(fileBytes, file.type, env.GEMINI_API_KEY);
-    if ('error' in result) {
-      logConvertReceipt({
-        requestId,
-        outcome: 'extract_failed',
-        status: result.status,
-        error: result.error,
-        extractMs: Date.now() - extractStarted,
-      });
-      return Response.json({error: result.error}, {status: result.status});
+    // Upload original immediately; queue worker will generate converted PDF.
+    const db = env.REIMBURSEMENT_DB;
+    if (!db) {
+      logConvertReceipt({requestId, outcome: 'reject', reason: 'no_db'});
+      return Response.json({error: 'Storage is not configured for this environment.'}, {status: 503});
     }
-    const {receipt} = result;
+    if (!env.RECEIPT_CONVERSION_QUEUE) {
+      logConvertReceipt({requestId, outcome: 'reject', reason: 'no_queue'});
+      return Response.json({error: 'Receipt processing queue is not configured.'}, {status: 503});
+    }
 
-    logConvertReceipt({
-      requestId,
-      phase: 'extracted',
-      extractMs: Date.now() - extractStarted,
-      ...receiptExtractSummary(receipt),
-    });
-
-    // Generate formatted PDF
-    const lineForPdf = parseSubmissionReceiptLineForPdf(receiptNumber);
-    const titleReceiptLabel = lineForPdf ?? (receiptNumber?.trim() || '1');
-    const pdfTitle = payableTo
-      ? `${payableTo}: Receipt ${titleReceiptLabel}`
-      : 'Receipt Transcript';
-    const pdfBuffer = generateReceiptPDF(receipt, pdfTitle, {
-      submissionReceiptLine: lineForPdf,
-    });
-
-    // Upload PDF and original to R2 — both are required so treasurers always have the source file
-    // if the generated PDF/OCR is wrong. (Original bytes are `fileBytes` from the single read above.)
-    const isPDF = file.type === 'application/pdf';
     const timestamp = Date.now();
     const baseName = file.name.replace(/\.[^.]+$/, '');
     const sanitizedName = baseName.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const pdfKey = `uploads/${timestamp}-${crypto.randomUUID()}-${sanitizedName}.pdf`;
 
     if (!env.R2_BUCKET) {
       logConvertReceipt({requestId, outcome: 'reject', reason: 'no_r2_bucket'});
@@ -151,61 +112,51 @@ export async function action({request, context}: Route.ActionArgs) {
       );
     }
 
-    const ext = file.name.split('.').pop() || (isPDF ? 'pdf' : 'jpg');
+    const ext = file.name.split('.').pop() || 'bin';
     const originalKey = `uploads/${timestamp}-${crypto.randomUUID()}-${sanitizedName}.${ext}`;
 
     await env.R2_BUCKET.put(originalKey, fileBytes, {
       httpMetadata: {contentType: file.type},
     });
-    await env.R2_BUCKET.put(pdfKey, pdfBuffer, {
-      httpMetadata: {contentType: 'application/pdf'},
-    });
+    const jobId = crypto.randomUUID();
+    await db
+      .prepare(
+        `INSERT INTO receipt_conversion_jobs
+         (id, status, original_key, original_filename, original_content_type, original_size, receipt_number, payable_to)
+         VALUES (?, 'queued', ?, ?, ?, ?, ?, ?)`,
+      )
+      .bind(
+        jobId,
+        originalKey,
+        file.name,
+        file.type,
+        fileBytes.byteLength,
+        receiptNumber?.trim() || null,
+        payableTo?.trim() || null,
+      )
+      .run();
 
-    const signingSecret = env.FILE_URL_SIGNING_SECRET;
-    if (!signingSecret) {
-      logConvertReceipt({requestId, outcome: 'reject', reason: 'no_file_url_signing_secret'});
-      console.error('[convert-receipt] FILE_URL_SIGNING_SECRET is not configured');
-      return Response.json(
-        {error: 'File preview signing is not configured for this environment.'},
-        {status: 503},
-      );
-    }
-
-    const fileAccessExp = Math.floor(Date.now() / 1000) + FILE_ACCESS_TTL_SEC;
-    const [pdfSig, originalSig] = await Promise.all([
-      signFileAccess(pdfKey, fileAccessExp, signingSecret),
-      signFileAccess(originalKey, fileAccessExp, signingSecret),
-    ]);
+    await env.RECEIPT_CONVERSION_QUEUE.send({jobId});
 
     const totalMs = Date.now() - startedAt;
     logConvertReceipt({
       requestId,
-      outcome: 'ok',
+      outcome: 'queued',
       totalMs,
-      pdfKey,
+      jobId,
       originalKey,
-      convertedPdfBytes: pdfBuffer.length,
       originalBytes: fileBytes.byteLength,
-      responseFilename: `${sanitizedName}-converted.pdf`,
     });
 
-    const originalMeta = {
-      key: originalKey,
-      filename: file.name,
-      contentType: file.type,
-      size: fileBytes.byteLength,
-      fileAccessExp,
-      fileAccessSig: originalSig,
-    };
+    let receiptUploadToken: string | undefined;
+    if (continuationSecret) {
+      receiptUploadToken = await issueReceiptUploadContinuationToken(continuationSecret);
+    }
 
     return Response.json({
-      key: pdfKey,
-      filename: `${sanitizedName}-converted.pdf`,
-      contentType: 'application/pdf',
-      size: pdfBuffer.length,
-      fileAccessExp,
-      fileAccessSig: pdfSig,
-      original: originalMeta,
+      jobId,
+      receiptUploadToken,
+      status: 'queued',
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

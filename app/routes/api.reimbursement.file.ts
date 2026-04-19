@@ -1,4 +1,4 @@
-import {verifyFileAccess} from '~/lib/reimbursement/file-url-signature';
+import {resolveFilePreviewSigningSecret, verifyFileAccess} from '~/lib/reimbursement/file-url-signature';
 import {isValidStagingUploadKey} from '~/lib/reimbursement/r2-staging';
 import type {Route} from './+types/api.reimbursement.file';
 
@@ -14,7 +14,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
     return Response.json({error: 'Invalid key'}, {status: 400});
   }
 
-  const secret = context.cloudflare.env.FILE_URL_SIGNING_SECRET;
+  const secret = resolveFilePreviewSigningSecret(context.cloudflare.env);
   if (!secret || !sig || !Number.isFinite(expSec)) {
     return Response.json({error: 'Missing or invalid access token'}, {status: 403});
   }

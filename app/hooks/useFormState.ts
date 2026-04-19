@@ -1,9 +1,10 @@
 import {useCallback, useEffect, useState} from 'react';
-import type {
-  BudgetSelectionData,
-  FileData,
-  ReceiptData,
-  RequesterData,
+import {
+  MAX_RECEIPT_FILE_RECORDS,
+  type BudgetSelectionData,
+  type FileData,
+  type ReceiptData,
+  type RequesterData,
 } from '~/lib/reimbursement/validation';
 
 const STORAGE_KEY = 'bhe-pta-requester-info';
@@ -52,31 +53,37 @@ const getTwoWeeksFromToday = () => {
   return date.toISOString().split('T')[0];
 };
 
-const initialState: FormState = {
-  requester: {
-    payableTo: '',
-    email: '',
-    phone: '',
-    address: '',
-    dateOfRequest: getTodayDate(),
-    dateCheckNeeded: getTwoWeeksFromToday(),
-    invoiceNumber: '',
-  },
-  receipts: [
-    {
-      date: getTodayDate(),
-      description: '',
-      amount: 0,
-      placeOfPurchase: '',
-      budgetAccount: '',
+function newReceiptRow(): ReceiptData {
+  return {
+    clientKey: crypto.randomUUID(),
+    date: getTodayDate(),
+    description: '',
+    amount: 0,
+    placeOfPurchase: '',
+    budgetAccount: '',
+  };
+}
+
+/** Must not call `crypto.randomUUID()` at module scope (Cloudflare Workers disallow I/O in global scope). */
+function buildDefaultFormState(): FormState {
+  return {
+    requester: {
+      payableTo: '',
+      email: '',
+      phone: '',
+      address: '',
+      dateOfRequest: getTodayDate(),
+      dateCheckNeeded: getTwoWeeksFromToday(),
+      invoiceNumber: '',
     },
-  ],
-  filesByReceipt: [[]],
-  budget: {
-    primaryAccount: '',
-    splitAccounts: false,
-  },
-};
+    receipts: [newReceiptRow()],
+    filesByReceipt: [[]],
+    budget: {
+      primaryAccount: '',
+      splitAccounts: false,
+    },
+  };
+}
 
 const TOTAL_STEPS = 4; // Info, Receipts, Budget, Review
 
@@ -89,19 +96,21 @@ function reindexFilesByReceipt(rows: FileData[][]): FileData[][] {
 export function useFormState() {
   const [state, setState] = useState<FormState>(() => {
     const saved = loadSavedRequesterInfo();
+    const base = buildDefaultFormState();
     if (saved) {
       return {
-        ...initialState,
+        ...base,
         requester: {
-          ...initialState.requester,
+          ...base.requester,
           ...saved,
           dateOfRequest: getTodayDate(),
         },
       };
     }
-    return initialState;
+    return base;
   });
   const [currentStep, setCurrentStep] = useState(0);
+  const [fileError, setFileError] = useState<string | null>(null);
 
   // Persist requester info to localStorage when it changes
   useEffect(() => {
@@ -135,6 +144,7 @@ export function useFormState() {
         receipts: [
           ...prev.receipts,
           {
+            clientKey: crypto.randomUUID(),
             date: lastReceipt?.date || getTodayDate(),
             description: '',
             amount: 0,
@@ -158,6 +168,7 @@ export function useFormState() {
         filesByReceipt: reindexFilesByReceipt(newFiles),
       };
     });
+    setFileError(null);
   }, []);
 
   const replaceReceiptFiles = useCallback((receiptIndex: number, newForRow: FileData[]) => {
@@ -167,9 +178,37 @@ export function useFormState() {
       const nextRows = [...prev.filesByReceipt];
       nextRows[receiptIndex] = stamped;
       const total = nextRows.reduce((s, row) => s + row.length, 0);
-      if (total > 8) return prev;
+      if (total > MAX_RECEIPT_FILE_RECORDS) {
+        setFileError(
+          'You can attach up to 8 receipt images or PDFs total (each upload stores an original and a converted copy).',
+        );
+        return prev;
+      }
+      setFileError(null);
       return {...prev, filesByReceipt: nextRows};
     });
+  }, []);
+
+  const appendReceiptFiles = useCallback((receiptIndex: number, filesToAppend: FileData[]) => {
+    let didAppend = false;
+    setState((prev) => {
+      const line = receiptIndex + 1;
+      const stamped = filesToAppend.map((file) => ({...file, receiptLineIndex: line}));
+      const nextRows = [...prev.filesByReceipt];
+      const existing = nextRows[receiptIndex] ?? [];
+      nextRows[receiptIndex] = [...existing, ...stamped];
+      const total = nextRows.reduce((sum, row) => sum + row.length, 0);
+      if (total > MAX_RECEIPT_FILE_RECORDS) {
+        setFileError(
+          'You can attach up to 8 receipt images or PDFs total (each upload stores an original and a converted copy).',
+        );
+        return prev;
+      }
+      didAppend = true;
+      setFileError(null);
+      return {...prev, filesByReceipt: nextRows};
+    });
+    return didAppend;
   }, []);
 
   const removeFileFromReceipt = useCallback((receiptIndex: number, key: string) => {
@@ -179,6 +218,7 @@ export function useFormState() {
       );
       return {...prev, filesByReceipt: nextRows};
     });
+    setFileError(null);
   }, []);
 
   const updateBudget = useCallback((data: Partial<BudgetSelectionData>) => {
@@ -202,14 +242,14 @@ export function useFormState() {
 
   const reset = useCallback(() => {
     const saved = loadSavedRequesterInfo();
+    const base = buildDefaultFormState();
     setState({
-      ...initialState,
+      ...base,
       requester: {
-        ...initialState.requester,
+        ...base.requester,
         ...(saved || {}),
         dateOfRequest: getTodayDate(),
       },
-      receipts: [{...initialState.receipts[0], date: getTodayDate()}],
     });
     setCurrentStep(0);
   }, []);
@@ -223,7 +263,7 @@ export function useFormState() {
   const getReceiptBudgetAccount = useCallback(
     (index: number): string => {
       if (state.budget.splitAccounts && state.receipts[index]?.budgetAccount) {
-        return state.receipts[index].budgetAccount!;
+        return state.receipts[index]?.budgetAccount ?? '';
       }
       return state.budget.primaryAccount;
     },
@@ -234,11 +274,13 @@ export function useFormState() {
     state,
     currentStep,
     totalAmount,
+    fileError,
     updateRequester,
     updateReceipt,
     addReceipt,
     removeReceipt,
     replaceReceiptFiles,
+    appendReceiptFiles,
     removeFileFromReceipt,
     flattenFilesForSubmit,
     updateBudget,
