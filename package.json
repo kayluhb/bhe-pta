@@ -17,14 +17,14 @@
     "refresh": "curl -s -X POST https://bheeagles.com/api/refresh -H \"Authorization: Bearer $DATA_REFRESH_SECRET\" | jq ."
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1029.0",
-    "@aws-sdk/s3-request-presigner": "^3.1029.0",
+    "@aws-sdk/client-s3": "^3.1032.0",
+    "@aws-sdk/s3-request-presigner": "^3.1032.0",
     "@sentry/cloudflare": "^10.49.0",
     "@sentry/react": "^10.49.0",
     "cheerio": "^1.2.0",
     "fflate": "^0.8.2",
     "ical.js": "^2.2.1",
-    "isbot": "^5.1.37",
+    "isbot": "^5.1.39",
     "jspdf": "^3.0.4",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
@@ -33,8 +33,8 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.11",
-    "@cloudflare/vite-plugin": "^1.31.2",
+    "@biomejs/biome": "^2.4.12",
+    "@cloudflare/vite-plugin": "^1.32.3",
     "@react-router/dev": "7.12.0",
     "@tailwindcss/vite": "^4.2.2",
     "@types/node": "^22.19.17",
@@ -46,6 +46,6 @@
     "typescript": "^5.9.3",
     "vite": "^7.3.2",
     "vite-tsconfig-paths": "^5.1.4",
-    "wrangler": "^4.81.1"
+    "wrangler": "^4.83.0"
   }
 }
