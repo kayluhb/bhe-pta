@@ -9,17 +9,18 @@ import {execSync} from 'node:child_process';
 import {existsSync, readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 
+const homeDir = process.env.HOME;
+if (!homeDir) {
+  throw new Error('HOME must be set to locate the WordPress uploads backup.');
+}
 const UPLOADS_DIR = resolve(
-  process.env.HOME!,
+  homeDir,
   'Downloads/backup-2.21.2026_10-32-28_bheptaco/homedir/public_html/wp-content/uploads',
 );
 const BUCKET = 'pta-archive';
 const R2_PREFIX = 'wp-content/uploads';
 
-const paths = readFileSync('/tmp/upload-list2.txt', 'utf-8')
-  .trim()
-  .split('\n')
-  .filter(Boolean);
+const paths = readFileSync('/tmp/upload-list2.txt', 'utf-8').trim().split('\n').filter(Boolean);
 
 console.log(`Uploading ${paths.length} files to R2...`);
 
@@ -36,16 +37,17 @@ for (const path of paths) {
 
   const r2Key = `${R2_PREFIX}/${path}`;
   try {
-    execSync(
-      `npx wrangler r2 object put "${BUCKET}/${r2Key}" --file "${localFile}" --remote`,
-      {stdio: 'pipe', timeout: 30000},
-    );
+    execSync(`npx wrangler r2 object put "${BUCKET}/${r2Key}" --file "${localFile}" --remote`, {
+      stdio: 'pipe',
+      timeout: 30000,
+    });
     uploaded++;
     if (uploaded % 20 === 0) {
       console.log(`  Progress: ${uploaded}/${paths.length}`);
     }
-  } catch (err: any) {
-    console.log(`FAILED: ${path} — ${err.message?.slice(0, 100)}`);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message?.slice(0, 100) : String(err);
+    console.log(`FAILED: ${path} — ${msg}`);
     failed++;
   }
 }

@@ -19,7 +19,10 @@ export async function action({request, params, context}: Route.ActionArgs) {
 
   const resendApiKey = context.cloudflare.env.RESEND_API_KEY;
   if (!resendApiKey) {
-    return Response.json({error: 'Email is not configured (missing RESEND_API_KEY).'}, {status: 503});
+    return Response.json(
+      {error: 'Email is not configured (missing RESEND_API_KEY).'},
+      {status: 503},
+    );
   }
 
   const id = params.id;

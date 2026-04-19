@@ -19,7 +19,13 @@ const VALID_SORT_COLUMNS = [
 
 const VALID_ORDERS = ['asc', 'desc'] as const;
 
-const VALID_STATUSES = ['pending', 'approved', 'check_delivered', 'rejected', 'needs_info'] as const;
+const VALID_STATUSES = [
+  'pending',
+  'approved',
+  'check_delivered',
+  'rejected',
+  'needs_info',
+] as const;
 
 interface Submission {
   id: number;
@@ -249,7 +255,13 @@ export default function AdminReimbursements() {
 
   const buildSearch = (overrides: Record<string, string | undefined>) => {
     const params = new URLSearchParams();
-    const merged = {status: filters.status, sort: filters.sort, order: filters.order, page: String(pagination.page), ...overrides};
+    const merged = {
+      status: filters.status,
+      sort: filters.sort,
+      order: filters.order,
+      page: String(pagination.page),
+      ...overrides,
+    };
     if (merged.status) params.set('status', merged.status);
     if (merged.sort !== 'submitted_at') params.set('sort', merged.sort);
     if (merged.order !== 'desc') params.set('order', merged.order);
@@ -352,8 +364,7 @@ export default function AdminReimbursements() {
     }
   };
 
-  const r2AllOrphansSelected =
-    r2Orphans.length > 0 && r2SelectedKeys.size === r2Orphans.length;
+  const r2AllOrphansSelected = r2Orphans.length > 0 && r2SelectedKeys.size === r2Orphans.length;
 
   return (
     <div className="min-h-screen bg-warm-white">
@@ -598,7 +609,8 @@ export default function AdminReimbursements() {
           <div className="mt-4 flex items-center justify-between">
             <p className="text-sm text-gray-400 font-body">
               {pagination.totalCount} submission{pagination.totalCount !== 1 ? 's' : ''}
-              {pagination.totalPages > 1 && ` — page ${pagination.page} of ${pagination.totalPages}`}
+              {pagination.totalPages > 1 &&
+                ` — page ${pagination.page} of ${pagination.totalPages}`}
             </p>
             {pagination.totalPages > 1 && (
               <div className="flex items-center gap-1">
@@ -647,14 +659,18 @@ export default function AdminReimbursements() {
           >
             <div className="flex items-start justify-between gap-4 border-b border-gray-200 px-5 py-4">
               <div>
-                <h2 className="text-lg font-heading font-semibold text-charcoal" id="r2-cleanup-title">
+                <h2
+                  className="text-lg font-heading font-semibold text-charcoal"
+                  id="r2-cleanup-title"
+                >
                   Unused R2 objects
                 </h2>
                 <p className="mt-1 text-sm text-gray-600 font-body">
-                  Lists objects under <code className="text-xs bg-gray-100 px-1 rounded">uploads/</code> and{' '}
-                  <code className="text-xs bg-gray-100 px-1 rounded">submissions/</code> that are not linked from
-                  the database (submission PDFs or file attachments). Abandoned uploads and orphaned files after DB
-                  changes appear here.
+                  Lists objects under{' '}
+                  <code className="text-xs bg-gray-100 px-1 rounded">uploads/</code> and{' '}
+                  <code className="text-xs bg-gray-100 px-1 rounded">submissions/</code> that are
+                  not linked from the database (submission PDFs or file attachments). Abandoned
+                  uploads and orphaned files after DB changes appear here.
                 </p>
               </div>
               <button
@@ -700,7 +716,9 @@ export default function AdminReimbursements() {
               )}
               {r2Orphans.length === 0 && !r2ScanLoading && (
                 <p className="text-sm text-gray-500 font-body">
-                  {r2Error ? '' : 'Run a scan to find objects that are not referenced by any submission.'}
+                  {r2Error
+                    ? ''
+                    : 'Run a scan to find objects that are not referenced by any submission.'}
                 </p>
               )}
               {r2Orphans.length > 0 && (
@@ -718,13 +736,22 @@ export default function AdminReimbursements() {
                             type="checkbox"
                           />
                         </th>
-                        <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body" scope="col">
+                        <th
+                          className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body"
+                          scope="col"
+                        >
                           Key
                         </th>
-                        <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body whitespace-nowrap" scope="col">
+                        <th
+                          className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body whitespace-nowrap"
+                          scope="col"
+                        >
                           Size
                         </th>
-                        <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body whitespace-nowrap hidden sm:table-cell" scope="col">
+                        <th
+                          className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body whitespace-nowrap hidden sm:table-cell"
+                          scope="col"
+                        >
                           Uploaded
                         </th>
                       </tr>
@@ -774,8 +801,8 @@ export default function AdminReimbursements() {
               )}
               {r2Orphans.length > 0 && (
                 <p className="mt-2 text-xs text-gray-500 font-body">
-                  {r2Orphans.length} unused object{r2Orphans.length !== 1 ? 's' : ''} found. Only selected rows are
-                  deleted.
+                  {r2Orphans.length} unused object{r2Orphans.length !== 1 ? 's' : ''} found. Only
+                  selected rows are deleted.
                 </p>
               )}
             </div>

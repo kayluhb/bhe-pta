@@ -88,7 +88,7 @@ async function runDataRefresh(env: Env): Promise<string[]> {
   }
 
   if (ptaCalendarResult.status === 'rejected') {
-    const msg = 'Failed to fetch PTA calendar: ' + ptaCalendarResult.reason;
+    const msg = `Failed to fetch PTA calendar: ${ptaCalendarResult.reason}`;
     console.error(msg);
     log.push(msg);
   }
@@ -97,7 +97,7 @@ async function runDataRefresh(env: Env): Promise<string[]> {
     await env.BHE_PTA_NEWSLETTERS.put('latest', JSON.stringify(mailchimpResult.value));
     log.push(`Stored ${mailchimpResult.value.length} PTA newsletters from Mailchimp`);
   } else if (mailchimpResult.status === 'rejected') {
-    const msg = 'Failed to fetch Mailchimp campaigns: ' + mailchimpResult.reason;
+    const msg = `Failed to fetch Mailchimp campaigns: ${mailchimpResult.reason}`;
     console.error(msg);
     log.push(msg);
   }
@@ -140,7 +140,7 @@ const handler = {
       "font-src 'self' https://fonts.gstatic.com data:",
       "img-src 'self' data: https: blob:",
       "connect-src 'self' https://challenges.cloudflare.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io",
-      "frame-src https://challenges.cloudflare.com",
+      'frame-src https://challenges.cloudflare.com',
       "base-uri 'self'",
       "form-action 'self'",
       "frame-ancestors 'self'",
@@ -182,18 +182,15 @@ const handler = {
   },
 } satisfies ExportedHandler<Env>;
 
-export default Sentry.withSentry<Env>(
-  (env: Env) => {
-    if (!env.SENTRY_DSN) {
-      return undefined;
-    }
+export default Sentry.withSentry<Env>((env: Env) => {
+  if (!env.SENTRY_DSN) {
+    return undefined;
+  }
 
-    return {
-      dsn: env.SENTRY_DSN,
-      // Keep sampling conservative for free-tier quota.
-      tracesSampleRate: 0.1,
-      sendDefaultPii: true,
-    };
-  },
-  handler,
-);
+  return {
+    dsn: env.SENTRY_DSN,
+    // Keep sampling conservative for free-tier quota.
+    tracesSampleRate: 0.1,
+    sendDefaultPii: true,
+  };
+}, handler);

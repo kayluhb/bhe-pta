@@ -45,11 +45,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
     return Response.json({error: 'Submission not found'}, {status: 404});
   }
 
-  const pdfResult = await regenerateStoredSubmissionPdf(
-    db,
-    context.cloudflare.env.R2_BUCKET,
-    id,
-  );
+  const pdfResult = await regenerateStoredSubmissionPdf(db, context.cloudflare.env.R2_BUCKET, id);
 
   if (!pdfResult.ok) {
     const warning =

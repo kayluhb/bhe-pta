@@ -161,7 +161,10 @@ export function ReviewSubmit({
                   {rowFiles.length > 0 && (
                     <ul className="mt-3 pt-3 border-t border-charcoal/10 space-y-1">
                       {rowFiles.map((file) => (
-                        <li className="flex items-center gap-2 text-sm text-charcoal" key={file.key}>
+                        <li
+                          className="flex items-center gap-2 text-sm text-charcoal"
+                          key={file.key}
+                        >
                           <svg
                             aria-hidden="true"
                             className="w-4 h-4 shrink-0 text-charcoal/70"

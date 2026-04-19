@@ -86,29 +86,38 @@ export const adminSubmissionContactSchema = z.object({
 
 export type AdminSubmissionContact = z.infer<typeof adminSubmissionContactSchema>;
 
-const optionalIsoDate = z.preprocess((val) => {
-  if (val === undefined || val === null || val === '') return null;
-  if (typeof val === 'string') return val.trim() === '' ? null : val.trim();
-  return val;
-}, z.union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/), z.null()]));
+const optionalIsoDate = z.preprocess(
+  (val) => {
+    if (val === undefined || val === null || val === '') return null;
+    if (typeof val === 'string') return val.trim() === '' ? null : val.trim();
+    return val;
+  },
+  z.union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/), z.null()]),
+);
 
 /** Admin-only treasurer / check fields (`submissions` columns). */
 export const adminTreasurerFieldsSchema = z.object({
-  check_amount: z.preprocess((val) => {
-    if (val === '' || val === undefined) return null;
-    if (val === null) return null;
-    if (typeof val === 'number') return val;
-    const n = Number(val);
-    return Number.isFinite(n) ? n : val;
-  }, z.union([z.number().nonnegative(), z.null()])),
-  check_number: z.preprocess((val) => {
-    if (val === undefined || val === null || val === '') return null;
-    if (typeof val === 'string') {
-      const t = val.trim();
-      return t === '' ? null : t;
-    }
-    return val;
-  }, z.union([z.string(), z.null()])),
+  check_amount: z.preprocess(
+    (val) => {
+      if (val === '' || val === undefined) return null;
+      if (val === null) return null;
+      if (typeof val === 'number') return val;
+      const n = Number(val);
+      return Number.isFinite(n) ? n : val;
+    },
+    z.union([z.number().nonnegative(), z.null()]),
+  ),
+  check_number: z.preprocess(
+    (val) => {
+      if (val === undefined || val === null || val === '') return null;
+      if (typeof val === 'string') {
+        const t = val.trim();
+        return t === '' ? null : t;
+      }
+      return val;
+    },
+    z.union([z.string(), z.null()]),
+  ),
   date_paid: optionalIsoDate,
 });
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env npx tsx
 
 import {execSync} from 'node:child_process';
-import {existsSync, readdirSync, statSync, writeFileSync} from 'node:fs';
+import {existsSync, readdirSync, type Stats, statSync, writeFileSync} from 'node:fs';
 import {basename, dirname, extname, join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
@@ -10,8 +10,12 @@ const __dirname = dirname(__filename);
 
 // ─── Configuration ─────────────────────────────────────────────────────────
 
+const homeDir = process.env.HOME;
+if (!homeDir) {
+  throw new Error('HOME must be set to locate the WordPress backup directory.');
+}
 const BACKUP_ROOT = resolve(
-  process.env.HOME!,
+  homeDir,
   'Downloads/backup-2.21.2026_10-32-28_bheptaco/homedir/public_html/wp-content',
 );
 const UPLOADS_DIR = join(BACKUP_ROOT, 'uploads');
@@ -26,7 +30,7 @@ const MAX_YEAR = 2022;
 
 // ─── Skip lists ────────────────────────────────────────────────────────────
 
-const SKIP_EXTENSIONS = new Set([
+const _SKIP_EXTENSIONS = new Set([
   '.php',
   '.txt',
   '.css',
@@ -51,7 +55,7 @@ const SKIP_EXTENSIONS = new Set([
 
 const ALLOWED_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.gif', '.pdf', '.docx', '.mp4']);
 
-const SKIP_DIRS = new Set(['pb_backupbuddy', 'backupbuddy_backups', 'wpsc', 'eshop_files']);
+const _SKIP_DIRS = new Set(['pb_backupbuddy', 'backupbuddy_backups', 'wpsc', 'eshop_files']);
 
 const STOCK_KEYWORDS = [
   'accomplishment',
@@ -140,14 +144,14 @@ function findBestThumbnail(dir: string, baseName: string, ext: string): string |
     // Prioritized thumbnail patterns
     const candidates = files
       .filter((f) => {
-        if (!f.startsWith(prefix + '-')) return false;
+        if (!f.startsWith(`${prefix}-`)) return false;
         if (!f.endsWith(ext)) return false;
         return THUMBNAIL_RE.test(f);
       })
       .map((f) => {
         const match = f.match(/-(\d+)x(\d+)\./);
         if (!match) return null;
-        return {file: f, w: Number.parseInt(match[1]), h: Number.parseInt(match[2])};
+        return {file: f, w: Number.parseInt(match[1], 10), h: Number.parseInt(match[2], 10)};
       })
       .filter(Boolean) as {file: string; w: number; h: number}[];
 
@@ -185,9 +189,9 @@ function scanUploads(): FileEntry[] {
     for (const monthStr of months) {
       const monthDir = join(yearDir, monthStr);
       const month = Number.parseInt(monthStr, 10);
-      if (isNaN(month)) continue;
+      if (Number.isNaN(month)) continue;
 
-      let stat;
+      let stat: Stats;
       try {
         stat = statSync(monthDir);
       } catch {
@@ -215,7 +219,7 @@ function scanUploads(): FileEntry[] {
         if (isStockPhoto(file)) continue;
 
         const filePath = join(monthDir, file);
-        let fileStat;
+        let fileStat: Stats;
         try {
           fileStat = statSync(filePath);
         } catch {
@@ -259,7 +263,7 @@ function scanCakeGallery(): FileEntry[] {
     if (THUMBNAIL_RE.test(file)) continue;
 
     const filePath = join(cakesDir, file);
-    let fileStat;
+    let fileStat: Stats;
     try {
       fileStat = statSync(filePath);
     } catch {
@@ -292,8 +296,9 @@ function uploadToR2(sourcePath: string, r2Key: string, contentType: string): boo
       {stdio: 'pipe', timeout: 30000},
     );
     return true;
-  } catch (err: any) {
-    console.error(`  ✗ Failed to upload ${r2Key}: ${err.message}`);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`  ✗ Failed to upload ${r2Key}: ${msg}`);
     return false;
   }
 }
@@ -311,13 +316,13 @@ function generateManifest(items: UploadedItem[]): string {
 
   // Sort years descending
   const sortedYears = [...byYear.keys()].sort((a, b) => {
-    const aStart = Number.parseInt(a.split('-')[0]);
-    const bStart = Number.parseInt(b.split('-')[0]);
+    const aStart = Number.parseInt(a.split('-')[0], 10);
+    const bStart = Number.parseInt(b.split('-')[0], 10);
     return bStart - aStart;
   });
 
   const yearBlocks = sortedYears.map((year) => {
-    const yearItems = byYear.get(year)!;
+    const yearItems = byYear.get(year) ?? [];
     // Sort items by date descending
     yearItems.sort((a, b) => b.date.localeCompare(a.date));
 
@@ -389,15 +394,15 @@ function main() {
   }
 
   const sortedYears = [...bySchoolYear.keys()].sort((a, b) => {
-    const aStart = Number.parseInt(a.split('-')[0]);
-    const bStart = Number.parseInt(b.split('-')[0]);
+    const aStart = Number.parseInt(a.split('-')[0], 10);
+    const bStart = Number.parseInt(b.split('-')[0], 10);
     return bStart - aStart;
   });
 
   console.log('\n  Breakdown by school year:');
   let totalSize = 0;
   for (const year of sortedYears) {
-    const entries = bySchoolYear.get(year)!;
+    const entries = bySchoolYear.get(year) ?? [];
     const yearSize = entries.reduce((sum, e) => sum + e.sizeBytes, 0);
     totalSize += yearSize;
     console.log(`    ${year}: ${entries.length} files (${(yearSize / 1024 / 1024).toFixed(1)} MB)`);

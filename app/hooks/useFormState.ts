@@ -1,8 +1,8 @@
 import {useCallback, useEffect, useState} from 'react';
 import {
-  MAX_RECEIPT_FILE_RECORDS,
   type BudgetSelectionData,
   type FileData,
+  MAX_RECEIPT_FILE_RECORDS,
   type ReceiptData,
   type RequesterData,
 } from '~/lib/reimbursement/validation';
@@ -88,9 +88,7 @@ function buildDefaultFormState(): FormState {
 const TOTAL_STEPS = 4; // Info, Receipts, Budget, Review
 
 function reindexFilesByReceipt(rows: FileData[][]): FileData[][] {
-  return rows.map((files, i) =>
-    files.map((f) => ({...f, receiptLineIndex: i + 1})),
-  );
+  return rows.map((files, i) => files.map((f) => ({...f, receiptLineIndex: i + 1})));
 }
 
 export function useFormState() {

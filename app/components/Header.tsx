@@ -24,6 +24,7 @@ export function Header() {
 
   // Close mobile menu on route change
   useEffect(() => {
+    void location.pathname;
     setMobileMenuOpen(false);
   }, [location.pathname]);
 

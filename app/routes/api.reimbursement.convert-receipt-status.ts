@@ -56,7 +56,10 @@ export async function loader({request, context}: Route.LoaderArgs) {
 
   if (!row.converted_key || !row.converted_filename || !row.converted_size) {
     return Response.json(
-      {error: 'Receipt conversion finished but preview data is missing. Please try uploading again.'},
+      {
+        error:
+          'Receipt conversion finished but preview data is missing. Please try uploading again.',
+      },
       {status: 503},
     );
   }

@@ -52,7 +52,10 @@ export default [
     './routes/api.admin.reimbursement-pdf-regenerate.ts',
   ),
   route('api/admin/reimbursements/:id/pdf', './routes/api.admin.reimbursement-pdf-delete.ts'),
-  route('api/admin/reimbursements/:id/receipts/:receiptId', './routes/api.admin.reimbursement-receipt-delete.ts'),
+  route(
+    'api/admin/reimbursements/:id/receipts/:receiptId',
+    './routes/api.admin.reimbursement-receipt-delete.ts',
+  ),
   route(
     'api/admin/reimbursements/:id/cash-check-nudge',
     './routes/api.admin.reimbursement-cash-check-nudge.ts',

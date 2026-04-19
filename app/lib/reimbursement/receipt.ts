@@ -71,10 +71,7 @@ async function geminiMultimodal(
   const geminiBody = JSON.stringify({
     contents: [
       {
-        parts: [
-          {inline_data: {mime_type: mimeType, data: base64Data}},
-          {text: prompt},
-        ],
+        parts: [{inline_data: {mime_type: mimeType, data: base64Data}}, {text: prompt}],
       },
     ],
     generationConfig: {maxOutputTokens},
@@ -104,17 +101,17 @@ async function geminiMultimodal(
       }
     }
 
-    if (geminiResponse!.ok) break;
+    if (geminiResponse?.ok) break;
     console.warn(`Gemini ${model} unavailable, trying next model...`);
   }
 
-  if (!geminiResponse!.ok) {
-    const errBody = await geminiResponse!.text();
-    console.error('Gemini API error:', geminiResponse!.status, errBody);
+  if (!geminiResponse?.ok) {
+    const errBody = await geminiResponse?.text();
+    console.error('Gemini API error:', geminiResponse?.status, errBody);
     return {ok: false, error: 'Failed to process file with AI.', status: 502};
   }
 
-  const geminiResult = (await geminiResponse!.json()) as {
+  const geminiResult = (await geminiResponse?.json()) as {
     candidates?: Array<{content?: {parts?: Array<{text?: string; thought?: boolean}>}}>;
   };
 
@@ -122,7 +119,7 @@ async function geminiMultimodal(
   let rawText: string | undefined;
   for (let i = parts.length - 1; i >= 0; i--) {
     if (parts[i].text && !parts[i].thought) {
-      rawText = parts[i].text!.trim();
+      rawText = parts[i].text?.trim();
       break;
     }
   }
@@ -192,13 +189,7 @@ Also fill when possible (omit keys only if absent):
 
 E-commerce (Amazon, Walmart, Target, DoorDash, etc.): map the order summary faithfully — item subtotal → subtotal; shipping & handling → shipping; tips → tip; grand total → total. Structured dollar fields should reconcile to the same final total as the document.`;
 
-  const structured = await geminiMultimodal(
-    apiKey,
-    mimeType,
-    base64Data,
-    structuredPrompt,
-    8192,
-  );
+  const structured = await geminiMultimodal(apiKey, mimeType, base64Data, structuredPrompt, 8192);
   if (!structured.ok) {
     return {error: structured.error, status: structured.status};
   }
@@ -286,8 +277,7 @@ function parseReceiptJSON(rawText: string): ReceiptData {
     for (const [field, pattern] of fieldPatterns) {
       const match = rawText.match(pattern);
       if (match) {
-        const value =
-          field === 'raw_transcript' ? unescapeJsonStringFragment(match[1]) : match[1];
+        const value = field === 'raw_transcript' ? unescapeJsonStringFragment(match[1]) : match[1];
         (extracted as Record<string, string>)[field] = value;
       }
     }
@@ -296,8 +286,9 @@ function parseReceiptJSON(rawText: string): ReceiptData {
     if (itemsMatch) {
       const items: ReceiptData['line_items'] = [];
       const itemPattern = /\{[^}]*"description"\s*:\s*"([^"]*)"[^}]*\}/g;
-      let itemMatch;
-      while ((itemMatch = itemPattern.exec(itemsMatch[1])) !== null) {
+      const itemsBlock = itemsMatch[1];
+      let itemMatch: RegExpExecArray | null = itemPattern.exec(itemsBlock);
+      while (itemMatch !== null) {
         const itemStr = itemMatch[0];
         items.push({
           description: itemMatch[1],
@@ -305,13 +296,12 @@ function parseReceiptJSON(rawText: string): ReceiptData {
           unit_price: itemStr.match(/"unit_price"\s*:\s*"([^"]*)"/)?.[1],
           total: itemStr.match(/"total"\s*:\s*"([^"]*)"/)?.[1],
         });
+        itemMatch = itemPattern.exec(itemsBlock);
       }
       if (items.length > 0) extracted.line_items = items;
     }
 
-    return Object.keys(extracted).length > 0
-      ? extracted
-      : {};
+    return Object.keys(extracted).length > 0 ? extracted : {};
   }
 }
 
@@ -322,13 +312,11 @@ function parseReceiptJSON(rawText: string): ReceiptData {
 function wrapPdfTextLines(doc: jsPDF, text: string, maxWidth: number): string[] {
   const t = text.trim();
   if (!t) return [];
-  return t
-    .split(/\r?\n/)
-    .flatMap((para) => {
-      const p = para.trim();
-      if (!p) return [];
-      return doc.splitTextToSize(p, maxWidth) as string[];
-    });
+  return t.split(/\r?\n/).flatMap((para) => {
+    const p = para.trim();
+    if (!p) return [];
+    return doc.splitTextToSize(p, maxWidth) as string[];
+  });
 }
 
 /** Options for {@link generateReceiptPDF}. */
@@ -389,8 +377,7 @@ export function generateReceiptPDF(
   // Document type + number header (prefer form line index over OCR store receipt #)
   const docType = receiptFieldString(receipt.document_type) || 'Receipt';
   const submissionLine = options?.submissionReceiptLine?.trim();
-  const docNumStr =
-    submissionLine || receiptFieldString(receipt.document_number);
+  const docNumStr = submissionLine || receiptFieldString(receipt.document_number);
   const docNum = docNumStr ? ` #${docNumStr}` : '';
   doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');

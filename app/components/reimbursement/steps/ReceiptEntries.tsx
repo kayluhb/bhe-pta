@@ -100,7 +100,7 @@ export function ReceiptEntries({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
                   label="Date of Purchase"
-                    onChange={(event) => onUpdate(index, {date: event.target.value})}
+                  onChange={(event) => onUpdate(index, {date: event.target.value})}
                   required
                   type="date"
                   value={receipt.date}
@@ -132,9 +132,7 @@ export function ReceiptEntries({
                 <div className="md:col-span-2">
                   <Input
                     label="Place of Purchase"
-                    onChange={(event) =>
-                      onUpdate(index, {placeOfPurchase: event.target.value})
-                    }
+                    onChange={(event) => onUpdate(index, {placeOfPurchase: event.target.value})}
                     placeholder="Name of store or location of website"
                     value={receipt.placeOfPurchase || ''}
                   />
@@ -147,12 +145,12 @@ export function ReceiptEntries({
               <ReceiptLineFiles
                 clearUpload={clearUpload}
                 disabled={isAnyUploading}
+                onAppendRowFiles={(files) => onAppendReceiptFiles(index, files)}
                 onBatchUploadComplete={() => {
                   clearReceiptUploadContinuation();
                   onResetTurnstile();
                 }}
                 onRemoveFile={(key) => onRemoveFileFromReceipt(index, key)}
-                onAppendRowFiles={(files) => onAppendReceiptFiles(index, files)}
                 payableTo={payableTo}
                 receiptRowIndex={index}
                 registerPendingBatch={registerPendingBatch}

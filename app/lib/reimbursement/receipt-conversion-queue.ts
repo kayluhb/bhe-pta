@@ -68,7 +68,11 @@ export async function processReceiptConversionJob(
       throw new Error('Original upload is empty.');
     }
 
-    const result = await extractReceiptData(fileBytes, row.original_content_type, env.GEMINI_API_KEY);
+    const result = await extractReceiptData(
+      fileBytes,
+      row.original_content_type,
+      env.GEMINI_API_KEY,
+    );
     if ('error' in result) {
       throw new Error(result.error);
     }

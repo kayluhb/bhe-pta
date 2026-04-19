@@ -74,8 +74,8 @@ function parseExistingManifest(): ManifestItem[] {
   const itemRegex =
     /\{\s*id:\s*"([^"]*)",\s*title:\s*"([^"]*)",\s*type:\s*"([^"]*)",\s*r2Key:\s*"([^"]*)",\s*(?:thumbnailR2Key:\s*"([^"]*)",\s*)?date:\s*"([^"]*)",?\s*\}/g;
 
-  let match;
-  while ((match = itemRegex.exec(src)) !== null) {
+  let match: RegExpExecArray | null = itemRegex.exec(src);
+  while (match !== null) {
     items.push({
       id: match[1],
       title: match[2],
@@ -84,6 +84,7 @@ function parseExistingManifest(): ManifestItem[] {
       thumbnailR2Key: match[5] || undefined,
       date: match[6],
     });
+    match = itemRegex.exec(src);
   }
 
   return items;
@@ -121,7 +122,7 @@ function main() {
 
   for (const item of existingItems) {
     // Extract filename from r2Key (e.g., "2021-2022/filename.jpg" → "filename.jpg")
-    const filename = item.r2Key.split('/').pop()!;
+    const filename = item.r2Key.split('/').pop() ?? item.r2Key;
     const currentSchoolYear = item.r2Key.split('/')[0]; // e.g., "2022-2023"
 
     // Skip 2022-2023 (just paypal/venmo logos)
@@ -153,7 +154,7 @@ function main() {
 
       // Use WordPress date for school year calculation
       const wpDate = new Date(wpAtt.date);
-      if (!isNaN(wpDate.getTime())) {
+      if (!Number.isNaN(wpDate.getTime())) {
         const wpYear = wpDate.getFullYear();
         const wpMonth = wpDate.getMonth() + 1;
         const newSchoolYear = toSchoolYear(wpYear, wpMonth);
@@ -203,19 +204,19 @@ function main() {
 
   // Sort years descending
   const sortedYears = [...byYear.keys()].sort((a, b) => {
-    const aStart = Number.parseInt(a.split('-')[0]);
-    const bStart = Number.parseInt(b.split('-')[0]);
+    const aStart = Number.parseInt(a.split('-')[0], 10);
+    const bStart = Number.parseInt(b.split('-')[0], 10);
     return bStart - aStart;
   });
 
   console.log('\n  Final breakdown:');
   for (const year of sortedYears) {
-    console.log(`    ${year}: ${byYear.get(year)!.length} items`);
+    console.log(`    ${year}: ${byYear.get(year)?.length} items`);
   }
 
   // Generate manifest
   const yearBlocks = sortedYears.map((year) => {
-    const yearItems = byYear.get(year)!;
+    const yearItems = byYear.get(year) ?? [];
     yearItems.sort((a, b) => b.date.localeCompare(a.date));
 
     const itemLines = yearItems

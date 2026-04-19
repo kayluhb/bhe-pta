@@ -196,15 +196,18 @@ export default function AdminReimbursementDetail() {
     setSavingContact(true);
     setContactFeedback(null);
     try {
-      const res = await fetch(`/api/admin/reimbursements/${encodeURIComponent(submission.id)}/contact`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          requester_name: requesterName,
-          requester_email: requesterEmail,
-          requester_phone: requesterPhone.trim() === '' ? null : requesterPhone.trim(),
-        }),
-      });
+      const res = await fetch(
+        `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/contact`,
+        {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            requester_name: requesterName,
+            requester_email: requesterEmail,
+            requester_phone: requesterPhone.trim() === '' ? null : requesterPhone.trim(),
+          }),
+        },
+      );
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as {error?: string};
         throw new Error(data.error || (await res.text()) || 'Failed to save contact info');
@@ -404,11 +407,14 @@ export default function AdminReimbursementDetail() {
     setSaving(true);
     setFeedback(null);
     try {
-      const res = await fetch(`/api/admin/reimbursements/${encodeURIComponent(submission.id)}/status`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({status, notes, ...(skipEmail && {skipEmail: true})}),
-      });
+      const res = await fetch(
+        `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/status`,
+        {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({status, notes, ...(skipEmail && {skipEmail: true})}),
+        },
+      );
       if (!res.ok) {
         const text = await res.text();
         throw new Error(text || 'Failed to update status');
@@ -429,9 +435,12 @@ export default function AdminReimbursementDetail() {
     if (!window.confirm('Are you sure you want to delete this submission?')) return;
     setDeleting(true);
     try {
-      const res = await fetch(`/api/admin/reimbursements/${encodeURIComponent(submission.id)}/delete`, {
-        method: 'DELETE',
-      });
+      const res = await fetch(
+        `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/delete`,
+        {
+          method: 'DELETE',
+        },
+      );
       if (!res.ok) {
         const text = await res.text();
         throw new Error(text || 'Failed to delete submission');
@@ -451,10 +460,13 @@ export default function AdminReimbursementDetail() {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const res = await fetch(`/api/admin/reimbursements/${encodeURIComponent(submission.id)}/upload`, {
-        method: 'POST',
-        body: formData,
-      });
+      const res = await fetch(
+        `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/upload`,
+        {
+          method: 'POST',
+          body: formData,
+        },
+      );
       if (!res.ok) {
         const data = (await res.json()) as {error?: string};
         throw new Error(data.error || 'Upload failed');
@@ -599,9 +611,9 @@ export default function AdminReimbursementDetail() {
           </h2>
           <p className="text-sm text-gray-600 font-body mb-4">
             On the PDF, <strong className="font-medium text-charcoal">Date received</strong> is the
-            submission date. <strong className="font-medium text-charcoal">Date approved</strong> is set
-            automatically when you save status as Approved (including from the list bulk action).
-            Saving check details below updates the stored request PDF automatically.
+            submission date. <strong className="font-medium text-charcoal">Date approved</strong> is
+            set automatically when you save status as Approved (including from the list bulk
+            action). Saving check details below updates the stored request PDF automatically.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm font-body">
             <div>

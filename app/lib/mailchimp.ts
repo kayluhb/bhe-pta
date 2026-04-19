@@ -1,5 +1,24 @@
 import type {Newsletter} from './types';
 
+interface MailchimpCampaignContent {
+  html?: string;
+  plain_text?: string;
+}
+
+interface MailchimpCampaign {
+  archive_url?: string;
+  id: string;
+  send_time?: string;
+  settings?: {
+    preview_text?: string;
+    subject_line?: string;
+  };
+}
+
+interface MailchimpCampaignListResponse {
+  campaigns?: MailchimpCampaign[];
+}
+
 /**
  * Clean up Mailchimp content: strip merge tags, HTML, and collapse whitespace.
  */
@@ -37,21 +56,24 @@ async function fetchCampaignExcerpt(
       headers: {Authorization: `Bearer ${apiKey}`},
     });
     if (!res.ok) return '';
-    const data = (await res.json()) as any;
+    const data = (await res.json()) as MailchimpCampaignContent;
     // Prefer plain_text (cleaner), fall back to HTML
     const raw = data.plain_text || data.html || '';
     const text = cleanMailchimpText(raw);
     if (text.length <= maxLength) return text;
     const truncated = text.slice(0, maxLength);
     const lastSpace = truncated.lastIndexOf(' ');
-    return (lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated) + '…';
+    return `${lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated}…`;
   } catch {
     return '';
   }
 }
 
 export async function fetchMailchimpCampaigns(apiKey: string): Promise<Newsletter[]> {
-  const dc = apiKey.split('-').pop(); // e.g., "us1"
+  const dc = apiKey.split('-').pop();
+  if (!dc) {
+    throw new Error('Mailchimp API key must include a datacenter suffix (e.g. "-us1").');
+  }
   const response = await fetch(
     `https://${dc}.api.mailchimp.com/3.0/campaigns?sort_field=send_time&sort_dir=DESC&count=20&status=sent`,
     {
@@ -65,15 +87,13 @@ export async function fetchMailchimpCampaigns(apiKey: string): Promise<Newslette
     throw new Error(`Mailchimp API error: ${response.status}`);
   }
 
-  const data = (await response.json()) as any;
-  const campaigns = data.campaigns || [];
+  const data = (await response.json()) as MailchimpCampaignListResponse;
+  const campaigns = data.campaigns ?? [];
 
   // Fetch content excerpts for all campaigns in parallel
-  const excerpts = await Promise.all(
-    campaigns.map((c: any) => fetchCampaignExcerpt(dc!, apiKey, c.id)),
-  );
+  const excerpts = await Promise.all(campaigns.map((c) => fetchCampaignExcerpt(dc, apiKey, c.id)));
 
-  return campaigns.map((c: any, i: number) => {
+  return campaigns.map((c, i) => {
     const title = c.settings?.subject_line || 'PTA Newsletter';
     const preview = c.settings?.preview_text || '';
     // Prefer the richer content excerpt; fall back to preview_text

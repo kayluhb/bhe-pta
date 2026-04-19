@@ -1,4 +1,4 @@
-import {useState, type MouseEvent} from 'react';
+import {type MouseEvent, type ReactNode, useState} from 'react';
 import type {CalendarEvent} from '~/lib/types';
 
 // ─── Category Colors ──────────────────────────────────────────────────────────
@@ -142,8 +142,12 @@ function computeWeekSegments(
     const actualStart = new Date(eventStartDate.year, eventStartDate.month, eventStartDate.day);
     const actualEnd = getEventLastDate(event);
 
-    const segStartDate = new Date(year, month, weekDays[startCol]!);
-    const segEndDate = new Date(year, month, weekDays[endCol]!);
+    const startDayNum = weekDays[startCol];
+    const endDayNum = weekDays[endCol];
+    if (startDayNum === null || endDayNum === null) continue;
+
+    const segStartDate = new Date(year, month, startDayNum);
+    const segEndDate = new Date(year, month, endDayNum);
 
     const isStart = segStartDate.getTime() === actualStart.getTime();
     const isEnd = segEndDate.getTime() === actualEnd.getTime();
@@ -184,7 +188,7 @@ function formatTime(dateStr: string): string | null {
   const date =
     dateStr.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(dateStr)
       ? new Date(dateStr)
-      : new Date(dateStr + '-06:00');
+      : new Date(`${dateStr}-06:00`);
   return date.toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
@@ -282,9 +286,9 @@ export function Calendar({year, month, events, onEventClick}: CalendarProps) {
     month: 'numeric',
     day: 'numeric',
   }).formatToParts(today);
-  const todayYear = Number(todayParts.find((p) => p.type === 'year')!.value);
-  const todayMonth = Number(todayParts.find((p) => p.type === 'month')!.value) - 1;
-  const todayDate = Number(todayParts.find((p) => p.type === 'day')!.value);
+  const todayYear = Number(todayParts.find((p) => p.type === 'year')?.value);
+  const todayMonth = Number(todayParts.find((p) => p.type === 'month')?.value) - 1;
+  const todayDate = Number(todayParts.find((p) => p.type === 'day')?.value);
   const isCurrentMonth = todayYear === year && todayMonth === month;
 
   const [tooltip, setTooltip] = useState<{
@@ -308,183 +312,210 @@ export function Calendar({year, month, events, onEventClick}: CalendarProps) {
 
   return (
     <>
-    <div
-      aria-label={`${MONTH_NAMES[month]} ${year} calendar`}
-      className="bg-white rounded-lg shadow-md overflow-hidden"
-      role="grid"
-    >
-      {/* Day headers */}
-      <div className="grid grid-cols-7 bg-eagle-blue" role="row">
-        {DAY_NAMES.map((name, i) => (
-          <div
-            aria-label={DAY_NAMES_FULL[i]}
-            className="py-2.5 text-center text-xs font-heading font-bold uppercase tracking-wider text-white/90"
-            key={name}
-            role="columnheader"
-          >
-            {name}
-          </div>
-        ))}
-      </div>
+      <div
+        aria-label={`${MONTH_NAMES[month]} ${year} calendar`}
+        className="bg-white rounded-lg shadow-md overflow-hidden"
+        role="grid"
+      >
+        {/* Day headers */}
+        <div className="grid grid-cols-7 bg-eagle-blue" role="row">
+          {DAY_NAMES.map((name, i) => (
+            <div
+              aria-label={DAY_NAMES_FULL[i]}
+              className="py-2.5 text-center text-xs font-heading font-bold uppercase tracking-wider text-white/90"
+              key={name}
+              role="columnheader"
+            >
+              {name}
+            </div>
+          ))}
+        </div>
 
-      {/* Week rows */}
-      <div className="border-l border-t border-charcoal/10">
-        {weekRows.map((weekDays, weekIdx) => {
-          const segments = weekSegments[weekIdx];
-          const maxLayer = segments.length > 0 ? Math.max(...segments.map((s) => s.layer)) : -1;
-          const layerCount = Math.min(MAX_SPANNING_LAYERS, maxLayer + 1);
-          const visibleSegments = segments.filter((s) => s.layer < MAX_SPANNING_LAYERS);
+        {/* Week rows */}
+        <div className="border-l border-t border-charcoal/10">
+          {weekRows.map((weekDays, weekIdx) => {
+            const segments = weekSegments[weekIdx];
+            const maxLayer = segments.length > 0 ? Math.max(...segments.map((s) => s.layer)) : -1;
+            const layerCount = Math.min(MAX_SPANNING_LAYERS, maxLayer + 1);
+            const visibleSegments = segments.filter((s) => s.layer < MAX_SPANNING_LAYERS);
 
-          // Count hidden spanning events per day for "+N more"
-          const hiddenPerDay = new Map<number, number>();
-          for (const seg of segments) {
-            if (seg.layer >= MAX_SPANNING_LAYERS) {
-              for (let c = seg.startCol; c < seg.startCol + seg.spanCols; c++) {
-                const day = weekDays[c];
-                if (day !== null) {
-                  hiddenPerDay.set(day, (hiddenPerDay.get(day) ?? 0) + 1);
+            // Count hidden spanning events per day for "+N more"
+            const hiddenPerDay = new Map<number, number>();
+            for (const seg of segments) {
+              if (seg.layer >= MAX_SPANNING_LAYERS) {
+                for (let c = seg.startCol; c < seg.startCol + seg.spanCols; c++) {
+                  const day = weekDays[c];
+                  if (day !== null) {
+                    hiddenPerDay.set(day, (hiddenPerDay.get(day) ?? 0) + 1);
+                  }
                 }
               }
             }
-          }
 
-          return (
-            <div key={weekIdx}>
-              {/* Spanning event bars */}
-              {layerCount > 0 && (
-                <div className="px-0.5 pt-1 pb-0.5 space-y-0.5 border-b border-charcoal/5">
-                  {Array.from({length: layerCount}, (_, layerIdx) => (
-                    <div className="grid grid-cols-7 h-5 md:h-6" key={layerIdx}>
-                      {visibleSegments
-                        .filter((s) => s.layer === layerIdx)
-                        .map((segment) => {
-                          const color = getCategoryColor(segment.event.category);
-                          const roundedL = segment.isStart ? 'rounded-l-md ml-0.5' : '';
-                          const roundedR = segment.isEnd ? 'rounded-r-md mr-0.5' : '';
+            const weekKey = `${year}-${month}-${weekIdx}-${weekDays.map((d) => d ?? 'x').join('-')}`;
 
-                          return (
-                            <button
-                              aria-label={segment.event.title}
-                              className={`${color.barBg} ${color.barText} text-[10px] md:text-xs font-semibold truncate px-1 md:px-2 h-5 md:h-6 leading-5 md:leading-6 hover:brightness-110 transition cursor-pointer shadow-sm ${roundedL} ${roundedR}`}
-                              key={segment.event.id}
-                              onClick={() => onEventClick?.(segment.event.id)}
-                              onMouseEnter={(e) => showTooltip(segment.event, e)}
-                              onMouseLeave={hideTooltip}
-                              style={{
-                                gridColumn: `${segment.startCol + 1} / span ${segment.spanCols}`,
-                              }}
+            return (
+              <div key={weekKey}>
+                {/* Spanning event bars */}
+                {layerCount > 0 && (
+                  <div className="px-0.5 pt-1 pb-0.5 space-y-0.5 border-b border-charcoal/5">
+                    {(() => {
+                      const rows: ReactNode[] = [];
+                      for (let layerIdx = 0; layerIdx < layerCount; layerIdx++) {
+                        const layerRowKey =
+                          visibleSegments
+                            .filter((s) => s.layer === layerIdx)
+                            .map((s) => `${s.event.id}@${s.startCol}`)
+                            .join('|') || `empty-span-${weekKey}-${layerIdx}`;
+                        rows.push(
+                          <div className="grid grid-cols-7 h-5 md:h-6" key={layerRowKey}>
+                            {visibleSegments
+                              .filter((s) => s.layer === layerIdx)
+                              .map((segment) => {
+                                const color = getCategoryColor(segment.event.category);
+                                const roundedL = segment.isStart ? 'rounded-l-md ml-0.5' : '';
+                                const roundedR = segment.isEnd ? 'rounded-r-md mr-0.5' : '';
+
+                                return (
+                                  <button
+                                    aria-label={segment.event.title}
+                                    className={`${color.barBg} ${color.barText} text-[10px] md:text-xs font-semibold truncate px-1 md:px-2 h-5 md:h-6 leading-5 md:leading-6 hover:brightness-110 transition cursor-pointer shadow-sm ${roundedL} ${roundedR}`}
+                                    key={segment.event.id}
+                                    onClick={() => onEventClick?.(segment.event.id)}
+                                    onMouseEnter={(e) => showTooltip(segment.event, e)}
+                                    onMouseLeave={hideTooltip}
+                                    style={{
+                                      gridColumn: `${segment.startCol + 1} / span ${segment.spanCols}`,
+                                    }}
+                                    type="button"
+                                  >
+                                    {segment.event.title}
+                                  </button>
+                                );
+                              })}
+                          </div>,
+                        );
+                      }
+                      return rows;
+                    })()}
+                  </div>
+                )}
+
+                {/* Day cells */}
+                <div className="grid grid-cols-7" role="row">
+                  {weekDays.map((day, col) => {
+                    const dayEvents = day ? (singleDayMap.get(day) ?? []) : [];
+                    const isToday = isCurrentMonth && day === todayDate;
+                    const hiddenSpanning = day ? (hiddenPerDay.get(day) ?? 0) : 0;
+                    const fullDate =
+                      day !== null ? `${MONTH_NAMES[month]} ${day}, ${year}` : undefined;
+
+                    const cellKey =
+                      day !== null ? `${year}-${month}-${day}` : `${weekKey}-pad-${col}`;
+
+                    return (
+                      <div
+                        aria-label={fullDate}
+                        className={`min-h-[48px] md:min-h-[80px] border-r border-b border-charcoal/10 p-1 md:p-1.5 ${
+                          day === null ? 'bg-charcoal/[0.02]' : 'bg-white'
+                        }`}
+                        key={cellKey}
+                        role="gridcell"
+                      >
+                        {day !== null && (
+                          <>
+                            <span
+                              className={`inline-flex items-center justify-center text-xs md:text-sm font-heading font-semibold w-6 h-6 md:w-7 md:h-7 rounded-full ${
+                                isToday ? 'bg-eagle-blue text-white' : 'text-charcoal/70'
+                              }`}
                             >
-                              {segment.event.title}
-                            </button>
-                          );
-                        })}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Day cells */}
-              <div className="grid grid-cols-7" role="row">
-                {weekDays.map((day, col) => {
-                  const dayEvents = day ? (singleDayMap.get(day) ?? []) : [];
-                  const isToday = isCurrentMonth && day === todayDate;
-                  const hiddenSpanning = day ? (hiddenPerDay.get(day) ?? 0) : 0;
-                  const fullDate =
-                    day !== null ? `${MONTH_NAMES[month]} ${day}, ${year}` : undefined;
-
-                  return (
-                    <div
-                      aria-label={fullDate}
-                      className={`min-h-[48px] md:min-h-[80px] border-r border-b border-charcoal/10 p-1 md:p-1.5 ${
-                        day === null ? 'bg-charcoal/[0.02]' : 'bg-white'
-                      }`}
-                      key={col}
-                      role="gridcell"
-                    >
-                      {day !== null && (
-                        <>
-                          <span
-                            className={`inline-flex items-center justify-center text-xs md:text-sm font-heading font-semibold w-6 h-6 md:w-7 md:h-7 rounded-full ${
-                              isToday ? 'bg-eagle-blue text-white' : 'text-charcoal/70'
-                            }`}
-                          >
-                            {day}
-                          </span>
-                          {/* Mobile: colored dots */}
-                          {dayEvents.length > 0 && (
-                            <div className="flex flex-wrap gap-0.5 mt-0.5 md:hidden justify-center">
-                              {dayEvents.slice(0, 4).map((event) => {
+                              {day}
+                            </span>
+                            {/* Mobile: colored dots */}
+                            {dayEvents.length > 0 && (
+                              <div className="flex flex-wrap gap-0.5 mt-0.5 md:hidden justify-center">
+                                {dayEvents.slice(0, 4).map((event) => {
+                                  const color = getCategoryColor(event.category);
+                                  return (
+                                    <button
+                                      aria-label={`${event.title} on ${fullDate}`}
+                                      className={`w-2 h-2 rounded-full ${color.barBg} hover:opacity-80 transition-opacity cursor-pointer`}
+                                      key={event.id}
+                                      onClick={() => onEventClick?.(event.id)}
+                                      title={eventTooltip(event)}
+                                      type="button"
+                                    />
+                                  );
+                                })}
+                                {dayEvents.length > 4 && (
+                                  <span className="text-[8px] leading-none text-charcoal/50">
+                                    +{dayEvents.length - 4}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                            {/* Desktop: text badges */}
+                            <div className="mt-0.5 space-y-0.5 hidden md:block">
+                              {dayEvents.slice(0, 3).map((event) => {
                                 const color = getCategoryColor(event.category);
                                 return (
                                   <button
                                     aria-label={`${event.title} on ${fullDate}`}
-                                    className={`w-2 h-2 rounded-full ${color.barBg} hover:opacity-80 transition-opacity cursor-pointer`}
+                                    className={`w-full text-left text-xs leading-tight font-medium px-1.5 py-0.5 rounded truncate ${color.bg} ${color.text} hover:opacity-80 transition-opacity cursor-pointer`}
                                     key={event.id}
                                     onClick={() => onEventClick?.(event.id)}
-                                    title={eventTooltip(event)}
-                                  />
+                                    onMouseEnter={(e) => showTooltip(event, e)}
+                                    onMouseLeave={hideTooltip}
+                                    type="button"
+                                  >
+                                    {event.title}
+                                  </button>
                                 );
                               })}
-                              {dayEvents.length > 4 && (
-                                <span className="text-[8px] leading-none text-charcoal/50">
-                                  +{dayEvents.length - 4}
+                              {(dayEvents.length > 3 || hiddenSpanning > 0) && (
+                                <span className="text-[10px] text-charcoal/70 px-1">
+                                  <span className="sr-only">
+                                    {dayEvents.length -
+                                      Math.min(dayEvents.length, 3) +
+                                      hiddenSpanning}{' '}
+                                    more events
+                                  </span>
+                                  <span aria-hidden="true">
+                                    +
+                                    {dayEvents.length -
+                                      Math.min(dayEvents.length, 3) +
+                                      hiddenSpanning}{' '}
+                                    more
+                                  </span>
                                 </span>
                               )}
                             </div>
-                          )}
-                          {/* Desktop: text badges */}
-                          <div className="mt-0.5 space-y-0.5 hidden md:block">
-                            {dayEvents.slice(0, 3).map((event) => {
-                              const color = getCategoryColor(event.category);
-                              return (
-                                <button
-                                  aria-label={`${event.title} on ${fullDate}`}
-                                  className={`w-full text-left text-xs leading-tight font-medium px-1.5 py-0.5 rounded truncate ${color.bg} ${color.text} hover:opacity-80 transition-opacity cursor-pointer`}
-                                  key={event.id}
-                                  onClick={() => onEventClick?.(event.id)}
-                                  onMouseEnter={(e) => showTooltip(event, e)}
-                                  onMouseLeave={hideTooltip}
-                                >
-                                  {event.title}
-                                </button>
-                              );
-                            })}
-                            {(dayEvents.length > 3 || hiddenSpanning > 0) && (
-                              <span
-                                aria-label={`${dayEvents.length - Math.min(dayEvents.length, 3) + hiddenSpanning} more events`}
-                                className="text-[10px] text-charcoal/70 px-1"
-                              >
-                                +{dayEvents.length - Math.min(dayEvents.length, 3) + hiddenSpanning}{' '}
-                                more
-                              </span>
-                            )}
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  );
-                })}
+                          </>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-    </div>
-    {tooltip && (
-      <div
-        className="fixed z-50 bg-night-blue text-white text-xs rounded-lg px-3 py-2 shadow-lg max-w-xs pointer-events-none"
-        style={{
-          left: tooltip.x,
-          top: tooltip.y,
-          transform: 'translateX(-50%)',
-        }}
-      >
-        <p className="font-heading font-semibold text-sm">{tooltip.title}</p>
-        {tooltip.description && (
-          <p className="mt-1 text-white/80 leading-relaxed">{tooltip.description}</p>
-        )}
-      </div>
-    )}
+      {tooltip && (
+        <div
+          className="fixed z-50 bg-night-blue text-white text-xs rounded-lg px-3 py-2 shadow-lg max-w-xs pointer-events-none"
+          style={{
+            left: tooltip.x,
+            top: tooltip.y,
+            transform: 'translateX(-50%)',
+          }}
+        >
+          <p className="font-heading font-semibold text-sm">{tooltip.title}</p>
+          {tooltip.description && (
+            <p className="mt-1 text-white/80 leading-relaxed">{tooltip.description}</p>
+          )}
+        </div>
+      )}
     </>
   );
 }

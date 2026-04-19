@@ -1,4 +1,3 @@
-import {Link} from 'react-router';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/get-involved';
 

@@ -9,7 +9,7 @@ export function useTurnstile() {
 
   const renderWidget = useCallback(() => {
     if (!containerRef.current || widgetIdRef.current !== null) return;
-    const turnstile = (window as any).turnstile;
+    const turnstile = window.turnstile;
     if (!turnstile) return;
     widgetIdRef.current = turnstile.render(containerRef.current, {
       sitekey: TURNSTILE_SITE_KEY,
@@ -21,7 +21,7 @@ export function useTurnstile() {
   }, []);
 
   useEffect(() => {
-    if ((window as any).turnstile) {
+    if (window.turnstile) {
       renderWidget();
       return;
     }
@@ -40,7 +40,7 @@ export function useTurnstile() {
     return () => {
       if (widgetIdRef.current !== null) {
         try {
-          (window as any).turnstile?.remove(widgetIdRef.current);
+          window.turnstile?.remove(widgetIdRef.current);
         } catch {}
         widgetIdRef.current = null;
       }
@@ -50,7 +50,7 @@ export function useTurnstile() {
   const reset = useCallback(() => {
     if (widgetIdRef.current !== null) {
       try {
-        (window as any).turnstile?.reset(widgetIdRef.current);
+        window.turnstile?.reset(widgetIdRef.current);
       } catch {}
       setToken(null);
     }

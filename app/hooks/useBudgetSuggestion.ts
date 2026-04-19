@@ -24,38 +24,41 @@ export function useBudgetSuggestion() {
     suggestions: [],
   });
 
-  const fetchSuggestions = useCallback(async (receipts: ReceiptInput[], turnstileToken?: string | null) => {
-    if (receipts.length === 0) return;
+  const fetchSuggestions = useCallback(
+    async (receipts: ReceiptInput[], turnstileToken?: string | null) => {
+      if (receipts.length === 0) return;
 
-    setState({error: null, loading: true, suggestions: []});
+      setState({error: null, loading: true, suggestions: []});
 
-    try {
-      const response = await fetch('/api/reimbursement/suggest-budget', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(turnstileToken ? {'X-Turnstile-Token': turnstileToken} : {}),
-        },
-        body: JSON.stringify({
-          receipts: receipts.map((r) => ({
-            amount: r.amount,
-            description: r.description,
-            placeOfPurchase: r.placeOfPurchase,
-          })),
-        }),
-      });
+      try {
+        const response = await fetch('/api/reimbursement/suggest-budget', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(turnstileToken ? {'X-Turnstile-Token': turnstileToken} : {}),
+          },
+          body: JSON.stringify({
+            receipts: receipts.map((r) => ({
+              amount: r.amount,
+              description: r.description,
+              placeOfPurchase: r.placeOfPurchase,
+            })),
+          }),
+        });
 
-      if (!response.ok) {
+        if (!response.ok) {
+          setState({error: 'Failed to get suggestions', loading: false, suggestions: []});
+          return;
+        }
+
+        const data = (await response.json()) as {suggestions: (BudgetSuggestion | null)[]};
+        setState({error: null, loading: false, suggestions: data.suggestions ?? []});
+      } catch {
         setState({error: 'Failed to get suggestions', loading: false, suggestions: []});
-        return;
       }
-
-      const data = (await response.json()) as {suggestions: (BudgetSuggestion | null)[]};
-      setState({error: null, loading: false, suggestions: data.suggestions ?? []});
-    } catch {
-      setState({error: 'Failed to get suggestions', loading: false, suggestions: []});
-    }
-  }, []);
+    },
+    [],
+  );
 
   return {
     ...state,

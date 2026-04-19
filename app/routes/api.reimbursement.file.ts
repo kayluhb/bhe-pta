@@ -1,4 +1,7 @@
-import {resolveFilePreviewSigningSecret, verifyFileAccess} from '~/lib/reimbursement/file-url-signature';
+import {
+  resolveFilePreviewSigningSecret,
+  verifyFileAccess,
+} from '~/lib/reimbursement/file-url-signature';
 import {isValidStagingUploadKey} from '~/lib/reimbursement/r2-staging';
 import type {Route} from './+types/api.reimbursement.file';
 

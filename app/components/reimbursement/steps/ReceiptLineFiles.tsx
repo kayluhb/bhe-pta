@@ -23,11 +23,7 @@ interface ReceiptLineFilesProps {
 }
 
 function previewFileHref(file: FileData): string | null {
-  if (
-    file.fileAccessExp == null ||
-    !file.fileAccessSig ||
-    typeof file.fileAccessExp !== 'number'
-  ) {
+  if (file.fileAccessExp == null || !file.fileAccessSig || typeof file.fileAccessExp !== 'number') {
     return null;
   }
   const params = new URLSearchParams({
@@ -108,7 +104,9 @@ export function ReceiptLineFiles({
     }
 
     const filesToProcess =
-      selectedFiles.length > maxUploadsAllowed ? selectedFiles.slice(0, maxUploadsAllowed) : selectedFiles;
+      selectedFiles.length > maxUploadsAllowed
+        ? selectedFiles.slice(0, maxUploadsAllowed)
+        : selectedFiles;
 
     if (filesToProcess.length < selectedFiles.length) {
       setSelectionError(
@@ -175,20 +173,22 @@ export function ReceiptLineFiles({
                 <span className="text-sm text-charcoal/70 shrink-0 text-right">
                   {upload.status === 'pending' && 'Queued'}
                   {upload.status === 'uploading' && upload.progress <= 30 && 'Uploading…'}
-                  {upload.status === 'uploading' && upload.progress > 30 && upload.progress < 100 && (
-                    <>
-                      AI analysis
-                      <span className="sr-only">; still working, no exact percentage available</span>
-                    </>
-                  )}
+                  {upload.status === 'uploading' &&
+                    upload.progress > 30 &&
+                    upload.progress < 100 && (
+                      <>
+                        AI analysis
+                        <span className="sr-only">
+                          ; still working, no exact percentage available
+                        </span>
+                      </>
+                    )}
                   {upload.status === 'complete' && 'Complete'}
                   {upload.status === 'error' && 'Failed'}
                 </span>
               </div>
               {upload.status === 'pending' && (
-                <p className="text-xs text-charcoal/75 mb-2">
-                  {pickById(upload.id, QUEUED_COPY)}
-                </p>
+                <p className="text-xs text-charcoal/75 mb-2">{pickById(upload.id, QUEUED_COPY)}</p>
               )}
               {upload.status === 'uploading' && upload.progress > 30 && upload.progress < 100 && (
                 <p className="text-xs text-charcoal/75 mb-2">
@@ -237,55 +237,55 @@ export function ReceiptLineFiles({
           {rowFiles.map((file) => {
             const previewHref = previewFileHref(file);
             return (
-            <li
-              className="flex items-center justify-between p-2 bg-warm-white rounded-lg border border-charcoal/5"
-              key={file.key}
-            >
-              <div className="flex items-center space-x-2 min-w-0">
-                <svg
-                  aria-hidden="true"
-                  className="w-6 h-6 shrink-0 text-charcoal/70"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                  />
-                </svg>
-                <div className="min-w-0">
-                  {previewHref ? (
-                    <a
-                      className="text-sm font-medium text-eagle-blue hover:underline truncate block"
-                      href={previewHref}
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      {file.filename}
-                    </a>
-                  ) : (
-                    <span
-                      className="text-sm font-medium text-charcoal/60 truncate block"
-                      title="Re-upload this receipt to enable preview"
-                    >
-                      {file.filename}
-                    </span>
-                  )}
-                  <p className="text-xs text-charcoal/70">{formatFileSize(file.size)}</p>
-                </div>
-              </div>
-              <button
-                aria-label={`Remove ${file.filename}`}
-                className="text-red-600 hover:text-red-800 text-sm font-medium shrink-0"
-                onClick={() => onRemoveFile(file.key)}
-                type="button"
+              <li
+                className="flex items-center justify-between p-2 bg-warm-white rounded-lg border border-charcoal/5"
+                key={file.key}
               >
-                Remove
-              </button>
-            </li>
+                <div className="flex items-center space-x-2 min-w-0">
+                  <svg
+                    aria-hidden="true"
+                    className="w-6 h-6 shrink-0 text-charcoal/70"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                    />
+                  </svg>
+                  <div className="min-w-0">
+                    {previewHref ? (
+                      <a
+                        className="text-sm font-medium text-eagle-blue hover:underline truncate block"
+                        href={previewHref}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        {file.filename}
+                      </a>
+                    ) : (
+                      <span
+                        className="text-sm font-medium text-charcoal/60 truncate block"
+                        title="Re-upload this receipt to enable preview"
+                      >
+                        {file.filename}
+                      </span>
+                    )}
+                    <p className="text-xs text-charcoal/70">{formatFileSize(file.size)}</p>
+                  </div>
+                </div>
+                <button
+                  aria-label={`Remove ${file.filename}`}
+                  className="text-red-600 hover:text-red-800 text-sm font-medium shrink-0"
+                  onClick={() => onRemoveFile(file.key)}
+                  type="button"
+                >
+                  Remove
+                </button>
+              </li>
             );
           })}
         </ul>

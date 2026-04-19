@@ -1,7 +1,4 @@
-import {
-  ACCEPTED_TYPES,
-  MAX_FILE_SIZE,
-} from '~/lib/reimbursement/receipt';
+import {ACCEPTED_TYPES, MAX_FILE_SIZE} from '~/lib/reimbursement/receipt';
 import {
   issueReceiptUploadContinuationToken,
   verifyReceiptUploadContinuationToken,
@@ -89,7 +86,10 @@ export async function action({request, context}: Route.ActionArgs) {
     const db = env.REIMBURSEMENT_DB;
     if (!db) {
       logConvertReceipt({requestId, outcome: 'reject', reason: 'no_db'});
-      return Response.json({error: 'Storage is not configured for this environment.'}, {status: 503});
+      return Response.json(
+        {error: 'Storage is not configured for this environment.'},
+        {status: 503},
+      );
     }
     if (!env.RECEIPT_CONVERSION_QUEUE) {
       logConvertReceipt({requestId, outcome: 'reject', reason: 'no_queue'});
@@ -102,11 +102,12 @@ export async function action({request, context}: Route.ActionArgs) {
 
     if (!env.R2_BUCKET) {
       logConvertReceipt({requestId, outcome: 'reject', reason: 'no_r2_bucket'});
-      console.error('[convert-receipt] R2_BUCKET is not configured; cannot store original + converted');
+      console.error(
+        '[convert-receipt] R2_BUCKET is not configured; cannot store original + converted',
+      );
       return Response.json(
         {
-          error:
-            'File storage is not available. Check that R2 is configured for this environment.',
+          error: 'File storage is not available. Check that R2 is configured for this environment.',
         },
         {status: 503},
       );

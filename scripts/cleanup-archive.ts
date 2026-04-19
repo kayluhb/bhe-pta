@@ -39,17 +39,15 @@ function parseManifest(): ManifestItem[] {
 
   // Match year sections to get schoolYear context
   const yearSectionRe = /year:\s*"([^"]+)",\s*\n\s*items:\s*\[([\s\S]*?)\],\s*\n\s*\}/g;
-  let yearMatch;
-
-  while ((yearMatch = yearSectionRe.exec(src)) !== null) {
+  let yearMatch: RegExpExecArray | null = yearSectionRe.exec(src);
+  while (yearMatch !== null) {
     const schoolYear = yearMatch[1];
     const itemsBlock = yearMatch[2];
 
     const itemRe =
       /\{\s*id:\s*"([^"]*)",\s*title:\s*"([^"]*)",\s*type:\s*"([^"]*)",\s*r2Key:\s*"([^"]*)",\s*(?:thumbnailR2Key:\s*"([^"]*)",\s*)?date:\s*"([^"]*)",?\s*\}/g;
-    let itemMatch;
-
-    while ((itemMatch = itemRe.exec(itemsBlock)) !== null) {
+    let itemMatch: RegExpExecArray | null = itemRe.exec(itemsBlock);
+    while (itemMatch !== null) {
       items.push({
         id: itemMatch[1],
         title: itemMatch[2],
@@ -59,7 +57,9 @@ function parseManifest(): ManifestItem[] {
         date: itemMatch[6],
         schoolYear,
       });
+      itemMatch = itemRe.exec(itemsBlock);
     }
+    yearMatch = yearSectionRe.exec(src);
   }
 
   return items;
@@ -277,8 +277,9 @@ function deleteFromR2(r2Key: string): boolean {
       timeout: 15000,
     });
     return true;
-  } catch (err: any) {
-    console.error(`  ✗ Failed to delete ${r2Key}: ${err.message}`);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`  ✗ Failed to delete ${r2Key}: ${msg}`);
     return false;
   }
 }
@@ -294,13 +295,13 @@ function generateManifest(items: ManifestItem[]): string {
   }
 
   const sortedYears = [...byYear.keys()].sort((a, b) => {
-    const aStart = Number.parseInt(a.split('-')[0]);
-    const bStart = Number.parseInt(b.split('-')[0]);
+    const aStart = Number.parseInt(a.split('-')[0], 10);
+    const bStart = Number.parseInt(b.split('-')[0], 10);
     return bStart - aStart;
   });
 
   const yearBlocks = sortedYears.map((year) => {
-    const yearItems = byYear.get(year)!;
+    const yearItems = byYear.get(year) ?? [];
     yearItems.sort((a, b) => b.date.localeCompare(a.date));
 
     const itemLines = yearItems
@@ -435,7 +436,7 @@ function main() {
   let failedDeletes = 0;
 
   for (let i = 0; i < remove.length; i++) {
-    const {item, reason} = remove[i];
+    const {item} = remove[i];
     process.stdout.write(`  [${i + 1}/${remove.length}] ${item.r2Key}...`);
 
     const ok = deleteFromR2(item.r2Key);

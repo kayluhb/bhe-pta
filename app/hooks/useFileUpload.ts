@@ -81,21 +81,24 @@ export function useFileUpload(turnstileToken: string | null) {
     receiptUploadContinuationRef.current = null;
   }, []);
 
-  const markUploadError = useCallback((id: string, filename: string, receiptRowIndex: number, message: string) => {
-    receiptUploadContinuationRef.current = null;
-    setUploads((prev) => {
-      const next = new Map(prev);
-      next.set(id, {
-        id,
-        filename,
-        progress: 0,
-        status: 'error',
-        error: message,
-        receiptRowIndex,
+  const markUploadError = useCallback(
+    (id: string, filename: string, receiptRowIndex: number, message: string) => {
+      receiptUploadContinuationRef.current = null;
+      setUploads((prev) => {
+        const next = new Map(prev);
+        next.set(id, {
+          id,
+          filename,
+          progress: 0,
+          status: 'error',
+          error: message,
+          receiptRowIndex,
+        });
+        return next;
       });
-      return next;
-    });
-  }, []);
+    },
+    [],
+  );
 
   const buildFileDataPair = useCallback(
     (
@@ -216,8 +219,7 @@ export function useFileUpload(turnstileToken: string | null) {
           if (result.status === 'fulfilled') {
             jobIds[i] = result.value;
           } else {
-            const msg =
-              result.reason instanceof Error ? result.reason.message : 'Upload failed';
+            const msg = result.reason instanceof Error ? result.reason.message : 'Upload failed';
             markUploadError(items[i].id, items[i].file.name, receiptRowIndex, msg);
           }
         });
@@ -258,8 +260,7 @@ export function useFileUpload(turnstileToken: string | null) {
           if (result.status === 'fulfilled') {
             jobIds[idx] = result.value;
           } else {
-            const msg =
-              result.reason instanceof Error ? result.reason.message : 'Upload failed';
+            const msg = result.reason instanceof Error ? result.reason.message : 'Upload failed';
             markUploadError(items[idx].id, items[idx].file.name, receiptRowIndex, msg);
           }
         });

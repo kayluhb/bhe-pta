@@ -12,7 +12,11 @@ export async function action({request, params, context}: Route.ActionArgs) {
 
   const submissionId = params.id;
   const env = context.cloudflare.env;
-  const result = await regenerateStoredSubmissionPdf(env.REIMBURSEMENT_DB, env.R2_BUCKET, submissionId);
+  const result = await regenerateStoredSubmissionPdf(
+    env.REIMBURSEMENT_DB,
+    env.R2_BUCKET,
+    submissionId,
+  );
 
   if (!result.ok) {
     if (result.reason === 'no_r2') {

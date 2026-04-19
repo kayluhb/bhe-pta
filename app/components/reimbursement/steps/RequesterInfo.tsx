@@ -10,7 +10,13 @@ interface RequesterInfoProps {
   errors?: Record<string, string>;
 }
 
-export function RequesterInfo({data, onChange, onNext, onShowHelp, errors = {}}: RequesterInfoProps) {
+export function RequesterInfo({
+  data,
+  onChange,
+  onNext,
+  onShowHelp,
+  errors = {},
+}: RequesterInfoProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onNext();
