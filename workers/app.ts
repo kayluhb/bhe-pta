@@ -108,6 +108,20 @@ async function runDataRefresh(env: Env): Promise<string[]> {
 const handler = {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+
+    // Some bots/CDNs send OPTIONS probes to arbitrary paths; React Router throws on
+    // unmatched OPTIONS requests, so handle them at the edge first.
+    if (request.method === 'OPTIONS') {
+      const allowMethods =
+        url.pathname === '/api/refresh' ? 'GET, HEAD, OPTIONS, POST' : 'GET, HEAD, OPTIONS';
+      return new Response(null, {
+        status: 204,
+        headers: {
+          Allow: allowMethods,
+        },
+      });
+    }
+
     if (url.hostname.startsWith('www.')) {
       url.hostname = url.hostname.replace(/^www\./, '');
       return Response.redirect(url.toString(), 301);
