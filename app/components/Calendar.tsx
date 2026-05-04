@@ -286,9 +286,9 @@ export function Calendar({year, month, events, onEventClick}: CalendarProps) {
     month: 'numeric',
     day: 'numeric',
   }).formatToParts(today);
-  const todayYear = Number(todayParts.find((p) => p.type === 'year')?.value);
-  const todayMonth = Number(todayParts.find((p) => p.type === 'month')?.value) - 1;
-  const todayDate = Number(todayParts.find((p) => p.type === 'day')?.value);
+  const todayYear = Number(todayParts.find((p) => p.type === 'year')?.value ?? '0');
+  const todayMonth = Number(todayParts.find((p) => p.type === 'month')?.value ?? '1') - 1;
+  const todayDate = Number(todayParts.find((p) => p.type === 'day')?.value ?? '0');
   const isCurrentMonth = todayYear === year && todayMonth === month;
 
   const [tooltip, setTooltip] = useState<{
