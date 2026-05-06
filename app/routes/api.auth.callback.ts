@@ -1,4 +1,4 @@
-import {signSession} from '~/lib/admin/auth';
+import {buildAdminSessionSetCookie, resolveSessionSecret, signSession} from '~/lib/admin/auth';
 import {verifyGoogleIdToken} from '~/lib/admin/google-id-token';
 import type {Route} from './+types/api.auth.callback';
 
@@ -31,7 +31,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
   }
 
   const origin = url.origin;
-  const {GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, SESSION_SECRET} = context.cloudflare.env;
+  const {GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET} = context.cloudflare.env;
 
   const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
@@ -65,7 +65,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
 
   const cookieValue = await signSession(
     {email: user.email, name: user.name, picture: user.picture},
-    SESSION_SECRET,
+    resolveSessionSecret(context.cloudflare.env),
   );
 
   const headers = new Headers();
@@ -73,10 +73,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
     'Set-Cookie',
     `${OAUTH_STATE_COOKIE}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`,
   );
-  headers.append(
-    'Set-Cookie',
-    `admin_session=${cookieValue}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=86400`,
-  );
+  headers.append('Set-Cookie', buildAdminSessionSetCookie(request, cookieValue));
   headers.set('Location', `${origin}/admin`);
 
   return new Response(null, {status: 302, headers});

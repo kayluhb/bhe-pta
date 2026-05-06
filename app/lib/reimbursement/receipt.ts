@@ -164,7 +164,7 @@ export async function extractReceiptData(
   fileBytes: Uint8Array,
   mimeType: string,
   apiKey: string,
-): Promise<{receipt: ReceiptData} | {error: string; status: number}> {
+): Promise<{receipts: ReceiptData[]} | {error: string; status: number}> {
   const base64Data = bytesToBase64(fileBytes);
   const isPDF = mimeType === 'application/pdf';
 
@@ -172,31 +172,42 @@ export async function extractReceiptData(
 
 Return a single JSON object. No markdown code fences. Escape quotes inside strings.
 
-Required field:
-- "raw_transcript": string — ALL visible text in natural reading order (top to bottom; for PDFs, page 1 then page 2, etc.). Use newline characters between lines. Include headers, store name, order/invoice numbers (e.g. Amazon-style 123-4567890-1234567), every product line with prices, quantity, shipping, tax, discounts, and grand total. If the layout is tables or columns, still flatten into readable lines. This field must be long enough that someone could approve the reimbursement from it alone; do not leave it empty if any text is visible.
+First, count how many DISTINCT purchase documents / register receipts are visible (e.g. two separate paper slips in one photo, or two unrelated store receipts in one frame). One Amazon order = one receipt. A receipt plus unrelated marketing text = still one receipt.
 
-Also fill when possible (omit keys only if absent):
+Required:
+- "receipts": array of one or more objects — one object per distinct receipt, in reading order (top to bottom, then page order for PDFs). Do not merge two slips into one object.
+
+Each element of "receipts" must include when possible:
+- "raw_transcript": string — ALL visible text for THAT slip only, reading order, newlines between lines. Flatten columns/tables into lines. Do not paste text from a different slip into this slip's transcript.
+
+Also fill when possible on each slip (omit keys only if absent):
 - "vendor_name", "vendor_address", "vendor_phone"
 - "document_type", "document_number", "date", "due_date", "bill_to"
-- "line_items": [{"description","qty","unit_price","total"}] — one entry per distinct product/service row
+- "line_items": [{"description","qty","unit_price","total"}] — one entry per distinct product/service row on that slip
 - "subtotal" — sum of line items only (e-commerce: "Item(s) subtotal" / merchandise subtotal), NOT shipping or tax
 - "shipping" — shipping, handling, and/or delivery fees as one amount when shown together (e.g. "Shipping & Handling: $6.54"); include delivery/service fees here if not a separate line item
 - "tip" — gratuity or service tip when present
 - "total_before_tax" — when the receipt shows it (e.g. Amazon "Total before tax" after shipping)
 - "tax" — sales or estimated tax
-- "total" — grand total / amount paid
+- "total" — grand total / amount paid for that slip
 - "notes" — short non-dollar text (delivery instructions, return policy). Do not repeat shipping, tip, or tax amounts here if they are already in the fields above.
 
-E-commerce (Amazon, Walmart, Target, DoorDash, etc.): map the order summary faithfully — item subtotal → subtotal; shipping & handling → shipping; tips → tip; grand total → total. Structured dollar fields should reconcile to the same final total as the document.`;
+E-commerce (Amazon, Walmart, Target, DoorDash, etc.): map the order summary faithfully — item subtotal → subtotal; shipping & handling → shipping; tips → tip; grand total → total. Structured dollar fields should reconcile to the same final total as that slip.
+
+If there is exactly one receipt, still use "receipts": [ { ... } ] with a single element.`;
 
   const structured = await geminiMultimodal(apiKey, mimeType, base64Data, structuredPrompt, 8192);
   if (!structured.ok) {
     return {error: structured.error, status: structured.status};
   }
 
-  let receipt = parseReceiptJSON(structured.text);
+  let receipts = parseExtractedReceiptsJSON(structured.text);
+  if (receipts.length === 0) {
+    receipts = [{}];
+  }
 
-  if (needsPlainTranscriptFallback(receipt, fileBytes)) {
+  const [onlyReceipt] = receipts;
+  if (receipts.length === 1 && onlyReceipt && needsPlainTranscriptFallback(onlyReceipt, fileBytes)) {
     const plainPrompt = `This is a receipt, invoice, or order confirmation (${isPDF ? 'PDF — read every page in order' : 'image'}).
 
 Output ONLY plain text. Do not use JSON or markdown.
@@ -212,9 +223,9 @@ Use blank lines between sections. If text is in columns or a table, read row by 
     const plain = await geminiMultimodal(apiKey, mimeType, base64Data, plainPrompt, 8192);
     if (plain.ok) {
       const cleaned = stripMarkdownCodeFence(plain.text);
-      const prevLen = receiptFieldString(receipt.raw_transcript).length;
+      const prevLen = receiptFieldString(onlyReceipt.raw_transcript).length;
       if (cleaned.length > prevLen) {
-        receipt = {...receipt, raw_transcript: cleaned};
+        receipts = [{...onlyReceipt, raw_transcript: cleaned}];
         console.log(
           `[extractReceiptData] ${JSON.stringify({
             event: 'plain_transcript_fallback',
@@ -226,7 +237,7 @@ Use blank lines between sections. If text is in columns or a table, read row by 
     }
   }
 
-  return {receipt};
+  return {receipts};
 }
 
 /** Best-effort unescape for regex-extracted JSON string fragments (e.g. truncated responses). */
@@ -239,7 +250,72 @@ function unescapeJsonStringFragment(s: string): string {
     .replace(/\\\\/g, '\\');
 }
 
-function parseReceiptJSON(rawText: string): ReceiptData {
+function coerceReceiptData(raw: unknown): ReceiptData {
+  if (!raw || typeof raw !== 'object') return {};
+  const o = raw as Record<string, unknown>;
+  const out: ReceiptData = {};
+  const scalarKeys: (keyof ReceiptData)[] = [
+    'vendor_name',
+    'vendor_address',
+    'vendor_phone',
+    'document_type',
+    'document_number',
+    'date',
+    'due_date',
+    'bill_to',
+    'subtotal',
+    'shipping',
+    'tip',
+    'total_before_tax',
+    'tax',
+    'total',
+    'notes',
+    'raw_transcript',
+  ];
+  for (const key of scalarKeys) {
+    const v = o[key as string];
+    if (v === undefined || v === null) continue;
+    (out as Record<string, unknown>)[key as string] =
+      typeof v === 'string' || typeof v === 'number' ? v : String(v);
+  }
+  if (Array.isArray(o.line_items)) {
+    out.line_items = o.line_items
+      .filter((li): li is Record<string, unknown> => li != null && typeof li === 'object')
+      .map((li) => ({
+        description: li.description != null ? String(li.description) : undefined,
+        qty: li.qty != null ? String(li.qty) : undefined,
+        unit_price: li.unit_price != null ? String(li.unit_price) : undefined,
+        total: li.total != null ? String(li.total) : undefined,
+      }));
+  }
+  return out;
+}
+
+function parseExtractedReceiptsJSON(rawText: string): ReceiptData[] {
+  try {
+    let cleaned = rawText
+      .replace(/^```(?:json)?\s*\n?/i, '')
+      .replace(/\n?```\s*$/, '')
+      .trim();
+    if (!cleaned.startsWith('{')) {
+      const match = cleaned.match(/\{[\s\S]*\}/);
+      if (match) cleaned = match[0];
+    }
+    const parsed = JSON.parse(cleaned) as Record<string, unknown>;
+    if (Array.isArray(parsed.receipts) && parsed.receipts.length > 0) {
+      return parsed.receipts.map((r) => coerceReceiptData(r));
+    }
+    if (Array.isArray(parsed.receipts) && parsed.receipts.length === 0) {
+      const sole = coerceReceiptData(parsed);
+      return Object.keys(sole).length > 0 ? [sole] : [{}];
+    }
+    return [coerceReceiptData(parsed)];
+  } catch {
+    return [parseLegacySingleReceiptJSON(rawText)];
+  }
+}
+
+function parseLegacySingleReceiptJSON(rawText: string): ReceiptData {
   try {
     let cleaned = rawText
       .replace(/^```(?:json)?\s*\n?/i, '')
@@ -341,12 +417,14 @@ export function parseSubmissionReceiptLineForPdf(raw: string | null): string | u
   return String(n);
 }
 
-export function generateReceiptPDF(
+function renderReceiptSlipOnPage(
+  doc: jsPDF,
   receipt: ReceiptData,
   title: string,
-  options?: GenerateReceiptPdfOptions,
-): Uint8Array {
-  const doc = new jsPDF();
+  options: GenerateReceiptPdfOptions | undefined,
+  slipIndex: number,
+  slipTotal: number,
+): void {
   const pageWidth = doc.internal.pageSize.getWidth();
   const bottomReserve = 15;
   let pageHeight = doc.internal.pageSize.getHeight();
@@ -370,13 +448,22 @@ export function generateReceiptPDF(
   doc.text(title, pageWidth / 2, y, {align: 'center'});
   y += 8;
 
+  if (slipTotal > 1) {
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(60);
+    doc.text(`Slip ${slipIndex + 1} of ${slipTotal}`, pageWidth / 2, y, {align: 'center'});
+    y += 7;
+    doc.setTextColor(0);
+  }
+
   doc.setDrawColor(200);
   doc.line(margin, y, pageWidth - margin, y);
   y += 8;
 
   // Document type + number header (prefer form line index over OCR store receipt #)
   const docType = receiptFieldString(receipt.document_type) || 'Receipt';
-  const submissionLine = options?.submissionReceiptLine?.trim();
+  const submissionLine = slipIndex === 0 ? options?.submissionReceiptLine?.trim() : undefined;
   const docNumStr = submissionLine || receiptFieldString(receipt.document_number);
   const docNum = docNumStr ? ` #${docNumStr}` : '';
   doc.setFontSize(12);
@@ -633,6 +720,24 @@ export function generateReceiptPDF(
   doc.text('Automatically transcribed from uploaded file.', pageWidth / 2, pageHeight - 10, {
     align: 'center',
   });
+}
 
+export function generateReceiptPDF(
+  receiptOrReceipts: ReceiptData | ReceiptData[],
+  title: string,
+  options?: GenerateReceiptPdfOptions,
+): Uint8Array {
+  const receipts = Array.isArray(receiptOrReceipts) ? receiptOrReceipts : [receiptOrReceipts];
+  const list = receipts.length > 0 ? receipts : [{}];
+  const doc = new jsPDF();
+  for (let slipIndex = 0; slipIndex < list.length; slipIndex++) {
+    if (slipIndex > 0) {
+      doc.addPage();
+    }
+    const slip = list[slipIndex];
+    if (slip !== undefined) {
+      renderReceiptSlipOnPage(doc, slip, title, options, slipIndex, list.length);
+    }
+  }
   return new Uint8Array(doc.output('arraybuffer'));
 }

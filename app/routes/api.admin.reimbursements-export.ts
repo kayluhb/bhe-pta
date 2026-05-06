@@ -11,22 +11,24 @@ function escapeCsvValue(value: string | number | null | undefined): string {
 }
 
 interface ExportRow {
-  id: string;
-  submitted_at: string;
-  requester_name: string;
-  requester_email: string;
-  total_amount: number;
-  status: string;
   admin_notes: string | null;
+  category: string | null;
   check_amount: number | null;
   check_number: string | null;
   date_approved: string | null;
   date_paid: string | null;
-  receipt_date: string | null;
   description: string | null;
-  vendor: string | null;
-  category: string | null;
+  id: string;
   receipt_amount: number | null;
+  receipt_date: string | null;
+  requester_email: string;
+  requester_name: string;
+  school_year_id: string;
+  school_year_label: string | null;
+  status: string;
+  submitted_at: string;
+  total_amount: number;
+  vendor: string | null;
 }
 
 export async function loader({request, context}: Route.LoaderArgs) {
@@ -34,16 +36,19 @@ export async function loader({request, context}: Route.LoaderArgs) {
   if (auth instanceof Response) return auth;
 
   const url = new URL(request.url);
-  const statusFilter = url.searchParams.get('status');
   const idsParam = url.searchParams.get('ids');
+  const schoolYearFilter = url.searchParams.get('schoolYear');
+  const statusFilter = url.searchParams.get('status');
 
   const db = context.cloudflare.env.REIMBURSEMENT_DB;
 
   let query = `
     SELECT s.id, s.submitted_at, s.requester_name, s.requester_email, s.total_amount, s.status, s.admin_notes,
            s.check_amount, s.check_number, s.date_approved, s.date_paid,
+           s.school_year_id, y.label AS school_year_label,
            r.receipt_date, r.description, r.vendor, r.category, r.amount as receipt_amount
     FROM submissions s
+    LEFT JOIN school_years y ON y.id = s.school_year_id
     LEFT JOIN receipt_entries r ON r.submission_id = s.id
   `;
 
@@ -56,9 +61,21 @@ export async function loader({request, context}: Route.LoaderArgs) {
       conditions.push(`s.id IN (${ids.map(() => '?').join(', ')})`);
       params.push(...ids);
     }
-  } else if (statusFilter) {
-    conditions.push('s.status = ?');
-    params.push(statusFilter);
+  } else {
+    if (statusFilter) {
+      conditions.push('s.status = ?');
+      params.push(statusFilter);
+    }
+    if (schoolYearFilter) {
+      const valid = await db
+        .prepare('SELECT id FROM school_years WHERE id = ?')
+        .bind(schoolYearFilter)
+        .first<{id: string}>();
+      if (valid) {
+        conditions.push('s.school_year_id = ?');
+        params.push(schoolYearFilter);
+      }
+    }
   }
 
   if (conditions.length > 0) {
@@ -78,6 +95,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
     'Email',
     'Total Amount',
     'Status',
+    'School Year',
     'Notes',
     'Date Approved',
     'Date Paid',
@@ -98,6 +116,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
       row.requester_email,
       row.total_amount,
       row.status,
+      row.school_year_label ?? row.school_year_id,
       row.admin_notes,
       row.date_approved,
       row.date_paid,
@@ -117,8 +136,8 @@ export async function loader({request, context}: Route.LoaderArgs) {
 
   return new Response(csv, {
     headers: {
-      'Content-Type': 'text/csv',
       'Content-Disposition': `attachment; filename="reimbursements-${new Date().toISOString().slice(0, 10)}.csv"`,
+      'Content-Type': 'text/csv',
     },
   });
 }

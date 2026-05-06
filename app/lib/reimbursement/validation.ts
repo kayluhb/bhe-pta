@@ -140,6 +140,8 @@ export const fileSchema = z.object({
   size: z.number(),
   /** 1-based index matching the receipt row on the form (used for R2 friendly names). */
   receiptLineIndex: z.number().int().min(1).max(4),
+  /** Conversion job that produced this upload (links the converted PDF once it's done). */
+  jobId: z.string().uuid().optional(),
   /** Signed preview URL params from convert-receipt (not persisted on submit). */
   fileAccessExp: z.number().int().optional(),
   fileAccessSig: z.string().optional(),
@@ -150,18 +152,28 @@ export const budgetSelectionSchema = z.object({
   splitAccounts: z.boolean().default(false),
 });
 
+/** Maximum number of user-visible uploads per submission (one original file each). */
+export const MAX_RECEIPT_UPLOADS = 8;
+
 /** Stored rows per submission: each user upload adds converted + original (2 rows). 16 = 8 uploads. */
-export const MAX_RECEIPT_FILE_RECORDS = 16;
+export const MAX_RECEIPT_FILE_RECORDS = MAX_RECEIPT_UPLOADS * 2;
+
+export const receiptUploadSchema = z.object({
+  jobId: z.string().uuid(),
+  receiptLineIndex: z.number().int().min(1).max(4),
+});
 
 export const submissionSchema = z.object({
   requester: requesterSchema,
   receipts: z.array(receiptSchema).min(1, 'At least one receipt is required').max(4),
-  files: z.array(fileSchema).max(MAX_RECEIPT_FILE_RECORDS),
+  files: z.array(fileSchema).max(MAX_RECEIPT_UPLOADS),
+  receiptUploads: z.array(receiptUploadSchema).max(MAX_RECEIPT_UPLOADS).default([]),
   budget: budgetSelectionSchema,
 });
 
 export type RequesterData = z.infer<typeof requesterSchema>;
 export type ReceiptData = z.infer<typeof receiptSchema>;
 export type FileData = z.infer<typeof fileSchema>;
+export type ReceiptUploadData = z.infer<typeof receiptUploadSchema>;
 export type BudgetSelectionData = z.infer<typeof budgetSelectionSchema>;
 export type SubmissionData = z.infer<typeof submissionSchema>;

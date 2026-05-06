@@ -37,13 +37,25 @@ describe('generateReceiptPDF', () => {
     const pdf = generateReceiptPDF(
       {
         raw_transcript: 'Store line\nTotal $5',
-        vendor_name: 'Multi\nLine Vendor',
         vendor_address: 'Addr\nLine2',
+        vendor_name: 'Multi\nLine Vendor',
         vendor_phone: '555',
       },
       'Title',
     );
     expect(pdf.byteLength).toBeGreaterThan(200);
+  });
+
+  it('renders each slip on its own page when given multiple receipts', () => {
+    const oneSlip = generateReceiptPDF({raw_transcript: 'A', total: '1'}, 'Title');
+    const twoSlips = generateReceiptPDF(
+      [
+        {raw_transcript: 'A', total: '1'},
+        {raw_transcript: 'B', total: '2'},
+      ],
+      'Title',
+    );
+    expect(twoSlips.byteLength).toBeGreaterThan(oneSlip.byteLength);
   });
 
   it('uses submission receipt line in header', () => {
@@ -142,7 +154,31 @@ describe('extractReceiptData', () => {
     );
     const small = new Uint8Array(100);
     const out = await extractReceiptData(small, 'image/jpeg', 'api-key');
-    expect('receipt' in out && out.receipt.vendor_name).toBe('V');
+    expect('receipts' in out && out.receipts[0]?.vendor_name).toBe('V');
+  });
+
+  it('returns multiple receipts when Gemini returns a receipts array', async () => {
+    const body = JSON.stringify({
+      receipts: [
+        {raw_transcript: 'store A', total: '5', vendor_name: 'Shop A'},
+        {raw_transcript: 'store B', total: '10', vendor_name: 'Shop B'},
+      ],
+    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ...geminiResponse(body),
+        text: async () => '',
+      }),
+    );
+    const small = new Uint8Array(100);
+    const out = await extractReceiptData(small, 'image/jpeg', 'api-key');
+    if (!('receipts' in out)) {
+      expect.fail('expected success with receipts');
+    }
+    expect(out.receipts.length).toBe(2);
+    expect(out.receipts[0]?.vendor_name).toBe('Shop A');
+    expect(out.receipts[1]?.vendor_name).toBe('Shop B');
   });
 
   it('runs plain transcript fallback for large files with thin JSON', async () => {
@@ -160,7 +196,7 @@ describe('extractReceiptData', () => {
 
     const big = new Uint8Array(7000);
     const out = await extractReceiptData(big, 'application/pdf', 'api-key');
-    expect('receipt' in out && (out.receipt.raw_transcript?.length ?? 0)).toBeGreaterThan(100);
+    expect('receipts' in out && (out.receipts[0]?.raw_transcript?.length ?? 0)).toBeGreaterThan(100);
   });
 
   it('does not replace transcript when plain response is shorter', async () => {
@@ -176,7 +212,7 @@ describe('extractReceiptData', () => {
 
     const big = new Uint8Array(7000);
     const out = await extractReceiptData(big, 'image/png', 'api-key');
-    expect('receipt' in out).toBe(true);
+    expect('receipts' in out).toBe(true);
   });
 
   it('retries on 503 then succeeds', async () => {
@@ -191,7 +227,7 @@ describe('extractReceiptData', () => {
     const p = extractReceiptData(new Uint8Array(50), 'image/jpeg', 'api-key');
     await vi.advanceTimersByTimeAsync(1500);
     const out = await p;
-    expect('receipt' in out).toBe(true);
+    expect('receipts' in out).toBe(true);
   });
 
   it('returns 502 when Gemini keeps failing', async () => {
@@ -227,7 +263,7 @@ describe('extractReceiptData', () => {
       }),
     );
     const out = await extractReceiptData(new Uint8Array(20), 'image/jpeg', 'k');
-    expect('receipt' in out && out.receipt.vendor_name).toBe('Partial');
+    expect('receipts' in out && out.receipts[0]?.vendor_name).toBe('Partial');
   });
 });
 

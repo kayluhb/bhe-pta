@@ -1,8 +1,47 @@
-import {sendNotificationEmail} from '~/lib/reimbursement/email/resend';
 import {buildPdfFilename, slugifyName} from '~/lib/reimbursement/filename';
 import {generatePDF} from '~/lib/reimbursement/pdf/generator';
+import {
+  attachConvertedToSubmission,
+  type ConvertedJobData,
+  dispatchSubmissionEmail,
+  releaseEmailDispatchClaim,
+  tryClaimEmailDispatch,
+} from '~/lib/reimbursement/submission-finalize';
+import {resolveSchoolYearIdForNewSubmission} from '~/lib/reimbursement/school-years';
 import {submissionSchema} from '~/lib/reimbursement/validation';
 import type {Route} from './+types/api.reimbursement.submit';
+
+interface ReceiptConversionJobRow {
+  id: string;
+  status: 'queued' | 'processing' | 'complete' | 'error';
+  original_key: string;
+  original_filename: string;
+  original_content_type: string;
+  original_size: number;
+  converted_key: string | null;
+  converted_filename: string | null;
+  converted_size: number | null;
+  submission_id: string | null;
+}
+
+function isSchemaOutdatedError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const message = error.message.toLowerCase();
+  return (
+    message.includes('no such column') ||
+    message.includes('has no column named') ||
+    message.includes('school_year_id') ||
+    message.includes('school_years')
+  );
+}
+
+function jobSuffix(jobId: string): string {
+  return jobId.split('-')[0] || jobId.slice(0, 8);
+}
+
+function buildFriendlyOriginalName(slug: string, receiptLineIndex: number, jobId: string, ext: string) {
+  return `${slug}-receipt-${receiptLineIndex}-${jobSuffix(jobId)}-original.${ext}`;
+}
 
 async function verifyTurnstile(
   token: string,
@@ -27,7 +66,6 @@ export async function action({request, context}: Route.ActionArgs) {
   try {
     const body = await request.json();
 
-    // Verify Turnstile token
     const turnstileSecret = context.cloudflare.env.TURNSTILE_SECRET_KEY;
     const turnstileToken = (body as Record<string, unknown>).turnstileToken;
     if (!turnstileSecret || !turnstileToken || typeof turnstileToken !== 'string') {
@@ -40,7 +78,6 @@ export async function action({request, context}: Route.ActionArgs) {
       return Response.json({error: 'Verification failed. Please try again.'}, {status: 403});
     }
 
-    // Validate input
     const validationResult = submissionSchema.safeParse(body);
     if (!validationResult.success) {
       return Response.json(
@@ -52,29 +89,80 @@ export async function action({request, context}: Route.ActionArgs) {
       );
     }
 
-    const {requester, receipts, files, budget} = validationResult.data;
+    const {requester, receipts, files, receiptUploads, budget} = validationResult.data;
 
-    const db = context.cloudflare.env.REIMBURSEMENT_DB;
-    const r2 = context.cloudflare.env.R2_BUCKET;
+    const env = context.cloudflare.env;
+    const db = env.REIMBURSEMENT_DB;
+    const r2 = env.R2_BUCKET;
 
-    if (files.length > 0 && db) {
-      const placeholders = files.map(() => '?').join(',');
-      const dup = await db
-        .prepare(`SELECT r2_key FROM file_attachments WHERE r2_key IN (${placeholders})`)
-        .bind(...files.map((f) => f.key))
-        .all<{r2_key: string}>();
-      if (dup.results.length > 0) {
-        return Response.json(
-          {error: 'One or more attachments were already used in another submission.'},
-          {status: 400},
-        );
-      }
+    if (!db) {
+      return Response.json(
+        {error: 'Storage is not configured for this environment.'},
+        {status: 503},
+      );
+    }
+    if (!r2) {
+      return Response.json(
+        {error: 'File storage is not configured for this environment.'},
+        {status: 503},
+      );
     }
 
-    if (files.length > 0 && r2) {
-      for (const file of files) {
-        const head = await r2.head(file.key);
-        if (!head) {
+    // Look up every job referenced by the client and reject double-claims.
+    const jobsById = new Map<string, ReceiptConversionJobRow>();
+    const seenJobIds = new Set<string>();
+    if (receiptUploads.length > 0) {
+      for (const upload of receiptUploads) {
+        if (seenJobIds.has(upload.jobId)) {
+          return Response.json(
+            {error: 'Duplicate receipt uploads were detected. Please re-upload your receipts.'},
+            {status: 400},
+          );
+        }
+        seenJobIds.add(upload.jobId);
+      }
+
+      const placeholders = receiptUploads.map(() => '?').join(',');
+      const jobRows = await db
+        .prepare(
+          `SELECT id, status, original_key, original_filename, original_content_type, original_size,
+                  converted_key, converted_filename, converted_size, submission_id
+           FROM receipt_conversion_jobs WHERE id IN (${placeholders})`,
+        )
+        .bind(...receiptUploads.map((u) => u.jobId))
+        .all<ReceiptConversionJobRow>();
+
+      for (const row of jobRows.results ?? []) {
+        jobsById.set(row.id, row);
+      }
+
+      for (const upload of receiptUploads) {
+        const job = jobsById.get(upload.jobId);
+        if (!job) {
+          return Response.json(
+            {error: 'One or more receipt uploads were not recognized. Please re-upload.'},
+            {status: 400},
+          );
+        }
+        if (job.submission_id) {
+          return Response.json(
+            {error: 'One or more attachments were already used in another submission.'},
+            {status: 400},
+          );
+        }
+      }
+
+      // Ensure uploads still exist in R2 (staging originals may be deleted after conversion,
+      // but the converted PDF should exist until submission attaches/moves it).
+      for (const upload of receiptUploads) {
+        const job = jobsById.get(upload.jobId);
+        if (!job) continue;
+        const originalHead = await r2.head(job.original_key);
+        const convertedHead =
+          job.status === 'complete' && job.converted_key
+            ? await r2.head(job.converted_key)
+            : null;
+        if (!originalHead && !convertedHead) {
           return Response.json(
             {error: 'An uploaded file is missing or expired. Please re-upload your receipts.'},
             {status: 400},
@@ -83,25 +171,17 @@ export async function action({request, context}: Route.ActionArgs) {
       }
     }
 
-    // Calculate total
     const totalAmount = receipts.reduce((sum, r) => sum + r.amount, 0);
 
-    // Generate submission ID
     const submissionId = crypto.randomUUID();
     const submittedAt = new Date().toISOString();
 
-    // Get environment variables from Cloudflare context
-    const env = context.cloudflare.env;
-    const resendApiKey = env.RESEND_API_KEY;
-    const notificationEmail = env.NOTIFICATION_EMAIL;
-
-    // Assign budget accounts to receipts
     const receiptsWithBudget = receipts.map((receipt) => ({
       ...receipt,
       budgetAccount: receipt.budgetAccount || budget.primaryAccount,
     }));
 
-    // Generate PDF
+    // Generate the form-summary PDF (independent of receipt conversions; safe to do up front).
     const pdfBuffer = await generatePDF({
       submission: {
         id: submissionId,
@@ -113,64 +193,151 @@ export async function action({request, context}: Route.ActionArgs) {
       budget,
     });
 
-    // Generate friendly filename slug
     const slug = slugifyName(requester.payableTo, submittedAt.slice(0, 10));
     const pdfFilename = buildPdfFilename(slug);
+    const pdfKey = `submissions/${submissionId}/${pdfFilename}`;
+    await r2.put(pdfKey, pdfBuffer, {
+      httpMetadata: {contentType: 'application/pdf'},
+    });
 
-    // Store generated PDF in R2
-    let pdfKey: string | null = null;
-    if (env.R2_BUCKET) {
-      pdfKey = `submissions/${submissionId}/${pdfFilename}`;
-      await env.R2_BUCKET.put(pdfKey, pdfBuffer, {
-        httpMetadata: {contentType: 'application/pdf'},
-      });
+    // Copy each original from staging into the submission folder, building friendly names.
+    // Keep staging objects until queue processing finishes, otherwise in-flight jobs can fail
+    // trying to read `original_key`.
+    const renamedOriginals: Array<{
+      key: string;
+      filename: string;
+      contentType: string;
+      size: number;
+    }> = [];
+    const completedJobConverteds: ConvertedJobData[] = [];
+
+    for (const upload of receiptUploads) {
+      const job = jobsById.get(upload.jobId);
+      if (!job) continue;
+
+      const ext = job.original_filename.split('.').pop() || 'bin';
+      const friendlyOriginalName = buildFriendlyOriginalName(
+        slug,
+        upload.receiptLineIndex,
+        job.id,
+        ext,
+      );
+      const newOriginalKey = `submissions/${submissionId}/${friendlyOriginalName}`;
+
+      const obj = await r2.get(job.original_key);
+      if (obj) {
+        await r2.put(newOriginalKey, await obj.arrayBuffer(), {
+          httpMetadata: {contentType: job.original_content_type},
+        });
+
+        renamedOriginals.push({
+          key: newOriginalKey,
+          filename: friendlyOriginalName,
+          contentType: job.original_content_type,
+          size: job.original_size,
+        });
+      }
+
+      // Stash the data we'll need to attach the converted PDF (immediately if already complete,
+      // or later when the queue worker finishes the job).
+      if (
+        job.status === 'complete' &&
+        job.converted_key &&
+        job.converted_filename &&
+        job.converted_size != null
+      ) {
+        completedJobConverteds.push({
+          jobId: job.id,
+          submission_id: submissionId,
+          submission_slug: slug,
+          receipt_line_index: upload.receiptLineIndex,
+          original_content_type: job.original_content_type,
+          converted_key: job.converted_key,
+          converted_filename: job.converted_filename,
+          converted_size: job.converted_size,
+        });
+      }
     }
 
-    // Rename uploaded files to friendly names (receiptLineIndex from client matches form row).
-    const renamedFiles = await Promise.all(
-      files.map(async (file) => {
-        const isOriginal = !file.filename.endsWith('-converted.pdf');
-        const lineIdx = file.receiptLineIndex;
-        const ext = file.filename.split('.').pop() || 'pdf';
-        const suffix = isOriginal ? `-original.${ext}` : '.pdf';
-        const friendlyName = `${slug}-receipt-${lineIdx}${suffix}`;
-        const newKey = `submissions/${submissionId}/${friendlyName}`;
-
-        if (env.R2_BUCKET) {
-          const obj = await env.R2_BUCKET.get(file.key);
-          if (obj) {
-            await env.R2_BUCKET.put(newKey, await obj.arrayBuffer(), {
-              httpMetadata: {contentType: file.contentType},
-            });
-            await env.R2_BUCKET.delete(file.key);
-          }
-        }
-
-        return {...file, key: newKey, filename: friendlyName};
-      }),
+    // Persist the submission, receipt entries, and the original-file attachment rows in one batch.
+    const fileAttachmentInserts = renamedOriginals.map((file, i) =>
+      db
+        .prepare(
+          `INSERT INTO file_attachments (id, submission_id, r2_key, original_filename, content_type, file_size, sort_order)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        )
+        .bind(
+          crypto.randomUUID(),
+          submissionId,
+          file.key,
+          file.filename,
+          file.contentType,
+          file.size,
+          i,
+        ),
     );
 
-    // Save to D1 database
+    // Atomically claim each referenced job for this submission before persisting rows.
+    for (const upload of receiptUploads) {
+      const claim = await db
+        .prepare(
+          `UPDATE receipt_conversion_jobs
+           SET submission_id = ?, submission_slug = ?, receipt_line_index = ?, updated_at = datetime('now')
+           WHERE id = ? AND submission_id IS NULL`,
+        )
+        .bind(submissionId, slug, upload.receiptLineIndex, upload.jobId)
+        .run();
+
+      if ((claim.meta?.changes ?? 0) !== 1) {
+        await db
+          .prepare(
+            `UPDATE receipt_conversion_jobs
+             SET submission_id = NULL, submission_slug = NULL, receipt_line_index = NULL, updated_at = datetime('now')
+             WHERE submission_id = ?`,
+          )
+          .bind(submissionId)
+          .run();
+        return Response.json(
+          {
+            error:
+              'One or more receipt uploads were claimed by another submission. Please re-upload your receipts and try again.',
+          },
+          {status: 409},
+        );
+      }
+    }
+
+    const schoolYearResolution = await resolveSchoolYearIdForNewSubmission(db);
+    if (!schoolYearResolution.ok) {
+      return schoolYearResolution.response;
+    }
+    const schoolYearId = schoolYearResolution.schoolYearId;
+
     await db.batch([
       db
         .prepare(
-          `INSERT INTO submissions (id, requester_name, requester_email, requester_phone, status, total_amount, pdf_key, submitted_at)
-         VALUES (?, ?, ?, ?, 'pending', ?, ?, ?)`,
+          `INSERT INTO submissions
+            (id, requester_name, requester_email, requester_phone, requester_address,
+             date_check_needed, status, total_amount, pdf_key, submitted_at, school_year_id)
+           VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?)`,
         )
         .bind(
           submissionId,
           requester.payableTo,
           requester.email,
           requester.phone || null,
+          requester.address || null,
+          requester.dateCheckNeeded || null,
           totalAmount,
           pdfKey,
           submittedAt,
+          schoolYearId,
         ),
       ...receiptsWithBudget.map((receipt, i) =>
         db
           .prepare(
             `INSERT INTO receipt_entries (id, submission_id, receipt_date, description, amount, category, vendor, sort_order)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
           )
           .bind(
             crypto.randomUUID(),
@@ -183,23 +350,17 @@ export async function action({request, context}: Route.ActionArgs) {
             i,
           ),
       ),
-      ...renamedFiles.map((file, i) =>
-        db
-          .prepare(
-            `INSERT INTO file_attachments (id, submission_id, r2_key, original_filename, content_type, file_size, sort_order)
-           VALUES (?, ?, ?, ?, ?, ?, ?)`,
-          )
-          .bind(
-            crypto.randomUUID(),
-            submissionId,
-            file.key,
-            file.filename,
-            file.contentType,
-            file.size,
-            i,
-          ),
-      ),
+      ...fileAttachmentInserts,
     ]);
+
+    // Fast path: any conversions that already finished get their converted PDFs attached now.
+    for (const job of completedJobConverteds) {
+      try {
+        await attachConvertedToSubmission(env, job);
+      } catch (err) {
+        console.error('[submit] attachConvertedToSubmission failed:', err);
+      }
+    }
 
     const pdfFileCount = files.filter((f) => f.contentType === 'application/pdf').length;
     console.log('Submission saved:', {
@@ -207,60 +368,26 @@ export async function action({request, context}: Route.ActionArgs) {
       requester: requester.payableTo,
       totalAmount,
       receiptsCount: receipts.length,
-      filesCount: files.length,
+      filesCount: renamedOriginals.length,
       pdfFileCount,
+      pendingConversions: receiptUploads.length - completedJobConverteds.length,
     });
 
-    // Send email notification if configured
-    if (resendApiKey && notificationEmail) {
+    // If every job was already terminal (complete or error) at submit, send the email now.
+    // Otherwise, the queue consumer will dispatch it once the last conversion finishes.
+    const claimed = await tryClaimEmailDispatch(db, submissionId);
+    if (claimed) {
       try {
-        // Fetch uploaded files from R2 to attach to treasurer email
-        const fileAttachments: Array<{
-          filename: string;
-          content: Uint8Array;
-          contentType: string;
-        }> = [];
-        if (env.R2_BUCKET && renamedFiles.length > 0) {
-          const fetched = await Promise.all(
-            renamedFiles.map(async (f) => {
-              try {
-                const obj = await env.R2_BUCKET.get(f.key);
-                if (!obj) return null;
-                return {
-                  filename: f.filename,
-                  content: new Uint8Array(await obj.arrayBuffer()),
-                  contentType: f.contentType,
-                };
-              } catch {
-                return null;
-              }
-            }),
-          );
-          for (const f of fetched) {
-            if (f) fileAttachments.push(f);
-          }
+        const sent = await dispatchSubmissionEmail(env, submissionId);
+        if (!sent) {
+          await releaseEmailDispatchClaim(db, submissionId);
         }
-
-        await sendNotificationEmail({
-          submission: {
-            id: submissionId,
-            totalAmount,
-          },
-          requester,
-          receipts: receiptsWithBudget,
-          pdfBuffer,
-          pdfFilename,
-          fileAttachments,
-          notificationEmail,
-          resendApiKey,
-        });
-        console.log('Email sent successfully');
       } catch (emailError) {
         console.error('Email sending failed:', emailError);
-        // Don't fail the whole request if email fails
+        await releaseEmailDispatchClaim(db, submissionId);
       }
     } else {
-      console.log('Email not configured - skipping notification');
+      console.log('Email deferred until receipt conversions complete:', {id: submissionId});
     }
 
     return Response.json({
@@ -270,6 +397,15 @@ export async function action({request, context}: Route.ActionArgs) {
     });
   } catch (error) {
     console.error('Submission error:', error);
+    if (isSchemaOutdatedError(error)) {
+      return Response.json(
+        {
+          error:
+            'Database schema is out of date. Please run the latest reimbursement migrations and try again.',
+        },
+        {status: 503},
+      );
+    }
     return Response.json({error: 'Failed to process submission'}, {status: 500});
   }
 }

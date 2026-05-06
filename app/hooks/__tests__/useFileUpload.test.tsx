@@ -4,6 +4,34 @@ import {afterEach, describe, expect, it, vi} from 'vitest';
 
 import {useFileUpload} from '../useFileUpload';
 
+interface ConvertReceiptResponse {
+  jobId?: string;
+  receiptUploadToken?: string;
+  status?: string;
+  original?: {
+    key: string;
+    filename: string;
+    contentType: string;
+    size: number;
+    fileAccessExp?: number;
+    fileAccessSig?: string;
+  };
+}
+
+function buildSuccessResponse(jobId: string, withToken: boolean): ConvertReceiptResponse {
+  return {
+    jobId,
+    status: 'queued',
+    ...(withToken ? {receiptUploadToken: 'rt'} : {}),
+    original: {
+      key: `uploads/${jobId}.jpg`,
+      filename: `${jobId}.jpg`,
+      contentType: 'image/jpeg',
+      size: 1234,
+    },
+  };
+}
+
 describe('useFileUpload', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -29,47 +57,22 @@ describe('useFileUpload', () => {
     vi.unstubAllGlobals();
   });
 
-  it('uploads two files on the first request using turnstile then continuation', async () => {
+  it('uploads two files: first with turnstile, second with the continuation token', async () => {
     let posts = 0;
-    const fetchMock = vi.fn().mockImplementation((url: string) => {
-      if (url.includes('convert-receipt') && !url.includes('status')) {
-        posts++;
-        if (posts === 1) {
-          return Promise.resolve({
-            ok: true,
-            json: async () => ({jobId: 'j1', receiptUploadToken: 'rt'}),
-          });
-        }
-        return Promise.resolve({
-          ok: true,
-          json: async () => ({jobId: `j${posts}`}),
-        });
-      }
-      const id = new URL(url, 'https://x.test').searchParams.get('jobId') ?? 'j1';
+    const fetchMock = vi.fn().mockImplementation(() => {
+      posts++;
       return Promise.resolve({
-        json: async () => ({
-          contentType: 'application/pdf',
-          filename: `${id}.pdf`,
-          key: id,
-          original: {
-            contentType: 'image/jpeg',
-            filename: 'o.jpg',
-            key: `o-${id}`,
-            receiptLineIndex: 1,
-            size: 2,
-          },
-          size: 9,
-          status: 'complete',
-        }),
         ok: true,
+        json: async () => buildSuccessResponse(`j${posts}`, posts === 1),
       });
     });
     vi.stubGlobal('fetch', fetchMock);
     const {result} = renderHook(() => useFileUpload('tok'));
     const f1 = new File(['a'], '1.jpg', {type: 'image/jpeg'});
     const f2 = new File(['b'], '2.jpg', {type: 'image/jpeg'});
+    let pairs: unknown;
     await act(async () => {
-      await result.current.uploadFilesBatch(
+      pairs = await result.current.uploadFilesBatch(
         [
           {file: f1, id: 'ok1'},
           {file: f2, id: 'ok2'},
@@ -78,6 +81,7 @@ describe('useFileUpload', () => {
       );
     });
     expect(result.current.uploads.every((u) => u.status === 'complete')).toBe(true);
+    expect((pairs as Array<unknown>).every((p) => p !== null)).toBe(true);
   });
 
   it('clearReceiptUploadContinuation is a no-op safe call', () => {
@@ -88,60 +92,20 @@ describe('useFileUpload', () => {
     expect(result.current.uploads).toEqual([]);
   });
 
-  it('clears one pending upload via clearUpload', () => {
+  it('clearAllUploads is safe when there are no uploads', () => {
     const {result} = renderHook(() => useFileUpload('tok'));
-    const file = new File(['x'], 'a.jpg', {type: 'image/jpeg'});
-    act(() => {
-      result.current.registerPendingBatch(
-        [
-          {file, id: '1'},
-          {file, id: '2'},
-        ],
-        0,
-      );
-      result.current.clearUpload('1');
-    });
-    expect(result.current.uploads.map((u) => u.id)).toEqual(['2']);
-  });
-
-  it('registerPendingBatch tracks uploads and clearAllUploads clears', () => {
-    const {result} = renderHook(() => useFileUpload('tok'));
-    const file = new File(['x'], 'a.jpg', {type: 'image/jpeg'});
-    act(() => {
-      result.current.registerPendingBatch([{file, id: '1'}], 0);
-    });
-    expect(result.current.uploads).toHaveLength(1);
     act(() => {
       result.current.clearAllUploads();
     });
     expect(result.current.uploads).toHaveLength(0);
   });
 
-  it('uploads a single file with turnstile and polls to completion', async () => {
-    const fetchMock = vi.fn();
+  it('uploads a single file with turnstile and resolves to the original FileData', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => buildSuccessResponse('job1', true),
+    });
     vi.stubGlobal('fetch', fetchMock);
-    fetchMock
-      .mockResolvedValueOnce({
-        json: async () => ({jobId: 'job1', receiptUploadToken: 'cont'}),
-        ok: true,
-      })
-      .mockResolvedValue({
-        json: async () => ({
-          contentType: 'application/pdf',
-          filename: 'c.pdf',
-          key: 'k',
-          original: {
-            contentType: 'image/jpeg',
-            filename: 'a.jpg',
-            key: 'orig',
-            receiptLineIndex: 1,
-            size: 2,
-          },
-          size: 9,
-          status: 'complete',
-        }),
-        ok: true,
-      });
 
     const {result} = renderHook(() => useFileUpload('tok'));
     const file = new File(['x'], 'a.jpg', {type: 'image/jpeg'});
@@ -149,46 +113,22 @@ describe('useFileUpload', () => {
     await act(async () => {
       pairs = await result.current.uploadFilesBatch([{file, id: 'u1'}], 0, 'Pat');
     });
-    expect((pairs as (unknown[] | null)[])[0]).toHaveLength(2);
+    const out = pairs as Array<{key: string; jobId?: string} | null>;
+    expect(out[0]).not.toBeNull();
+    expect(out[0]?.jobId).toBe('job1');
+    expect(out[0]?.key).toBe('uploads/job1.jpg');
   });
 
   it('uses continuation tokens for a second multi-file batch', async () => {
-    const fetchMock = vi.fn();
-    vi.stubGlobal('fetch', fetchMock);
     let postCount = 0;
-    fetchMock.mockImplementation((url: string) => {
-      if (url.includes('convert-receipt') && !url.includes('status')) {
-        postCount++;
-        if (postCount === 1) {
-          return Promise.resolve({
-            ok: true,
-            json: async () => ({jobId: 'j1', receiptUploadToken: 'rt'}),
-          });
-        }
-        return Promise.resolve({
-          ok: true,
-          json: async () => ({jobId: `j${postCount}`}),
-        });
-      }
-      const id = new URL(url, 'https://x.test').searchParams.get('jobId') ?? 'j1';
+    const fetchMock = vi.fn().mockImplementation(() => {
+      postCount++;
       return Promise.resolve({
         ok: true,
-        json: async () => ({
-          contentType: 'application/pdf',
-          filename: `${id}.pdf`,
-          key: id,
-          original: {
-            contentType: 'image/jpeg',
-            filename: 'o.jpg',
-            key: `o-${id}`,
-            receiptLineIndex: 1,
-            size: 2,
-          },
-          size: 5,
-          status: 'complete',
-        }),
+        json: async () => buildSuccessResponse(`j${postCount}`, postCount === 1),
       });
     });
+    vi.stubGlobal('fetch', fetchMock);
 
     const {result} = renderHook(() => useFileUpload('tok'));
     const f1 = new File(['a'], '1.jpg', {type: 'image/jpeg'});
@@ -210,30 +150,11 @@ describe('useFileUpload', () => {
   });
 
   it('returns empty array for zero-length batch when continuation is set', async () => {
-    const fetchMock = vi.fn();
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => buildSuccessResponse('j1', true),
+    });
     vi.stubGlobal('fetch', fetchMock);
-    fetchMock
-      .mockResolvedValueOnce({
-        json: async () => ({jobId: 'j1', receiptUploadToken: 'rt'}),
-        ok: true,
-      })
-      .mockResolvedValue({
-        json: async () => ({
-          contentType: 'application/pdf',
-          filename: 'c.pdf',
-          key: 'k',
-          original: {
-            contentType: 'image/jpeg',
-            filename: 'a.jpg',
-            key: 'orig',
-            receiptLineIndex: 1,
-            size: 2,
-          },
-          size: 9,
-          status: 'complete',
-        }),
-        ok: true,
-      });
     const {result} = renderHook(() => useFileUpload('tok'));
     const file = new File(['x'], 'a.jpg', {type: 'image/jpeg'});
     await act(async () => {
@@ -246,25 +167,12 @@ describe('useFileUpload', () => {
     expect((empty as unknown[]).length).toBe(0);
   });
 
-  it('marks error when conversion payload is missing original key', async () => {
-    const fetchMock = vi.fn();
+  it('marks error when convert-receipt response is missing the original payload', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({jobId: 'j1'}),
+    });
     vi.stubGlobal('fetch', fetchMock);
-    fetchMock
-      .mockResolvedValueOnce({
-        json: async () => ({jobId: 'j1'}),
-        ok: true,
-      })
-      .mockResolvedValue({
-        json: async () => ({
-          contentType: 'application/pdf',
-          filename: 'c.pdf',
-          key: 'k',
-          original: {contentType: 'image/jpeg', filename: 'a.jpg', key: '', size: 1},
-          size: 9,
-          status: 'complete',
-        }),
-        ok: true,
-      });
     const {result} = renderHook(() => useFileUpload('tok'));
     const file = new File(['x'], 'a.jpg', {type: 'image/jpeg'});
     await act(async () => {
@@ -273,23 +181,21 @@ describe('useFileUpload', () => {
     expect(result.current.uploads.some((u) => u.id === 'u-bad' && u.status === 'error')).toBe(true);
   });
 
-  it('marks error when status poll HTTP fails', async () => {
-    const fetchMock = vi.fn();
+  it('marks error when convert-receipt returns a non-OK status', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 500,
+      json: async () => ({error: 'server exploded'}),
+    });
     vi.stubGlobal('fetch', fetchMock);
-    fetchMock
-      .mockResolvedValueOnce({
-        json: async () => ({jobId: 'j1'}),
-        ok: true,
-      })
-      .mockResolvedValue({json: async () => ({error: 'nope'}), ok: false, status: 500});
     const {result} = renderHook(() => useFileUpload('tok'));
     const file = new File(['x'], 'a.jpg', {type: 'image/jpeg'});
     await act(async () => {
       await result.current.uploadFilesBatch([{file, id: 'u-poll'}], 0);
     });
-    expect(result.current.uploads.some((u) => u.id === 'u-poll' && u.status === 'error')).toBe(
-      true,
-    );
+    const errored = result.current.uploads.find((u) => u.id === 'u-poll');
+    expect(errored?.status).toBe('error');
+    expect(errored?.error).toBe('server exploded');
   });
 
   it('cancels remaining uploads when the first file in a multi-select fails', async () => {
@@ -317,34 +223,15 @@ describe('useFileUpload', () => {
 
   it('marks error when a follow-up upload fails after the first succeeds', async () => {
     let posts = 0;
-    const fetchMock = vi.fn().mockImplementation((url: string) => {
-      if (url.includes('convert-receipt') && !url.includes('status')) {
-        posts++;
-        if (posts === 1) {
-          return Promise.resolve({
-            ok: true,
-            json: async () => ({jobId: 'j1', receiptUploadToken: 'rt'}),
-          });
-        }
-        return Promise.resolve({json: async () => ({}), ok: false, status: 400});
+    const fetchMock = vi.fn().mockImplementation(() => {
+      posts++;
+      if (posts === 1) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => buildSuccessResponse('j1', true),
+        });
       }
-      return Promise.resolve({
-        json: async () => ({
-          contentType: 'application/pdf',
-          filename: 'c.pdf',
-          key: 'k',
-          original: {
-            contentType: 'image/jpeg',
-            filename: 'o.jpg',
-            key: 'ok',
-            receiptLineIndex: 1,
-            size: 2,
-          },
-          size: 9,
-          status: 'complete',
-        }),
-        ok: true,
-      });
+      return Promise.resolve({json: async () => ({}), ok: false, status: 400});
     });
     vi.stubGlobal('fetch', fetchMock);
     const {result} = renderHook(() => useFileUpload('tok'));
@@ -360,26 +247,5 @@ describe('useFileUpload', () => {
       );
     });
     expect(result.current.uploads.find((u) => u.id === 'x2')?.status).toBe('error');
-  });
-
-  it('marks error when conversion fails during polling', async () => {
-    const fetchMock = vi.fn();
-    vi.stubGlobal('fetch', fetchMock);
-    fetchMock
-      .mockResolvedValueOnce({
-        json: async () => ({jobId: 'job2'}),
-        ok: true,
-      })
-      .mockResolvedValue({
-        json: async () => ({error: 'nope', status: 'error'}),
-        ok: true,
-      });
-
-    const {result} = renderHook(() => useFileUpload('tok'));
-    const file = new File(['x'], 'b.jpg', {type: 'image/jpeg'});
-    await act(async () => {
-      await result.current.uploadFilesBatch([{file, id: 'u2'}], 0);
-    });
-    expect(result.current.uploads.some((u) => u.id === 'u2' && u.status === 'error')).toBe(true);
   });
 });

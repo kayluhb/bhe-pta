@@ -7,10 +7,17 @@
     "build": "react-router build",
     "cf-typegen": "wrangler types",
     "dev": "react-router dev",
+    "dev:migrate": "wrangler d1 migrations apply pta-reimbursement-db --local",
+    "dev:migrations:list": "wrangler d1 migrations list pta-reimbursement-db --local",
     "postinstall": "pnpm run cf-typegen",
     "preview": "pnpm run build && vite preview",
     "prod:deploy": "pnpm run build && wrangler deploy",
     "prod:migrate": "wrangler d1 migrations apply pta-reimbursement-db --remote",
+    "stage:deploy": "pnpm run build && wrangler deploy --env stage",
+    "stage:migrate": "wrangler d1 migrations apply REIMBURSEMENT_DB --remote --env stage",
+    "stage:tail": "wrangler tail --env stage",
+    "stage:secret": "wrangler secret put --env stage",
+    "stage:secret:bulk": "wrangler secret bulk --env stage",
     "lint": "biome check .",
     "lint:fix": "biome check --fix .",
     "test": "vitest run",
@@ -20,10 +27,10 @@
     "refresh": "curl -s -X POST https://bheeagles.com/api/refresh -H \"Authorization: Bearer $DATA_REFRESH_SECRET\" | jq ."
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1032.0",
-    "@aws-sdk/s3-request-presigner": "^3.1032.0",
-    "@sentry/cloudflare": "^10.49.0",
-    "@sentry/react": "^10.49.0",
+    "@aws-sdk/client-s3": "^3.1039.0",
+    "@aws-sdk/s3-request-presigner": "^3.1039.0",
+    "@sentry/cloudflare": "^10.51.0",
+    "@sentry/react": "^10.51.0",
     "cheerio": "^1.2.0",
     "fflate": "^0.8.2",
     "ical.js": "^2.2.1",
@@ -32,14 +39,14 @@
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-router": "7.14.1",
-    "resend": "^6.12.0",
-    "zod": "^4.3.6"
+    "resend": "^6.12.2",
+    "zod": "^4.4.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.12",
-    "@cloudflare/vite-plugin": "^1.32.3",
+    "@biomejs/biome": "^2.4.13",
+    "@cloudflare/vite-plugin": "^1.34.0",
     "@react-router/dev": "7.14.1",
-    "@tailwindcss/vite": "^4.2.2",
+    "@tailwindcss/vite": "^4.2.4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
@@ -50,11 +57,11 @@
     "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.45.2",
     "jsdom": "^26.1.0",
-    "tailwindcss": "^4.2.2",
+    "tailwindcss": "^4.2.4",
     "typescript": "^6.0.3",
     "vite": "^7.3.2",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4",
-    "wrangler": "^4.83.0"
+    "wrangler": "^4.86.0"
   }
 }

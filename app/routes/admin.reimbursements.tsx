@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState, type ReactNode} from 'react';
 import {useLoaderData, useNavigate, useRevalidator} from 'react-router';
 import {requireAdmin, type SessionPayload} from '~/lib/admin/auth';
 import {mergeParentMeta} from '~/lib/meta';
@@ -22,22 +22,43 @@ const VALID_ORDERS = ['asc', 'desc'] as const;
 const VALID_STATUSES = [
   'pending',
   'approved',
+  'check_written',
   'check_delivered',
+  'check_deposited',
   'rejected',
-  'needs_info',
 ] as const;
 
 interface Submission {
-  id: number;
-  requester_name: string;
+  id: string;
   requester_email: string;
-  total_amount: number;
+  requester_name: string;
+  school_year_id: string;
+  school_year_label: string | null;
   status: string;
   submitted_at: string;
+  total_amount: number;
   updated_at: string;
 }
 
 const PAGE_SIZE = 25;
+const LARGE_DOWNLOAD_WARNING_THRESHOLD = 4;
+
+interface SnapshotRow {
+  approved_cnt: number | null;
+  check_delivered_cnt: number | null;
+  check_deposited_cnt: number | null;
+  check_written_cnt: number | null;
+  in_pipeline_amount: number | null;
+  new_last_30d: number | null;
+  new_last_7d: number | null;
+  oldest_pending_at: string | null;
+  pending_amount: number | null;
+  pending_cnt: number | null;
+  rejected_cnt: number | null;
+  sum_total_requested: number | null;
+  total_submissions: number | null;
+  uncashed_amount: number | null;
+}
 
 export async function loader({request, context}: Route.LoaderArgs) {
   const auth = await requireAdmin(request, context.cloudflare.env);
@@ -46,6 +67,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
 
   const url = new URL(request.url);
   const statusFilter = url.searchParams.get('status') || '';
+  const schoolYearParam = url.searchParams.get('schoolYear') || '';
   const sort = url.searchParams.get('sort') || 'submitted_at';
   const order = url.searchParams.get('order') || 'desc';
   const page = Math.max(1, Number(url.searchParams.get('page')) || 1);
@@ -59,52 +81,104 @@ export async function loader({request, context}: Route.LoaderArgs) {
   const db = context.cloudflare.env.REIMBURSEMENT_DB;
   const offset = (page - 1) * PAGE_SIZE;
 
-  let submissions: Submission[];
-  let totalCount: number;
+  const schoolYearsResult = await db
+    .prepare('SELECT id, label FROM school_years ORDER BY sort_order DESC, starts_on DESC')
+    .all<{id: string; label: string}>();
+  const schoolYearIds = new Set(schoolYearsResult.results.map((r) => r.id));
+  const schoolYearFilter =
+    schoolYearParam && schoolYearIds.has(schoolYearParam) ? schoolYearParam : '';
 
+  const whereParts: string[] = [];
+  const whereBinds: string[] = [];
   if (statusFilter && VALID_STATUSES.includes(statusFilter as (typeof VALID_STATUSES)[number])) {
-    const [result, countResult] = await Promise.all([
-      db
-        .prepare(
-          `SELECT id, requester_name, requester_email, total_amount, status, submitted_at, updated_at
-           FROM submissions
-           WHERE status = ?
-           ORDER BY ${validSort} ${validOrder}
-           LIMIT ? OFFSET ?`,
-        )
-        .bind(statusFilter, PAGE_SIZE, offset)
-        .all<Submission>(),
-      db
-        .prepare('SELECT COUNT(*) as count FROM submissions WHERE status = ?')
-        .bind(statusFilter)
-        .first<{count: number}>(),
-    ]);
-    submissions = result.results;
-    totalCount = countResult?.count ?? 0;
-  } else {
-    const [result, countResult] = await Promise.all([
-      db
-        .prepare(
-          `SELECT id, requester_name, requester_email, total_amount, status, submitted_at, updated_at
-           FROM submissions
-           ORDER BY ${validSort} ${validOrder}
-           LIMIT ? OFFSET ?`,
-        )
-        .bind(PAGE_SIZE, offset)
-        .all<Submission>(),
-      db.prepare('SELECT COUNT(*) as count FROM submissions').first<{count: number}>(),
-    ]);
-    submissions = result.results;
-    totalCount = countResult?.count ?? 0;
+    whereParts.push('s.status = ?');
+    whereBinds.push(statusFilter);
   }
+  if (schoolYearFilter) {
+    whereParts.push('s.school_year_id = ?');
+    whereBinds.push(schoolYearFilter);
+  }
+  const whereClause = whereParts.length > 0 ? `WHERE ${whereParts.join(' AND ')}` : '';
+
+  const snapshotWhere = schoolYearFilter ? 'WHERE s.school_year_id = ?' : '';
+  const snapshotSql = `SELECT
+       COUNT(*) AS total_submissions,
+       COALESCE(SUM(s.total_amount), 0) AS sum_total_requested,
+       SUM(CASE WHEN s.status = 'pending' THEN 1 ELSE 0 END) AS pending_cnt,
+       SUM(CASE WHEN s.status = 'approved' THEN 1 ELSE 0 END) AS approved_cnt,
+       SUM(CASE WHEN s.status = 'check_written' THEN 1 ELSE 0 END) AS check_written_cnt,
+       SUM(CASE WHEN s.status = 'check_delivered' THEN 1 ELSE 0 END) AS check_delivered_cnt,
+       SUM(CASE WHEN s.status = 'check_deposited' THEN 1 ELSE 0 END) AS check_deposited_cnt,
+       SUM(CASE WHEN s.status = 'rejected' THEN 1 ELSE 0 END) AS rejected_cnt,
+       SUM(CASE WHEN s.status IN ('check_written', 'check_delivered') THEN COALESCE(s.check_amount, s.total_amount) ELSE 0 END) AS uncashed_amount,
+       SUM(CASE WHEN s.status = 'pending' THEN s.total_amount ELSE 0 END) AS pending_amount,
+       SUM(CASE WHEN s.status IN ('approved', 'check_written', 'check_delivered') THEN s.total_amount ELSE 0 END) AS in_pipeline_amount,
+       SUM(CASE WHEN s.submitted_at >= datetime('now', '-7 days') THEN 1 ELSE 0 END) AS new_last_7d,
+       SUM(CASE WHEN s.submitted_at >= datetime('now', '-30 days') THEN 1 ELSE 0 END) AS new_last_30d,
+       MIN(CASE WHEN s.status = 'pending' THEN s.submitted_at END) AS oldest_pending_at
+     FROM submissions s
+     ${snapshotWhere}`;
+
+  const snapshotPromise = schoolYearFilter
+    ? db.prepare(snapshotSql).bind(schoolYearFilter).first<SnapshotRow>()
+    : db.prepare(snapshotSql).first<SnapshotRow>();
+
+  const listSql = `SELECT s.id, s.requester_name, s.requester_email, s.total_amount, s.status, s.submitted_at, s.updated_at,
+       s.school_year_id, y.label AS school_year_label
+     FROM submissions s
+     LEFT JOIN school_years y ON y.id = s.school_year_id
+     ${whereClause}
+     ORDER BY s.${validSort} ${validOrder}
+     LIMIT ? OFFSET ?`;
+
+  const countSql = `SELECT COUNT(*) as count FROM submissions s ${whereClause}`;
+
+  const [listBundle, snapshotRow] = await Promise.all([
+    Promise.all([
+      db.prepare(listSql).bind(...whereBinds, PAGE_SIZE, offset).all<Submission>(),
+      db.prepare(countSql).bind(...whereBinds).first<{count: number}>(),
+    ]),
+    snapshotPromise,
+  ]);
+
+  const [result, countResult] = listBundle;
+  const submissions = result.results;
+  const totalCount = countResult?.count ?? 0;
+
+  const snap = snapshotRow ?? ({} as SnapshotRow);
+  const writtenCount = Number(snap.check_written_cnt ?? 0) || 0;
+  const deliveredCount = Number(snap.check_delivered_cnt ?? 0) || 0;
+  const uncashedStats = {
+    deliveredCount,
+    totalAmount: Number(snap.uncashed_amount ?? 0) || 0,
+    totalCount: writtenCount + deliveredCount,
+    writtenCount,
+  };
+
+  const snapshot = {
+    approvedCount: Number(snap.approved_cnt ?? 0) || 0,
+    checkDepositedCount: Number(snap.check_deposited_cnt ?? 0) || 0,
+    inPipelineAmount: Number(snap.in_pipeline_amount ?? 0) || 0,
+    newLast30d: Number(snap.new_last_30d ?? 0) || 0,
+    newLast7d: Number(snap.new_last_7d ?? 0) || 0,
+    oldestPendingAt: snap.oldest_pending_at?.trim() || null,
+    pendingAmount: Number(snap.pending_amount ?? 0) || 0,
+    pendingCount: Number(snap.pending_cnt ?? 0) || 0,
+    rejectedCount: Number(snap.rejected_cnt ?? 0) || 0,
+    sumTotalRequested: Number(snap.sum_total_requested ?? 0) || 0,
+    totalSubmissions: Number(snap.total_submissions ?? 0) || 0,
+  };
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   return {
-    submissions,
-    user,
-    filters: {status: statusFilter, sort: validSort, order: validOrder},
+    filters: {order: validOrder, schoolYear: schoolYearFilter, sort: validSort, status: statusFilter},
     pagination: {page, totalPages, totalCount},
+    schoolYears: schoolYearsResult.results,
+    snapshot,
+    submissions,
+    uncashedStats,
+    user,
   };
 }
 
@@ -112,26 +186,29 @@ const STATUS_OPTIONS = [
   {value: '', label: 'All'},
   {value: 'pending', label: 'Pending'},
   {value: 'approved', label: 'Approved'},
+  {value: 'check_written', label: 'Check Written'},
   {value: 'check_delivered', label: 'Check Delivered'},
+  {value: 'check_deposited', label: 'Check Deposited'},
   {value: 'rejected', label: 'Rejected'},
-  {value: 'needs_info', label: 'Needs Info'},
 ];
 
 function StatusBadge({status}: {status: string}) {
   const styles: Record<string, string> = {
     approved: 'bg-creek-green/15 text-creek-green border-creek-green/30',
+    check_deposited: 'bg-slate-100 text-slate-700 border-slate-300',
     check_delivered: 'bg-purple-100 text-purple-700 border-purple-300',
+    check_written: 'bg-indigo-100 text-indigo-800 border-indigo-300',
     pending: 'bg-spirit-gold/15 text-spirit-gold border-spirit-gold/30',
     rejected: 'bg-red-100 text-red-700 border-red-300',
-    needs_info: 'bg-eagle-blue/10 text-eagle-blue border-eagle-blue/30',
   };
 
   const labels: Record<string, string> = {
     approved: 'Approved',
+    check_deposited: 'Check Deposited',
     check_delivered: 'Check Delivered',
+    check_written: 'Check Written',
     pending: 'Pending',
     rejected: 'Rejected',
-    needs_info: 'Needs Info',
   };
 
   return (
@@ -172,8 +249,41 @@ interface R2OrphanRow {
   uploaded: string | null;
 }
 
+function KpiTile({
+  href,
+  label,
+  sublabel,
+  value,
+}: {
+  href?: string;
+  label: string;
+  sublabel?: string;
+  value: ReactNode;
+}) {
+  const inner = (
+    <>
+      <p className="text-xs font-medium text-gray-500 font-body">{label}</p>
+      <p className="mt-1 text-2xl font-heading font-bold tabular-nums text-charcoal">{value}</p>
+      {sublabel ? <p className="mt-0.5 text-xs text-gray-400 font-body">{sublabel}</p> : null}
+    </>
+  );
+  const className =
+    'rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-colors font-body' +
+    (href ? ' hover:border-eagle-blue/40 hover:bg-eagle-blue/[0.03]' : '');
+
+  if (href) {
+    return (
+      <a className={className} href={href}>
+        {inner}
+      </a>
+    );
+  }
+  return <div className={className}>{inner}</div>;
+}
+
 export default function AdminReimbursements() {
-  const {submissions, user, filters, pagination} = useLoaderData<typeof loader>();
+  const {filters, pagination, schoolYears, snapshot, submissions, uncashedStats, user} =
+    useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const revalidator = useRevalidator();
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -256,13 +366,15 @@ export default function AdminReimbursements() {
   const buildSearch = (overrides: Record<string, string | undefined>) => {
     const params = new URLSearchParams();
     const merged = {
-      status: filters.status,
-      sort: filters.sort,
       order: filters.order,
       page: String(pagination.page),
+      schoolYear: filters.schoolYear,
+      sort: filters.sort,
+      status: filters.status,
       ...overrides,
     };
     if (merged.status) params.set('status', merged.status);
+    if (merged.schoolYear) params.set('schoolYear', merged.schoolYear);
     if (merged.sort !== 'submitted_at') params.set('sort', merged.sort);
     if (merged.order !== 'desc') params.set('order', merged.order);
     if (merged.page && merged.page !== '1') params.set('page', merged.page);
@@ -270,8 +382,12 @@ export default function AdminReimbursements() {
     return qs ? `?${qs}` : '/admin';
   };
 
+  const handleSchoolYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    navigate(buildSearch({page: '1', schoolYear: e.target.value}));
+  };
+
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    navigate(buildSearch({status: e.target.value, page: '1'}));
+    navigate(buildSearch({page: '1', status: e.target.value}));
   };
 
   const closeR2Cleanup = () => {
@@ -374,7 +490,13 @@ export default function AdminReimbursements() {
           <h1 className="text-xl md:text-2xl font-heading font-bold text-white">
             Reimbursement Admin
           </h1>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+            <a
+              className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
+              href="/admin/school-years"
+            >
+              School years
+            </a>
             <span className="text-sm text-white/80 hidden sm:inline">{user.name}</span>
             <a
               className="text-sm text-white/70 hover:text-white underline underline-offset-2 transition-colors"
@@ -387,8 +509,154 @@ export default function AdminReimbursements() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Dashboard snapshot KPIs (school year scope only; not filtered by status) */}
+        <section
+          aria-labelledby="snapshot-heading"
+          className="mb-6 rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+        >
+          <h2
+            className="text-sm font-semibold uppercase tracking-wide text-gray-600 font-body"
+            id="snapshot-heading"
+          >
+            Snapshot
+          </h2>
+          <p className="mt-1 text-xs text-gray-500 font-body max-w-3xl mb-4">
+            Volume and pipeline for the selected <strong className="font-medium">school year</strong>{' '}
+            (or all years). Table filters below do not change these totals.
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+            <KpiTile
+              label="Submissions"
+              sublabel="In scope"
+              value={snapshot.totalSubmissions}
+            />
+            <KpiTile
+              label="Total requested"
+              sublabel="Sum of claim totals"
+              value={formatAmount(snapshot.sumTotalRequested)}
+            />
+            <KpiTile
+              href={buildSearch({page: '1', status: 'pending'})}
+              label="Pending"
+              sublabel={formatAmount(snapshot.pendingAmount)}
+              value={snapshot.pendingCount}
+            />
+            <KpiTile
+              href={buildSearch({page: '1', status: 'approved'})}
+              label="Approved"
+              value={snapshot.approvedCount}
+            />
+            <KpiTile
+              href={buildSearch({page: '1', status: 'check_deposited'})}
+              label="Deposited"
+              value={snapshot.checkDepositedCount}
+            />
+            <KpiTile
+              href={buildSearch({page: '1', status: 'rejected'})}
+              label="Rejected"
+              value={snapshot.rejectedCount}
+            />
+            <KpiTile
+              label="In pipeline $"
+              sublabel="Approved + uncashed"
+              value={formatAmount(snapshot.inPipelineAmount)}
+            />
+            <KpiTile
+              label="New (7 days)"
+              sublabel="By submit date"
+              value={snapshot.newLast7d}
+            />
+            <KpiTile
+              label="New (30 days)"
+              sublabel="By submit date"
+              value={snapshot.newLast30d}
+            />
+            <KpiTile
+              label="Oldest pending"
+              sublabel="Submitted"
+              value={
+                snapshot.oldestPendingAt ? (
+                  formatDate(snapshot.oldestPendingAt)
+                ) : (
+                  <span className="text-gray-400">—</span>
+                )
+              }
+            />
+          </div>
+        </section>
+
+        {/* Outstanding uncashed checks */}
+        <section
+          aria-labelledby="uncashed-stats-heading"
+          className="mb-6 rounded-xl border border-indigo-200 bg-gradient-to-br from-indigo-50/80 to-purple-50/50 p-5 shadow-sm"
+        >
+          <h2
+            className="text-sm font-semibold uppercase tracking-wide text-indigo-900/80 font-body"
+            id="uncashed-stats-heading"
+          >
+            Outstanding uncashed checks
+          </h2>
+          <p className="mt-1 text-xs text-indigo-900/60 font-body max-w-2xl">
+            Submissions in <strong className="font-medium">Check written</strong> or{' '}
+            <strong className="font-medium">Check delivered</strong> (not yet{' '}
+            <strong className="font-medium">Check deposited</strong>). Dollar total uses the
+            treasurer check amount when set, otherwise the submission total.
+            {filters.schoolYear ? (
+              <>
+                {' '}
+                Totals below are limited to the <strong className="font-medium">school year</strong>{' '}
+                filter.
+              </>
+            ) : null}
+          </p>
+          <div className="mt-4 flex flex-wrap items-end gap-6 sm:gap-10">
+            <div>
+              <p className="text-xs font-medium text-indigo-900/70 font-body">Open items</p>
+              <p className="mt-0.5 text-3xl font-heading font-bold tabular-nums text-indigo-950">
+                {uncashedStats.totalCount}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-indigo-900/70 font-body">Combined amount</p>
+              <p className="mt-0.5 text-3xl font-heading font-bold tabular-nums text-indigo-950">
+                {formatAmount(uncashedStats.totalAmount)}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-body border-t border-indigo-200/60 pt-3 sm:border-t-0 sm:border-l sm:pl-8 sm:pt-0 w-full sm:w-auto">
+              <a
+                className="text-indigo-800 hover:text-indigo-950 underline underline-offset-2"
+                href={buildSearch({status: 'check_written', page: '1'})}
+              >
+                Check written: {uncashedStats.writtenCount}
+              </a>
+              <a
+                className="text-purple-900 hover:text-purple-950 underline underline-offset-2"
+                href={buildSearch({status: 'check_delivered', page: '1'})}
+              >
+                Check delivered (uncashed): {uncashedStats.deliveredCount}
+              </a>
+            </div>
+          </div>
+        </section>
+
         {/* Filter Bar */}
         <div className="flex flex-wrap items-center gap-3 mb-6">
+          <label className="text-sm font-medium text-charcoal font-body" htmlFor="school-year-filter">
+            School year:
+          </label>
+          <select
+            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
+            id="school-year-filter"
+            onChange={handleSchoolYearChange}
+            value={filters.schoolYear}
+          >
+            <option value="">All years</option>
+            {schoolYears.map((y) => (
+              <option key={y.id} value={y.id}>
+                {y.label}
+              </option>
+            ))}
+          </select>
           <label className="text-sm font-medium text-charcoal font-body" htmlFor="status-filter">
             Status:
           </label>
@@ -442,14 +710,6 @@ export default function AdminReimbursements() {
               Reject
             </button>
             <button
-              className="rounded-md bg-eagle-blue px-3 py-1.5 text-xs font-medium text-white hover:bg-eagle-blue/90 disabled:opacity-50 transition-colors"
-              disabled={bulkLoading}
-              onClick={() => handleBulkStatus('needs_info')}
-              type="button"
-            >
-              Needs Info
-            </button>
-            <button
               className="rounded-md bg-purple-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-purple-700 disabled:opacity-50 transition-colors"
               disabled={bulkLoading}
               onClick={() => handleBulkStatus('check_delivered')}
@@ -475,6 +735,12 @@ export default function AdminReimbursements() {
             >
               Download Files
             </button>
+            {selected.size >= LARGE_DOWNLOAD_WARNING_THRESHOLD && (
+              <span className="text-xs text-charcoal/80 font-body">
+                Large batch: ZIP is uncompressed to avoid CPU limit errors, so download size may be
+                bigger.
+              </span>
+            )}
             <div className="h-4 w-px bg-gray-300" />
             <button
               className="rounded-md border border-red-300 bg-white px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
@@ -545,6 +811,12 @@ export default function AdminReimbursements() {
                       Amount
                     </th>
                     <th
+                      className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body hidden lg:table-cell"
+                      scope="col"
+                    >
+                      School year
+                    </th>
+                    <th
                       className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body"
                       scope="col"
                     >
@@ -584,6 +856,9 @@ export default function AdminReimbursements() {
                       </td>
                       <td className="px-4 py-3 text-sm text-charcoal font-body text-right tabular-nums">
                         {formatAmount(sub.total_amount)}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600 font-body hidden lg:table-cell whitespace-nowrap">
+                        {sub.school_year_label ?? sub.school_year_id}
                       </td>
                       <td className="px-4 py-3">
                         <StatusBadge status={sub.status} />

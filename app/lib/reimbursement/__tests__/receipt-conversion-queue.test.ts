@@ -30,7 +30,7 @@ describe('processReceiptConversionJob', () => {
     });
     const env = {
       GEMINI_API_KEY: 'k',
-      R2_BUCKET: {},
+      R2_BUCKET: {delete: vi.fn()},
       REIMBURSEMENT_DB: {prepare},
     } as unknown as Parameters<typeof processReceiptConversionJob>[0];
     await processReceiptConversionJob(env, {jobId: 'missing'});
@@ -58,7 +58,7 @@ describe('processReceiptConversionJob', () => {
     const get = vi.fn().mockResolvedValue(null);
     const env = {
       GEMINI_API_KEY: 'k',
-      R2_BUCKET: {get},
+      R2_BUCKET: {delete: vi.fn(), get},
       REIMBURSEMENT_DB: {prepare},
     } as unknown as Parameters<typeof processReceiptConversionJob>[0];
 
@@ -68,7 +68,7 @@ describe('processReceiptConversionJob', () => {
 
   it('completes happy path', async () => {
     extractReceiptData.mockResolvedValue({
-      receipt: {raw_transcript: 'x', total: '10'},
+      receipts: [{raw_transcript: 'x', total: '10'}],
     });
 
     const run = vi.fn().mockResolvedValue({});
@@ -93,7 +93,7 @@ describe('processReceiptConversionJob', () => {
     const put = vi.fn().mockResolvedValue(undefined);
     const env = {
       GEMINI_API_KEY: 'k',
-      R2_BUCKET: {get, put},
+      R2_BUCKET: {delete: vi.fn(), get, put},
       REIMBURSEMENT_DB: {prepare},
     } as unknown as Parameters<typeof processReceiptConversionJob>[0];
 
@@ -126,7 +126,7 @@ describe('processReceiptConversionJob', () => {
     });
     const env = {
       GEMINI_API_KEY: 'k',
-      R2_BUCKET: {get, put: vi.fn()},
+      R2_BUCKET: {delete: vi.fn(), get, put: vi.fn()},
       REIMBURSEMENT_DB: {prepare},
     } as unknown as Parameters<typeof processReceiptConversionJob>[0];
 
@@ -156,7 +156,7 @@ describe('processReceiptConversionJob', () => {
     });
     const env = {
       GEMINI_API_KEY: 'k',
-      R2_BUCKET: {get, put: vi.fn()},
+      R2_BUCKET: {delete: vi.fn(), get, put: vi.fn()},
       REIMBURSEMENT_DB: {prepare},
     } as unknown as Parameters<typeof processReceiptConversionJob>[0];
 

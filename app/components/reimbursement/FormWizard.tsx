@@ -24,6 +24,7 @@ export function FormWizard() {
     appendReceiptFiles,
     removeFileFromReceipt,
     flattenFilesForSubmit,
+    flattenReceiptUploadsForSubmit,
     updateBudget,
     nextStep,
     prevStep,
@@ -44,6 +45,7 @@ export function FormWizard() {
           budgetAccount: getReceiptBudgetAccount(i),
         })),
         files: flattenFilesForSubmit(),
+        receiptUploads: flattenReceiptUploadsForSubmit(),
         budget: state.budget,
         turnstileToken,
       }),
@@ -156,7 +158,7 @@ export function FormWizard() {
               </li>
               <li>
                 On the Receipts step, use the upload under each line to attach a photo or scan
-                (optional per line). Uploading again replaces that line&apos;s file.
+                (optional per line). Each upload is added to the list for that line.
               </li>
             </ul>
           </div>

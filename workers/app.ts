@@ -30,6 +30,10 @@ interface Env {
   /** HMAC secret for time-limited public preview URLs (GET /api/reimbursement/file). */
   FILE_URL_SIGNING_SECRET?: string;
   RECEIPT_CONVERSION_QUEUE: Queue;
+  /** Optional stage-only HTTP Basic Auth username. */
+  STAGE_BASIC_AUTH_USER?: string;
+  /** Optional stage-only HTTP Basic Auth password. */
+  STAGE_BASIC_AUTH_PASSWORD?: string;
 }
 
 declare module 'react-router' {
@@ -45,6 +49,38 @@ const requestHandler = createRequestHandler(
   () => import('virtual:react-router/server-build'),
   import.meta.env.MODE,
 );
+
+function unauthorizedStageResponse() {
+  return new Response('Authentication required', {
+    status: 401,
+    headers: {
+      'WWW-Authenticate': 'Basic realm="BHE PTA Stage"',
+    },
+  });
+}
+
+function hasValidStageBasicAuth(request: Request, env: Env): boolean {
+  const expectedUser = env.STAGE_BASIC_AUTH_USER?.trim();
+  const expectedPassword = env.STAGE_BASIC_AUTH_PASSWORD;
+
+  // Disabled unless both vars are configured (intended for stage only).
+  if (!expectedUser || !expectedPassword) return true;
+
+  const auth = request.headers.get('Authorization');
+  if (!auth?.startsWith('Basic ')) return false;
+
+  try {
+    const encoded = auth.slice(6).trim();
+    const decoded = atob(encoded);
+    const colon = decoded.indexOf(':');
+    if (colon < 0) return false;
+    const user = decoded.slice(0, colon);
+    const password = decoded.slice(colon + 1);
+    return user === expectedUser && password === expectedPassword;
+  } catch {
+    return false;
+  }
+}
 
 async function runDataRefresh(env: Env): Promise<string[]> {
   const log: string[] = [];
@@ -120,6 +156,10 @@ const handler = {
           Allow: allowMethods,
         },
       });
+    }
+
+    if (!hasValidStageBasicAuth(request, env)) {
+      return unauthorizedStageResponse();
     }
 
     if (url.hostname.startsWith('www.')) {

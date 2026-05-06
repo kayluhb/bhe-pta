@@ -2,7 +2,7 @@ import {Button} from '~/components/reimbursement/ui/Button';
 import {Input} from '~/components/reimbursement/ui/Input';
 import {useFileUpload} from '~/hooks/useFileUpload';
 import type {FileData, ReceiptData} from '~/lib/reimbursement/validation';
-import {MAX_RECEIPT_FILE_RECORDS} from '~/lib/reimbursement/validation';
+import {MAX_RECEIPT_UPLOADS} from '~/lib/reimbursement/validation';
 import {ReceiptLineFiles} from './ReceiptLineFiles';
 
 interface ReceiptEntriesProps {
@@ -41,12 +41,11 @@ export function ReceiptEntries({
   const {
     clearReceiptUploadContinuation,
     clearUpload,
-    registerPendingBatch,
     uploadFilesBatch,
     uploads,
   } = useFileUpload(turnstileToken);
 
-  const isAnyUploading = uploads.some((u) => u.status === 'uploading' || u.status === 'pending');
+  const isAnyUploading = uploads.some((u) => u.status === 'uploading');
   const totalAttachedFiles = filesByReceipt.reduce((sum, row) => sum + row.length, 0);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -153,8 +152,7 @@ export function ReceiptEntries({
                 onRemoveFile={(key) => onRemoveFileFromReceipt(index, key)}
                 payableTo={payableTo}
                 receiptRowIndex={index}
-                registerPendingBatch={registerPendingBatch}
-                remainingFileSlots={Math.max(0, MAX_RECEIPT_FILE_RECORDS - totalAttachedFiles)}
+                remainingFileSlots={Math.max(0, MAX_RECEIPT_UPLOADS - totalAttachedFiles)}
                 rowFiles={filesByReceipt[index] ?? []}
                 rowUploads={uploads.filter((u) => u.receiptRowIndex === index)}
                 uploadFilesBatch={uploadFilesBatch}

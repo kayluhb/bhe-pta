@@ -103,7 +103,9 @@ export async function loader({request, context}: Route.LoaderArgs) {
     return Response.json({error: 'No files could be retrieved'}, {status: 404});
   }
 
-  const zipped = zipSync(zipFiles);
+  // Admin bulk downloads can include many PDFs/images; storing files without compression
+  // dramatically reduces Worker CPU time and avoids CPU limit errors on larger batches.
+  const zipped = zipSync(zipFiles, {level: 0});
 
   const body = zipped.buffer.slice(
     zipped.byteOffset,

@@ -2,7 +2,7 @@
 import {act, renderHook} from '@testing-library/react';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
-import {MAX_RECEIPT_FILE_RECORDS} from '~/lib/reimbursement/validation';
+import {MAX_RECEIPT_UPLOADS} from '~/lib/reimbursement/validation';
 
 import {useFormState} from '../useFormState';
 
@@ -46,7 +46,7 @@ describe('useFormState', () => {
     act(() => {
       result.current.replaceReceiptFiles(
         0,
-        Array.from({length: MAX_RECEIPT_FILE_RECORDS + 1}, (_, i) => stubFile(`k${i}`)),
+        Array.from({length: MAX_RECEIPT_UPLOADS + 1}, (_, i) => stubFile(`k${i}`)),
       );
     });
     expect(result.current.fileError).toBeTruthy();
@@ -134,7 +134,7 @@ describe('useFormState', () => {
     act(() => {
       result.current.replaceReceiptFiles(
         0,
-        Array.from({length: MAX_RECEIPT_FILE_RECORDS}, (_, i) => stub(i)),
+        Array.from({length: MAX_RECEIPT_UPLOADS}, (_, i) => stub(i)),
       );
     });
     let second = false;
