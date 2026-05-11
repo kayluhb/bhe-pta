@@ -53,7 +53,7 @@ RULES:
 
     const userPrompt = `Suggest budget accounts for these receipts:\n${receiptDescriptions}`;
 
-    const result = await context.cloudflare.env.AI.run('@cf/meta/llama-3.1-8b-instruct-fp8', {
+    const result = await context.cloudflare.env.AI.run('@cf/moonshotai/kimi-k2.6', {
       messages: [
         {role: 'system', content: systemPrompt},
         {role: 'user', content: userPrompt},

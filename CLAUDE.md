@@ -54,7 +54,7 @@ All loaders follow a KV-first pattern with mock data fallback (`app/lib/mock-dat
 | `R2_BUCKET` | R2 | Receipt file uploads |
 | `R2_ARCHIVE` | R2 | Archive bucket (`api.archive.file`) |
 | `RECEIPT_CONVERSION_QUEUE` | Queue | Async receipt → PDF pipeline |
-| `AI` | Workers AI | Budget account suggestions (`@cf/meta/llama-3.1-8b-instruct-fp8`) |
+| `AI` | Workers AI | Budget account suggestions (`@cf/moonshotai/kimi-k2.6`) |
 
 Bindings are declared in `wrangler.jsonc`. The `Env` interface is in `workers/app.ts`.
 
