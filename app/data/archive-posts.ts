@@ -20,7 +20,7 @@ export const archivePostData: ArchivePostYear[] = [
     posts: [
       {
         id: 'pta-meeting-teacher-parent-talent-show',
-        title: `PTA Meeting & Teacher / Parent Talent Show`,
+        title: 'PTA Meeting & Teacher / Parent Talent Show',
         date: '2022-05-22',
         excerpt: `This is an event we've missed for sure! Please mark you calendars for Tuesday, May 24th. We will have a PTA meeting at 6:00 to pass the 22-23 School Year Budget followed by the opportunity to see the…`,
         content: `This is an event we've missed for sure! Please mark you calendars for Tuesday, May 24th. We will have a PTA meeting at 6:00 to pass the 22-23 School Year Budget followed by the opportunity to see the BHE Teachers and Staff showing off their best "talent." We would love if there are some parents who would like to be part of the lineup. The acts need to be no more than 3 minutes and elementary school appropriate. You will need to supply your own music (if needed) and any props. We will have mics and a stage. If you have an act you would like to add to the show, please email kathryn.achtermann@austinisd.org with the details.`,
@@ -28,17 +28,17 @@ export const archivePostData: ArchivePostYear[] = [
       },
       {
         id: 'order-school-supplies-now-2',
-        title: `Order School Supplies Now`,
+        title: 'Order School Supplies Now',
         date: '2022-05-22',
-        excerpt: ``,
+        excerpt: '',
         content: `<img class="alignleft size-full wp-image-7530" src="https://archive.bheeagles.com/wp-content/uploads/2022/05/school-supplies.jpg" alt="" width="400" height="518" />`,
         category: 'News',
       },
       {
         id: 'summer-camp-opportunities',
-        title: `Summer Camp Opportunities`,
+        title: 'Summer Camp Opportunities',
         date: '2022-05-22',
-        excerpt: `Check out these five summer camp options!`,
+        excerpt: 'Check out these five summer camp options!',
         content: `Check out these five summer camp options!
 
 <img class="size-full wp-image-7538 alignleft" src="https://archive.bheeagles.com/wp-content/uploads/2022/05/summer-camp-06.jpg" alt="" width="250" height="254" />
@@ -70,7 +70,7 @@ VENMO @STRONG1-ELIZABETH</td>
       },
       {
         id: 'last-week-of-school',
-        title: `Carnival is SATURDAY, November 5th 1-4p`,
+        title: 'Carnival is SATURDAY, November 5th 1-4p',
         date: '2022-05-22',
         excerpt: `Please stay tuned and check the BHE Calendar for this final week's activities!`,
         content: `<div dir="auto"><img class="alignleft size-full wp-image-7601" src="https://archive.bheeagles.com/wp-content/uploads/2022/05/FE2568AF-9679-4BB9-9D19-8ABA9025DF04_4_5005_c.jpeg" alt="" width="500" height="280" /></div>
@@ -79,9 +79,10 @@ VENMO @STRONG1-ELIZABETH</td>
       },
       {
         id: 'thursday-april-21-art-show-showcase-and-open-house',
-        title: `Thursday April 21: Art Show/Showcase and Open House`,
+        title: 'Thursday April 21: Art Show/Showcase and Open House',
         date: '2022-04-21',
-        excerpt: `We will be celebrating students with a school wide Art Show/Showcase and Open House on Thursday, April 21st. All students and parents are invited to come to school to see what has been happening in…`,
+        excerpt:
+          'We will be celebrating students with a school wide Art Show/Showcase and Open House on Thursday, April 21st. All students and parents are invited to come to school to see what has been happening in…',
         content: `We will be celebrating students with a school wide Art Show/Showcase and Open House on Thursday, April 21st. All students and parents are invited to come to school to see what has been happening in classrooms through the year. This will be an Open House style from 5:00 - 6:30 pm with a general PTA meeting at 6:00 in the cafeteria for PTA updates and the election of our 2022-2023 PTA Officers.
 
 <img class="alignleft size-large wp-image-7512" src="https://archive.bheeagles.com/wp-content/uploads/2022/04/art-show-500x273.png" alt="" width="500" height="273" />`,
@@ -89,9 +90,10 @@ VENMO @STRONG1-ELIZABETH</td>
       },
       {
         id: 'student-talent-show-returns-with-mr-trevino',
-        title: `Student Talent Show Returns with Mr. Trevino!`,
+        title: 'Student Talent Show Returns with Mr. Trevino!',
         date: '2022-04-21',
-        excerpt: `Share your awesome talents to the whole school! The talent show is open to all 3rd through 6th graders at BHE! It will be held in the cafetorium and everyone is welcome to attend. 2022 Talent Show…`,
+        excerpt:
+          'Share your awesome talents to the whole school! The talent show is open to all 3rd through 6th graders at BHE! It will be held in the cafetorium and everyone is welcome to attend. 2022 Talent Show…',
         content: `Share your awesome talents to the whole school! The talent show is open to all 3rd through 6th graders at BHE! It will be held in the cafetorium and everyone is welcome to attend. <a href="https://archive.bheeagles.com/wp-content/uploads/2022/04/2022-Talent-Show-Sign-Up-Sheet.pdf">2022 Talent Show Sign Up Sheet</a>
 
 Monday, May 23, 2022
@@ -103,7 +105,7 @@ School Cafetorium
       },
       {
         id: 'pta-open-board-positions',
-        title: `PTA Open Board Positions!`,
+        title: 'PTA Open Board Positions!',
         date: '2022-03-26',
         excerpt: `BHE Parents: please consider joining our PTA community at any level you can. Let's make the 2022-23 school year great!`,
         content: `Please email <a href="mailto:PTA@BHEagles.com">PTA@BHEagles.com</a> if you are interested in any of these positions.
@@ -161,9 +163,10 @@ School Cafetorium
       },
       {
         id: 'aisd-gt-student-showcase',
-        title: `AISD GT Student Showcase`,
+        title: 'AISD GT Student Showcase',
         date: '2022-03-05',
-        excerpt: `The AISD Advanced Academics team will be hosting a virtual GT Student Showcase this spring.`,
+        excerpt:
+          'The AISD Advanced Academics team will be hosting a virtual GT Student Showcase this spring.',
         content: `The AISD Advanced Academics team will be hosting a virtual GT Student Showcase this spring.
 
 All K-12 GT students are invited to submit a student project (individual, partner, or group) in one of the following categories: Humanities, STEM, or Creativity. The Spring 2022 theme will be Pathways and Passions. All projects will need to be submitted digitally (either a link to the work or a picture of the final product). The submission window will be open from March 1-31st, 2022. The Virtual Showcase website will open in May. This <a href="https://s.smore.com/e/9f05w/wI31Cl" target="_blank" rel="nofollow noopener" data-id="l-0245733352"><u>website </u></a>has additional details and information.
@@ -173,15 +176,15 @@ All K-12 GT students are invited to submit a student project (individual, partne
       },
       {
         id: '2022-2023-student-code-of-conduct',
-        title: `2022-2023 Student Code of Conduct`,
+        title: '2022-2023 Student Code of Conduct',
         date: '2022-03-05',
-        excerpt: `Be one of the first to view and discuss the drafted rights.`,
+        excerpt: 'Be one of the first to view and discuss the drafted rights.',
         content: `<img class="alignleft size-full wp-image-7422" src="https://archive.bheeagles.com/wp-content/uploads/2022/03/thumb-454ec2a6aa2a7ae03d26d8d188a3e7b2.jpeg" alt="" width="600" height="927" />`,
         category: 'News',
       },
       {
         id: 'contratulations',
-        title: `Congratulations Ms. Mina Patel!`,
+        title: 'Congratulations Ms. Mina Patel!',
         date: '2022-03-05',
         excerpt: `Congratulations to Ms. Mina Patel! She was selected as Barton Hills' Teacher of the Year last week. This week we found out that she is one of 12 AISD Elementary Teacher of the Year Semi-Finalists.…`,
         content: `Congratulations to Ms. Mina Patel! She was selected as Barton Hills' Teacher of the Year last week. This week we found out that she is one of 12 AISD Elementary Teacher of the Year Semi-Finalists. AISD will announce the Teacher of the Year in May. We are so proud she represents our school!`,
@@ -189,17 +192,19 @@ All K-12 GT students are invited to submit a student project (individual, partne
       },
       {
         id: 'aisd-will-be-mask-optional-beginning-monday-march-7th',
-        title: `AISD Will Be Mask-Optional Beginning Monday, March 7th`,
+        title: 'AISD Will Be Mask-Optional Beginning Monday, March 7th',
         date: '2022-03-05',
-        excerpt: `As you likely know, AISD will be mask-optional beginning Monday, March 7th. We ask that you talk with your child about seeing students and adults with and without masks at school and remaining…`,
+        excerpt:
+          'As you likely know, AISD will be mask-optional beginning Monday, March 7th. We ask that you talk with your child about seeing students and adults with and without masks at school and remaining…',
         content: `As you likely know, AISD will be mask-optional beginning Monday, March 7th. We ask that you talk with your child about seeing students and adults with and without masks at school and remaining respectful and kind to all family choices. <em>Please also have a conversation with your child about what your family expects for their own mask usage while at school (no masks, masks indoors only, masks both indoors and outdoors, etc). </em>If you have specific concerns that might need teacher support please fill out the following <a href="https://s.smore.com/e/9f05w/fPMSqF" target="_blank" rel="nofollow noopener" data-id="l-4366067179">form</a> so we don't overwhelm our teachers with individual emails. For the safety and well-being of all, we will continue to eat outside, weather permitting, and will have disposable face masks (not KN95s as originally thought) on campus for any child who wants/needs them.`,
         category: 'News',
       },
       {
         id: 'carnival-details-are-here',
-        title: `Carnival Details Are Here!`,
+        title: 'Carnival Details Are Here!',
         date: '2022-03-05',
-        excerpt: `WHEN: SATURDAY, MARCH 26, 2022 FROM 1-4 PM WHERE: THE BHE PLAYGROUND WHY: TO SUPPORT OUR SCHOOL AND HAVE FUN AS A COMMUNITY! Wristbands are $15 each and grant access to all activities Wristbands with…`,
+        excerpt:
+          'WHEN: SATURDAY, MARCH 26, 2022 FROM 1-4 PM WHERE: THE BHE PLAYGROUND WHY: TO SUPPORT OUR SCHOOL AND HAVE FUN AS A COMMUNITY! Wristbands are $15 each and grant access to all activities Wristbands with…',
         content: `WHEN: SATURDAY, MARCH 26, 2022 FROM 1-4 PM
 WHERE: THE BHE PLAYGROUND
 WHY: TO SUPPORT OUR SCHOOL AND HAVE FUN AS A COMMUNITY!
@@ -224,9 +229,10 @@ HOW TO ORDER: Please make your purchase via Venmo.
       },
       {
         id: 'black-heroes-book-walk-on-bhe-track',
-        title: `Black Heroes Book Walk on BHE Track`,
+        title: 'Black Heroes Book Walk on BHE Track',
         date: '2022-02-19',
-        excerpt: `Head out to the school track to check out our Black Heroes Book Walk display, brought to you by our PTA Cultural Arts Committee in recognition of Black History Month!`,
+        excerpt:
+          'Head out to the school track to check out our Black Heroes Book Walk display, brought to you by our PTA Cultural Arts Committee in recognition of Black History Month!',
         content: `Head out to the school track to check out our Black Heroes Book Walk display, brought to you by our PTA Cultural Arts Committee in recognition of Black History Month! Take a moment to enjoy excerpts from the book <u>Black Heroes: 51 Inspiring People from Ancient Africa to Modern-Day U.S.A.</u>, by Arlisha Wood, Ph.D. You will get to know 20 extraordinary black individuals who created change and hope throughout the world. These heroes will move and inspire you!
 
 <img class="alignleft  wp-image-7411" src="https://archive.bheeagles.com/wp-content/uploads/2022/02/IMG_1439_2-scaled.jpg" alt="" width="946" height="1261" />`,
@@ -234,7 +240,7 @@ HOW TO ORDER: Please make your purchase via Venmo.
       },
       {
         id: 'pss-childhood-nutrition-eating-for-immunity',
-        title: `PSS: Childhood Nutrition & Eating for Immunity`,
+        title: 'PSS: Childhood Nutrition & Eating for Immunity',
         date: '2022-02-11',
         excerpt: `In case you missed it, you can still access BHE PTA's latest Parent Support Series event with Devon Cassidy, RN.`,
         content: `Devon Cassidy, RN. has provided a thoughtful conversation around making small decisions that can make a big difference in your child’s nutrition and health. Learn about the foods you can incorporate in your family’s diet to increase immunity as we prepare for the winter season. Devon is a registered nurse with a background in emergency medicine and a former Navy Nurse. She’s always had a passion for food and believes that nutrition plays a major role in the foundation of health. In 2020, she earned her Masters in Nutrition from Bastyr University, a natural medicine school in San Diego. In 2021, she became a Restorative Wellness Practitioner (RWP), focusing on customized healing protocols to address the root cause of chronic gut health issues in order to restore optimal digestive function. She has since launched her own nutrition education and counseling services.
@@ -245,9 +251,10 @@ HOW TO ORDER: Please make your purchase via Venmo.
       },
       {
         id: 'nmaahc-joyful-fridays-maya-angelou',
-        title: `NMAAHC Joyful Fridays: Maya Angelou`,
+        title: 'NMAAHC Joyful Fridays: Maya Angelou',
         date: '2022-02-11',
-        excerpt: `Learn more about this inspiring poet and create a rainbow collage craft as a reminder to “be a rainbow in someone else’s cloud” during this special Black History Month children’s program.`,
+        excerpt:
+          'Learn more about this inspiring poet and create a rainbow collage craft as a reminder to “be a rainbow in someone else’s cloud” during this special Black History Month children’s program.',
         content: `<div id="block-w-6494593377" class="b-c widget svelte-8mh7dp">
 <div class="relative">
 <div class="relative block-box svelte-18ggsay px-5">
@@ -293,7 +300,8 @@ Maya Angelou showed us that kindness and expressing gratitude are important part
         id: 'fit-nfun-running-club-biking-club',
         title: `"Fit N'Fun" Running Club & Biking Club`,
         date: '2022-02-11',
-        excerpt: `Austin Youth Fitness is excited to resume “Fit N’ Fun” Running Club & Biking Club at Barton Hills Elementary. Through play-based activities and games, we teach kids physical fitness skills, while…`,
+        excerpt:
+          'Austin Youth Fitness is excited to resume “Fit N’ Fun” Running Club & Biking Club at Barton Hills Elementary. Through play-based activities and games, we teach kids physical fitness skills, while…',
         content: `Austin Youth Fitness is excited to resume “Fit N’ Fun” Running Club &amp; Biking Club at Barton Hills Elementary. Through play-based activities and games, we teach kids physical fitness skills, while fostering their natural love for movement, and helping them develop life-long healthy habits.
 
 AYF's Tuesday Running Club helps kids develop running skills and fitness through play! Each week a different running skill and component of physical fitness are emphasized. Fitness FUNdamentals - pace, strength, agility, speed, and endurance - are developed through games! Our goal is to "Make Fitness Fun" for your kiddo, while improving their running and overall health. Register at  <a href="https://bheeagles.us8.list-manage.com/track/click?u=bec8051159f5dd775329aa6af&amp;id=8323b08e23&amp;e=e72649f876" data-saferedirecturl="https://www.google.com/url?q=https://www.austinyouthfitness.com/barton-hills-running&amp;source=gmail&amp;ust=1644367739285000&amp;usg=AOvVaw192-MWlm8uNv_Cc5wI3vaA">https://www.austinyouthfitness.com/barton-hills-running</a>
@@ -303,9 +311,10 @@ In AYF’s Thursday Biking Club, safety is priority one. We teach young bikers c
       },
       {
         id: 'aisd-budget-talks',
-        title: `AISD Budget Talks`,
+        title: 'AISD Budget Talks',
         date: '2022-02-05',
-        excerpt: `Join us to learn about priorities and plans for staffing, programs and departments and how you can get involved in the budgeting process on your campus. Tuesday, February 1, 2022, 4:30-5:30 p.m.…`,
+        excerpt:
+          'Join us to learn about priorities and plans for staffing, programs and departments and how you can get involved in the budgeting process on your campus. Tuesday, February 1, 2022, 4:30-5:30 p.m.…',
         content: `Join us to learn about priorities and plans for staffing, programs and departments and how you can get involved in the budgeting process on your campus.
 <ul>
  	<li>Tuesday, February 1, 2022, 4:30-5:30 p.m. <strong>(Austin ISD team members only)</strong>
@@ -347,9 +356,10 @@ Regístrese aquí:<a href="https://bit.ly/AISDBudget-Staff2" target="_blank" rel
       },
       {
         id: 'aisd-repurposing-meetings',
-        title: `AISD Repurposing Meetings`,
+        title: 'AISD Repurposing Meetings',
         date: '2022-02-05',
-        excerpt: `We are beginning the community engagement process for repurposing the Anita Ferrales Coy Facility site, the former Rosedale School and the former Pease Elementary School in late January. The process…`,
+        excerpt:
+          'We are beginning the community engagement process for repurposing the Anita Ferrales Coy Facility site, the former Rosedale School and the former Pease Elementary School in late January. The process…',
         content: `<div class="theme-p theme-color-4" data-target="content">
 
 We are beginning the community engagement process for repurposing the Anita Ferrales Coy Facility site, the former Rosedale School and the former Pease Elementary School in late January.
@@ -369,17 +379,19 @@ The process will continue through early March, with several virtual engagement s
       },
       {
         id: 'national-school-counseling-week-feb-7-11',
-        title: `National School Counseling Week: Feb 7-11`,
+        title: 'National School Counseling Week: Feb 7-11',
         date: '2022-02-05',
-        excerpt: `We appreciate our Barton Hills Elementary Counselor, Ms. White, who works so hard to improve success for all students. Our counselor is extremely dedicated and loves our Eagles!`,
+        excerpt:
+          'We appreciate our Barton Hills Elementary Counselor, Ms. White, who works so hard to improve success for all students. Our counselor is extremely dedicated and loves our Eagles!',
         content: `<h2 class="theme-p-title theme-color3" data-target="title" data-clicktarget="#"><span style="font-size: 16px;">We appreciate our Barton Hills Elementary Counselor, Ms. White, who works so hard to improve success for all students. Our counselor is extremely dedicated and loves our Eagles!</span></h2>`,
         category: 'News',
       },
       {
         id: 'aisd-student-code-of-conduct-feedback-request',
-        title: `AISD Student Code of Conduct Feedback Request`,
+        title: 'AISD Student Code of Conduct Feedback Request',
         date: '2022-02-05',
-        excerpt: `The AISD Student Support Service department is updating the AISD Student Code of Conduct for the 22-23 school year. It is important to collect feedback on the current Student Code of Conduct from…`,
+        excerpt:
+          'The AISD Student Support Service department is updating the AISD Student Code of Conduct for the 22-23 school year. It is important to collect feedback on the current Student Code of Conduct from…',
         content: `<h2 class="theme-p-title theme-color3" data-target="title" data-clicktarget="#"><span style="font-size: 16px;">The AISD Student Support Service department is updating the AISD Student Code of Conduct for the 22-23 school year. It is important to collect feedback on the current Student Code of Conduct from parents/caregivers, staff, students, and community members to guide changes for the 22-23 Student Code of Conduct. Please consider taking this brief survey to provide your input. This anonymous survey is available in English and in Spanish and will close on January 31, 2022.</span></h2>
 <div class="theme-p  theme-color-4" data-target="content">
 
@@ -392,9 +404,10 @@ Survey Link
       },
       {
         id: 'carnival-is-coming',
-        title: `Carnival is Coming!`,
+        title: 'Carnival is Coming!',
         date: '2022-02-05',
-        excerpt: `We are so excited to PASS GO and start the Carnival planning process! The theme is MONOPOLY and with your support there is a guaranteed CHANCE of fun!`,
+        excerpt:
+          'We are so excited to PASS GO and start the Carnival planning process! The theme is MONOPOLY and with your support there is a guaranteed CHANCE of fun!',
         content: `<strong>We are so excited to PASS GO and start the Carnival planning process!</strong> <strong>The theme is MONOPOLY and with your support there is a guaranteed CHANCE of fun!</strong>
 
 If you’re interested in volunteering please contact  <a href="mailto:bheptavolunteer@gmail.com">bheptavolunteer@gmail.com</a>. <strong>Note</strong>: this email is a new one for coordinating volunteer efforts. If you or someone you know would like to become a <strong>Sponsor</strong>, please contact Kierra Francis (<a href="mailto:kierrabox@gmail.com">kierrabox@gmail.com</a>).
@@ -412,15 +425,16 @@ To sign up, please contact Leigh Davis (<a href="mailto:leighdavis21@gmail.com">
       },
       {
         id: 'student-registration-for-2022-2023-year-begins',
-        title: `Student Registration for 2022-2023 Year Begins`,
+        title: 'Student Registration for 2022-2023 Year Begins',
         date: '2022-01-15',
-        excerpt: `While it seems we just got back from Winter Break we are already preparing for the 2022-2023 School Year with student enrollment and registration. Please click here for instruction and information…`,
+        excerpt:
+          'While it seems we just got back from Winter Break we are already preparing for the 2022-2023 School Year with student enrollment and registration. Please click here for instruction and information…',
         content: `While it seems we just got back from Winter Break we are already preparing for the 2022-2023 School Year with student enrollment and registration. Please <a href="http://bheeagles.com/student-registration/">click here</a> for instruction and information about how to register both new and returning students.`,
         category: 'News',
       },
       {
         id: 'principal-and-pta-coffee-chat',
-        title: `Principal and PTA Coffee Chat`,
+        title: 'Principal and PTA Coffee Chat',
         date: '2022-01-15',
         excerpt: `Please join Mrs. Achtermann and PTA members for an informal chat about what's on your mind. Bring your coffee or tea and meet us after drop-off on Tuesday, Jan. 25, 8-8:30 am in the outdoor…`,
         content: `<div class="theme-p  theme-color-4" data-target="content">Please join Mrs. Achtermann and PTA members for an informal chat about what's on your mind. Bring your coffee or tea and meet us after drop-off on Tuesday, Jan. 25, 8-8:30 am in the outdoor classroom, which is the green stage next to the back parking lot. This is a good opportunity to learn more about how you can get involved in the PTA this year or next and to ask those burning questions you can't at drop-off or pick-up!</div>`,
@@ -428,9 +442,10 @@ To sign up, please contact Leigh Davis (<a href="mailto:leighdavis21@gmail.com">
       },
       {
         id: 'pta-parent-support-series-new-date',
-        title: `Childhood Nutrition & Eating for Immunity`,
+        title: 'Childhood Nutrition & Eating for Immunity',
         date: '2022-01-09',
-        excerpt: `Please join us on Wednesday January 18th at 7pm, as we host Devon Cassidy, RN, for a thoughtful conversation around making small decisions that can make a big difference in your child’s nutrition and…`,
+        excerpt:
+          'Please join us on Wednesday January 18th at 7pm, as we host Devon Cassidy, RN, for a thoughtful conversation around making small decisions that can make a big difference in your child’s nutrition and…',
         content: `<div class="theme-p theme-color-4" data-target="content">
 
 Please join us for 2022's first Parent Support Series on <em><strong>Wednesday January 18th at 7pm</strong></em>, as we host Devon Cassidy, RN, for a thoughtful conversation around making small decisions that can make a big difference in your child’s nutrition and health. Learn about the foods you can incorporate in your family’s diet to increase immunity as we prepare for this winter season. This event is a reschedule of our December PSS. Please register for this event through <a href="https://bheeagles.us8.list-manage.com/track/click?u=bec8051159f5dd775329aa6af&amp;id=1f6d966a8c&amp;e=ab78d3433b" target="_blank" rel="nofollow noopener" data-id="l-2826596327">Eventbrite</a>.
@@ -442,9 +457,10 @@ Devon is a registered nurse with a background in emergency medicine and a former
       },
       {
         id: 'ahs-winter-string-camp',
-        title: `AHS Winter String Camp`,
+        title: 'AHS Winter String Camp',
         date: '2022-01-09',
-        excerpt: `AHS is hosting their Winter String Camp January 22, 2022. This is a great opportunity for 4th and 5th graders to try out string instruments. They will be instructed by orchestra conductors from the…`,
+        excerpt:
+          'AHS is hosting their Winter String Camp January 22, 2022. This is a great opportunity for 4th and 5th graders to try out string instruments. They will be instructed by orchestra conductors from the…',
         content: `<p class="theme-p-title theme-color3" data-target="title" data-clicktarget="#"><span style="font-size: 16px;">AHS is hosting their Winter String Camp January 22, 2022. This is a great opportunity for 4th and 5th graders to try out string instruments. They will be instructed by orchestra conductors from the high school and middle school level. There will be current and graduate students there to assist.</span></p>
 
 <div class="theme-p theme-color-4" data-target="content">
@@ -458,17 +474,19 @@ The day will have fun and games. Most importantly, they will perform a small con
       },
       {
         id: 'our-new-mural',
-        title: `Our New Mural!`,
+        title: 'Our New Mural!',
         date: '2022-01-09',
-        excerpt: `These three pictures are of our new hallway mural designed and painted by Ian Ingram over our Winter Break.`,
+        excerpt:
+          'These three pictures are of our new hallway mural designed and painted by Ian Ingram over our Winter Break.',
         content: `These three pictures are of our new hallway mural designed and painted by Ian Ingram over our Winter Break. We LOVE it and thank the Ingram family (Ian, Jeri Lynn, Koruna and Marvel) for sharing their time and talents.<img class="alignleft size-full wp-image-7293" src="https://archive.bheeagles.com/wp-content/uploads/2022/01/29e3ecd42f762e5f840c87faed0491f8.jpg" alt="" width="640" height="234" /> <img class="alignleft size-full wp-image-7294" src="https://archive.bheeagles.com/wp-content/uploads/2022/01/92dfc7744c94dac6f489f2e7e9a96c35.jpg" alt="" width="640" height="265" /> <img class="alignleft size-full wp-image-7295" src="https://archive.bheeagles.com/wp-content/uploads/2022/01/debd53c8efc5efab9eedd06c00f108c7.jpg" alt="" width="640" height="292" />`,
         category: 'News',
       },
       {
         id: 'aisd-guidance-for-returning-to-school-january-5th',
-        title: `AISD Guidance for Returning to School`,
+        title: 'AISD Guidance for Returning to School',
         date: '2021-12-31',
-        excerpt: `With Austin ISD resuming classes as scheduled after the Winter Break, staff and families can help prevent the spread of the Omicron variant by getting boosted this week, getting tested at one of our…`,
+        excerpt:
+          'With Austin ISD resuming classes as scheduled after the Winter Break, staff and families can help prevent the spread of the Omicron variant by getting boosted this week, getting tested at one of our…',
         content: `<strong>We know what to do</strong>: What we’ve been doing works. Austin has just entered Stage 4, which is not as bad as when we went back to school after Winter Break last year, when we were at Stage 5, and when we went back to school last August, when we were also at Stage 5.
 <ul>
  	<li aria-level="1">This is the first time we’ve gone back to school during the pandemic when vaccines were approved for all staff and students ages 5 and older.</li>
@@ -505,9 +523,10 @@ The day will have fun and games. Most importantly, they will perform a small con
       },
       {
         id: 'families-helping-families',
-        title: `Families Helping Families`,
+        title: 'Families Helping Families',
         date: '2021-12-05',
-        excerpt: `Dear BHE Families, The past couple of years have been challenging and sometimes families need a little help. Families Helping Families is a program designed to provide assistance for Barton Hills’…`,
+        excerpt:
+          'Dear BHE Families, The past couple of years have been challenging and sometimes families need a little help. Families Helping Families is a program designed to provide assistance for Barton Hills’…',
         content: `<h2 class="theme-p-title theme-color3" data-target="title" data-clicktarget="#"><span style="font-size: 16px;">Dear BHE Families,</span></h2>
 <div class="theme-p theme-color-4" data-target="content">
 
@@ -533,25 +552,28 @@ Stephanie K. White, M.A., MEd., LPC
       },
       {
         id: 'science-fair',
-        title: `Science Fair`,
+        title: 'Science Fair',
         date: '2021-12-05',
-        excerpt: `The Barton Hills Elementary Science Fair will be held in the classrooms this year. Projects are due on January 15 to the student’s homeroom teacher. Participation is voluntary. The due date is…`,
+        excerpt:
+          'The Barton Hills Elementary Science Fair will be held in the classrooms this year. Projects are due on January 15 to the student’s homeroom teacher. Participation is voluntary. The due date is…',
         content: `<h2 class="theme-p-title theme-color3" data-target="title" data-clicktarget="#"><span style="font-size: 16px;">The Barton Hills Elementary Science Fair will be held in the classrooms this year. Projects are due on January 15 to the student’s homeroom teacher. Participation is voluntary. </span><strong style="font-size: 16px;">The due date is January 18, 2022</strong><span style="font-size: 16px;">. Now is the time to start planning for your project. All grade levels are encouraged to participate. Two projects from grades 3-6 will be selected to participate in the Austin Area Regional Science Festival sponsored by Austin Energy. Here is a link to our <a href="https://docs.google.com/document/d/1-_yOQY23taCLwpgXRjZJbvipUGiVVcuwuxE5CeQSPu4/edit">school's google doc</a>, which includes links to the website that has great information to guide you through this process. </span></h2>`,
         category: 'News',
       },
       {
         id: 'fall-individual-retake-and-make-up-picture-day',
-        title: `Fall Individual Retake and Make Up picture Day`,
+        title: 'Fall Individual Retake and Make Up picture Day',
         date: '2021-12-05',
-        excerpt: `Fall Individual Retake and Make Up picture day is Tuesday, December 7. PhotoTexas will be here for just a few short hours Tuesday morning for any student who needs picture retakes or was absent on…`,
+        excerpt:
+          'Fall Individual Retake and Make Up picture day is Tuesday, December 7. PhotoTexas will be here for just a few short hours Tuesday morning for any student who needs picture retakes or was absent on…',
         content: `<div class="theme-p  theme-color-4" data-target="content">Fall Individual Retake and Make Up picture day is Tuesday, December 7. PhotoTexas will be here for just a few short hours Tuesday morning for any student who needs picture retakes or was absent on our original picture day. If your student needs a retake, please send the original pictures with them to school and we will have the photographers re-take the pictures.</div>`,
         category: 'News',
       },
       {
         id: 'austin-isds-central-texas-dyslexia-conference-2021',
-        title: `Austin ISD’s Central Texas Dyslexia Conference 2021 `,
+        title: 'Austin ISD’s Central Texas Dyslexia Conference 2021 ',
         date: '2021-11-10',
-        excerpt: `Accelerating Learning Success for All Students—Austin ISD’s Central Texas Dyslexia Conference 2021 AISD’s annual conference brings together leaders in education, teachers, researchers, parents,…`,
+        excerpt:
+          'Accelerating Learning Success for All Students—Austin ISD’s Central Texas Dyslexia Conference 2021 AISD’s annual conference brings together leaders in education, teachers, researchers, parents,…',
         content: `<strong>Accelerating Learning Success for All Students—Austin ISD’s Central Texas Dyslexia Conference 2021 </strong>
 
 AISD’s annual conference brings together leaders in education, teachers, researchers, parents, dyslexia therapists, advocates, and other professionals to learn how to best serve students with dyslexia, develop their strengths, overcome their obstacles, and accelerate their learning. Putting research into practice, equipping educators with the knowledge and resources they need, and incorporating a strengths-based approach is critical in helping students build the motivation, resilience and self-confidence needed to reach their full potential inside the classroom and beyond.
@@ -563,9 +585,9 @@ This year’s conference will be a virtual conference offering participants a 2 
       },
       {
         id: 'battle-of-the-birds',
-        title: `Battle of the Birds - NEW BHE MERCH!`,
+        title: 'Battle of the Birds - NEW BHE MERCH!',
         date: '2021-11-10',
-        excerpt: `New BHE Merch for sale online from Nov. 1 - 24, 2021!`,
+        excerpt: 'New BHE Merch for sale online from Nov. 1 - 24, 2021!',
         content: `Look out BHE!
 We're switching up our online store and including a Fall Fundraiser. Not only does 100% of your contribution provide general supplies and support for BHE teachers, parents and students, but YOU also get something – BHE merchandise! Explore our fun, new selection of clothing and accessories to show 100% of your school spirit.
 
@@ -578,9 +600,9 @@ This year we are offering TWO Eagle Designs to show off your school pride. First
       },
       {
         id: 'parties-with-a-purpose-2',
-        title: `Parties with a Purpose`,
+        title: 'Parties with a Purpose',
         date: '2021-11-10',
-        excerpt: `Tickets are going fast for our first Party with a Purpose on November 13th!`,
+        excerpt: 'Tickets are going fast for our first Party with a Purpose on November 13th!',
         content: `Tickets are going fast for our first Party with a Purpose! November 13th. Learn more and get your tickets <a href="https://bheeagles.us8.list-manage.com/track/click?u=bec8051159f5dd775329aa6af&amp;id=dbd10ff708&amp;e=e72649f876">here</a>.
 
 <img class="alignleft  wp-image-7105" src="https://archive.bheeagles.com/wp-content/uploads/2021/11/pwap-2-scaled.jpg" alt="" width="899" height="1164" /> <img class="alignleft size-full wp-image-7106" src="https://archive.bheeagles.com/wp-content/uploads/2021/11/PWAP.jpg" alt="" width="900" height="900" />`,
@@ -588,9 +610,10 @@ This year we are offering TWO Eagle Designs to show off your school pride. First
       },
       {
         id: 'parent-support-series-lqbtqia-identities',
-        title: `Parent Support Series: LQBTQIA+ Identities`,
+        title: 'Parent Support Series: LQBTQIA+ Identities',
         date: '2021-10-30',
-        excerpt: `If you missed our Parent Support Series on October 13 on LGBTQIA+ Identities and How to Support Them, please see the presentation by Shane Whalley.`,
+        excerpt:
+          'If you missed our Parent Support Series on October 13 on LGBTQIA+ Identities and How to Support Them, please see the presentation by Shane Whalley.',
         content: `If you missed our Parent Support Series on October 13 on LGBTQIA+ Identities and How to Support Them, please see the presentation by Shane Whalley.
 
 <a href="https://archive.bheeagles.com/wp-content/uploads/2021/10/BHPTA_LGTBTQIA_The-Basics.pdf">BHPTA_LGTBTQIA_The Basics</a>`,
@@ -598,9 +621,10 @@ This year we are offering TWO Eagle Designs to show off your school pride. First
       },
       {
         id: 'love-your-brain-week-review',
-        title: `Love Your Brain Week Review`,
+        title: 'Love Your Brain Week Review',
         date: '2021-10-29',
-        excerpt: `This past week the Counseling Department sponsored Love your Brain Week during morning announcements. See what students learned about their brains!`,
+        excerpt:
+          'This past week the Counseling Department sponsored Love your Brain Week during morning announcements. See what students learned about their brains!',
         content: `This past week the Counseling Department sponsored Love your Brain Week during morning announcements. Here is what students learned about their brains:
 <ul>
  	<li><a href="https://www.ncbi.nlm.nih.gov/pubmed/20329590" target="_blank" rel="nofollow noopener" data-id="l-2853213723"><strong>Sixty percent</strong></a><strong> of the human brain is made of fat</strong>. Not only does that make it the fattiest organ in the human body, but these fatty acids are crucial for your brain’s performance. Make sure you’re fueling it appropriately with healthy, <a href="https://www.nm.org/healthbeat/healthy-tips/nutrition/best-food-for-a-healthy-brain" target="_blank" rel="nofollow noopener" data-id="l-5878623319">brain-boosting nutrients</a>.</li>
@@ -613,9 +637,9 @@ This year we are offering TWO Eagle Designs to show off your school pride. First
       },
       {
         id: 'coats-for-kids',
-        title: `Coats for Kids`,
+        title: 'Coats for Kids',
         date: '2021-10-29',
-        excerpt: `Find out how to receive a coat, or how to donate one.`,
+        excerpt: 'Find out how to receive a coat, or how to donate one.',
         content: `<img class="wp-image-7077 alignleft" src="https://archive.bheeagles.com/wp-content/uploads/2021/10/coats-for-kids.png" alt="" width="339" height="381" />
 
 Coats for Kids, sponsored by the Junior League of Austin in collaboration with Austin ISD, is so excited to provide winter coats to students across the district! Along with Jack Brown Cleaners, KVET and KVUE, The Junior League of Austin will provide more than 30,000 coats to Central Texas children.
@@ -629,9 +653,10 @@ The Coats for Kids program is accepting new and gently worn coats and they are i
       },
       {
         id: 'aisd-budget-101-information-sessions',
-        title: `AISD Budget 101 Information Sessions`,
+        title: 'AISD Budget 101 Information Sessions',
         date: '2021-10-29',
-        excerpt: `Join us to learn from district leaders about how schools are funded, how campuses make decisions about staffing and programs, and how families, staff and community members can get involved.`,
+        excerpt:
+          'Join us to learn from district leaders about how schools are funded, how campuses make decisions about staffing and programs, and how families, staff and community members can get involved.',
         content: `Join us to learn from district leaders about how schools are funded, how campuses make decisions about staffing and programs, and how families, staff and community members can get involved.
 <ul>
  	<li>Wednesday, November 3, 6:00-7:00 p.m.</li>
@@ -641,7 +666,7 @@ The Coats for Kids program is accepting new and gently worn coats and they are i
       },
       {
         id: 'neighborhood-block-party',
-        title: `Neighborhood Block Party`,
+        title: 'Neighborhood Block Party',
         date: '2021-10-29',
         excerpt: `Meet your neighbors at St. Mark's Block Party! It takes place Saturday, November 6th from 11am to 2pm.`,
         content: `<img class="alignleft  wp-image-7088" src="https://archive.bheeagles.com/wp-content/uploads/2021/10/St.-Marks-Block-Party-scaled.jpg" alt="" width="691" height="922" />`,
@@ -649,9 +674,9 @@ The Coats for Kids program is accepting new and gently worn coats and they are i
       },
       {
         id: 'green-works-beautifies-bhe',
-        title: `Green Works Volunteers Beautify BHE`,
+        title: 'Green Works Volunteers Beautify BHE',
         date: '2021-10-19',
-        excerpt: `Thank you to all who came out for our family Green Works Day!`,
+        excerpt: 'Thank you to all who came out for our family Green Works Day!',
         content: `Thank you to all who came out for our family Green Works Day, and especially to Gina Palermo, Ben May, Carolyn Hays, Keith Hegner, Sabrina Stafford, Amelia Penoli, and Jaime Lockwood and their families for organizing. Covid caused the grounds to be neglected for a while, and this team stepped up with new trees donated from Tree Folks, plants, tons of mulch, and the manpower to get them all in place. Those massive piles of debris represent all the hard work that was done by our team of volunteers!
 <img class="alignleft size-full wp-image-7049" src="https://archive.bheeagles.com/wp-content/uploads/2021/10/greenworks-1-scaled.jpg" alt="" width="2560" height="1920" /> <img class="alignleft size-full wp-image-7051" src="https://archive.bheeagles.com/wp-content/uploads/2021/10/greenworks-3.jpg" alt="" width="640" height="480" />
 
@@ -660,9 +685,10 @@ The Coats for Kids program is accepting new and gently worn coats and they are i
       },
       {
         id: 'parties-with-a-purpose',
-        title: `Parties with a Purpose`,
+        title: 'Parties with a Purpose',
         date: '2021-10-19',
-        excerpt: `Calling All Parents (from a safe distance)! Find out how you can host a party and raise money for our school!`,
+        excerpt:
+          'Calling All Parents (from a safe distance)! Find out how you can host a party and raise money for our school!',
         content: `Calling All Parents (from a safe distance)! Find out how you can host a party and raise money for our school! We are recruiting eager and willing BHE families to host their own virtual or in-person small group Party with a Purpose.
 
 <a href="https://docs.google.com/document/d/1IW3ZA6QD2qegPIDh7Bgre8XTPmteA5rWAWa5kerDvoU/edit">Find out more here!</a>
@@ -672,9 +698,10 @@ The Coats for Kids program is accepting new and gently worn coats and they are i
       },
       {
         id: 'join-bhe-in-celebrating-the-veterans-in-our-lives',
-        title: `Join BHE in celebrating the veterans in our lives!`,
+        title: 'Join BHE in celebrating the veterans in our lives!',
         date: '2021-10-17',
-        excerpt: `We are excited to celebrate Veterans Day in a virtual form this year! We are asking parents to email a picture of their veteran to Mr. Treviño at carlos.trevino@austinisd.org by Nov. 1st so we can…`,
+        excerpt:
+          'We are excited to celebrate Veterans Day in a virtual form this year! We are asking parents to email a picture of their veteran to Mr. Treviño at carlos.trevino@austinisd.org by Nov. 1st so we can…',
         content: `We are excited to celebrate Veterans Day in a virtual form this year! We are asking parents to email a picture of their veteran to Mr. Treviño at <a href="mailto:carlos.trevino@austinisd.org">carlos.trevino@austinisd.org</a> by Nov. 1st so we can put together a slideshow for students on Veterans Day Nov. 11th.
 
 Please include:
@@ -688,7 +715,7 @@ Looking forward to seeing all the wonderful family pictures and celebrating the 
       },
       {
         id: 'aisd-flu-clinics',
-        title: `AISD Flu Clinics`,
+        title: 'AISD Flu Clinics',
         date: '2021-10-17',
         excerpt: `Who can participate? Are only on-campus students allowed to register? See AISD's FAQs and access consent forms in English and Spanish.`,
         content: `<h2 class="theme-p-title theme-color3" data-target="title" data-clicktarget="#">FAQ'S</h2>
@@ -718,9 +745,10 @@ Why must forms be returned 5 business days before the clinic date?
       },
       {
         id: 'atx-ballers-track-field-program',
-        title: `ATX Ballers Track & Field Program`,
+        title: 'ATX Ballers Track & Field Program',
         date: '2021-10-17',
-        excerpt: `All levels of experience are welcome! Athletes are taught the skills of track and field, including running form, breathing, sprints, relays, javelin (foam), shot put (foam), and much more.`,
+        excerpt:
+          'All levels of experience are welcome! Athletes are taught the skills of track and field, including running form, breathing, sprints, relays, javelin (foam), shot put (foam), and much more.',
         content: `<div class="theme-p theme-color-4" data-target="content">
 
 <strong>Program Description</strong>
@@ -739,9 +767,10 @@ Located at <strong style="font-size: 16px;">BHE's </strong><span style="font-si
       },
       {
         id: 'encouraging-students-to-discover-purpose',
-        title: `Encouraging Students to Discover Purpose`,
+        title: 'Encouraging Students to Discover Purpose',
         date: '2021-10-17',
-        excerpt: `For the past two weeks during counseling lessons, the whole school read the book Scribble Stones by Diane Alber.`,
+        excerpt:
+          'For the past two weeks during counseling lessons, the whole school read the book Scribble Stones by Diane Alber.',
         content: `<h4>Notes from Mrs. White, Our Counselor</h4>
 <img class="alignleft size-full wp-image-7003" src="https://archive.bheeagles.com/wp-content/uploads/2021/10/7dcd6e667c35f740d01bcf49e1985d04.png" alt="" width="220" height="214" />
 
@@ -756,9 +785,9 @@ For the past two weeks during counseling lessons, the whole school read the book
       },
       {
         id: 'fitness-components-fitnessgram',
-        title: `Fitness Components & Fitnessgram`,
+        title: 'Fitness Components & Fitnessgram',
         date: '2021-10-17',
-        excerpt: `Fitness Components (K-2) and Fitnessgram (grades 3-6) are beginning at BHE.`,
+        excerpt: 'Fitness Components (K-2) and Fitnessgram (grades 3-6) are beginning at BHE.',
         content: `<h2 class="theme-p-title theme-color3" data-target="title" data-clicktarget="#">COACH E'S CORNER</h2>
 <div class="theme-p theme-color-4" data-target="content">
 
@@ -775,25 +804,28 @@ The Texas Education Code (<a href="https://statutes.capitol.texas.gov/Docs/ED/ht
       },
       {
         id: 'rave-about-bhe-aisd-program-recognizes-all-valuable-employees',
-        title: `RAVE about the teachers and staff at BHE!`,
+        title: 'RAVE about the teachers and staff at BHE!',
         date: '2021-10-17',
-        excerpt: `If you had an exceptional experience interacting with an Austin ISD employee , please nominate that staff member by completing this form.`,
+        excerpt:
+          'If you had an exceptional experience interacting with an Austin ISD employee , please nominate that staff member by completing this form.',
         content: `The <strong>Recognizing All Valuable Employees or RAVE</strong> Program was created to honor those who take the extra steps to provide equitable and exceptional experiences. If you had an exceptional experience interacting with an Austin ISD employee , <strong>please nominate that staff member by <a href="https://www.austinisd.org/hr/customer-service/rave">completing this form</a>. </strong>`,
         category: 'News',
       },
       {
         id: 'aisd-race-talks-tuesday-oct-19',
-        title: `AISD Race Talks: Tuesday Oct 19`,
+        title: 'AISD Race Talks: Tuesday Oct 19',
         date: '2021-10-17',
-        excerpt: `Race Talks are conversations co-hosted by various members of the Austin ISD Race Equity Council, Equity Office, Parent Engagement Support Office, Cultural Proficiency & Inclusiveness Office, Austin…`,
+        excerpt:
+          'Race Talks are conversations co-hosted by various members of the Austin ISD Race Equity Council, Equity Office, Parent Engagement Support Office, Cultural Proficiency & Inclusiveness Office, Austin…',
         content: `Race Talks are conversations co-hosted by various members of the Austin ISD Race Equity Council, Equity Office, Parent Engagement Support Office, Cultural Proficiency &amp; Inclusiveness Office, Austin Council of PTA, and Families as Partners. The next talk, a Zoom Session, will be October 19th at 7pm and you can register <a href="https://bheeagles.us8.list-manage.com/track/click?u=bec8051159f5dd775329aa6af&amp;id=2c6ff4b088&amp;e=e72649f876">here.</a>`,
         category: 'News',
       },
       {
         id: 'thank-you-congratulations-bhe-logo-contest',
-        title: `Congratulations BHE Logo Contest Winners!`,
+        title: 'Congratulations BHE Logo Contest Winners!',
         date: '2021-10-17',
-        excerpt: `Thank you to all of the students who submitted entries to our logo contest, and to our panel of judges. We had an amazing 36 entries, and two run-offs.`,
+        excerpt:
+          'Thank you to all of the students who submitted entries to our logo contest, and to our panel of judges. We had an amazing 36 entries, and two run-offs.',
         content: `Thank you to all of the students who submitted entries to our BHE PTA logo contest, and to our panel of judges. We had an amazing 36 entries, and two run-offs. The winners are first place- Roman Soderberg; second place - Bryn Toungate; third place - Ani Minne; and honorable mention - Evabel Becker-Skott.
 
 <img class="wp-image-7041 aligncenter" src="https://archive.bheeagles.com/wp-content/uploads/2021/10/winner-1.jpg" alt="" width="646" height="485" /><img class="wp-image-7042 aligncenter" src="https://archive.bheeagles.com/wp-content/uploads/2021/10/winner-2.jpg" alt="" width="642" height="462" /> <img class="size-full wp-image-7043 aligncenter" src="https://archive.bheeagles.com/wp-content/uploads/2021/10/winner-3.jpg" alt="" width="640" height="420" /> <img class="wp-image-7044 aligncenter" src="https://archive.bheeagles.com/wp-content/uploads/2021/10/winner-4-scaled.jpg" alt="" width="635" height="747" />`,
@@ -801,15 +833,17 @@ The Texas Education Code (<a href="https://statutes.capitol.texas.gov/Docs/ED/ht
       },
       {
         id: 'aisd-app',
-        title: `AISD App`,
+        title: 'AISD App',
         date: '2021-10-03',
-        excerpt: `The AISD app will allow all AISD students, staff and families to receive notifications from the district and campuses for which they wish to subscribe. Locate the free Austin ISD Mobile App in the…`,
-        content: `The AISD app will allow all AISD students, staff and families to receive notifications from the district and campuses for which they wish to subscribe. Locate the free Austin ISD Mobile App in the digital store for your mobile device by searching for Austin ISD.`,
+        excerpt:
+          'The AISD app will allow all AISD students, staff and families to receive notifications from the district and campuses for which they wish to subscribe. Locate the free Austin ISD Mobile App in the…',
+        content:
+          'The AISD app will allow all AISD students, staff and families to receive notifications from the district and campuses for which they wish to subscribe. Locate the free Austin ISD Mobile App in the digital store for your mobile device by searching for Austin ISD.',
         category: 'News',
       },
       {
         id: 'reflections',
-        title: `Reflections`,
+        title: 'Reflections',
         date: '2021-10-03',
         excerpt: `Share your student's artistic talents with us! We are accepting submissions for the Reflections art program, and this year’s theme is “I will change the world by . . .”`,
         content: `<img class="alignleft size-full wp-image-6909" src="https://archive.bheeagles.com/wp-content/uploads/2021/10/reflections.jpg" alt="" width="630" height="630" />
@@ -859,9 +893,10 @@ Students should submit entries and entry forms to the front office by Monday, Oc
       },
       {
         id: 'parent-support-series',
-        title: `Upcoming Parent Support Series Event`,
+        title: 'Upcoming Parent Support Series Event',
         date: '2021-10-03',
-        excerpt: `LGBTQIA+ Identities: How to Support and Have Conversations with Children -- National Coming Out Day is October 11th, so this is a great week to be having this conversation! What do all the letters…`,
+        excerpt:
+          'LGBTQIA+ Identities: How to Support and Have Conversations with Children -- National Coming Out Day is October 11th, so this is a great week to be having this conversation! What do all the letters…',
         content: `<strong>LGBTQIA+ Identities: How to Support and Have Conversations with Children</strong>
 National Coming Out Day is October 11th, so this is a great week to be having this conversation! What do all the letters mean and how do we support and have good conversations with children? How young is too young to start the conversation? What do I do if my child comes out or if a friend of my child’s comes out? We will break all of this down and have time for questions and conversation.
 
@@ -879,9 +914,10 @@ As a deeply relational and playful genderqueer facilitative educator, I have bee
       },
       {
         id: 'gifted-and-talented-nominations',
-        title: `Gifted and Talented Nominations`,
+        title: 'Gifted and Talented Nominations',
         date: '2021-10-03',
-        excerpt: `Gifted and Talented Nominations for 3rd-6th Grade will begin September 13 and end on September 30th. Nominations will not be accepted for these grades after September 30th.`,
+        excerpt:
+          'Gifted and Talented Nominations for 3rd-6th Grade will begin September 13 and end on September 30th. Nominations will not be accepted for these grades after September 30th.',
         content: `Gifted and Talented Nominations for 3rd-6th Grade will begin September 13 and end on September 30th.
 
 Nominations will not be accepted for these grades after September 30th.
@@ -907,7 +943,7 @@ Counselor, Barton Hills Elementary School`,
       },
       {
         id: 'bhe-logo-contest',
-        title: `BHE Logo Contest Deadline Oct. 4`,
+        title: 'BHE Logo Contest Deadline Oct. 4',
         date: '2021-10-03',
         excerpt: `All BHE students are invited to submit one entry each for our Barton Hills logo contest. Send us your student's original design (hand drawing, computer design, or a combination) that represents their…`,
         content: `All BHE students are invited to submit one entry each for our Barton Hills logo contest. Send us your student's original design (hand drawing, computer design, or a combination) that represents their image of BHE.
@@ -921,9 +957,10 @@ Past winning design:<img class="alignleft size-full wp-image-6926" src="https://
       },
       {
         id: 'walk-or-bike-to-school-week',
-        title: `Another Successful Walk or Bike to School Week!`,
+        title: 'Another Successful Walk or Bike to School Week!',
         date: '2021-10-03',
-        excerpt: `BHE celebrated Walk/Bike Safe to School Week last week. The class with highest percentage of participants was awarded the Golden Shoe Award for the day. The students were so excited for the return of…`,
+        excerpt:
+          'BHE celebrated Walk/Bike Safe to School Week last week. The class with highest percentage of participants was awarded the Golden Shoe Award for the day. The students were so excited for the return of…',
         content: `<img class="alignleft size-full wp-image-6898" src="https://archive.bheeagles.com/wp-content/uploads/2021/09/golden-sneaker.jpeg" alt="" width="315" height="160" />
 
  
@@ -945,7 +982,7 @@ BHE celebrated Walk/Bike Safe to School Week last week. All students were encour
       },
       {
         id: 'eagle-update-september-30-2021',
-        title: `Eagle Update: September 30, 2021`,
+        title: 'Eagle Update: September 30, 2021',
         date: '2021-10-03',
         excerpt: `Topics include: ACL Zilker Area Map w/ Road Closures -- Welcome Mr. Ian Griffin, who joined BHE's 5th grade teaching team -- Successful Walk and Bike to School Week...`,
         content: `<a href="https://www.smore.com/uyad8">Click here to access the latest Eagle Update!</a>
@@ -977,7 +1014,7 @@ Topics include:
       },
       {
         id: 'barton-hills-spirit-days-begins-with-oct-8-sports-team-day',
-        title: `Barton Hills Spirit Days Begin with Oct. 8 Sports Team Day`,
+        title: 'Barton Hills Spirit Days Begin with Oct. 8 Sports Team Day',
         date: '2021-10-03',
         excerpt: `Mark your calendars! We are so excited to announce this year's spirit days! Students can choose to participate in these days. They are optional.`,
         content: `<img class="size-full wp-image-6558" src="https://archive.bheeagles.com/wp-content/uploads/2021/02/dance-party.png" alt="" width="894" height="555" /> iStock photo by syntika
@@ -1047,9 +1084,10 @@ Wear a Hawaiian shirt as we get closer to summer. Think flower or ocean prints a
       },
       {
         id: 'eagle-update-august-21-2021',
-        title: `Eagle Update: August 21, 2021`,
+        title: 'Eagle Update: August 21, 2021',
         date: '2021-08-24',
-        excerpt: `Click here to access the latest Eagle Update! Topics include: Virtual Back to School Nights, August 24 & 25 Updated arrival, daytime, and dismissal information Health & safety info Visitors to Campus…`,
+        excerpt:
+          'Click here to access the latest Eagle Update! Topics include: Virtual Back to School Nights, August 24 & 25 Updated arrival, daytime, and dismissal information Health & safety info Visitors to Campus…',
         content: `<a href="https://www.smore.com/0zmft">Click here to access the latest Eagle Update!</a>
 
 Topics include:
@@ -1065,9 +1103,10 @@ Topics include:
       },
       {
         id: 'virtual-back-to-school-nights',
-        title: `Virtual Back to School Nights August 24 & 25`,
+        title: 'Virtual Back to School Nights August 24 & 25',
         date: '2021-08-24',
-        excerpt: `This week, we will have a VIRTUAL Back to School Night instead of in person. See the flyer below for dates and times. We will still have the meetings on different nights according to grade levels.…`,
+        excerpt:
+          'This week, we will have a VIRTUAL Back to School Night instead of in person. See the flyer below for dates and times. We will still have the meetings on different nights according to grade levels.…',
         content: `This week, we will have a VIRTUAL Back to School Night instead of in person. See the flyer below for dates and times. We will still have the meetings on different nights according to grade levels. Some grade levels will be presenting as a whole and some grade levels will have individual teacher presentations. There will be one Zoom link for the evening and we will go into Breakout rooms after a short presentation from our PTA.
 
 <a href="https://www.smore.com/app/reporting/button/0zmft?u=https%3A%2F%2Faustinisd-org.zoom.us%2Fj%2F98049579276%3Fpwd%3DcXdPR2IrTGRRdm1uWHhlWFc4c01lQT09&amp;t=BACK%20TO%20SCHOOL%20NIGHT%20ZOOM%20LINK&amp;w=w-1100180768&amp;i=&amp;l=">Back to School Night Zoom Link</a>
@@ -1077,9 +1116,10 @@ Topics include:
       },
       {
         id: 'aisd-mask-requirements-guidelines',
-        title: `AISD Mask Requirements & Guidelines`,
+        title: 'AISD Mask Requirements & Guidelines',
         date: '2021-08-13',
-        excerpt: `Starting Wednesday, August 11, students, staff and visitors will need to wear face masks when on AISD school properties. Wearing a face mask that covers the mouth and nose will be required for ALL…`,
+        excerpt:
+          'Starting Wednesday, August 11, students, staff and visitors will need to wear face masks when on AISD school properties. Wearing a face mask that covers the mouth and nose will be required for ALL…',
         content: `Starting Wednesday, August 11, students, staff and visitors will need to wear face masks when on AISD school properties. Wearing a face mask that covers the mouth and nose will be required for ALL students, staff, and visitors while on Austin ISD grounds.
 We are requiring everyone to wear masks to keep our community safe.
 <ul>
@@ -1096,9 +1136,10 @@ We are requiring everyone to wear masks to keep our community safe.
       },
       {
         id: 'bhe-arrival-and-dismissal-procedures',
-        title: `BHE Arrival and Dismissal Procedures`,
+        title: 'BHE Arrival and Dismissal Procedures',
         date: '2021-08-13',
-        excerpt: `Before Arriving to School Each Day We strongly encourage all families to screen for symptoms per CDC guidelines before coming to campus. The COVID-19 Screen & Go on the AISD mobile app can still be…`,
+        excerpt:
+          'Before Arriving to School Each Day We strongly encourage all families to screen for symptoms per CDC guidelines before coming to campus. The COVID-19 Screen & Go on the AISD mobile app can still be…',
         content: `<div id="w-0552762581" class="widget widget-text-paragraph var-paragraph-standard">
 <div class="pagegrid">
 <div class="row">
@@ -1250,9 +1291,10 @@ We are requiring everyone to wear masks to keep our community safe.
       },
       {
         id: 'health-safety',
-        title: `Health & Safety`,
+        title: 'Health & Safety',
         date: '2021-08-13',
-        excerpt: `Positive Covid Cases Individuals who test positive for COVID are required to quarantine for 10 days. We will also do contract tracing to identify additional people who need to quarantine. We will…`,
+        excerpt:
+          'Positive Covid Cases Individuals who test positive for COVID are required to quarantine for 10 days. We will also do contract tracing to identify additional people who need to quarantine. We will…',
         content: `<div id="w-9339080344" class="widget widget-text-paragraph var-paragraph-standard">
 <div class="pagegrid">
 <div class="row">
@@ -1317,9 +1359,10 @@ Anyone who is unvaccinated and has had direct contact with someone that has test
       },
       {
         id: 'eagle-update-august-11-2021',
-        title: `Eagle Update: August 11, 2021`,
+        title: 'Eagle Update: August 11, 2021',
         date: '2021-08-13',
-        excerpt: `Click here to access the latest Eagle Update! Topics include: AISD Mask Requirements & Guidelines BHE Arrival & Dismissal Information Health & Safety Visitor Info Technology Info Virtual Learning…`,
+        excerpt:
+          'Click here to access the latest Eagle Update! Topics include: AISD Mask Requirements & Guidelines BHE Arrival & Dismissal Information Health & Safety Visitor Info Technology Info Virtual Learning…',
         content: `<a href="https://www.smore.com/u68cw">Click here to access the latest Eagle Update!</a>
 Topics include:
 <ul>
@@ -1339,9 +1382,10 @@ Topics include:
       },
       {
         id: 'meet-your-teacher-on-august-13',
-        title: `Meet your Teacher on August 13!`,
+        title: 'Meet your Teacher on August 13!',
         date: '2021-08-13',
-        excerpt: `Meet your teacher! Drop off School Supplies! See friends and get excited for school! We ask that you limit your classroom visit time to 10 minutes and social distance. Please know that requests for…`,
+        excerpt:
+          'Meet your teacher! Drop off School Supplies! See friends and get excited for school! We ask that you limit your classroom visit time to 10 minutes and social distance. Please know that requests for…',
         content: `<h3>Meet your teacher! Drop off School Supplies! See friends and get excited for school!</h3>
 We ask that you limit your classroom visit time to 10 minutes and social distance. Please know that requests for classroom changes will only be considered under rare circumstances. Classroom Teachers will send a welcome email to students late the afternoon of August 12th. Please make sure you have updated your email in the parent portal if it has recently changed.
 
@@ -1354,7 +1398,8 @@ We ask that you limit your classroom visit time to 10 minutes and social distanc
         id: 'dont-forget-your-supplies',
         title: `Don't Forget Your Supplies!`,
         date: '2021-08-08',
-        excerpt: `The first day of school is only a little over a week away! See the full 2020-2021 BHE School Supply list here.`,
+        excerpt:
+          'The first day of school is only a little over a week away! See the full 2020-2021 BHE School Supply list here.',
         content: `The first day of school is only a little over a week away!
 <a href="https://archive.bheeagles.com/wp-content/uploads/2020/06/School-Supply-List-2020-2021.pdf">See the full 2020-2021 BHE School Supply list here.</a>
 
@@ -1368,7 +1413,7 @@ We ask that you limit your classroom visit time to 10 minutes and social distanc
     posts: [
       {
         id: 'congratulations-evan-overstreet',
-        title: `Congratulations, Evan Overstreet!`,
+        title: 'Congratulations, Evan Overstreet!',
         date: '2021-05-28',
         excerpt: `The 2021 Nick Akery Scholarship Committee is proud to announce this year's award recipient is Evan Overstreet . Evan was a Barton Hills Eagle for seven years and is graduating from Austin High…`,
         content: `The 2021 Nick Akery Scholarship Committee is proud to announce this year's award recipient is <strong>Evan Overstreet</strong>. Evan was a Barton Hills Eagle for seven years and is graduating from Austin High School. Evan has continued to give back to the Barton Hills community over the years and has accomplished a lot academically and creatively. She will be attending The University of North Texas in the fall where she plans to study Marketing and Advertising.
@@ -1378,9 +1423,10 @@ Congratulations, Evan!`,
       },
       {
         id: 'aisd-summer-meals-for-children-and-caregivers',
-        title: `AISD Summer Meals for Children and Caregivers`,
+        title: 'AISD Summer Meals for Children and Caregivers',
         date: '2021-05-28',
-        excerpt: `This summer, AISD will continue to provide free meals for children and caregivers. How families may locate AISD summer meal sites in their area: Text FOOD or COMIDA to 512-229-9110. View all sites…`,
+        excerpt:
+          'This summer, AISD will continue to provide free meals for children and caregivers. How families may locate AISD summer meal sites in their area: Text FOOD or COMIDA to 512-229-9110. View all sites…',
         content: `This summer, AISD will continue to provide free meals for children and caregivers.
 
 <strong>How families may locate AISD summer meal sites in their area:</strong>
@@ -1405,9 +1451,10 @@ Food Service will also provide resources to principals at current curbside campu
       },
       {
         id: 'online-2021-22-school-supply-ordering-is-open-now',
-        title: `Online 2021-22 School Supply ordering is open now`,
+        title: 'Online 2021-22 School Supply ordering is open now',
         date: '2021-05-17',
-        excerpt: `Hello BHE Parents! Get a jump on next year by getting your school supplies ordered now. Online ordering is up and running until June 18th. School supply kits will be delivered to the school. Any…`,
+        excerpt:
+          'Hello BHE Parents! Get a jump on next year by getting your school supplies ordered now. Online ordering is up and running until June 18th. School supply kits will be delivered to the school. Any…',
         content: `Hello BHE Parents!
 
 Get a jump on next year by getting your school supplies ordered now. Online ordering is up and running until June 18th. School supply kits will be delivered to the school.
@@ -1445,7 +1492,8 @@ To order school supplies, visit <a href="https://bestinclassschoolsupplies.com/
         id: 'its-time-to-party-with-a-purpose-tequila-512-spyglass-cocktail-party',
         title: `It's time to Party with a Purpose - Tequila 512/Spyglass Cocktail Party`,
         date: '2021-05-12',
-        excerpt: `Live music. Tequila 512 drinks. Spyglass headquarters courtyard. String lights and tables. Paddle board raffle. Perfection. Tequila 512 and Spyglass Realty have teamed up again to offer one of our…`,
+        excerpt:
+          'Live music. Tequila 512 drinks. Spyglass headquarters courtyard. String lights and tables. Paddle board raffle. Perfection. Tequila 512 and Spyglass Realty have teamed up again to offer one of our…',
         content: `Live music. Tequila 512 drinks. Spyglass headquarters courtyard. String lights and tables. Paddle board raffle. Perfection.
 
 Tequila 512 and Spyglass Realty have teamed up again to offer one of our most popular Parties with a Purpose. This event will be held in person but outside the Spyglass offices. There will be socially distanced space inside to cool off as well. Only 40 tickets available ($50 each) so get yours soon.
@@ -1462,9 +1510,10 @@ This is an adults-only party. Thank you for supporting BHE (virtual) Parties wit
       },
       {
         id: 'updated-aisd-covid-19-protocols',
-        title: `Updated AISD COVID-19 Protocols`,
+        title: 'Updated AISD COVID-19 Protocols',
         date: '2021-05-12',
-        excerpt: `Because rising vaccination rates and precautions such as masking and social distancing have resulted in low COVID-19 infection rates, effective Wednesday, May 12, Austin ISD is making the following…`,
+        excerpt:
+          'Because rising vaccination rates and precautions such as masking and social distancing have resulted in low COVID-19 infection rates, effective Wednesday, May 12, Austin ISD is making the following…',
         content: `Because rising vaccination rates and precautions such as masking and social distancing have resulted in low COVID-19 infection rates, effective Wednesday, May 12, Austin ISD is making the following changes to our COVID-19 policies:
 <ol>
  	<li>Wearing a mask will no longer be required for outdoor activities when physical distancing can be maintained, such as recess.</li>
@@ -1532,9 +1581,10 @@ Jueves, 20 de mayo de 2021 – 3-7 p.m.`,
       },
       {
         id: 'earth-kids-after-school-care-has-re-opened',
-        title: `Earth Kids After School Care has re-opened`,
+        title: 'Earth Kids After School Care has re-opened',
         date: '2021-04-12',
-        excerpt: `Barton Hills Families, Earth Kids After-school Care will be re-opening on Monday. It will be open to all BHE children who are in school at Barton Hills. Earth Kids is an outdoor education themed…`,
+        excerpt:
+          'Barton Hills Families, Earth Kids After-school Care will be re-opening on Monday. It will be open to all BHE children who are in school at Barton Hills. Earth Kids is an outdoor education themed…',
         content: `Barton Hills Families,
 
 Earth Kids After-school Care will be re-opening on Monday. It will be open to all BHE children who are in school at Barton Hills.  Earth Kids is an outdoor education themed after-school program designed specifically for the students at Barton Hills. We have been open since 1998 and are housed at the '04 Center, 2701 S. Lamar. Transportation to the site is provided from BHE. Hours are from dismissal until 6 PM.
@@ -1546,9 +1596,10 @@ Fell free to contact Collins Van Nort (<a href="mailto:cwvannortii@yahoo.com">em
       },
       {
         id: 'join-the-conversations',
-        title: `Join the Conversation`,
+        title: 'Join the Conversation',
         date: '2021-03-29',
-        excerpt: `Austin ISD staff, families and community are invited to join Superintendent Stephanie Elizalde, Ed.D. for a series of virtual Conversations with the District. Learn more about the AISD 2020-25…`,
+        excerpt:
+          'Austin ISD staff, families and community are invited to join Superintendent Stephanie Elizalde, Ed.D. for a series of virtual Conversations with the District. Learn more about the AISD 2020-25…',
         content: `Austin ISD staff, families and community are invited to join Superintendent Stephanie Elizalde, Ed.D. for a series of virtual Conversations with the District. Learn more about the AISD 2020-25 Strategic Plan and 2021-22 budget process.
 
 <a href="https://archive.bheeagles.com/wp-content/uploads/2021/03/esp_community_conversations.pdf" target="_blank" rel="noopener noreferrer">Más información</a>
@@ -1558,9 +1609,10 @@ Fell free to contact Collins Van Nort (<a href="mailto:cwvannortii@yahoo.com">em
       },
       {
         id: 'bhe-spring-fundraiser-lawn-party-at-bouldin-acres',
-        title: `BHE Spring Fundraiser - Lawn Party at Bouldin Acres`,
+        title: 'BHE Spring Fundraiser - Lawn Party at Bouldin Acres',
         date: '2021-03-29',
-        excerpt: `On Sunday April 25, please join us for a fun evening out on the lawn of Bouldin Acres, as we enjoy food, drinks, and a silent auction to benefit our school. Attendance is not required to participate…`,
+        excerpt:
+          'On Sunday April 25, please join us for a fun evening out on the lawn of Bouldin Acres, as we enjoy food, drinks, and a silent auction to benefit our school. Attendance is not required to participate…',
         content: `On Sunday April 25, please join us for a fun evening out on the lawn of Bouldin Acres, as we enjoy food, drinks, and a silent auction to benefit our school. Attendance is not required to participate in the online silent auction.
 
 <img class="alignleft size-medium wp-image-6661" src="https://archive.bheeagles.com/wp-content/uploads/2021/03/lawn-party-header-2-300x75.png" alt="" width="300" height="75" />
@@ -1590,7 +1642,7 @@ Proceeds will benefit the PTA, which means they benefit you! Please send <strong
       },
       {
         id: 'books-still-available',
-        title: `Books still available`,
+        title: 'Books still available',
         date: '2021-03-12',
         excerpt: `We have had a great response to our PTA book club in which we will be reading "How to be an Antiracist" By Ibram X. Kendi. We have 6 books left and would love to get those to people so they can read…`,
         content: `We have had a great response to our PTA book club in which we will be reading "How to be an Antiracist" By Ibram X. Kendi. We have <b>6 books left </b>and would love to get those to people so they can read during Spring Break and be ready for our discussion on <b>March 31</b>. Please <a href="mailto:bartonhillspta@gmail.com">email bartonhillspta@gmail</a> if you'd like to register and need a copy of the book.
@@ -1600,9 +1652,10 @@ Proceeds will benefit the PTA, which means they benefit you! Please send <strong
       },
       {
         id: 'scholarship-applications-due-april-23',
-        title: `Nick Akery Scholarship applications due April 23`,
+        title: 'Nick Akery Scholarship applications due April 23',
         date: '2021-03-12',
-        excerpt: `Calling all graduating high school seniors! If you attended Barton Hills Elementary for 2 consecutive years, you are eligible to apply for the $1,000 Nick Akery Scholarship! Applications are due by…`,
+        excerpt:
+          'Calling all graduating high school seniors! If you attended Barton Hills Elementary for 2 consecutive years, you are eligible to apply for the $1,000 Nick Akery Scholarship! Applications are due by…',
         content: `Calling all graduating high school seniors! If you attended Barton Hills Elementary for 2 consecutive years, you are eligible to apply for the $1,000 Nick Akery Scholarship!  Applications are due by 5;00 pm on Friday, April 23rd, 2021.
 
 <a class="myButton" href="http://bheeagles.com/pta-information/nick-akery-scholarship/" target="_blank" rel="noopener noreferrer">Learn more and apply</a>
@@ -1612,7 +1665,7 @@ Proceeds will benefit the PTA, which means they benefit you! Please send <strong
       },
       {
         id: 'no-asynchronous-learning-day-on-april-9th',
-        title: `No asynchronous learning day on April 9th`,
+        title: 'No asynchronous learning day on April 9th',
         date: '2021-03-12',
         excerpt: `Heads up, BHE families - Friday, April 9th will no longer be an asynchronous learning day. Superintendent Elizalde has shared the following information: "We recognize that students have lost a lot of…`,
         content: `Heads up, BHE families - Friday, April 9th will no longer be an asynchronous learning day. Superintendent Elizalde has shared the following information:
@@ -1624,9 +1677,10 @@ Happy Learning!`,
       },
       {
         id: 'registration-for-2021-2022-school-year',
-        title: `Registration for 2021-2022 School Year`,
+        title: 'Registration for 2021-2022 School Year',
         date: '2021-03-03',
-        excerpt: `Online registration for the 2021-2022 school year is open! Parents will need to access the online registration through the Parent Portal. You can find specific registration directions here and…`,
+        excerpt:
+          'Online registration for the 2021-2022 school year is open! Parents will need to access the online registration through the Parent Portal. You can find specific registration directions here and…',
         content: `Online registration for the 2021-2022 school year is open!  Parents will need to access the online registration through the Parent Portal. You can find specific <a href="https://www.austinisd.org/enroll" target="_blank" rel="noopener noreferrer">registration directions here</a> and attached below. If you need assistance please call the AISD Parent Support Line at 512-414-9187.
 
 <a href="https://archive.bheeagles.com/wp-content/uploads/2021/03/Parent-Guide-to-Online-Registration-Spanish.pdf">Parent Guide to Online Registration - Spanish</a>
@@ -1636,9 +1690,10 @@ Happy Learning!`,
       },
       {
         id: 'bhe-book-club-how-to-be-an-antiracist',
-        title: `BHE Book Club - How to be an Antiracist`,
+        title: 'BHE Book Club - How to be an Antiracist',
         date: '2021-03-03',
-        excerpt: `Welcome to the (Book) Club! Barton Hills is committed to leading the conversation on race and inequality and believe that it is all of our responsibilities to be relentless in recognizing and…`,
+        excerpt:
+          'Welcome to the (Book) Club! Barton Hills is committed to leading the conversation on race and inequality and believe that it is all of our responsibilities to be relentless in recognizing and…',
         content: `Welcome to the (Book) Club!
 
 Barton Hills is committed to leading the conversation on race and inequality and believe that it is all of our responsibilities to be relentless in recognizing and fighting against racial inequities and injustice. In an effort to continue our education, the PTA and the school administration are hosting TWO school-wide book discussions for everyone to join and contribute.
@@ -1654,9 +1709,10 @@ After Spring Break, Mrs. Achtermann and Mrs. White, our school counselor, will c
       },
       {
         id: 'greenworks-work-day',
-        title: `Greenworks Work Day`,
+        title: 'Greenworks Work Day',
         date: '2021-03-03',
-        excerpt: `The BHE yard work day is this weekend! Come help us as we clean out flower beds and spruce up our campus before spring! When: Saturday, March 6 from 1 to 4 p.m. Where: Meet at the front of the…`,
+        excerpt:
+          'The BHE yard work day is this weekend! Come help us as we clean out flower beds and spruce up our campus before spring! When: Saturday, March 6 from 1 to 4 p.m. Where: Meet at the front of the…',
         content: `The BHE yard work day is this weekend! Come help us as we clean out flower beds and spruce up our campus before spring!
 
 When: Saturday, March 6 from 1 to 4 p.m.
@@ -1670,9 +1726,11 @@ What to Bring: Work gloves, yard tools (clippers, rakes, etc.), and water.
       },
       {
         id: 'recording-for-diversity-equity-and-inclusion-part-2-with-lawrence-alexander-available',
-        title: `Recording for Diversity, Equity and Inclusion part 2 with Lawrence Alexander available`,
+        title:
+          'Recording for Diversity, Equity and Inclusion part 2 with Lawrence Alexander available',
         date: '2021-02-12',
-        excerpt: `The recording from our second session with Lawrence Alexander and Diversity, Equity and Inclusion is now available! Watch the recording`,
+        excerpt:
+          'The recording from our second session with Lawrence Alexander and Diversity, Equity and Inclusion is now available! Watch the recording',
         content: `The recording from our second session with Lawrence Alexander and Diversity, Equity and Inclusion is now available!
 
 <a class="myButton" href="https://us02web.zoom.us/rec/play/m2UZPEECmVvM6wHsGXdTOLBeyuv2Ihyru3Sc2gOT7J6PGSW_V_Y979Nytmh_dvwuiRRFBhwnAGFQxrNs.1U11evCv0qQK2dGi?startTime=1612399491000" target="_blank" rel="noopener noreferrer">Watch the recording</a>`,
@@ -1680,9 +1738,10 @@ What to Bring: Work gloves, yard tools (clippers, rakes, etc.), and water.
       },
       {
         id: 'school-wide-zoom-dance-party',
-        title: `School-wide Zoom Dance Party!`,
+        title: 'School-wide Zoom Dance Party!',
         date: '2021-02-12',
-        excerpt: `Happy Friday! Join us today for a school-wide Zoom dance party! Learn more and join the fun iStock photo by syntika`,
+        excerpt:
+          'Happy Friday! Join us today for a school-wide Zoom dance party! Learn more and join the fun iStock photo by syntika',
         content: `Happy Friday! Join us today for a school-wide Zoom dance party!
 
 <a class="myButton" href="http://bheeagles.com/calendar/school-wide-zoom-dance-party/">Learn more and join the fun</a>
@@ -1692,9 +1751,10 @@ What to Bring: Work gloves, yard tools (clippers, rakes, etc.), and water.
       },
       {
         id: 'understanding-racism-fundraiser-double-your-donation',
-        title: `Understanding Racism Fundraiser - Double your donation`,
+        title: 'Understanding Racism Fundraiser - Double your donation',
         date: '2021-01-23',
-        excerpt: `Mrs. White is working hard to make sure BHE students have the materials and experiences they need to succeed. She has created a request on DonorsChoose to help fundraise for books on racism:…`,
+        excerpt:
+          'Mrs. White is working hard to make sure BHE students have the materials and experiences they need to succeed. She has created a request on DonorsChoose to help fundraise for books on racism:…',
         content: `Mrs. White is working hard to make sure BHE students have the materials and experiences they need to succeed. She has created a request on DonorsChoose to help fundraise for books on racism:
 
 <a href="https://linkprotect.cudasvc.com/url?a=https%3a%2f%2femail.donorschoose.org%2fls%2fclick%3fupn%3dRuDNheVVaoQCMFEIwZgdP0e3q1P-2BPW0Ir1gXVqWezV4zCoqSjD9EXs8Hbjroetqyv6ji5m-2FsxWs-2F3UVOpdJjyXMoc-2BJ4cyilYKnhR0WJ34lwenEg-2BksA-2BsANoYL09MqIW4yO23V7zR0OdVTZZKz41wqzx8UO-2BegZ0SjMMep9bsfZUtwWbRpHqkywZcXx-2Ft5KOzDHYfwOaepRQ-2BqratVbUFXqmHP122wA36C0S-2F8pghgsUGYLDW45qx0KH9KPcNfJeNO7RXOMh7soeOHZnxJ2b6MMK2IToXzqRg4vUjpxPx-2Bp1jU3L0LgI4r2EI9K-2BDSPvgDs_Mj-2FciSswvBdfEnfNyoSWC7mivmQeRNPfS1kUXtdkJsVoTllJB4XWsmFNEM4hKlkgn8n9bLAEQCAkcYLNZkgXoFb5yDdGL2Vzjs-2Byc0DbfeiD5G-2B-2B-2BmcnTrBBYSYJjpIBAMya7rAwp9y-2FR1a-2FvA7AL3RqAEsVJoZObL5fcOBkCFvWghl-2B94ea1rLpaVMM-2F3A35reqN-2BLDwJO3Jn03Ym4h7HPNNf2VP5NWLgCi14dM-2Bc3C9Blq7Km7ogBWZ-2F8afaQMhTuI0K1tRzg5oeQ5gsJNOn1WyenlcRCmfG8TopvF97tO9y6KmJTT666pF0MYx2fTQeR-2FR-2BOOqk-2FvYEHDLdNwnhu02nRix7CVqhxbTVsT5yguCVXBx-2BQeKqPCY01gQwFosgAPb9m0M0QihslnWym7d-2BeeUtXNyyDFP2NS44PQaFKEcxZNwzpCTVtF81J2yca1YoUvI9vjz-2BzXeH2kmdlUHQ-3D-3D&amp;c=E,1,TRlHCsJA1GlDiZpRHVUtuNiUCPYPFWz7kxS-YrB_KF-GuWGaa00nPGte9mzEQ8CSRJswgJ1I0peedDLuQAHdxys_w5iywbZpRizq2I3wkfO8iI0,&amp;typo=1" target="_blank" rel="nofollow noopener noreferrer" data-id="l-9521987737">Understanding Racism</a>
@@ -1713,7 +1773,7 @@ P.S. If you know anyone who may want to help my classroom, please pass this alon
       },
       {
         id: 'congratulations-teacher-of-the-year-ms-benoit',
-        title: `Congratulations, Teacher of the Year - Ms. Benoit`,
+        title: 'Congratulations, Teacher of the Year - Ms. Benoit',
         date: '2021-01-22',
         excerpt: `A HUGE congratulations to BHE's Teacher of the Year - Ms. Benoit! We love you!`,
         content: `A HUGE congratulations to BHE's Teacher of the Year - Ms. Benoit! We love you!
@@ -1723,7 +1783,7 @@ P.S. If you know anyone who may want to help my classroom, please pass this alon
       },
       {
         id: 'link-for-upcoming-parent-support-series',
-        title: `Link for upcoming Parent Support Series`,
+        title: 'Link for upcoming Parent Support Series',
         date: '2021-01-22',
         excerpt: `In Sunday's newsletter blurb about the upcoming Parent Support Series with Lawrence Alexander, we had an incorrect registration link! The correct link to register for the evening is:…`,
         content: `In Sunday's newsletter blurb about the upcoming Parent Support Series with Lawrence Alexander, we had an incorrect registration link! The correct link to register for the evening is: <a href="https://bheeagles.us8.list-manage.com/track/click?u=bec8051159f5dd775329aa6af&amp;id=349a692f2f&amp;e=b124e9878a" target="_blank" rel="noopener noreferrer" data-saferedirecturl="https://www.google.com/url?q=https://bheeagles.us8.list-manage.com/track/click?u%3Dbec8051159f5dd775329aa6af%26id%3D349a692f2f%26e%3Db124e9878a&amp;source=gmail&amp;ust=1611360075009000&amp;usg=AFQjCNFipenhfL2JCNgQAPokQjW6F-zZwg">https://www.eventbrite.<wbr />com/e/parent-support-series-<wbr />diversity-equity-and-<wbr />inclusion-session-2-tickets-<wbr />137283820603</a>
@@ -1735,9 +1795,10 @@ P.S. If you know anyone who may want to help my classroom, please pass this alon
       },
       {
         id: 'our-online-store-has-been-restocked',
-        title: `Our online store has been restocked!`,
+        title: 'Our online store has been restocked!',
         date: '2021-01-12',
-        excerpt: `Our BHE online store has been restocked! Check out our limited edition collection of BHE swag - while supplies last! Visit the Online Store BHE Online Store`,
+        excerpt:
+          'Our BHE online store has been restocked! Check out our limited edition collection of BHE swag - while supplies last! Visit the Online Store BHE Online Store',
         content: `Our BHE online store has been restocked! Check out our limited edition collection of BHE swag - while supplies last!
 
 <a class="myButton" href="https://barton-hills-elementary.myshopify.com/" target="_blank" rel="noopener noreferrer">Visit the Online Store</a>
@@ -1747,9 +1808,10 @@ P.S. If you know anyone who may want to help my classroom, please pass this alon
       },
       {
         id: 'our-first-parties-with-a-purpose-virtual-is-here',
-        title: `Our first Parties with a Purpose (virtual) is here!`,
+        title: 'Our first Parties with a Purpose (virtual) is here!',
         date: '2020-12-23',
-        excerpt: `Tickets for our first Parties with a Purpose are available now! Join former BHE parent and author Marit Weisenberg for a virtual book reading and discussion of her latest release, The Insomniacs !…`,
+        excerpt:
+          'Tickets for our first Parties with a Purpose are available now! Join former BHE parent and author Marit Weisenberg for a virtual book reading and discussion of her latest release, The Insomniacs !…',
         content: `Tickets for our first Parties with a Purpose are available now! Join former BHE parent and author Marit Weisenberg for a virtual book reading and discussion of her latest release, <em>The Insomniacs</em>!
 
 <a class="myButton" href="http://bheeagles.com/fundraising/parties-with-a-purpose/">Learn more</a>
@@ -1759,9 +1821,10 @@ P.S. If you know anyone who may want to help my classroom, please pass this alon
       },
       {
         id: 'first-2021-spirit-night-at-austin-eastciders',
-        title: `First 2021 Spirit Night at Austin Eastciders`,
+        title: 'First 2021 Spirit Night at Austin Eastciders',
         date: '2020-12-23',
-        excerpt: `Celebrate making it through 2020 and help raise some funds for BHE with our first Spirit Night of the year! Join us Jan 4th at Austin Eastciders. Learn more`,
+        excerpt:
+          'Celebrate making it through 2020 and help raise some funds for BHE with our first Spirit Night of the year! Join us Jan 4th at Austin Eastciders. Learn more',
         content: `Celebrate making it through 2020 and help raise some funds for BHE with our first Spirit Night of the year! Join us Jan 4th at Austin Eastciders.
 
 <a class="myButton" href="http://bheeagles.com/calendar/spirit-night-at-austin-eastciders-2021/">Learn more</a>`,
@@ -1769,9 +1832,10 @@ P.S. If you know anyone who may want to help my classroom, please pass this alon
       },
       {
         id: 'congratulations-nest-winners',
-        title: `Congratulations, Nest winners!`,
+        title: 'Congratulations, Nest winners!',
         date: '2020-12-17',
-        excerpt: `A huge congratulations to everyone who supported the Nest Raffle! As promised, all of our families are winners when we raise funds for our school. Thanks to your generosity, we raised $3,800 for BHE,…`,
+        excerpt:
+          'A huge congratulations to everyone who supported the Nest Raffle! As promised, all of our families are winners when we raise funds for our school. Thanks to your generosity, we raised $3,800 for BHE,…',
         content: `<div class="gmail_default">
 
 A huge congratulations to everyone who supported the Nest Raffle!   As promised, all of our families are winners when we raise funds for our school.  Thanks to your generosity, we raised $3,800 for BHE, and BHE will now receive several much-needed items and maintenance.
@@ -1834,9 +1898,10 @@ Eagle Kindness--$100-$199 with name on group placard
       },
       {
         id: 'the-giving-tree-fundraiser',
-        title: `The Giving Tree Fundraiser`,
+        title: 'The Giving Tree Fundraiser',
         date: '2020-12-13',
-        excerpt: `Sometimes the best gift is exactly what the recipient requests! Our Giving Tree provides that option for you! Make a specific contribution to the school for an item that the teachers, students,…`,
+        excerpt:
+          'Sometimes the best gift is exactly what the recipient requests! Our Giving Tree provides that option for you! Make a specific contribution to the school for an item that the teachers, students,…',
         content: `Sometimes the best gift is exactly what the recipient requests! Our <a href="http://bheeagles.com/giving-tree-fundraiser/" target="_blank" rel="noopener noreferrer">Giving Tree</a> provides that option for you! Make a specific contribution to the school for an item that the teachers, students, and/or parents need and deserve! Just click on the red tag on the tree to specify the item or items you wish to contribute from an ice maker for teachers, soccer goals for students, or an air purifier for one of our larger rooms. Simply include your item and dedicated funds in the notes section while checking out.
 
 Thank you for your generosity and good luck! Any donation to any fundraiser this school year will be automatically honored with one of <a href="http://bheeagles.com/fundraisers#giving-levels" target="_blank" rel="noopener noreferrer">our giving levels</a>.
@@ -1846,9 +1911,10 @@ Thank you for your generosity and good luck! Any donation to any fundraiser this
       },
       {
         id: 'support-bhe-with-new-fundraisers',
-        title: `Support BHE with new fundraisers`,
+        title: 'Support BHE with new fundraisers',
         date: '2020-12-03',
-        excerpt: `The Giving Tree and Nest Raffle are the newest and most personal giving options available at a time of year when we are often thinking about how we can give back to others. The Giving Tree allows you…`,
+        excerpt:
+          'The Giving Tree and Nest Raffle are the newest and most personal giving options available at a time of year when we are often thinking about how we can give back to others. The Giving Tree allows you…',
         content: `The Giving Tree and Nest Raffle are the newest and most personal giving options available at a time of year when we are often thinking about how we can give back to others.
 
 The Giving Tree allows you to give a specific contribution toward an item that the teachers, students, and/or parents need or deserve.
@@ -1882,9 +1948,10 @@ The Nest Raffle will be held virtually and is a great way for extended family me
       },
       {
         id: 'the-bhe-online-store-is-open',
-        title: `The BHE Online Store is Open`,
+        title: 'The BHE Online Store is Open',
         date: '2020-12-02',
-        excerpt: `Have you heard the great news? BHE has an online store! Check out the BHE merchandise we have available for kids and adults. We are taking pre-orders now and distribution will begin after 12/16, just…`,
+        excerpt:
+          'Have you heard the great news? BHE has an online store! Check out the BHE merchandise we have available for kids and adults. We are taking pre-orders now and distribution will begin after 12/16, just…',
         content: `<a href="https://barton-hills-elementary.myshopify.com/" target="_blank" rel="noopener noreferrer"><img class="alignleft size-medium wp-image-6368" src="https://archive.bheeagles.com/wp-content/uploads/2020/11/ONLINE-STORE-PROMO-PANEL-300x204.png" alt="" width="300" height="204" /></a>
 
  
@@ -1910,9 +1977,10 @@ Have you heard the great news? BHE has an online store!
       },
       {
         id: 'parent-support-series-on-mental-health-this-wednesday',
-        title: `Parent Support Series on Mental Health this Wednesday`,
+        title: 'Parent Support Series on Mental Health this Wednesday',
         date: '2020-12-01',
-        excerpt: `Be sure to join us for our next free virtual parent support series this Wednesday! We will be talking about Mental Health and Kids with the Vida Clinic. Registration is required. Learn more and…`,
+        excerpt:
+          'Be sure to join us for our next free virtual parent support series this Wednesday! We will be talking about Mental Health and Kids with the Vida Clinic. Registration is required. Learn more and…',
         content: `Be sure to join us for our next free virtual parent support series this Wednesday! We will be talking about Mental Health and Kids with the Vida Clinic. <strong>Registration is required. </strong>
 
 <a class="myButton" href="http://bheeagles.com/calendar/parent-support-series-kids-mental-health/">Learn more and register</a>`,
@@ -1920,7 +1988,7 @@ Have you heard the great news? BHE has an online store!
       },
       {
         id: 'rapid-covid-19-testing-available-wed-thur-fri',
-        title: `Rapid COVID-19 testing available Wed, Thur, Fri`,
+        title: 'Rapid COVID-19 testing available Wed, Thur, Fri',
         date: '2020-11-30',
         excerpt: `As part of AISD's efforts to support student and staff health and safety, there will be several sites offering rapid COVID-19 testing this week. Beginning Wednesday, Dec. 2, we will offer three days…`,
         content: `As part of AISD's efforts to support student and staff health and safety, there will be several sites offering <strong>rapid COVID-19</strong> testing this week. Beginning Wednesday, Dec. 2, we will offer three days of districtwide, drive-through, rapid testing for all on-campus students and staff, who will physically report to campus for teaching and learning. Testing is strongly recommended for those who are showing COVID-19 symptoms, those who have had close contact with someone who is positive or showing symptoms for COVID-19, and those who recently traveled for the holidays.
@@ -1964,9 +2032,10 @@ If you have any questions, please contact the Department of Health Services at 
       },
       {
         id: '6323',
-        title: `Eagles Rock the Flock`,
+        title: 'Eagles Rock the Flock',
         date: '2020-10-26',
-        excerpt: `The Barton Hills PTA invites the community to help us spread our wings and let our spirits soar with a new FUNdraising opportunity! Flock to the fun by having your friends, family members, neighbors,…`,
+        excerpt:
+          'The Barton Hills PTA invites the community to help us spread our wings and let our spirits soar with a new FUNdraising opportunity! Flock to the fun by having your friends, family members, neighbors,…',
         content: `<div></div>
 <div>
 <table style="border-collapse: collapse; width: 100%; background-color: #ead321;">
@@ -2004,9 +2073,10 @@ A.​ Yes, in most cases! ​your recipient will be flocked in the order they ar
       },
       {
         id: 'library-updates',
-        title: `Library Updates!`,
+        title: 'Library Updates!',
         date: '2020-10-26',
-        excerpt: `Check out the latest library updates from Ms. Ewing . Photo by Jon Tyson on Unsplash`,
+        excerpt:
+          'Check out the latest library updates from Ms. Ewing . Photo by Jon Tyson on Unsplash',
         content: `Check out the <a href="https://www.smore.com/56htc7" target="_blank" rel="noopener noreferrer">latest library updates from Ms. Ewing</a>.
 
 <img class="size-medium wp-image-6341" src="https://archive.bheeagles.com/wp-content/uploads/2020/10/jon-tyson-kGUmNEYaSMY-unsplash-225x300.jpg" alt="" width="225" height="300" /> Photo by <a href="https://unsplash.com/@jontyson?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Jon Tyson</a> on <a href="https://unsplash.com/s/photos/library?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a>`,
@@ -2014,9 +2084,10 @@ A.​ Yes, in most cases! ​your recipient will be flocked in the order they ar
       },
       {
         id: 'annual-fund-we-need-your-help',
-        title: `Annual Fund - We need your help.`,
+        title: 'Annual Fund - We need your help.',
         date: '2020-10-20',
-        excerpt: `I think we can all agree 2020 has been a year unlike any other. Navigating schooling in a pandemic has been challenging, to put it mildly. Now more than ever, the PTA is here to help our wonderful…`,
+        excerpt:
+          'I think we can all agree 2020 has been a year unlike any other. Navigating schooling in a pandemic has been challenging, to put it mildly. Now more than ever, the PTA is here to help our wonderful…',
         content: `I think we can all agree 2020 has been a year unlike any other. Navigating schooling in a pandemic has been challenging, to put it mildly. Now more than ever, the PTA is here to help our wonderful teachers, staff and students. BHE is our family, and we want to make sure we get through this safely and effectively.  With many of our biggest fundraisers on hold for the year (carnival, Spring fling), we are asking you to help us help our school through Annual Fund donations.
 
 Your donation to the Annual Fund goes a long way to supporting work at our school, including:
@@ -2046,9 +2117,10 @@ Together, let's make this happen.
       },
       {
         id: 'teacher-staff-goodie-baskets',
-        title: `Teacher/Staff Goodie Baskets`,
+        title: 'Teacher/Staff Goodie Baskets',
         date: '2020-10-19',
-        excerpt: `Due to the unforeseeable circumstances of this year, we are temporarily pausing the PTA-sponsored monthly Teacher/Staff Luncheons. In lieu of this, we plan on sprinkling them with appreciation in…`,
+        excerpt:
+          'Due to the unforeseeable circumstances of this year, we are temporarily pausing the PTA-sponsored monthly Teacher/Staff Luncheons. In lieu of this, we plan on sprinkling them with appreciation in…',
         content: `Due to the unforeseeable circumstances of this year, we are temporarily pausing the PTA-sponsored monthly Teacher/Staff Luncheons. In lieu of this, we plan on sprinkling them with appreciation in alternate ways. We are putting together goodie baskets and any help with items are MUCH appreciated!!! Please head to the link below to sign up. This is a fluid document, if there is something additional or special you’d like to have included please feel free to reach out to either of us. Additionally, if you prefer to contribute funds we will gladly accept via Venmo or Paypal. Please reference BHE Staff Goodie Baskets.
 
 We will take contributions through <strong>October 30th</strong> and plan on assembling Baskets for distribution the 1st week of November.
@@ -2064,9 +2136,10 @@ Beth Goldstein and Christine Dormier
       },
       {
         id: 'calling-all-artists-logo-sticker-designs-needed',
-        title: `Calling all artists! Logo sticker designs needed`,
+        title: 'Calling all artists! Logo sticker designs needed',
         date: '2020-10-19',
-        excerpt: `We are looking for kids in all grades who want to create a Barton Hills logo for our 2020 sticker! Send us a design of your making -- by hand drawing, computer design, or a combination -- that…`,
+        excerpt:
+          'We are looking for kids in all grades who want to create a Barton Hills logo for our 2020 sticker! Send us a design of your making -- by hand drawing, computer design, or a combination -- that…',
         content: `We are looking for kids in all grades who want to create a Barton Hills logo for our 2020 sticker! Send us a design of your making -- by hand drawing, computer design, or a combination -- that represents your image of BHE. The top design will be printed on our 2020-21 school sticker that is distributed to every PTA member family. First place wins the logo design; second and third place wins a $5 Amy's Ice Cream giftcard.
 
 All entries are due by <strong>Oct. 30</strong>. Please send a pdf or jpg of your design to <a href="mailto:bartonhillspta@gmail.com" target="_blank" rel="noopener noreferrer">bartonhillspta@gmail.com</a> with the subject line: Logo contest. The winning design will be announced in the Nov. 8 newsletter. Get ready to see your design on cars, house windows and friends' walls!  Thanks for participating and good luck!
@@ -2076,9 +2149,10 @@ All entries are due by <strong>Oct. 30</strong>. Please send a pdf or jpg of you
       },
       {
         id: 'in-person-school-before-you-arrive-steps',
-        title: `In-Person School - Before You Arrive Steps`,
+        title: 'In-Person School - Before You Arrive Steps',
         date: '2020-10-19',
-        excerpt: `If your child will be returning to in-person school, please see the Oct 16 Eagle News Update for important steps on what you should do before you arrive every day. Photo by Kelly Sikkema on Unsplash`,
+        excerpt:
+          'If your child will be returning to in-person school, please see the Oct 16 Eagle News Update for important steps on what you should do before you arrive every day. Photo by Kelly Sikkema on Unsplash',
         content: `If your child will be returning to in-person school, please see the <a href="https://www.smore.com/jkbzc" target="_blank" rel="noopener noreferrer">Oct 16 Eagle News Update</a> for important steps on what you should do before you arrive every day.
 
 <a href="https://archive.bheeagles.com/wp-content/uploads/2020/10/kelly-sikkema-DyabOTMZfNw-unsplash.jpg"><img class="size-medium wp-image-6315" src="https://archive.bheeagles.com/wp-content/uploads/2020/10/kelly-sikkema-DyabOTMZfNw-unsplash-200x300.jpg" alt="" width="200" height="300" /></a> Photo by <a href="https://unsplash.com/@kellysikkema?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Kelly Sikkema</a> on <a href="https://unsplash.com/s/photos/temperature-check?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a>`,
@@ -2086,9 +2160,10 @@ All entries are due by <strong>Oct. 30</strong>. Please send a pdf or jpg of you
       },
       {
         id: 'reflections-is-here',
-        title: `Reflections is here!`,
+        title: 'Reflections is here!',
         date: '2020-10-15',
-        excerpt: `Calling all artists! The statewide PTA art program – Reflections – kicks off this week. It’s time to start thinking about masterpieces you might contribute. This year’s theme is: I Matter Because…`,
+        excerpt:
+          'Calling all artists! The statewide PTA art program – Reflections – kicks off this week. It’s time to start thinking about masterpieces you might contribute. This year’s theme is: I Matter Because…',
         content: `Calling all artists!
 
 The statewide PTA art program – <strong>Reflections</strong> – kicks off this week. It’s time to start thinking about masterpieces you might contribute. This year’s theme is:
@@ -2117,9 +2192,10 @@ Entries will be due <strong>Friday, Oct. 23</strong>, and will be <strong>accept
       },
       {
         id: 'heads-up-regular-school-day-on-october-12th',
-        title: `Heads up - regular school day on October 12th`,
+        title: 'Heads up - regular school day on October 12th',
         date: '2020-10-01',
-        excerpt: `AISD has updated our 2020-21 calendar. In order to make Election Day a school holiday, AISD has moved the previously scheduled staff development day on October 12th to Tuesday, November 3rd. Go vote!…`,
+        excerpt:
+          'AISD has updated our 2020-21 calendar. In order to make Election Day a school holiday, AISD has moved the previously scheduled staff development day on October 12th to Tuesday, November 3rd. Go vote!…',
         content: `AISD has updated our 2020-21 calendar. In order to make Election Day a school holiday, AISD has moved the previously scheduled staff development day on October 12th to Tuesday, November 3rd.
 
 Go vote!
@@ -2129,9 +2205,10 @@ Go vote!
       },
       {
         id: 'join-principal-achtermann-for-an-update-on-on-campus-learning',
-        title: `Join Principal Achtermann for an update on on-campus learning`,
+        title: 'Join Principal Achtermann for an update on on-campus learning',
         date: '2020-09-18',
-        excerpt: `This Monday, Principal Achtermann will host a virtual meeting to review the phase-in and instructional model plans for on-campus learning. Please join us at 9:00 am. On-campus Learning Update with…`,
+        excerpt:
+          'This Monday, Principal Achtermann will host a virtual meeting to review the phase-in and instructional model plans for on-campus learning. Please join us at 9:00 am. On-campus Learning Update with…',
         content: `This Monday, Principal Achtermann will host a virtual meeting to review the phase-in and instructional model plans for on-campus learning. Please join us at 9:00 am.
 
 <a href="http://bheeagles.com/calendar/on-campus-learning-update-with-principal-achtermann/" class="myButton">On-campus Learning Update with Principal Achtermann</a>`,
@@ -2139,9 +2216,10 @@ Go vote!
       },
       {
         id: 'resolving-seesaw-issues-kinder-thru-2nd-grade',
-        title: `Resolving Seesaw Issues (Kinder thru 2nd grade)`,
+        title: 'Resolving Seesaw Issues (Kinder thru 2nd grade)',
         date: '2020-09-14',
-        excerpt: `This announcement is only for grades Pre-K through 2nd grade. We are sorry to report that students were experiencing issues uploading their Seesaw activities on AISD iPads. We have updated systems to…`,
+        excerpt:
+          'This announcement is only for grades Pre-K through 2nd grade. We are sorry to report that students were experiencing issues uploading their Seesaw activities on AISD iPads. We have updated systems to…',
         content: `This announcement is <em>only</em> for grades Pre-K through 2nd grade.
 
 We are sorry to report that students were experiencing issues uploading their Seesaw activities on AISD iPads. We have updated systems to fix the issue. To access the update, please complete the following steps:
@@ -2157,9 +2235,10 @@ Thank you for your patience and understanding as we problem-solved this system w
       },
       {
         id: 'happy-1st-day-of-school-bhe-students-and-staff',
-        title: `Happy 1st Day of School, BHE students and staff!`,
+        title: 'Happy 1st Day of School, BHE students and staff!',
         date: '2020-09-08',
-        excerpt: `Wishing all of our wonderful students, teachers, staff and parents a fabulous 1st of school 2020-21! While today will be quite different from previous years, we want you to know we are so excited to…`,
+        excerpt:
+          'Wishing all of our wonderful students, teachers, staff and parents a fabulous 1st of school 2020-21! While today will be quite different from previous years, we want you to know we are so excited to…',
         content: `Wishing all of our wonderful students, teachers, staff and parents a fabulous 1st of school 2020-21! While today will be quite different from previous years, we want you to know we are so excited to start the year and will do everything we can to make it a great one.
 
 <strong>Students</strong> - you got this!
@@ -2175,9 +2254,10 @@ The BHE PTA
       },
       {
         id: 'chromebook-and-ipad-pickup-this-sunday',
-        title: `Chromebook and iPad Pickup this Sunday`,
+        title: 'Chromebook and iPad Pickup this Sunday',
         date: '2020-09-04',
-        excerpt: `On Sunday, September 6th , from 11am to 1:00 pm , we will be on campus to assist families who still need a chromebook or iPad for their BHE student prior to the first instructional day. We can only…`,
+        excerpt:
+          'On Sunday, September 6th , from 11am to 1:00 pm , we will be on campus to assist families who still need a chromebook or iPad for their BHE student prior to the first instructional day. We can only…',
         content: `<div class="o9v6fnle cxmmr5t8 oygrvhab hcukyx3x c1et5uql ii04i59q">
 <div dir="auto">On <strong>Sunday, September 6th</strong>, from <strong>11am to 1:00 pm</strong>, we will be on campus to assist families who still need a chromebook or iPad for their BHE student prior to the first instructional day. We can only distribute to BHE enrolled students. If you are on the list for AISD delivery and haven't received the device, you can come pick up your device on Sunday. If you have requested a device but have not picked one up yet, please come on Sunday. If you haven't requested a device but need one now, please come pick one up.</div>
 <div dir="auto"></div>
@@ -2196,7 +2276,7 @@ The BHE PTA
       },
       {
         id: 'parent-support-series-on-navigating-remote-learning-is-tonight',
-        title: `Parent Support Series on Navigating Remote Learning is Tonight`,
+        title: 'Parent Support Series on Navigating Remote Learning is Tonight',
         date: '2020-09-02',
         excerpt: `Parents - don't miss the September 2nd Parent Support Series virtual meeting on navigating remote learning. Tonight is the first in a 2-part series that will help you get adjusted to our new method…`,
         content: `Parents - don't miss the September 2nd Parent Support Series virtual meeting on navigating remote learning. Tonight is the first in a 2-part series that will help you get adjusted to our new method of school. For more information and zoom details, see the <a href="https://us8.campaign-archive.com/?u=bec8051159f5dd775329aa6af&amp;id=00aa9dd256" target="_blank" rel="noopener noreferrer">BHE PTA Spotlight</a>`,
@@ -2204,7 +2284,7 @@ The BHE PTA
       },
       {
         id: 'technology-distribution',
-        title: `Technology Distribution`,
+        title: 'Technology Distribution',
         date: '2020-09-01',
         excerpt: `If you have not yet picked up your child's technology for the school year, please see below for pickup information: iPad Information You can see details for pickup HERE . Our pickup location is…`,
         content: `If you have not yet picked up your child's technology for the school year, please see below for pickup information:
@@ -2226,9 +2306,10 @@ If you cannot come to a pickup location, please request delivery by using the Te
       },
       {
         id: 'parent-information-meetings-happening-now',
-        title: `Parent Information Meetings happening now`,
+        title: 'Parent Information Meetings happening now',
         date: '2020-09-01',
-        excerpt: `The Barton Hill teachers invite you to a Zoom Parent Information session to learn about the first four weeks of school. The session will be recorded and available on the Barton Hills BLEND Community…`,
+        excerpt:
+          'The Barton Hill teachers invite you to a Zoom Parent Information session to learn about the first four weeks of school. The session will be recorded and available on the Barton Hills BLEND Community…',
         content: `<div>The Barton Hill teachers invite you to a Zoom Parent Information session to learn about the first four weeks of school. The session <strong>will be recorded</strong> and available on the Barton Hills BLEND Community Course page if you are unable to attend.  Zoom info can be found in the <a href="http://bheeagles.com/2020/08/august-27th-parent-update/" target="_blank" rel="noopener noreferrer">August 27th parent update</a></div>
 <div></div>
 <div><a href="http://bheeagles.com/parent-information-meetings-recordings/" class="myButton">Get links to recorded meetings</a></div>
@@ -2241,9 +2322,10 @@ If you cannot come to a pickup location, please request delivery by using the Te
       },
       {
         id: 'august-27th-parent-update',
-        title: `August 27th Parent Update`,
+        title: 'August 27th Parent Update',
         date: '2020-08-27',
-        excerpt: `Hello BHE families! School is just around the corner! Check out the Aug 27th parent update for some details on important upcoming events including our last belongings and t-shirts pick-up and library…`,
+        excerpt:
+          'Hello BHE families! School is just around the corner! Check out the Aug 27th parent update for some details on important upcoming events including our last belongings and t-shirts pick-up and library…',
         content: `Hello BHE families!
 
 School is just around the corner! Check out the Aug 27th parent update for some details on important upcoming events including our last belongings and t-shirts pick-up and library book drop-off date.
@@ -2253,9 +2335,10 @@ School is just around the corner! Check out the Aug 27th parent update for some 
       },
       {
         id: 'aisd-is-going-mobile',
-        title: `AISD is going mobile!`,
+        title: 'AISD is going mobile!',
         date: '2020-08-27',
-        excerpt: `Austin ISD is happy to announce the launch of our mobile app—a new way to stay connected. The app will allow all AISD students, staff and families to receive notifications from the district and…`,
+        excerpt:
+          'Austin ISD is happy to announce the launch of our mobile app—a new way to stay connected. The app will allow all AISD students, staff and families to receive notifications from the district and…',
         content: `Austin ISD is happy to announce the launch of our mobile app—a new way to stay connected.
 
 The app will allow all AISD students, staff and families to receive notifications from the district and campuses for which they wish to subscribe.
@@ -2285,9 +2368,10 @@ For questions concerning the new app, call 512–414–9187.
       },
       {
         id: 'remote-learning-where-to-start',
-        title: `Remote Learning - Where to Start`,
+        title: 'Remote Learning - Where to Start',
         date: '2020-08-26',
-        excerpt: `Getting ready for online learning may seem like no easy feat. Our BHE PTA has put together a really helpful Where to Start Guide to get you up and running and easily as possible. View the Where to…`,
+        excerpt:
+          'Getting ready for online learning may seem like no easy feat. Our BHE PTA has put together a really helpful Where to Start Guide to get you up and running and easily as possible. View the Where to…',
         content: `Getting ready for online learning may seem like no easy feat.  Our BHE PTA has put together a really helpful Where to Start Guide to get you up and running and easily as possible.
 
 <a class="myButton" href="https://archive.bheeagles.com/wp-content/uploads/2020/08/BHE-Remote-Learning_Where-to-Start.pdf">View the Where to Start Guide</a>
@@ -2299,7 +2383,7 @@ You can also find this guide on our <a href="http://bheeagles.com/remote-learnin
       },
       {
         id: 'august-21st-parent-update',
-        title: `August 21st Parent Update`,
+        title: 'August 21st Parent Update',
         date: '2020-08-25',
         excerpt: `This week's parent update contains some special information from Assistant Principal Mills on how we will handle critical programs during online learning. You can find information about Language…`,
         content: `This week's parent update contains some special information from Assistant Principal Mills on how we will handle critical programs during online learning. You can find information about <strong>Language proficiency Assessment Committee (LPAC)</strong>, <strong>Section 504</strong> and <strong>GT and Talent Explore</strong>.
@@ -2311,7 +2395,7 @@ Also, be sure to check out the parent update for important re-opening reminders.
       },
       {
         id: 'august-parent-update',
-        title: `August 14th Parent Update`,
+        title: 'August 14th Parent Update',
         date: '2020-08-10',
         excerpt: `Be sure to check out our latest Eagle Update. This week's update includes information on a draft schedule for remote learning as well as important info on AISD reopening plan . August Parent Update`,
         content: `Be sure to check out our latest Eagle Update. This week's update includes information on <strong>a draft schedule for remote learning</strong> as well as important info on <strong>AISD reopening plan</strong>.
@@ -2321,7 +2405,7 @@ Also, be sure to check out the parent update for important re-opening reminders.
       },
       {
         id: 'july-parent-update',
-        title: `July Parent Update`,
+        title: 'July Parent Update',
         date: '2020-08-03',
         excerpt: `Please check out the July Parent Update! You'll find a wealth of information include what we know about the upcoming remote learning, student belongings pick up and details on a meet the teacher…`,
         content: `Please check out the July Parent Update! You'll find a wealth of information include what we know about the upcoming remote learning, student belongings pick up and details on a meet the teacher drive-by.
@@ -2331,9 +2415,10 @@ Also, be sure to check out the parent update for important re-opening reminders.
       },
       {
         id: 'come-join-the-pta-board',
-        title: `Come join the PTA board!`,
+        title: 'Come join the PTA board!',
         date: '2020-08-03',
-        excerpt: `Calling all BHE parents. We have several open positions on the PTA board for the 2020-21 school year. If you are interested in joining the team and filling one of these roles, of if you feel…`,
+        excerpt:
+          'Calling all BHE parents. We have several open positions on the PTA board for the 2020-21 school year. If you are interested in joining the team and filling one of these roles, of if you feel…',
         content: `Calling all BHE parents.
 
 We have several open positions on the PTA board for the 2020-21 school year. If you are interested in joining the team and filling one of these roles, of if you feel compelled to serve in another capacity, please email us at <a href="mailto:bartonhillspta@gmail.com">bartonhillspta@gmail.com</a>. We are happy to talk in more detail about the responsibilities these positions entail!
@@ -2366,9 +2451,10 @@ We have several open positions on the PTA board for the 2020-21 school year. If 
     posts: [
       {
         id: 'virtual-kindergarten-registration-week',
-        title: `Virtual Kindergarten Registration Week`,
+        title: 'Virtual Kindergarten Registration Week',
         date: '2020-05-08',
-        excerpt: `Join us May 11-15 for the AISD Virtual Kindergarten Registration week! Learn more now`,
+        excerpt:
+          'Join us May 11-15 for the AISD Virtual Kindergarten Registration week! Learn more now',
         content: `Join us May 11-15 for the AISD Virtual Kindergarten Registration week!
 
 <a class="myButton" href="http://bheeagles.com/calendar/pre-k-and-kindergarten-virtual-registration/">Learn more now</a>
@@ -2378,9 +2464,10 @@ We have several open positions on the PTA board for the 2020-21 school year. If 
       },
       {
         id: 'book-character-day-is-coming',
-        title: `Book Character Day is coming!`,
+        title: 'Book Character Day is coming!',
         date: '2020-02-25',
-        excerpt: `Get ready all you aspiring Matildas and Jack and Annies - book character day is just around the corner! On Friday, March 6th, BHE will be taken over by the characters of all of our favorite books!…`,
+        excerpt:
+          'Get ready all you aspiring Matildas and Jack and Annies - book character day is just around the corner! On Friday, March 6th, BHE will be taken over by the characters of all of our favorite books!…',
         content: `Get ready all you aspiring Matildas and Jack and Annies - book character day is just around the corner! On Friday, March 6th, BHE will be taken over by the characters of all of our favorite books!
 
 <a href="http://bheeagles.com/calendar/book-character-day-2020/">Book Character Day</a>
@@ -2390,9 +2477,10 @@ We have several open positions on the PTA board for the 2020-21 school year. If 
       },
       {
         id: 'parties-with-a-purpose-spotlight-6th-annual-poker-night',
-        title: `Parties with a Purpose Spotlight: 6th Annual Poker Night`,
+        title: 'Parties with a Purpose Spotlight: 6th Annual Poker Night',
         date: '2020-01-08',
-        excerpt: `The 6th annual Barton Hills Texas Hold ‘Em poker tournament is our ever-popular event that promises a rousing card game over drinks and snacks, and an especially unique prize for the winner! Date:…`,
+        excerpt:
+          'The 6th annual Barton Hills Texas Hold ‘Em poker tournament is our ever-popular event that promises a rousing card game over drinks and snacks, and an especially unique prize for the winner! Date:…',
         content: `The 6th annual Barton Hills Texas Hold ‘Em poker tournament is our ever-popular event that promises a rousing card game over drinks and snacks, and an especially unique prize for the winner!
 
 <strong>Date:</strong> Saturday, February 8th, 2020
@@ -2409,9 +2497,10 @@ Please send payment via <strong>Venmo</strong> to <strong>@BHEagles-PTA</stro
       },
       {
         id: 'parties-with-a-purpose-spotlight-hot-sauce-tasting',
-        title: `Parties with a Purpose Spotlight: Hot Sauce Tasting`,
+        title: 'Parties with a Purpose Spotlight: Hot Sauce Tasting',
         date: '2019-12-03',
-        excerpt: `Cooler temperatures got you down? Spice things up with our Hot Sauce Tasting competition! This fiery competition includes 10 hot sauces in ascending heat with wings, drinks and complimentary milk!…`,
+        excerpt:
+          'Cooler temperatures got you down? Spice things up with our Hot Sauce Tasting competition! This fiery competition includes 10 hot sauces in ascending heat with wings, drinks and complimentary milk!…',
         content: `Cooler temperatures got you down? Spice things up with our Hot Sauce Tasting competition! This fiery competition includes <strong>10 hot sauces</strong> in ascending heat with wings, drinks and complimentary milk!
 <strong>Date:</strong> Saturday, January 25th, 2020
 <strong>Hosts:</strong> Jennifer and Charles Botchway
@@ -2426,9 +2515,10 @@ Please send payment via <strong>Venmo</strong> to <strong>@BHEagles-PTA</stro
       },
       {
         id: 'bhe-county-fair-carnival',
-        title: `BHE County Fair Carnival`,
+        title: 'BHE County Fair Carnival',
         date: '2019-10-21',
-        excerpt: `The BHE County Fair Carnival is just around the corner! Fun, food and games will be had by all! Learn more now Sign up to sponsor our carnival`,
+        excerpt:
+          'The BHE County Fair Carnival is just around the corner! Fun, food and games will be had by all! Learn more now Sign up to sponsor our carnival',
         content: `<a href="https://archive.bheeagles.com/wp-content/uploads/2019/10/LOGO_COLOR.jpg"><img class="alignnone wp-image-5806 " src="https://archive.bheeagles.com/wp-content/uploads/2019/10/LOGO_COLOR-150x150.jpg" alt="" width="151" height="151" /></a>
 
 The BHE County Fair Carnival is just around the corner! Fun, food and games will be had by all!
@@ -2440,9 +2530,10 @@ The BHE County Fair Carnival is just around the corner! Fun, food and games will
       },
       {
         id: 'our-directory-has-moved',
-        title: `Our directory has moved!`,
+        title: 'Our directory has moved!',
         date: '2019-08-30',
-        excerpt: `BHE is pleased to announce that we are now using Membership Toolkit for our student directory! To get your kiddos added, simply go to bheeagles.membershiptoolkit.com and create a new account. If you…`,
+        excerpt:
+          'BHE is pleased to announce that we are now using Membership Toolkit for our student directory! To get your kiddos added, simply go to bheeagles.membershiptoolkit.com and create a new account. If you…',
         content: `BHE is pleased to announce that we are now using Membership Toolkit for our student directory! To get your kiddos added, simply go to <a href="https://bheeagles.membershiptoolkit.com/login?r=%2Fopen_forms" target="_blank" rel="noopener noreferrer">bheeagles.membershiptoolkit.com</a> and create a new account.
 
 If you are already using Membership Toolkit with another organization, you are welcome to use the same account!
@@ -2452,7 +2543,7 @@ If you are already using Membership Toolkit with another organization, you are w
       },
       {
         id: 'school-cash-online',
-        title: `School Cash Online`,
+        title: 'School Cash Online',
         date: '2019-08-30',
         excerpt: `BHE is now using School Cash Online - make your classroom-related payments with the click of a button! To set up an account, visit aisd.schoolcashonline.com You'll need your kiddo's student ID when…`,
         content: `BHE is now using School Cash Online - make your classroom-related payments with the click of a button! To set up an account, visit <a href="http://aisd.schoolcashonline.com" target="_blank" rel="noopener noreferrer">aisd.schoolcashonline.com</a>
@@ -2464,7 +2555,7 @@ You'll need your kiddo's student ID when setting up your account.
       },
       {
         id: 'back-to-school-welcome-to-bhe',
-        title: `Back to School - Welcome to BHE!`,
+        title: 'Back to School - Welcome to BHE!',
         date: '2019-08-19',
         excerpt: `Welcome BHE families - new and old! We're excited for the 2019-2020 school year! Classes begin at 7:40 am . Parents - join your fellow BHE families for a coffee in the library immediately after…`,
         content: `Welcome BHE families - new and old! We're excited for the 2019-2020 school year! Classes begin at <strong>7:40 am</strong>. Parents - join your fellow BHE families for a <a href="http://bheeagles.com/calendar/coffee-and-kleenex-2019/">coffee in the library</a> immediately after drop-off.
@@ -2474,9 +2565,10 @@ You'll need your kiddo's student ID when setting up your account.
       },
       {
         id: 'new-aisd-dress-code',
-        title: `New AISD Dress Code`,
+        title: 'New AISD Dress Code',
         date: '2019-07-01',
-        excerpt: `Greetings, BHE families! AISD has adopted a new dress code policy for the 2019-2020 school year. AISD Dress Code`,
+        excerpt:
+          'Greetings, BHE families! AISD has adopted a new dress code policy for the 2019-2020 school year. AISD Dress Code',
         content: `Greetings, BHE families! AISD has adopted a new dress code policy for the 2019-2020 school year.
 
 <a class="myButton" href="https://www.austinisd.org/family-support/dress-code" target="_blank" rel="noopener noreferrer">AISD Dress Code</a>
@@ -2488,7 +2580,7 @@ You'll need your kiddo's student ID when setting up your account.
       },
       {
         id: 'school-supplies-for-2019-2020',
-        title: `School supplies for 2019-2020`,
+        title: 'School supplies for 2019-2020',
         date: '2019-06-06',
         excerpt: `BHE families - it's summer vacation! No time like the present to be thinking about school, right? Get a jump on next year by ordering your school supplies now. Order online by June 17th. 2019-20…`,
         content: `BHE families - it's summer vacation! No time like the present to be thinking about school, right? Get a jump on next year by ordering your school supplies now.  Order online<strong> by June 17th.</strong>
@@ -2505,9 +2597,10 @@ You'll need your kiddo's student ID when setting up your account.
     posts: [
       {
         id: 'nick-akery-scholarship-applications-open',
-        title: `Nick Akery Scholarship applications open`,
+        title: 'Nick Akery Scholarship applications open',
         date: '2019-03-18',
-        excerpt: `Calling all graduating Seniors! If you are a Barton Hills alum, you may be eligible to enter for the $1,000 Nick Akery scholarship. Learn more here`,
+        excerpt:
+          'Calling all graduating Seniors! If you are a Barton Hills alum, you may be eligible to enter for the $1,000 Nick Akery scholarship. Learn more here',
         content: `Calling all graduating Seniors! If you are a Barton Hills alum, you may be eligible to enter for the $1,000 Nick Akery scholarship.  <a href="http://bheeagles.com/pta-information/nick-akery-scholarship/">Learn more here</a>
 
 <img class="alignleft size-medium wp-image-5503" src="https://archive.bheeagles.com/wp-content/uploads/2019/03/academy-accomplishment-celebrate-267885-300x200.jpg" alt="" width="300" height="200" />`,
@@ -2515,9 +2608,10 @@ You'll need your kiddo's student ID when setting up your account.
       },
       {
         id: 'safety-at-bhe',
-        title: `Safety at BHE`,
+        title: 'Safety at BHE',
         date: '2019-03-11',
-        excerpt: `A note from our Principal Dear Parents: Safety of students, staff, and our school community is a priority. To that end, we need your help in making sure you are following our school policies and…`,
+        excerpt:
+          'A note from our Principal Dear Parents: Safety of students, staff, and our school community is a priority. To that end, we need your help in making sure you are following our school policies and…',
         content: `A note from our Principal
 
 Dear Parents:
@@ -2536,9 +2630,10 @@ Thank you for your help in all of these important ways!
       },
       {
         id: 'new-returning-student-online-registration-open',
-        title: `New & Returning Student Online Registration Open`,
+        title: 'New & Returning Student Online Registration Open',
         date: '2019-02-20',
-        excerpt: `Enrollment for the 2019-2020 school year is now open. We encourage all families to take advantage of the AISD online enrollment system. Please see below for more information or visit the AISD website…`,
+        excerpt:
+          'Enrollment for the 2019-2020 school year is now open. We encourage all families to take advantage of the AISD online enrollment system. Please see below for more information or visit the AISD website…',
         content: `Enrollment for the 2019-2020 school year is now open.  We encourage all families to take advantage of the AISD online enrollment system.  Please see below for more information or visit the AISD website at <a href="https://www.austinisd.org/enroll#returning-student" target="_blank" rel="noopener">https://www.austinisd.org/enroll#returning-student</a>
 
 <a href="https://www.austinisd.org/enroll#returning-student"><img class="alignleft wp-image-5474" src="https://archive.bheeagles.com/wp-content/uploads/2019/02/online-registration.png" alt="" width="1000" height="1294" /></a>`,
@@ -2546,9 +2641,10 @@ Thank you for your help in all of these important ways!
       },
       {
         id: 'the-spring-fling-is-coming',
-        title: `The Spring Fling is coming!`,
+        title: 'The Spring Fling is coming!',
         date: '2019-02-19',
-        excerpt: `The BHE PTA is gearing up for a great party and silent auction - the Spring Fling! Save the date and learn more`,
+        excerpt:
+          'The BHE PTA is gearing up for a great party and silent auction - the Spring Fling! Save the date and learn more',
         content: `<a href="https://archive.bheeagles.com/wp-content/uploads/2019/02/unnamed-2.jpg"><img class="alignleft size-medium wp-image-5442" src="https://archive.bheeagles.com/wp-content/uploads/2019/02/unnamed-2-300x230.jpg" alt="" width="300" height="230" /></a>
 
 The BHE PTA is gearing up for a great party and silent auction - the Spring Fling! <a href="http://bheeagles.com/spring-fling-2019/">Save the date and learn more</a>`,
@@ -2556,7 +2652,7 @@ The BHE PTA is gearing up for a great party and silent auction - the Spring Flin
       },
       {
         id: 'muffins-in-the-morning',
-        title: `Muffins in the Morning`,
+        title: 'Muffins in the Morning',
         date: '2019-02-12',
         excerpt: `Kick off your Valentine's Day with your kiddo and some muffins and coffee! Join us on the blacktop from 7:00 to 7:35 am. Muffins in the Morning`,
         content: `<!-- wp:paragraph -->
@@ -2570,9 +2666,10 @@ The BHE PTA is gearing up for a great party and silent auction - the Spring Flin
       },
       {
         id: 'reminder-no-school-feb-15th-and-18th',
-        title: `Reminder - no school Feb 15th and 18th`,
+        title: 'Reminder - no school Feb 15th and 18th',
         date: '2019-01-28',
-        excerpt: `Reminder - Friday Feb 15th is a District of Innovation staff development day for Barton Hills. There will be no classes. The following Monday Feb 18th is Presidents Day and is an AISD student…`,
+        excerpt:
+          'Reminder - Friday Feb 15th is a District of Innovation staff development day for Barton Hills. There will be no classes. The following Monday Feb 18th is Presidents Day and is an AISD student…',
         content: `Reminder - Friday Feb 15th is a District of Innovation staff development day for Barton Hills.  There will be no classes.  The following Monday Feb 18th is Presidents Day and is an AISD student holiday.  Enjoy the extra long weekend!
 
 <a href="https://archive.bheeagles.com/wp-content/uploads/2019/01/chairs-classroom-college-289740.jpg"><img class="alignleft size-medium wp-image-5404" src="https://archive.bheeagles.com/wp-content/uploads/2019/01/chairs-classroom-college-289740-300x200.jpg" alt="" width="300" height="200" /></a>`,
@@ -2580,9 +2677,10 @@ The BHE PTA is gearing up for a great party and silent auction - the Spring Flin
       },
       {
         id: 'choir-shirts-on-sale-wednesday',
-        title: `Choir shirts on sale Wednesday`,
+        title: 'Choir shirts on sale Wednesday',
         date: '2019-01-07',
-        excerpt: `Choir shirts will be on sale before school this Wednesday! Come get a beautiful Indigo BHC shirt - $20/each. You do not need to be in choir to buy one. Choir shirts on sale`,
+        excerpt:
+          'Choir shirts will be on sale before school this Wednesday! Come get a beautiful Indigo BHC shirt - $20/each. You do not need to be in choir to buy one. Choir shirts on sale',
         content: `Choir shirts will be on sale before school this Wednesday!  Come get a beautiful Indigo BHC shirt - $20/each.  You do not need to be in choir to buy one.
 
 <a href="http://bheeagles.com/calendar/choir-shirts-on-sale/">Choir shirts on sale</a>`,
@@ -2590,9 +2688,10 @@ The BHE PTA is gearing up for a great party and silent auction - the Spring Flin
       },
       {
         id: 'welcome-back-2',
-        title: `Welcome Back!`,
+        title: 'Welcome Back!',
         date: '2019-01-07',
-        excerpt: `BHE Students and Families - Welcome back! Hope you had a great winter break! We look forward to a wonderful 2019 of learning and fun.`,
+        excerpt:
+          'BHE Students and Families - Welcome back! Hope you had a great winter break! We look forward to a wonderful 2019 of learning and fun.',
         content: `BHE Students and Families -
 
 Welcome back!  Hope you had a great winter break! We look forward to a wonderful 2019 of learning and fun.
@@ -2602,9 +2701,10 @@ Welcome back!  Hope you had a great winter break! We look forward to a wonderfu
       },
       {
         id: '4th-grade-pajama-drive',
-        title: `4th Grade Pajama Drive`,
+        title: '4th Grade Pajama Drive',
         date: '2018-11-29',
-        excerpt: `BHE Fourth graders are hosting a Pajama Drive! They are collecting brand-new pajamas in all sizes, from newborn to adult. Scholastic will match each set of donated pajamas with a brand new book. The…`,
+        excerpt:
+          'BHE Fourth graders are hosting a Pajama Drive! They are collecting brand-new pajamas in all sizes, from newborn to adult. Scholastic will match each set of donated pajamas with a brand new book. The…',
         content: `BHE Fourth graders are hosting a Pajama Drive!  They are collecting <strong>brand-new pajamas</strong> in all sizes, from newborn to adult.  Scholastic will match each set of donated pajamas with a brand new book.
 
 The pajama drive is organized in partnership with Pajama Program, a nonprofit organization dedicated to promoting and supporting a comforting bedtime routine for children affected by instability in order to help them thrive.
@@ -2618,9 +2718,10 @@ The pajama drive is organized in partnership with Pajama Program, a nonprofit or
       },
       {
         id: 'spirit-of-giving-at-bhe',
-        title: `Spirit of Giving at BHE`,
+        title: 'Spirit of Giving at BHE',
         date: '2018-11-29',
-        excerpt: `As you prepare for the upcoming holidays, please consider sponsoring a family for the Families Helping Families Program . This year Barton Hills’ families can adopt another Barton Hills family for…`,
+        excerpt:
+          'As you prepare for the upcoming holidays, please consider sponsoring a family for the Families Helping Families Program . This year Barton Hills’ families can adopt another Barton Hills family for…',
         content: `As you prepare for the upcoming holidays, please consider sponsoring a family for the <strong><u>Families Helping Families Program</u>.  </strong>
 
 This year Barton Hills’ families can adopt another Barton Hills family for the holiday. In the spirit of giving, Families Helping Families is a confidential program designed to assist families in the <span class="il">BHE</span> community during the holiday season.  To sponsor a family call the school counselor, Stephanie White at 414-3339 or email her at <a href="mailto:Stephanie.l.white@austinisd.org" target="_blank" rel="noopener">Stephanie.l.white@<wbr />austinisd.org</a>.
@@ -2632,7 +2733,7 @@ Your family will be asked to provide a food card of at least $50 as well as, an 
       },
       {
         id: 'november-pe-health-topic-substance-awareness',
-        title: `November PE Health Topic - Substance Awareness`,
+        title: 'November PE Health Topic - Substance Awareness',
         date: '2018-11-06',
         excerpt: `Each month in PE we focus on a health topic, in addition to the skills we learn. So far this year, we've focused on Nutrition ("Go, Slow, Whoa") Cardiovascular Health (taking the pulse, the benefit…`,
         content: `<div id="m_7654437513240169975m_531470607789521917divtagdefaultwrapper" dir="ltr">
@@ -2702,7 +2803,7 @@ Courtney Perry
       },
       {
         id: 'and-the-golden-sneaker-goes-to-2018',
-        title: `And the Golden Sneaker goes to...`,
+        title: 'And the Golden Sneaker goes to...',
         date: '2018-10-10',
         excerpt: `Friday Ms. Ball's Kindergarten - It's a sweep by Kinder and 3rd grade! Nice job to all of the walkers and bikers. Thursday Ms. Herrera's Kindergarten - a new champ crowned today! Congrats to Ms.…`,
         content: `<strong>Friday</strong>
@@ -2726,7 +2827,7 @@ Courtney Perry
       },
       {
         id: 'plantain-samples-at-lunch-tomorrow',
-        title: `Plantain Samples at Lunch Tomorrow!`,
+        title: 'Plantain Samples at Lunch Tomorrow!',
         date: '2018-09-25',
         excerpt: `AISD and our cafeteria staff have been hard at work coming up with new and delicious goodies for our kids to try (how about that Turkey Pot Pie!). Tomorrow (Wed, September 26th), we'll be sampling…`,
         content: `AISD and our cafeteria staff have been hard at work coming up with new and delicious goodies for our kids to try (how about that Turkey Pot Pie!).  Tomorrow (Wed, September 26th), we'll be sampling plantains! Enjoy!
@@ -2736,9 +2837,10 @@ Courtney Perry
       },
       {
         id: 'aim-for-a-attendance',
-        title: `Aim for A+ Attendance`,
+        title: 'Aim for A+ Attendance',
         date: '2018-09-11',
-        excerpt: `September is Attendance Awareness Month for AISD, and the district is aiming for A+ attendance . Here are some tips for maintaining excellent attendance: Build regular routines for bedtime and…`,
+        excerpt:
+          'September is Attendance Awareness Month for AISD, and the district is aiming for A+ attendance . Here are some tips for maintaining excellent attendance: Build regular routines for bedtime and…',
         content: `September is Attendance Awareness Month for AISD, and the district is <em><strong>aiming for A+ attendance</strong></em>.  Here are some tips for maintaining excellent attendance:
 <ul>
  	<li>Build regular routines for bedtime and mornings</li>
@@ -2750,9 +2852,10 @@ Courtney Perry
       },
       {
         id: 'bhe-track-is-open',
-        title: `BHE Track is Open`,
+        title: 'BHE Track is Open',
         date: '2018-09-10',
-        excerpt: `Break out your running shoes - the BHE track is now completely open! To learn more about the happenings around the grounds, visit Barton Hills Community Park on Facebook.`,
+        excerpt:
+          'Break out your running shoes - the BHE track is now completely open! To learn more about the happenings around the grounds, visit Barton Hills Community Park on Facebook.',
         content: `Break out your running shoes - the BHE track is now completely open!
 
 <img class="alignleft size-medium wp-image-5228" src="https://archive.bheeagles.com/wp-content/uploads/2018/09/IMG_20180910_080500-225x300.jpg" alt="" width="225" height="300" />
@@ -2778,9 +2881,10 @@ To learn more about the happenings around the grounds, visit <a href="https://ww
       },
       {
         id: 'aisd-clear-bag-policy-at-district-athletic-events',
-        title: `AISD Clear Bag Policy at District Athletic Events`,
+        title: 'AISD Clear Bag Policy at District Athletic Events',
         date: '2018-09-10',
-        excerpt: `Friendly note - the AISD Athletics Department has implemented a clear bag policy for attendees at district athletic events in an effort to increase safety and security. This policy will be enforced…`,
+        excerpt:
+          'Friendly note - the AISD Athletics Department has implemented a clear bag policy for attendees at district athletic events in an effort to increase safety and security. This policy will be enforced…',
         content: `Friendly note - the <a href="https://www.austinisd.org/athletics" target="_blank" rel="noopener">AISD Athletics Department</a> has implemented a clear bag policy for attendees at district athletic events in an effort to increase safety and security. This policy will be enforced at Burger Stadium, Delco Center, House Park Athletics Facility, Nelson Field, and Noack Sports Complex
 
 <a href="https://www.austinisd.org/sites/default/files/dept/athletics/docs/061118_AISDAthletics-ClearBag_ENG.pdf" target="_blank" rel="noopener"><img class="alignleft wp-image-5232 size-medium" src="https://archive.bheeagles.com/wp-content/uploads/2018/09/Clear-Bag-Policy-232x300.png" alt="" width="232" height="300" /></a>`,
@@ -2788,9 +2892,10 @@ To learn more about the happenings around the grounds, visit <a href="https://ww
       },
       {
         id: 'gifted-and-talented-nominations-for-3rd-thru-6th-grade',
-        title: `Gifted and Talented Nominations for 3rd thru 6th Grade`,
+        title: 'Gifted and Talented Nominations for 3rd thru 6th Grade',
         date: '2018-09-07',
-        excerpt: `Nominations for the Austin ISD Gifted and Talented program are now open for 3rd thru 6th graders. Learn More`,
+        excerpt:
+          'Nominations for the Austin ISD Gifted and Talented program are now open for 3rd thru 6th graders. Learn More',
         content: `Nominations for the Austin ISD Gifted and Talented program are now open for 3rd thru 6th graders.
 
 <a href="http://bheeagles.com/calendar/gifted-talented-nominations-fall/">Learn More</a>`,
@@ -2798,9 +2903,10 @@ To learn more about the happenings around the grounds, visit <a href="https://ww
       },
       {
         id: 'lunch-accounts-and-cafeteria-updates-oh-my',
-        title: `Lunch Accounts and Cafeteria Updates - Oh My!`,
+        title: 'Lunch Accounts and Cafeteria Updates - Oh My!',
         date: '2018-08-28',
-        excerpt: `Just a friendly reminder - we have some great tools available to help you with all things lunch. With SchoolCafe and Remind, you can: Add funds to lunch accounts View lunch menus Get cafeteria…`,
+        excerpt:
+          'Just a friendly reminder - we have some great tools available to help you with all things lunch. With SchoolCafe and Remind, you can: Add funds to lunch accounts View lunch menus Get cafeteria…',
         content: `Just a friendly reminder - we have some great tools available to help you with all things lunch.  With SchoolCafe and Remind, you can:
 <ul>
  	<li>Add funds to lunch accounts</li>
@@ -2814,9 +2920,10 @@ To learn more about the happenings around the grounds, visit <a href="https://ww
       },
       {
         id: 'professional-development-days',
-        title: `Professional Development Days`,
+        title: 'Professional Development Days',
         date: '2018-08-27',
-        excerpt: `As part of the AISD District of Innovation Plan , Barton Hills will have 2 additional days of no school this 2018-19 school year. These are in addition to the student holidays in the 2018-19 AISD…`,
+        excerpt:
+          'As part of the AISD District of Innovation Plan , Barton Hills will have 2 additional days of no school this 2018-19 school year. These are in addition to the student holidays in the 2018-19 AISD…',
         content: `As part of the <a href="https://www.austinisd.org/districtofinnovation" target="_blank" rel="noopener">AISD District of Innovation Plan</a>, Barton Hills will have <strong>2 additional days of no school</strong> this 2018-19 school year.  These are in addition to the student holidays in the <a href="https://www.austinisd.org/sites/default/files/dept/calendar-planning/docs/AISD_Calendar_2018-2019v4.pdf" target="_blank" rel="noopener">2018-19 AISD Calendar</a>. No school will be held:
 <ul>
  	<li>Friday, October 5th</li>
@@ -2831,7 +2938,8 @@ Enjoy!
         id: 'lets-get-social',
         title: `Let's Get Social!`,
         date: '2018-08-20',
-        excerpt: `The BHE PTA is now on facebook! This is a closed group for all current BHE families. Come join us online! Join Us Now`,
+        excerpt:
+          'The BHE PTA is now on facebook! This is a closed group for all current BHE families. Come join us online! Join Us Now',
         content: `<!-- wp:paragraph -->
 <p>The BHE PTA is now on facebook!  This is a closed group for all current BHE families.  Come join us online!</p>
 <!-- /wp:paragraph -->
@@ -2851,7 +2959,7 @@ Enjoy!
       },
       {
         id: 'welcome-back-2018-19',
-        title: `Welcome Back - 2018-19`,
+        title: 'Welcome Back - 2018-19',
         date: '2018-08-14',
         excerpt: `Welcome back to school, BHE families! And a hearty can't wait to meet you to our new BHE students. Please take a moment to read the Welcome Back letter from Principal Achtermann. Dear Barton Hills…`,
         content: `<!-- wp:paragraph -->
@@ -2883,9 +2991,10 @@ to learn and grow.
       },
       {
         id: 'school-safety-updates',
-        title: `School Safety Updates`,
+        title: 'School Safety Updates',
         date: '2018-08-14',
-        excerpt: `Here at Barton Hills, we want students, staff and visitors to be safe. One of the tools that helps us do so is our visitor management system using the Raptor software . This year, Austin ISD has…`,
+        excerpt:
+          'Here at Barton Hills, we want students, staff and visitors to be safe. One of the tools that helps us do so is our visitor management system using the Raptor software . This year, Austin ISD has…',
         content: `<!-- wp:paragraph -->
 <p>Here at Barton Hills, we want students, staff and visitors to be safe.  One of the tools that helps us do so is our <strong>visitor management system using the Raptor software</strong>. This year, Austin ISD has upgraded the system and hardware which means the following changes for our school:</p>
 <!-- /wp:paragraph -->
@@ -2906,9 +3015,10 @@ to learn and grow.
     posts: [
       {
         id: 'enjoy-your-summer',
-        title: `Enjoy Your Summer!`,
+        title: 'Enjoy Your Summer!',
         date: '2018-05-31',
-        excerpt: `Congratulations on another successful school year! We hope you enjoy your summer. Check out these helpful summer resources: READING PROGRAMS Austin ISD 5 Book Dive Austin Public Library Summer…`,
+        excerpt:
+          'Congratulations on another successful school year! We hope you enjoy your summer. Check out these helpful summer resources: READING PROGRAMS Austin ISD 5 Book Dive Austin Public Library Summer…',
         content: `Congratulations on another successful school year!  We hope you enjoy your summer.  Check out these helpful summer resources:
 
 READING PROGRAMS
@@ -2931,9 +3041,10 @@ OUT AND ABOUT
       },
       {
         id: 'school-supply-packs-for-2018-19',
-        title: `School Supply Packs for 2018-19`,
+        title: 'School Supply Packs for 2018-19',
         date: '2018-05-07',
-        excerpt: `School Supply Packs for the 2018-19 school year are now available online! These packs contain all of the school supplies your child will need - no last-minute running around necessary! Online sales…`,
+        excerpt:
+          'School Supply Packs for the 2018-19 school year are now available online! These packs contain all of the school supplies your child will need - no last-minute running around necessary! Online sales…',
         content: `School Supply Packs for the 2018-19 school year are now available online!  These packs contain all of the school supplies your child will need - no last-minute running around necessary!
 
 <strong>Online sales end 6/24</strong>
@@ -2945,9 +3056,10 @@ OUT AND ABOUT
       },
       {
         id: 'we-love-our-bhe-teachers',
-        title: `We love our BHE Teachers`,
+        title: 'We love our BHE Teachers',
         date: '2018-05-07',
-        excerpt: `To our beloved BHE teachers - we cannot thank you enough for your hard work and dedication in raising our children to not only be successful learners but kind and respectful citizens as well. Many,…`,
+        excerpt:
+          'To our beloved BHE teachers - we cannot thank you enough for your hard work and dedication in raising our children to not only be successful learners but kind and respectful citizens as well. Many,…',
         content: `To our beloved BHE teachers - we cannot thank you enough for your hard work and dedication in raising our children to not only be successful learners but kind and respectful citizens as well.  Many, many heartfelt thanks!
 
 <a href="https://archive.bheeagles.com/wp-content/uploads/2016/09/bhe-teachers.png"><img class="size-full wp-image-4009 aligncenter" src="https://archive.bheeagles.com/wp-content/uploads/2016/09/bhe-teachers.png" alt="" width="260" height="295" /></a>`,
@@ -2955,9 +3067,10 @@ OUT AND ABOUT
       },
       {
         id: 'bhe-after-dark-this-weekend',
-        title: `BHE After Dark this weekend`,
+        title: 'BHE After Dark this weekend',
         date: '2018-04-03',
-        excerpt: `Dust of your dancing shoes - After Dark is this Saturday night! We still have tickets available, so pass along this reminder to friends and family...the more the merrier! (And remember 100% of…`,
+        excerpt:
+          'Dust of your dancing shoes - After Dark is this Saturday night! We still have tickets available, so pass along this reminder to friends and family...the more the merrier! (And remember 100% of…',
         content: `Dust of your dancing shoes - After Dark is this Saturday night!  We still have tickets available, so pass along this reminder to friends and family...the more the merrier! (And remember 100% of tickets sales goes to Barton Hills Elementary!)
 
 We will continue to sell tickets ($45 each) in front of Barton Hills Elementary before and after school all week, as well as at 3TEN ACL Live until 8pm the night of the event. Tickets can also be purchased online.
@@ -2969,9 +3082,10 @@ We will continue to sell tickets ($45 each) in front of Barton Hills Elementary 
       },
       {
         id: 'important-letter-school-safety-superintendent-cruz',
-        title: `Important Letter on School Safety from Superintendent Cruz`,
+        title: 'Important Letter on School Safety from Superintendent Cruz',
         date: '2018-03-19',
-        excerpt: `In light of the recent Austin bombings, Superintendent Cruz and AISD have shared a letter outlining their plans for keeping our schools safe and secure. Please take a moment to read this important…`,
+        excerpt:
+          'In light of the recent Austin bombings, Superintendent Cruz and AISD have shared a letter outlining their plans for keeping our schools safe and secure. Please take a moment to read this important…',
         content: `In light of the recent Austin bombings, Superintendent Cruz and AISD have shared a letter outlining their plans for keeping our schools safe and secure.  Please take a moment to read this important information.
 
 <a href="https://archive.bheeagles.com/wp-content/uploads/2018/03/031918_SuspiciousActivitiy_DrCruz_v4.pdf">A Letter from Superintendent Cruz</a>`,
@@ -2979,9 +3093,10 @@ We will continue to sell tickets ($45 each) in front of Barton Hills Elementary 
       },
       {
         id: 'parent-support-series-rescheduled-jan-30th',
-        title: `Parent Support Series Rescheduled for Jan 30th`,
+        title: 'Parent Support Series Rescheduled for Jan 30th',
         date: '2018-01-19',
-        excerpt: `Our Parent Support Series on Executive Function with Terra Lynch has been rescheduled for January 30th. Hope to see you there! More details and RSVP`,
+        excerpt:
+          'Our Parent Support Series on Executive Function with Terra Lynch has been rescheduled for January 30th. Hope to see you there! More details and RSVP',
         content: `Our Parent Support Series on Executive Function with Terra Lynch has been rescheduled for January 30th.  Hope to see you there!
 
 <a href="http://bheeagles.com/calendar/parent-support-series-4-executive-function/">More details and RSVP</a>`,
@@ -2989,9 +3104,10 @@ We will continue to sell tickets ($45 each) in front of Barton Hills Elementary 
       },
       {
         id: 'health-wellness-fair',
-        title: `Health & Wellness Fair`,
+        title: 'Health & Wellness Fair',
         date: '2018-01-19',
-        excerpt: `Mark your calendars - the Health & Wellness Fair/Family Fun Run is just around the corner! Polish off those track shoes and get ready to move your body! Health and Wellness Fair / Family Fun Run`,
+        excerpt:
+          'Mark your calendars - the Health & Wellness Fair/Family Fun Run is just around the corner! Polish off those track shoes and get ready to move your body! Health and Wellness Fair / Family Fun Run',
         content: `Mark your calendars - the Health &amp; Wellness Fair/Family Fun Run is just around the corner!  Polish off those track shoes and get ready to move your body!
 
 <a href="http://bheeagles.com/calendar/health-wellness-fair-family-fun-run/">Health and Wellness Fair / Family Fun Run</a>`,
@@ -2999,15 +3115,17 @@ We will continue to sell tickets ($45 each) in front of Barton Hills Elementary 
       },
       {
         id: 'parent-support-series-4-postponed',
-        title: `Parent Support Series #4 Postponed`,
+        title: 'Parent Support Series #4 Postponed',
         date: '2018-01-16',
-        excerpt: `Due to inclement weather and classes being cancelled, we will postpone our Parent Support Series event with Terra Lynch. Stay tuned for rescheduling info. Snowpocalypes!`,
-        content: `Due to inclement weather and classes being cancelled, we will postpone our Parent Support Series event with Terra Lynch.  Stay tuned for rescheduling info.  Snowpocalypes!`,
+        excerpt:
+          'Due to inclement weather and classes being cancelled, we will postpone our Parent Support Series event with Terra Lynch. Stay tuned for rescheduling info. Snowpocalypes!',
+        content:
+          'Due to inclement weather and classes being cancelled, we will postpone our Parent Support Series event with Terra Lynch.  Stay tuned for rescheduling info.  Snowpocalypes!',
         category: 'News',
       },
       {
         id: 'hot-chocolate-playdate-friday',
-        title: `Hot Chocolate Playdate this Friday!`,
+        title: 'Hot Chocolate Playdate this Friday!',
         date: '2018-01-09',
         excerpt: `We've got sunny skies in the forecast for Friday, so come on out to our rescheduled Hot Chocolate playdate! Hope to see you there. Annual Hot Chocolate Play Date`,
         content: `We've got sunny skies in the forecast for Friday, so come on out to our rescheduled Hot Chocolate playdate!  Hope to see you there.
@@ -3019,9 +3137,10 @@ We will continue to sell tickets ($45 each) in front of Barton Hills Elementary 
       },
       {
         id: 'hot-chocolate-playdate-postponed',
-        title: `Hot Chocolate Playdate Postponed`,
+        title: 'Hot Chocolate Playdate Postponed',
         date: '2017-12-19',
-        excerpt: `Looks like Mother Nature has gotten the best of us. The hot chocolate playdate has been postponed. We will hold it after break - on Friday, January 12th. Wishing you a wonderful break!`,
+        excerpt:
+          'Looks like Mother Nature has gotten the best of us. The hot chocolate playdate has been postponed. We will hold it after break - on Friday, January 12th. Wishing you a wonderful break!',
         content: `Looks like Mother Nature has gotten the best of us. The hot chocolate playdate has been postponed. We will hold it after break - on Friday, January 12th.
 
 Wishing you a wonderful break!`,
@@ -3029,7 +3148,7 @@ Wishing you a wonderful break!`,
       },
       {
         id: 'winter-break-hot-chocolate',
-        title: `Winter Break and Hot Chocolate!`,
+        title: 'Winter Break and Hot Chocolate!',
         date: '2017-12-14',
         excerpt: `The last day of classes before winter break will be Tuesday, December 19th . Come celebrate the start of Winter Break with your friends and a nice, warm cup of hot chocolate! It's the 3rd annual BHE…`,
         content: `The last day of classes before winter break will be <strong>Tuesday, December 19th</strong>.  Come celebrate the start of Winter Break with your friends and a nice, warm cup of hot chocolate!  It's the 3rd annual BHE Hot Chocolate playdate!
@@ -3041,9 +3160,10 @@ Winter break runs from December 20th thru January 2nd.  We wish you a safe and 
       },
       {
         id: 'calling-bhe-families-holiday-treats-teachers-next-week',
-        title: `Calling all BHE Families - Holiday Treats for Teachers is next week!`,
+        title: 'Calling all BHE Families - Holiday Treats for Teachers is next week!',
         date: '2017-11-30',
-        excerpt: `What a fun way to show our BHE faculty and staff just how much we love them! Holiday Treats for Teachers`,
+        excerpt:
+          'What a fun way to show our BHE faculty and staff just how much we love them! Holiday Treats for Teachers',
         content: `What a fun way to show our BHE faculty and staff just how much we love them!
 
 <a href="http://bheeagles.com/calendar/holiday-treats-sponsored-lunch-grades/">Holiday Treats for Teachers</a>`,
@@ -3053,7 +3173,8 @@ Winter break runs from December 20th thru January 2nd.  We wish you a safe and 
         id: 'parent-support-series-3-dont-miss',
         title: `Parent Support Series #3 - Don't Miss this!`,
         date: '2017-11-08',
-        excerpt: `Our November Parent Support Series is next week! Join us as we hear from Katie Malinski as she helps us navigate talking with our kids about the birds and the bees! Parent Support Series #3 Beyond…`,
+        excerpt:
+          'Our November Parent Support Series is next week! Join us as we hear from Katie Malinski as she helps us navigate talking with our kids about the birds and the bees! Parent Support Series #3 Beyond…',
         content: `Our November Parent Support Series is next week!  Join us as we hear from Katie Malinski as she helps us navigate talking with our kids about <em>the birds and the bees!</em>
 
 <a href="http://bheeagles.com/calendar/parent-support-series-3-beyond-birds-bees/">Parent Support Series #3 Beyond the Birds and the Bees</a>
@@ -3063,9 +3184,10 @@ Winter break runs from December 20th thru January 2nd.  We wish you a safe and 
       },
       {
         id: 'carnival-wristbands-sale-now',
-        title: `Carnival Wristbands on Sale Now!`,
+        title: 'Carnival Wristbands on Sale Now!',
         date: '2017-10-21',
-        excerpt: `Carnival is just around the corner - get your wristbands today! Buy Carnival Wristbands`,
+        excerpt:
+          'Carnival is just around the corner - get your wristbands today! Buy Carnival Wristbands',
         content: `<a href="https://archive.bheeagles.com/wp-content/uploads/2016/09/CARNIVAL-LOGO.jpg"><img class="alignleft size-thumbnail wp-image-4588" src="https://archive.bheeagles.com/wp-content/uploads/2016/09/CARNIVAL-LOGO-150x150.jpg" alt="" width="150" height="150" /></a>
 
 Carnival is just around the corner - get your wristbands today! <a href="http://bheeagles.com/carnival-wristbands-online-sales-begin-today/">Buy Carnival Wristbands</a>`,
@@ -3073,9 +3195,10 @@ Carnival is just around the corner - get your wristbands today! <a href="http:/
       },
       {
         id: 'carnival-silent-auction-sneak-peek-wells-solar',
-        title: `Carnival Silent Auction Sneak Peek - Wells Solar`,
+        title: 'Carnival Silent Auction Sneak Peek - Wells Solar',
         date: '2017-10-13',
-        excerpt: `Here is an Out of this World donation for our 2017 Carnival Silent Auction: Wells Solar & Electrical Services is offering an $11,000 3kW PV system designed for you! The first step before you bid on…`,
+        excerpt:
+          'Here is an Out of this World donation for our 2017 Carnival Silent Auction: Wells Solar & Electrical Services is offering an $11,000 3kW PV system designed for you! The first step before you bid on…',
         content: `Here is an <strong>Out of this World</strong> donation for our 2017 Carnival Silent Auction:
 
 <strong>Wells Solar &amp; Electrical Services</strong> is offering an<strong> $11,000 3kW PV system</strong> designed for you!
@@ -3107,7 +3230,8 @@ Wells Solar is a local, family owned business in Austin, Texas. We started as a 
         id: 'take-parents-lunch-week',
         title: `It's Take Your Parents to Lunch Week`,
         date: '2017-10-11',
-        excerpt: `Take Your Parents to Lunch week is here! Join your kiddos in the BHE cafeteria for a delicious and nutritious lunch. On Friday, the Student Wellness team will be on hand giving out samples of a…`,
+        excerpt:
+          'Take Your Parents to Lunch week is here! Join your kiddos in the BHE cafeteria for a delicious and nutritious lunch. On Friday, the Student Wellness team will be on hand giving out samples of a…',
         content: `Take Your Parents to Lunch week is here!  Join your kiddos in the BHE cafeteria for a delicious and nutritious lunch.  On Friday, the Student Wellness team will be on hand giving out samples of a delicious recipe made from scratch in our kitchen with local produce!
 
 <a href="https://archive.bheeagles.com/wp-content/uploads/2017/10/unnamed.jpg"></a><a href="https://archive.bheeagles.com/wp-content/uploads/2017/10/unnamed.jpg"><img class="alignleft size-full wp-image-4629" src="https://archive.bheeagles.com/wp-content/uploads/2017/10/unnamed.jpg" alt="" width="293" height="155" /></a>`,
@@ -3115,7 +3239,7 @@ Wells Solar is a local, family owned business in Austin, Texas. We started as a 
       },
       {
         id: 'golden-sneaker-goes-2',
-        title: `And the Golden Sneaker goes to...`,
+        title: 'And the Golden Sneaker goes to...',
         date: '2017-10-04',
         excerpt: `Ms. Rich and her mighty 2nd graders have taken the lead! MONDAY - Ms. Rich's 2nd Grade Class TUESDAY - Ms. Rich's 2nd Grade Class WEDNESDAY - It's a Tie! Ms. Benoit's 1st Grade Class and Ms. Rich's…`,
         content: `Ms. Rich and her mighty 2nd graders have taken the lead!
@@ -3135,9 +3259,10 @@ FRIDAY - ??
       },
       {
         id: 'golden-sneaker-see',
-        title: `Is that the Golden Sneaker I see?`,
+        title: 'Is that the Golden Sneaker I see?',
         date: '2017-09-28',
-        excerpt: `Believe it or not, it is almost time for Walk and Bike to School Week ! Get those legs warmed up for a chance to win the fabulous Golden Sneaker Award! Walk and Bike to School Week`,
+        excerpt:
+          'Believe it or not, it is almost time for Walk and Bike to School Week ! Get those legs warmed up for a chance to win the fabulous Golden Sneaker Award! Walk and Bike to School Week',
         content: `Believe it or not, it is almost time for <strong>Walk and Bike to School Week</strong>!  Get those legs warmed up for a chance to win the fabulous Golden Sneaker Award!
 
 <a href="http://bheeagles.com/calendar/walk-bike-school-week-2/">Walk and Bike to School Week</a>
@@ -3163,9 +3288,10 @@ To learn more about the <a href="http://bheeagles.com/programs/catch-health-well
       },
       {
         id: 'opportunities-help-catch-committee',
-        title: `Opportunities to Help our CATCH Committee`,
+        title: 'Opportunities to Help our CATCH Committee',
         date: '2017-08-27',
-        excerpt: `Welcome to the 2017-18 school year! As we get this year rolling, our wonderful CATCH committee could use your help! Check out these exciting opportunities to keep our school and students health:…`,
+        excerpt:
+          'Welcome to the 2017-18 school year! As we get this year rolling, our wonderful CATCH committee could use your help! Check out these exciting opportunities to keep our school and students health:…',
         content: `Welcome to the 2017-18 school year!  As we get this year rolling, our wonderful <a href="http://bheeagles.com/programs/catch-health-wellness/" target="_blank" rel="noopener">CATCH committee</a> could use your help!   Check out these exciting opportunities to keep our school and students health:
 
 <strong>Co-Chair Committee</strong>
@@ -3202,9 +3328,10 @@ We need parent volunteers to dig, weed, plant, harvest, measure, conduct experim
       },
       {
         id: 'ac-unit-malfunction-update',
-        title: `AC Unit Malfunction Update`,
+        title: 'AC Unit Malfunction Update',
         date: '2017-08-27',
-        excerpt: `From Principal Achtermann - Hi Barton Hills Families, This afternoon Austin Fire Department responded to the smell of smoke at the school. It was a single AC unit malfunction and there was no fire.…`,
+        excerpt:
+          'From Principal Achtermann - Hi Barton Hills Families, This afternoon Austin Fire Department responded to the smell of smoke at the school. It was a single AC unit malfunction and there was no fire.…',
         content: `From Principal Achtermann -
 
 Hi Barton Hills Families,
@@ -3222,9 +3349,10 @@ Principal, Barton Hills Elementary`,
       },
       {
         id: '2-hour-delayed-start-tomorrow-monday-828',
-        title: `2-hour delayed start tomorrow (Monday 8/28)`,
+        title: '2-hour delayed start tomorrow (Monday 8/28)',
         date: '2017-08-27',
-        excerpt: `All of AISD schools will be operating on a 2-hour delayed start tomorrow, Monday 8/28. BHE classes will start at 9:45 am - no Monday morning assembly. Yay, some extra ZZZZs!`,
+        excerpt:
+          'All of AISD schools will be operating on a 2-hour delayed start tomorrow, Monday 8/28. BHE classes will start at 9:45 am - no Monday morning assembly. Yay, some extra ZZZZs!',
         content: `All of AISD schools will be operating on a 2-hour delayed start tomorrow, Monday 8/28.  BHE classes will start at 9:45 am - no Monday morning assembly.
 
 Yay, some extra ZZZZs!`,
@@ -3232,9 +3360,10 @@ Yay, some extra ZZZZs!`,
       },
       {
         id: 'back-school-coffee',
-        title: `Back to School Coffee`,
+        title: 'Back to School Coffee',
         date: '2017-08-20',
-        excerpt: `Welcome to the 2017-18 School Year! The coffee is on us this morning - join us in the library after drop off for a fresh, hot cup of joe. All are welcome - hope to see you there! Back to School Coffee`,
+        excerpt:
+          'Welcome to the 2017-18 School Year! The coffee is on us this morning - join us in the library after drop off for a fresh, hot cup of joe. All are welcome - hope to see you there! Back to School Coffee',
         content: `Welcome to the 2017-18 School Year!  The coffee is on us this morning - join us in the library after drop off for a fresh, hot cup of joe.  All are welcome - hope to see you there!
 
 <a href="http://bheeagles.com/calendar/back-school-coffee/">Back to School Coffee</a>`,
@@ -3242,9 +3371,10 @@ Yay, some extra ZZZZs!`,
       },
       {
         id: 'new-bhe-parenting-program',
-        title: `New BHE Parent Lecture Series`,
+        title: 'New BHE Parent Lecture Series',
         date: '2017-08-20',
-        excerpt: `We have some exciting news for BHE parents - the PTA is kicking off a new Parent Lecture Series. Each month, we will be hosting a different speaker to talk with us about all things parenting. The…`,
+        excerpt:
+          'We have some exciting news for BHE parents - the PTA is kicking off a new Parent Lecture Series. Each month, we will be hosting a different speaker to talk with us about all things parenting. The…',
         content: `We have some exciting news for BHE parents - the PTA is kicking off a new Parent Lecture Series.  Each month, we will be hosting a different speaker to talk with us about all things parenting.
 <p class="p1">The first lecture in the series will be <strong>Thursday, September 21st at 6:00 pm</strong> in the BHE library.  We are hosting Dr. Mike Brooks. Dr. Brooks, a licensed psychologist and expert on technology and gaming addiction, will speak about the tech generation and how to raise balanced kids in a hyper-connected world. The Parent Lecture Series, presented by Barton Hills Elementary’s PTA, is a series of monthly educational programs featuring educators, counselors, therapists and other professionals who address topics focused on elementary school-aged children.</p>
 <a href="http://bheeagles.com/calendar/parenting-program-tech-generation-raising-balanced-kids-hyper-connected-world/">Parenting Program - The Tech Generation: Raising Balanced Kids in a Hyper-Connected World</a>`,
@@ -3252,9 +3382,10 @@ Yay, some extra ZZZZs!`,
       },
       {
         id: 'bhe-crossing-guards-needed',
-        title: `BHE Crossing Guards Needed`,
+        title: 'BHE Crossing Guards Needed',
         date: '2017-08-17',
-        excerpt: `BHE families and neighbors - our beloved BHE desperately needs crossing guards for the 2017-18 school year. Crossing guards are so essential to keeping our students safe and traffic moving during…`,
+        excerpt:
+          'BHE families and neighbors - our beloved BHE desperately needs crossing guards for the 2017-18 school year. Crossing guards are so essential to keeping our students safe and traffic moving during…',
         content: `BHE families and neighbors - our beloved BHE desperately needs crossing guards for the 2017-18 school year.  Crossing guards are so essential to keeping our students safe and traffic moving during morning drop-off and afternoon pick-up.  Crossing guards earn <strong>$13.50/hour</strong> and can work <strong>2.5 hours/day</strong>.
 
 Please visit the <a href="http://austintexas.gov/sites/default/files/files/Public_Works/Child_Safety/Crossing_Guard_Application_Guide.pdf">online application guide</a> for more info and details on how to apply.  You can also contact <strong>Aurelia Pardo (512-441-0590)</strong> or <strong>Leticia Richardson (512-974-9181)</strong> for more information.
@@ -3264,9 +3395,10 @@ Please visit the <a href="http://austintexas.gov/sites/default/files/files/Publi
       },
       {
         id: 'bhe-directory',
-        title: `BHE Student and Family Directory`,
+        title: 'BHE Student and Family Directory',
         date: '2017-08-17',
-        excerpt: `New to BHE? Getting in the directory is easy. Just go to join.myschoolanywhere.com and use the invitation code bartonhills Already in the Directory? Update your information today`,
+        excerpt:
+          'New to BHE? Getting in the directory is easy. Just go to join.myschoolanywhere.com and use the invitation code bartonhills Already in the Directory? Update your information today',
         content: `<strong>New to BHE?</strong>
 Getting in the directory is easy.  Just go to <a href="http://join.myschoolanywhere.com">join.myschoolanywhere.com</a> and use the invitation code <strong>bartonhills</strong>
 
@@ -3280,9 +3412,10 @@ Getting in the directory is easy.  Just go to <a href="http://join.myschoolanyw
       },
       {
         id: 'meet-teacher-%e2%80%a2-thursday-august-17-%e2%80%a2-5-6-pm',
-        title: `Meet the Teacher • Thursday, August 17 • 5-6 pm`,
+        title: 'Meet the Teacher • Thursday, August 17 • 5-6 pm',
         date: '2017-08-14',
-        excerpt: `Come meet your teacher, see your new classroom and high five your friends. Bring your school supplies. If you pre-purchased school supplies, they will be in your classroom. You should receive a…`,
+        excerpt:
+          'Come meet your teacher, see your new classroom and high five your friends. Bring your school supplies. If you pre-purchased school supplies, they will be in your classroom. You should receive a…',
         content: `Come meet your teacher, see your new classroom and high five your friends. Bring your school supplies. If you pre-purchased school supplies, they will be in your classroom.
 
 You should receive a letter from your teacher on Wednesday. If you do not receive a letter, class lists will be posted on the bulletin board at the front of the school.
@@ -3294,9 +3427,10 @@ Here's to a great year!
       },
       {
         id: 'important-food-service-changes-2017-18',
-        title: `Important Food Service Changes for 2017-18`,
+        title: 'Important Food Service Changes for 2017-18',
         date: '2017-07-22',
-        excerpt: `In an effort to provide a more efficient way to access all Food Service needs, SchoolCafé will be introduced prior to the start of 2017-18 school year to help better connect Austin ISD families to…`,
+        excerpt:
+          'In an effort to provide a more efficient way to access all Food Service needs, SchoolCafé will be introduced prior to the start of 2017-18 school year to help better connect Austin ISD families to…',
         content: `In an effort to provide a more efficient way to access all Food Service needs, <strong>SchoolCafé</strong> will be introduced prior to the start of 2017-18 school year to help better connect Austin ISD families to school nutrition. With this transition comes changes in your child’s lunch line experience, as well as how you will access your student’s meal account, apply for meal benefits, and view menus.
 
 Beginning at the start of the 2017-18 school year, student meal accounts will <strong>no longer be managed through MySchoolBucks</strong>, but will be accessed by creating a SchoolCafé account. If a student has funds remaining at the end of the 2016-17 school year, they will <strong>automatically transfer</strong> from MySchoolBucks to SchoolCafé. To view balances or add money to a meal account, a SchoolCafé account must be created.
@@ -3328,9 +3462,10 @@ You can find more information about SchoolCafe by visiting their website at <a 
       },
       {
         id: 'help-bhe-enhance-atrium',
-        title: `Help BHE Enhance Our Atrium`,
+        title: 'Help BHE Enhance Our Atrium',
         date: '2017-07-17',
-        excerpt: `Denny Biggs and the Greenworks committee have a wonderful plan for updating our BHE atrium. Imagine a space right out of prehistoric times complete with a life-size dinosaur statue and new foliage!…`,
+        excerpt:
+          'Denny Biggs and the Greenworks committee have a wonderful plan for updating our BHE atrium. Imagine a space right out of prehistoric times complete with a life-size dinosaur statue and new foliage!…',
         content: `Denny Biggs and the Greenworks committee have a wonderful plan for updating our BHE atrium.  Imagine a space right out of prehistoric times complete with a life-size dinosaur statue and new foliage!
 
 We could use your help in making this a reality.  Please consider making a tax-deductible donation to make this dream a reality.  Your help is greatly appreciated!
@@ -3342,7 +3477,7 @@ We could use your help in making this a reality.  Please consider making a tax-
       },
       {
         id: 'online-school-supply-orders-now-june-15th',
-        title: `Online School Supply Orders -- Now through June 15th`,
+        title: 'Online School Supply Orders -- Now through June 15th',
         date: '2017-06-01',
         excerpt: `Online school supply ordering has now ended. If you missed the pre-packaged supplies, no worries - you can purchase your own and bring them to 'Meet Your Teacher' evening. School Supplies 2017-18…`,
         content: `<div>Online school supply ordering has now ended.  If you missed the pre-packaged supplies, no worries - you can purchase your own and bring them to 'Meet Your Teacher' evening.</div>
@@ -3470,7 +3605,7 @@ We could use your help in making this a reality.  Please consider making a tax-
     posts: [
       {
         id: '2017-18-school-supplies',
-        title: `2017-18 School Supplies`,
+        title: '2017-18 School Supplies',
         date: '2017-05-31',
         excerpt: `The BHE school supply list for the 2017-18 is here! School Supplies 2017-18 Please bring your school supplies on 'Meet Your Teacher' evening.`,
         content: `The BHE school supply list for the 2017-18 is here!
@@ -3500,7 +3635,7 @@ Happy Reading!
       },
       {
         id: 'talent-shows-slime-teacher',
-        title: `Talent Shows and Slime-a-Teacher`,
+        title: 'Talent Shows and Slime-a-Teacher',
         date: '2017-05-15',
         excerpt: `Thursday, May 18th is a big day for BHE students, teachers and families! We have a day chock full of talent shows and our first ever Slime-a-Teacher event! Don't miss it. Student Talent Show - K thru…`,
         content: `Thursday, May 18th is a big day for BHE students, teachers and families!  We have a day chock full of talent shows and our first ever Slime-a-Teacher event!  Don't miss it.
@@ -3516,9 +3651,10 @@ Happy Reading!
       },
       {
         id: 'love-bhe-teachers',
-        title: `We love you, BHE Teachers!`,
+        title: 'We love you, BHE Teachers!',
         date: '2017-04-28',
-        excerpt: `In honor of Teacher Appreciation Week, the BHE community wants our BHE teachers to know how much we are so grateful for you each and every day! A Teacher Takes a Hand Opens a Mind and Touches a Heart`,
+        excerpt:
+          'In honor of Teacher Appreciation Week, the BHE community wants our BHE teachers to know how much we are so grateful for you each and every day! A Teacher Takes a Hand Opens a Mind and Touches a Heart',
         content: `In honor of Teacher Appreciation Week, the BHE community wants our BHE teachers to know how much we are so grateful for you each and every day!
 
 <em><strong>A Teacher
@@ -3531,7 +3667,7 @@ and Touches a Heart</strong></em>
       },
       {
         id: 'eagle-yearbook-cover-art-contest',
-        title: `Eagle Yearbook Cover Art Contest`,
+        title: 'Eagle Yearbook Cover Art Contest',
         date: '2017-04-24',
         excerpt: `Break out your paintbrushes - it's time for the Eagle Yearbook cover art contest! All grades are welcome to submit an entry. Deadline is Friday, May 5th Eagle Yearbook Cover Contest Submissions Due`,
         content: `Break out your paintbrushes - it's time for the Eagle Yearbook cover art contest!  All grades are welcome to submit an entry.  Deadline is Friday, May 5th
@@ -3543,7 +3679,7 @@ and Touches a Heart</strong></em>
       },
       {
         id: 'celebrate-earth-day-bhe-family-landscaping-day',
-        title: `Celebrate Earth Day at BHE Family Landscaping Day`,
+        title: 'Celebrate Earth Day at BHE Family Landscaping Day',
         date: '2017-04-19',
         excerpt: `Come join us this Saturday for Family Landscaping Day at BHE. We'll show the Earth some love as we clean up the BHE ground. Family Landscaping Workday`,
         content: `Come join us this Saturday for Family Landscaping Day at BHE.  We'll show the Earth some love as we clean up the BHE ground.
@@ -3553,9 +3689,10 @@ and Touches a Heart</strong></em>
       },
       {
         id: 'lunch-menus-now-yumyummi-app',
-        title: `Lunch Menus now on YumYummi App`,
+        title: 'Lunch Menus now on YumYummi App',
         date: '2017-02-14',
-        excerpt: `Austin ISD lunch menus are now available on YumYummi. Just install the app on your Android or iPhone/iPad, and have school menus at your fingertips!`,
+        excerpt:
+          'Austin ISD lunch menus are now available on YumYummi. Just install the app on your Android or iPhone/iPad, and have school menus at your fingertips!',
         content: `Austin ISD lunch menus are now available on YumYummi.  Just install the app on your Android or iPhone/iPad, and have school menus at your fingertips!<a href="https://archive.bheeagles.com/wp-content/uploads/2017/02/Google-play.png">
 </a>
 <table class="alignleft">
@@ -3570,7 +3707,7 @@ and Touches a Heart</strong></em>
       },
       {
         id: 'calling-budding-scientists',
-        title: `Calling All Budding Scientists!`,
+        title: 'Calling All Budding Scientists!',
         date: '2017-01-09',
         excerpt: `The science fair deadline is approaching! All science fair displays are due to your child's Science teacher by January 24, 2017 . Teachers will look over the displays to ensure they meet all of the…`,
         content: `The science fair deadline is approaching!  All science fair displays are due to your child's Science teacher by <strong><span class="aBn" tabindex="0" data-term="goog_1637061111"><span class="aQJ">January 24, 2017</span></span></strong>. Teachers will look over the displays to ensure they meet all of the criteria. If displays need adjusting, students may take their displays home and return them. The Barton Hills Science Fair is <strong><span class="aBn" tabindex="0" data-term="goog_1637061112"><span class="aQJ">January 26, 2017</span></span></strong>.
@@ -3582,9 +3719,10 @@ Science fair packets can be picked up in the office. <strong>Science Fair is opt
       },
       {
         id: 'join-us-facility-master-plan-community-engagement-series',
-        title: `Join Us for the Facility Master Plan Community Engagement Series`,
+        title: 'Join Us for the Facility Master Plan Community Engagement Series',
         date: '2017-01-09',
-        excerpt: `As we continue to plan, shape and build our #AISDFuture, we need your input. Community members on the trustee-appointed Facilities and Bond Planning Advisory Committee continue to examine the…`,
+        excerpt:
+          'As we continue to plan, shape and build our #AISDFuture, we need your input. Community members on the trustee-appointed Facilities and Bond Planning Advisory Committee continue to examine the…',
         content: `As we continue to plan, shape and build our #AISDFuture, we need your input.
 
 Community members on the trustee-appointed Facilities and Bond Planning Advisory Committee continue to examine the consultants’ preliminary options, which have been reviewed with every school’s leadership. They will review community comments and bring recommendations to the Board of Trustees.
@@ -3653,9 +3791,10 @@ To learn more about the FMP process, visit AISD’s website and watch and share 
       },
       {
         id: '2017-2018-school-transfers',
-        title: `2017-2018 School Transfers`,
+        title: '2017-2018 School Transfers',
         date: '2017-01-09',
-        excerpt: `Austin ISD is currently accepting requests for school transfers for the 2017–18 school year. Applications for priority transfers and non-priority transfers will be accepted through 5 p.m. on Tuesday,…`,
+        excerpt:
+          'Austin ISD is currently accepting requests for school transfers for the 2017–18 school year. Applications for priority transfers and non-priority transfers will be accepted through 5 p.m. on Tuesday,…',
         content: `Austin ISD is currently accepting requests for school transfers for the 2017–18 school year. Applications for priority transfers and non-priority transfers will be accepted through <strong><span class="aBn" tabindex="0" data-term="goog_1637061155"><span class="aQJ">5 p.m.</span></span> on <span class="aBn" tabindex="0" data-term="goog_1637061156"><span class="aQJ">Tuesday, January 31, 2017</span></span></strong>.
 
 Applications and information about how to submit can be found at <a href="http://bhepta.us8.list-manage1.com/track/click?u=bec8051159f5dd775329aa6af&amp;id=b517e7b757&amp;e=bce17f9811" target="_blank" data-saferedirecturl="https://www.google.com/url?hl=en&amp;q=http://bhepta.us8.list-manage1.com/track/click?u%3Dbec8051159f5dd775329aa6af%26id%3Db517e7b757%26e%3Dbce17f9811&amp;source=gmail&amp;ust=1484060119014000&amp;usg=AFQjCNFeUD3avxqMhxculxc5LFh5UKx0Lw">https://www.austinisd.org/<wbr />transfer</a>`,
@@ -3663,7 +3802,7 @@ Applications and information about how to submit can be found at <a href="http:
       },
       {
         id: '6-flags-read-succeed-logs-due-friday',
-        title: `6 Flags Read to Succeed Logs due this Friday`,
+        title: '6 Flags Read to Succeed Logs due this Friday',
         date: '2017-01-04',
         excerpt: `Welcome back! Hope you all had a fabulous break filled with lots of fun, family and reading! 6 Flags Read to Succeed logs are due this Friday, January 6th . If you've misplaced your log, no worries -…`,
         content: `Welcome back!  Hope you all had a fabulous break filled with lots of fun, family and reading!  6 Flags Read to Succeed logs are due this <strong>Friday, January 6th</strong>.  If you've misplaced your log, no worries - just head on over to the Library website to print another copy:
@@ -3675,9 +3814,10 @@ Applications and information about how to submit can be found at <a href="http:
       },
       {
         id: 'claim-lost-found-items-dec-20th',
-        title: `Claim Your Lost and Found Items - by Dec 20th`,
+        title: 'Claim Your Lost and Found Items - by Dec 20th',
         date: '2016-12-12',
-        excerpt: `We have many items (coats, jackets, water bottles, lunch boxes) who have lost their owner! We will put everything on tables in the front hallway next week so please make sure you or your child take a…`,
+        excerpt:
+          'We have many items (coats, jackets, water bottles, lunch boxes) who have lost their owner! We will put everything on tables in the front hallway next week so please make sure you or your child take a…',
         content: `We have many items (coats, jackets, water bottles, lunch boxes) who have lost their owner!  We will put everything on tables in the front hallway next week so please make sure you or your child take a look for anything you have lost.  <strong>On <span class="aBn" tabindex="0" data-term="goog_1156039339"><span class="aQJ">Tuesday, December 20th</span></span>, we will be donating all leftover items to charity!</strong>
 
 <img class="aligncenter size-medium wp-image-4203" src="https://archive.bheeagles.com/wp-content/uploads/2016/12/lostfound-icon-300x225.png" alt="lostfound-icon" width="300" height="225" />`,
@@ -3685,9 +3825,10 @@ Applications and information about how to submit can be found at <a href="http:
       },
       {
         id: 'whole-earth-community-give-back-program',
-        title: `Whole Earth Community Give Back Program`,
+        title: 'Whole Earth Community Give Back Program',
         date: '2016-12-12',
-        excerpt: `Shop local and support Barton Hills Elementary. Whole Earth Provision Co. will give 5% of purchases back to Barton Hills Elementary. Remember to use the code below when shopping at Whole Earth…`,
+        excerpt:
+          'Shop local and support Barton Hills Elementary. Whole Earth Provision Co. will give 5% of purchases back to Barton Hills Elementary. Remember to use the code below when shopping at Whole Earth…',
         content: `Shop local and support Barton Hills Elementary. Whole Earth Provision Co. will give<strong> 5% of purchases</strong> back to Barton Hills Elementary.  Remember to use the code below when shopping at Whole Earth Provision Co.  This program is good <strong>December 3-<span class="aBn" tabindex="0" data-term="goog_1156039342"><span class="aQJ">24, 2016</span></span></strong>.
 
 <em>*code can be printed out or shown on a mobile device</em>
@@ -3697,7 +3838,7 @@ Applications and information about how to submit can be found at <a href="http:
       },
       {
         id: 'vote-aisd-2017-18-calendar',
-        title: `Vote on the AISD 2017-18 Calendar`,
+        title: 'Vote on the AISD 2017-18 Calendar',
         date: '2016-12-06',
         excerpt: `If you haven't already done so, get your vote in for the AISD 2017-18 School Year calendar. Three different options are being proposed. The survey closes at 11:59 pm on Wednesday, Dec 7 . Vote Now`,
         content: `If you haven't already done so, get your vote in for the AISD 2017-18 School Year calendar.  Three different options are being proposed.  The survey closes at <strong>11:59 pm on Wednesday, Dec 7</strong>.
@@ -3709,7 +3850,7 @@ Applications and information about how to submit can be found at <a href="http:
       },
       {
         id: 'fabpac-community-feedback-meetings',
-        title: `FABPAC Community Feedback Meetings`,
+        title: 'FABPAC Community Feedback Meetings',
         date: '2016-12-06',
         excerpt: `AISD has begun long-range facilities planning for AISD's schools. Several feedback meetings have been scheduled to share progress and solicit feedback from the public. Come learn and share your…`,
         content: `AISD has begun long-range facilities planning for AISD's schools.  Several feedback meetings have been scheduled to share progress and solicit feedback from the public.  Come learn and share your feedback on the future of our schools.
@@ -3724,7 +3865,7 @@ Upcoming Meetings:
       },
       {
         id: 'middle-school-fair-weekend',
-        title: `Middle School Fair this Weekend!`,
+        title: 'Middle School Fair this Weekend!',
         date: '2016-11-30',
         excerpt: `With the school year almost half over, it's time to start thinking about Middle School! Prospective middle school students can get a peak into the different middle schools AISD offers at this year's…`,
         content: `With the school year almost half over, it's time to start thinking about Middle School! Prospective middle school students can get a peak into the different middle schools AISD offers at this year's Middle School Fair - this Saturday, Dec 3 from 9 am - 12 pm at Kealing Middle School.
@@ -3734,9 +3875,10 @@ Upcoming Meetings:
       },
       {
         id: 'tomorrow-turkey-day-lunch',
-        title: `Tomorrow is Turkey Day Lunch!`,
+        title: 'Tomorrow is Turkey Day Lunch!',
         date: '2016-11-16',
-        excerpt: `Just a friendly reminder - tomorrow is Turkey Day Lunch! Hope to see you there. Turkey Day Lunch`,
+        excerpt:
+          'Just a friendly reminder - tomorrow is Turkey Day Lunch! Hope to see you there. Turkey Day Lunch',
         content: `Just a friendly reminder - tomorrow is Turkey Day Lunch!  Hope to see you there.
 
 <a href="http://bheeagles.com/calendar/turkey-day-lunch-2/">Turkey Day Lunch</a>`,
@@ -3744,9 +3886,10 @@ Upcoming Meetings:
       },
       {
         id: 'barton-hills-choir-makes-austin-chronicle-best-austin-list',
-        title: `Barton Hills Choir makes Austin Chronicle Best of Austin list!`,
+        title: 'Barton Hills Choir makes Austin Chronicle Best of Austin list!',
         date: '2016-11-10',
-        excerpt: `Congratulations to Mr. Tabone and the Barton Hills Choir for being named to the Austin Chronicle Best of Austin 2016 list! Best Elementary School Elective! Way to go, BHC!`,
+        excerpt:
+          'Congratulations to Mr. Tabone and the Barton Hills Choir for being named to the Austin Chronicle Best of Austin 2016 list! Best Elementary School Elective! Way to go, BHC!',
         content: `Congratulations to Mr. Tabone and the Barton Hills Choir for being named to the Austin Chronicle Best of Austin 2016 list!  Best Elementary School Elective!  Way to go, BHC!
 
 <a href="http://www.austinchronicle.com/best-of-austin/year:2016/poll:critics/category:nightlife/barton-hills-choir-best-elementary-school-elective/" target="_blank"><img class="aligncenter wp-image-4139 size-full" src="https://archive.bheeagles.com/wp-content/uploads/2016/11/best-elective.png" alt="best-elective" width="501" height="322" /></a>`,
@@ -3754,9 +3897,10 @@ Upcoming Meetings:
       },
       {
         id: 'shopping-amazon-holiday-season',
-        title: `Shopping at Amazon this Holiday Season`,
+        title: 'Shopping at Amazon this Holiday Season',
         date: '2016-11-08',
-        excerpt: `The BHE PTA earns money every time you shop at Amazon. Just shop using the following link and help earn money for our school! Shop Now at Amazon`,
+        excerpt:
+          'The BHE PTA earns money every time you shop at Amazon. Just shop using the following link and help earn money for our school! Shop Now at Amazon',
         content: `<a href="http://smile.amazon.com/ch/74-6086853" target="_blank"><img class="alignnone wp-image-4124 size-full" src="https://archive.bheeagles.com/wp-content/uploads/2016/11/amazon-smile.jpg" alt="amazon-smile" width="610" height="240" /></a>
 
 The BHE PTA earns money every time you shop at Amazon.  Just shop using the following link and help earn money for our school! <a href="http://smile.amazon.com/ch/74-6086853" target="_blank">Shop Now at Amazon</a>`,
@@ -3764,7 +3908,7 @@ The BHE PTA earns money every time you shop at Amazon.  Just shop using the fol
       },
       {
         id: 'help-define-future-bhe',
-        title: `Help Define the Future of BHE`,
+        title: 'Help Define the Future of BHE',
         date: '2016-10-24',
         excerpt: `Dear Class Parents, This year, building off the end-of-year survey many of you were kind enough to take ( see a summary of the results ), the PTA is working to develop a long-term "vision" for Barton…`,
         content: `Dear Class Parents,
@@ -3802,9 +3946,10 @@ To RSVP, please email Mina Kumar, PTA Community Engagement Chair at <a href="mai
       },
       {
         id: 'bhc-t-shirts-sale',
-        title: `BHC t-shirts on sale again`,
+        title: 'BHC t-shirts on sale again',
         date: '2016-10-21',
-        excerpt: `BHC t-shirts will be on sale for one more time this year - on Tuesday, October 25th from 7:10 - 7:45 am . They will be sold in the hallway . Please come early to avoid the rush - these shirts go…`,
+        excerpt:
+          'BHC t-shirts will be on sale for one more time this year - on Tuesday, October 25th from 7:10 - 7:45 am . They will be sold in the hallway . Please come early to avoid the rush - these shirts go…',
         content: `BHC t-shirts will be on sale for one more time this year - on <strong>Tuesday, October 25th </strong>from <strong>7:10 - 7:45 am</strong>. They will be sold <strong>in the hallway</strong>.  Please come early to avoid the rush - these shirts go quickly!
 
 $15 each, cash or check (made out to Barton Hills Elementary).  All sizes available - youth through adult
@@ -3814,7 +3959,7 @@ $15 each, cash or check (made out to Barton Hills Elementary).  All sizes avail
       },
       {
         id: 'bhe-big-top-wristbands-sale-now',
-        title: `BHE Big Top Wristbands on sale now!`,
+        title: 'BHE Big Top Wristbands on sale now!',
         date: '2016-10-20',
         excerpt: `Carnival time is almost upon us! And this year's Big Top is sure to be a blast! Wristband and food/drink tickets are on sale now. Purchase wristbands and food/drink tickets now`,
         content: `<a href="https://archive.bheeagles.com/wp-content/uploads/2016/09/unnamed.png"><img class="aligncenter size-medium wp-image-3797" src="https://archive.bheeagles.com/wp-content/uploads/2016/09/unnamed-300x118.png" alt="Big Top Carnival" width="300" height="118" /></a>
@@ -3826,7 +3971,7 @@ Carnival time is almost upon us!  And this year's Big Top is sure to be a blast
       },
       {
         id: 'golden-sneaker-goes',
-        title: `And the Golden Sneaker goes to...`,
+        title: 'And the Golden Sneaker goes to...',
         date: '2016-10-06',
         excerpt: `Here are the latest standings. You have one more day to snatch that Golden Sneaker! Monday: Mrs. Halbert's 1st Grade Tuesday: Mrs. Halbert's 1st Grade Wednesday: Mrs. Bartlett's 1st Grade Thursday:…`,
         content: `Here are the latest standings.  You have <strong>one more day</strong> to snatch that Golden Sneaker!
@@ -3841,9 +3986,10 @@ Those 1st graders sure know how to walk and bike!`,
       },
       {
         id: 'egg-cartons-needed',
-        title: `Egg Cartons Needed`,
+        title: 'Egg Cartons Needed',
         date: '2016-10-06',
-        excerpt: `For the Class art work silent auction project , we need to collect cardboard egg cartons . Both 1/2 dozen and dozen sizes will work. Of course, the sooner we get them the better. You can drop off in…`,
+        excerpt:
+          'For the Class art work silent auction project , we need to collect cardboard egg cartons . Both 1/2 dozen and dozen sizes will work. Of course, the sooner we get them the better. You can drop off in…',
         content: `For the <strong>Class art work silent auction project</strong>, we need to collect <strong>cardboard egg cartons</strong>. Both 1/2 dozen and dozen sizes will work.  Of course, the sooner we get them the better. You can drop off in the front office. There will be a container.
 
 <a href="https://archive.bheeagles.com/wp-content/uploads/2016/10/cartons.png"><img class="aligncenter size-medium wp-image-4051" src="https://archive.bheeagles.com/wp-content/uploads/2016/10/cartons-300x228.png" alt="cartons" width="300" height="228" /></a>`,
@@ -3851,9 +3997,10 @@ Those 1st graders sure know how to walk and bike!`,
       },
       {
         id: 'carnival-sponsorships-available',
-        title: `Carnival Sponsorships Available!`,
+        title: 'Carnival Sponsorships Available!',
         date: '2016-10-04',
-        excerpt: `Step right up! Carnival sponsorships for the BHE Big Top Carnival are now available! Sponsor the Carnival Now Are you a business owner and a parent? Your business can sponsor the Carnival and your…`,
+        excerpt:
+          'Step right up! Carnival sponsorships for the BHE Big Top Carnival are now available! Sponsor the Carnival Now Are you a business owner and a parent? Your business can sponsor the Carnival and your…',
         content: `Step right up!  Carnival sponsorships for the BHE Big Top Carnival are now available!
 
 <a href="http://bheeagles.com/fundraising/carnival/available-sponsor-levels-2/">Sponsor the Carnival Now</a>
@@ -3866,9 +4013,10 @@ Those 1st graders sure know how to walk and bike!`,
       },
       {
         id: 'and-the-president-is',
-        title: `And the President is...`,
+        title: 'And the President is...',
         date: '2016-10-04',
-        excerpt: `Hilary Clinton! BHE held a mock election today. Students exercised their civic duty by voting in a mock election . The results were: 82% Hilary Clinton 10.5% Other 7% Donald Trump .5% Jill Stein and…`,
+        excerpt:
+          'Hilary Clinton! BHE held a mock election today. Students exercised their civic duty by voting in a mock election . The results were: 82% Hilary Clinton 10.5% Other 7% Donald Trump .5% Jill Stein and…',
         content: `Hilary Clinton! BHE held a mock election today. Students exercised their civic duty by voting in a mock <span class="il">election</span>.
 
 The results were:
@@ -3884,9 +4032,10 @@ Thank you to the volunteers who set up and oversaw the election. Thanks to <a hr
       },
       {
         id: 'new-bhc-t-shirts',
-        title: `New BHC t-shirts are here!`,
+        title: 'New BHC t-shirts are here!',
         date: '2016-09-28',
-        excerpt: `The new purple BHC t-shirts are here! Get your t-shirts on Thursday, Sept 29 during drop-off in the cafeteria. T-shirts are $15 each and can be purchased with cash or check (made out to Barton Hills…`,
+        excerpt:
+          'The new purple BHC t-shirts are here! Get your t-shirts on Thursday, Sept 29 during drop-off in the cafeteria. T-shirts are $15 each and can be purchased with cash or check (made out to Barton Hills…',
         content: `The new purple BHC t-shirts are here!  Get your t-shirts on <strong>Thursday, Sept 29</strong> during drop-off in the cafeteria.  T-shirts are $15 each and can be purchased with cash or check (made out to Barton Hills Elementary). Exact change is appreciated.
 
 Your child does not have to be in choir to buy a shirt. We'll have all sizes ranging from youth small to adult 2XL.
@@ -3896,7 +4045,7 @@ Your child does not have to be in choir to buy a shirt. We'll have all sizes ran
       },
       {
         id: 'calling-all-decorators',
-        title: `Calling All Decorators`,
+        title: 'Calling All Decorators',
         date: '2016-09-22',
         excerpt: `The Big Top Carnival needs you! The Decorations Committee still needs a few more volunteers to help out with carnival decorations. Not very handy with scissors and tape? Don't consider yourself the…`,
         content: `The Big Top Carnival needs you!  The Decorations Committee still needs a few more volunteers to help out with carnival decorations.  Not very handy with scissors and tape? Don't consider yourself the next Martha Stewart? No worries!  This is a <em>no experience required</em> job. To find out how you can help, contact the Decorations Committee Chair, <a href="mailto:kirsten@handinhandworkshops.com">Kirsten Nottleson</a>.`,
@@ -3904,9 +4053,10 @@ Your child does not have to be in choir to buy a shirt. We'll have all sizes ran
       },
       {
         id: 'support-bhe-shopping-amazon',
-        title: `Support BHE by Shopping at Amazon`,
+        title: 'Support BHE by Shopping at Amazon',
         date: '2016-09-16',
-        excerpt: `Loving shopping on Amazon? Did you know that through the AmazonSmile program, you can earn money for BHE while shopping at Amazon? Up to 10% of your purchase will be donated to the Barton Hills PTA.…`,
+        excerpt:
+          'Loving shopping on Amazon? Did you know that through the AmazonSmile program, you can earn money for BHE while shopping at Amazon? Up to 10% of your purchase will be donated to the Barton Hills PTA.…',
         content: `Loving shopping on Amazon?  Did you know that through the AmazonSmile program, you can earn money for BHE while shopping at Amazon?  Up to 10% of your purchase will be donated to the Barton Hills PTA.
 
 <a href="https://smile.amazon.com/ch/74-6086853" target="_blank">Shop Now</a>
@@ -3916,9 +4066,10 @@ Your child does not have to be in choir to buy a shirt. We'll have all sizes ran
       },
       {
         id: 'construction-updates',
-        title: `Construction Updates`,
+        title: 'Construction Updates',
         date: '2016-09-12',
-        excerpt: `You may have noticed that the City striped the new car and dedicated bike lanes on Barton Hills Drive last week. There are also new no parking signs posted on the school side of Barton Hills drive as…`,
+        excerpt:
+          'You may have noticed that the City striped the new car and dedicated bike lanes on Barton Hills Drive last week. There are also new no parking signs posted on the school side of Barton Hills drive as…',
         content: `You may have noticed that the City striped the new car and dedicated bike lanes on Barton Hills Drive last week. There are also new no parking signs posted on the school side of Barton Hills drive as well as along Homedale drive.  Additionally, while not painted yet, the bike lane runs through the entrance to the front drive.<strong> If you are pulling into the front drive at pick up or drop off, do not block the bike lane with any part of your car. </strong>
 
 Please be patient as we are all getting used to the changes in parking and traffic flows. With the addition of the bike lanes and concrete barriers, Barton Hills drive is narrower, the side streets are used more heavily, and there is heavy pedestrian activity at the crosswalks.`,
@@ -3926,7 +4077,7 @@ Please be patient as we are all getting used to the changes in parking and traff
       },
       {
         id: 'marathon-kids',
-        title: `Marathon Kids!`,
+        title: 'Marathon Kids!',
         date: '2016-09-12',
         excerpt: `Lace up your running shoes, it's time for Marathon Kids! Once again, BHE will be participating in Marathon Kids. Read more here: Marathon Kids`,
         content: `Lace up your running shoes, it's time for Marathon Kids!  Once again, BHE will be participating in Marathon Kids.  Read more here: <a href="http://bheeagles.com/marathon-kids/">Marathon Kids</a>
@@ -3936,7 +4087,7 @@ Please be patient as we are all getting used to the changes in parking and traff
       },
       {
         id: 'annual-fund-slime-o-meter',
-        title: `Annual Fund Slime-o-Meter`,
+        title: 'Annual Fund Slime-o-Meter',
         date: '2016-09-12',
         excerpt: `Annual Fund Slime-o-Meter! Annual Fund is Barton Hills Elementary PTA's hassle free fundraising campaign. When you give, each child listed on your donation will be eligible to slime a teacher at the…`,
         content: `<strong>Annual Fund Slime-o-Meter!</strong>
@@ -3957,17 +4108,20 @@ Let's work together to achieve 100% participation in Annual Fund this school yea
       },
       {
         id: '2nd-grade-fall-book-drive',
-        title: `2nd Grade Fall Book Drive`,
+        title: '2nd Grade Fall Book Drive',
         date: '2016-09-12',
-        excerpt: `In addition to our Spring Book Drive, the 2 nd graders will sponsor a book drive in mid-October. Gently used & new books will be given to another AISD school through the Austin Retired Teachers…`,
-        content: `In addition to our Spring Book Drive, the 2<sup>nd</sup> graders will sponsor a book drive in mid-October.  Gently used &amp; new books will be given to another AISD school through the Austin Retired Teachers Association.  Don’t want to store these books at home as you clean out your shelves?  Bring them to the office for storage until October.  Thank you!`,
+        excerpt:
+          'In addition to our Spring Book Drive, the 2 nd graders will sponsor a book drive in mid-October. Gently used & new books will be given to another AISD school through the Austin Retired Teachers…',
+        content:
+          'In addition to our Spring Book Drive, the 2<sup>nd</sup> graders will sponsor a book drive in mid-October.  Gently used &amp; new books will be given to another AISD school through the Austin Retired Teachers Association.  Don’t want to store these books at home as you clean out your shelves?  Bring them to the office for storage until October.  Thank you!',
         category: 'News',
       },
       {
         id: 'welcome-back-bhe',
-        title: `Welcome Back to BHE!`,
+        title: 'Welcome Back to BHE!',
         date: '2016-08-22',
-        excerpt: `Welcome back BHE students, teachers and staff! And a hearty welcome to the BHE family to our new teachers and staff. This year, school hours will be 7:45 am - 2:57 pm . Wishing you all a great first…`,
+        excerpt:
+          'Welcome back BHE students, teachers and staff! And a hearty welcome to the BHE family to our new teachers and staff. This year, school hours will be 7:45 am - 2:57 pm . Wishing you all a great first…',
         content: `Welcome back BHE students, teachers and staff!  And a hearty welcome to the BHE family to our new teachers and staff.  This year, school hours will be <strong>7:45 am - 2:57 pm</strong>.
 
 Wishing you all a great first week.
@@ -3979,7 +4133,7 @@ Wishing you all a great first week.
       },
       {
         id: 'come-meet-teacher',
-        title: `Come and Meet Your Teacher!`,
+        title: 'Come and Meet Your Teacher!',
         date: '2016-08-03',
         excerpt: `It's August - time to start thinking about heading back to BHE! What a better way to do that than a chance to meet your teacher for the next year. Come to BHE on August 18th, 5-6 pm to meet your…`,
         content: `It's August - time to start thinking about heading back to BHE!  What a better way to do that than a chance to meet your teacher for the next year.  Come to BHE on August 18th, 5-6 pm to meet your 2016-17 teacher and classmates.  Welcome back!
@@ -3989,7 +4143,7 @@ Wishing you all a great first week.
       },
       {
         id: '2016-17-school-supplies',
-        title: `2016-17 School Supplies`,
+        title: '2016-17 School Supplies',
         date: '2016-07-27',
         excerpt: `Hard to believe but school is just around the corner! If you didn't get in on ordering pre-packaged school supplies online, no worries - there is plenty of time yet to get your supplies in order.…`,
         content: `Hard to believe but school is just around the corner!  If you didn't get in on ordering pre-packaged school supplies online, no worries - there is plenty of time yet to get your supplies in order.
@@ -4003,9 +4157,10 @@ Bring your school supplies to Meet the Teacher (more details coming soon).
       },
       {
         id: 'online-school-supply-orders',
-        title: `Online School Supply Orders--Now through June 28!`,
+        title: 'Online School Supply Orders--Now through June 28!',
         date: '2016-06-15',
-        excerpt: `Pre-Order Your School Supplies Now for 2016-2017 Avoid the last minute rush to find all of the items on your school supplies list and order a prepackaged set of school supplies now. Due to some…`,
+        excerpt:
+          'Pre-Order Your School Supplies Now for 2016-2017 Avoid the last minute rush to find all of the items on your school supplies list and order a prepackaged set of school supplies now. Due to some…',
         content: `<div><strong><span style="color: #38761d; font-size: large;"><a href="https://archive.bheeagles.com/wp-content/uploads/2016/06/hero-shot.jpg"><img class="aligncenter size-medium wp-image-3667" src="https://archive.bheeagles.com/wp-content/uploads/2016/06/hero-shot-300x212.jpg" alt="hero-shot" width="300" height="212" /></a></span><span style="color: #38761d; font-size: large;">Pre-Order Your School Supplies Now for 2016-2017</span>
 </strong></div>
 <div></div>
@@ -4030,9 +4185,10 @@ Bring your school supplies to Meet the Teacher (more details coming soon).
     posts: [
       {
         id: 'welcome-kindness-week',
-        title: `Welcome to Kindness Week!`,
+        title: 'Welcome to Kindness Week!',
         date: '2016-04-04',
-        excerpt: `This week is Kindness Week at BHE! Our BHE Superhero 6th graders will be on the lookout for students showing acts of kindness! For a line-up of the many fun activities happening this week, see…`,
+        excerpt:
+          'This week is Kindness Week at BHE! Our BHE Superhero 6th graders will be on the lookout for students showing acts of kindness! For a line-up of the many fun activities happening this week, see…',
         content: `This week is <strong>Kindness Week</strong> at BHE!  Our BHE Superhero 6th graders will be on the lookout for students showing acts of kindness!  For a line-up of the many fun activities happening this week, see <a href="http://bheeagles.com/calendar/kindness-week/">Kindness Week</a>
 
  
@@ -4042,9 +4198,10 @@ Bring your school supplies to Meet the Teacher (more details coming soon).
       },
       {
         id: 'february-pta-notes',
-        title: `February PTA Notes`,
+        title: 'February PTA Notes',
         date: '2016-02-09',
-        excerpt: `Lend a Hand There will be open positions on the BHE PTA executive board as well as openings for several Standing Committee Chair positions for the 2016-17 school year. If you would like to server on…`,
+        excerpt:
+          'Lend a Hand There will be open positions on the BHE PTA executive board as well as openings for several Standing Committee Chair positions for the 2016-17 school year. If you would like to server on…',
         content: `<strong>Lend a Hand</strong>
 
 There will be open positions on the BHE PTA executive board as well as openings for several Standing Committee Chair positions for the 2016-17 school year.  If you would like to server on the BHE PTA next year in any capacity, please contact PTA President Nicole Truelock.
@@ -4056,9 +4213,10 @@ There will be open positions on the BHE PTA executive board as well as openings 
       },
       {
         id: 'health-and-wellness-fair-fun-run-tonight',
-        title: `Health and Wellness Fair + Fun Run Tonight!`,
+        title: 'Health and Wellness Fair + Fun Run Tonight!',
         date: '2016-02-04',
-        excerpt: `The BHE Student Wellness Team is looking forward to seeing all of you at the Health and Wellness Fair + Family Fun Run tonight! Join us for some unforgettable fun as we learn all about good health…`,
+        excerpt:
+          'The BHE Student Wellness Team is looking forward to seeing all of you at the Health and Wellness Fair + Family Fun Run tonight! Join us for some unforgettable fun as we learn all about good health…',
         content: `The BHE Student Wellness Team is looking forward to seeing all of you at the Health and Wellness Fair + Family Fun Run tonight!  Join us for some unforgettable fun as we learn all about good health and wellness.  We'll have a variety of interesting vendors and some great prizes!
 
 Learn more here: <a href="http://bheeagles.com/2016/01/7th-annual-bhe-health-and-wellness-fair/">7th Annual BHE Health and Wellness Fair</a>
@@ -4070,7 +4228,7 @@ Learn more here: <a href="http://bheeagles.com/2016/01/7th-annual-bhe-health-an
       },
       {
         id: 'day-of-11-song-show-this-saturday',
-        title: `Day of 11 Song Show this Saturday!`,
+        title: 'Day of 11 Song Show this Saturday!',
         date: '2016-01-28',
         excerpt: `It's almost here! The Day of 11 Song Show for Kinder thru 3rd grade is this Saturday. Hope to see you there! Fore more details, see http://bheeagles.com/calendar/day-of-11-song-show/`,
         content: `It's almost here!  The Day of 11 Song Show for Kinder thru 3rd grade is this Saturday.  Hope to see you there!
@@ -4080,9 +4238,10 @@ Fore more details, see <a href="http://bheeagles.com/calendar/day-of-11-song-sh
       },
       {
         id: '7th-annual-bhe-health-and-wellness-fair',
-        title: `7th Annual BHE Health and Wellness Fair`,
+        title: '7th Annual BHE Health and Wellness Fair',
         date: '2016-01-25',
-        excerpt: `Get ready for the 7th Annual BHE Health and Wellness Fair and Family Fun Run on Thursday, Feb 4th! The Family Fun Run is from 5:00 - 5:30 pm on the BHE track. Each lap gets you entered to win some…`,
+        excerpt:
+          'Get ready for the 7th Annual BHE Health and Wellness Fair and Family Fun Run on Thursday, Feb 4th! The Family Fun Run is from 5:00 - 5:30 pm on the BHE track. Each lap gets you entered to win some…',
         content: `Get ready for the 7th Annual BHE <strong>Health and Wellness Fair</strong> and <strong>Family Fun Run </strong>on <strong>Thursday, Feb 4th!</strong>  The Family Fun Run is from <strong>5:00 - 5:30</strong> <strong>pm </strong>on the BHE track.  Each lap gets you entered to win some fabulous prizes!  Students must have a parent with them to run.
 
 And be sure to bring your bike and helmet for a free check from <a href="http://mellowjohnnys.com/" target="_blank">Mellow Johnny's Bike Shop</a>.
@@ -4127,17 +4286,19 @@ Many, many thanks to our wonderful sponsors:
       },
       {
         id: 'aisd-gifted-and-talented-nomination-window',
-        title: `AISD Gifted and Talented Nomination Window`,
+        title: 'AISD Gifted and Talented Nomination Window',
         date: '2016-01-18',
-        excerpt: `The window for submitting nominations for the AISD Gifted and Talented program is now open. Nominations are accepted through January 22 . Forms are available in the BHE office or can be downloaded…`,
+        excerpt:
+          'The window for submitting nominations for the AISD Gifted and Talented program is now open. Nominations are accepted through January 22 . Forms are available in the BHE office or can be downloaded…',
         content: `The window for submitting nominations for the AISD Gifted and Talented program is now open.  Nominations are accepted through <strong>January 22</strong>.  Forms are available in the BHE office or can be downloaded from <a href="http://www.austinisd.org/academics/advancedacademics/gifted/parent-corner">http://www.austinisd.org/academics/advancedacademics/gifted/parent-corner</a>`,
         category: 'News',
       },
       {
         id: 'aisd-parent-survey',
-        title: `Share Your Feedback on BHE`,
+        title: 'Share Your Feedback on BHE',
         date: '2016-01-18',
-        excerpt: `As AISD continues to strive for excellence in preparing our students for academic success, we encourage parents to offer feedback on the 2015-2016 school year by completing the AISD Parent Survey.…`,
+        excerpt:
+          'As AISD continues to strive for excellence in preparing our students for academic success, we encourage parents to offer feedback on the 2015-2016 school year by completing the AISD Parent Survey.…',
         content: `As AISD continues to strive for excellence in preparing our students for academic success, we encourage parents to offer feedback on the 2015-2016 school year by completing the AISD Parent Survey. Your opinions are important and will be taken into consideration as we strive to serve our students better.
 
 Surveys have been sent home with BHE students and can also be completed online: <a href="http://2015-16 Parent and Families Survey">http://www.austinisd.org/announcements/2015-16-parent-families-survey-now-available</a> (available in English, Spanish and Vietnamese).`,
@@ -4145,15 +4306,16 @@ Surveys have been sent home with BHE students and can also be completed online:�
       },
       {
         id: 'calling-all-graduating-seniors',
-        title: `Calling All Graduating Seniors!`,
+        title: 'Calling All Graduating Seniors!',
         date: '2016-01-08',
-        excerpt: `If you are a Senior graduating this year who previously attended Barton Hills Elementary for 2 consecutive years, you may be eligible to apply for the Nick Akery Scholarship. Applications are due on…`,
+        excerpt:
+          'If you are a Senior graduating this year who previously attended Barton Hills Elementary for 2 consecutive years, you may be eligible to apply for the Nick Akery Scholarship. Applications are due on…',
         content: `If you are a Senior graduating this year who previously attended Barton Hills Elementary for 2 consecutive years, you may be eligible to apply for the Nick Akery Scholarship.  Applications are due on <strong>April 29, 2015</strong>.  For more information on eligibility and applying, see <a href="http://bheeagles.com/pta-information/nick-akery-scholarship/">Nick Akery Scholarship</a>`,
         category: 'News',
       },
       {
         id: 'teacher-appreciation-cookietrail-mix-exchange',
-        title: `Teacher Appreciation Cookie/Trail Mix Exchange`,
+        title: 'Teacher Appreciation Cookie/Trail Mix Exchange',
         date: '2015-11-24',
         excerpt: `Our annual teacher appreciation cookie and trail mix exchange is coming up! This year, it will be held on Friday, December 11th. Start thinking of some cookies you'd like to contribute. Volunteers…`,
         content: `Our annual teacher appreciation cookie and trail mix exchange is coming up!  This year, it will be held on Friday, December 11th.  Start thinking of some cookies you'd like to contribute.
@@ -4165,9 +4327,10 @@ Volunteers are needed to help that Friday with the setup, clean up and organizat
       },
       {
         id: 'congrats-reflections-students',
-        title: `Congrats Reflections Students`,
+        title: 'Congrats Reflections Students',
         date: '2015-11-16',
-        excerpt: `Thank you to all the BHE students who participated in the Reflections Program and shared their artistic talents. All of the entries were very thoughtful and creative and the judges had a difficult…`,
+        excerpt:
+          'Thank you to all the BHE students who participated in the Reflections Program and shared their artistic talents. All of the entries were very thoughtful and creative and the judges had a difficult…',
         content: `Thank you to all the BHE students who participated in the Reflections Program and shared their artistic talents. All of the entries were very thoughtful and creative and the judges had a difficult time making their decisions. Judging was conducted anonymously by qualified judges from the Barton Hills community and the scores were very close.
 
 A special congratulations to the following BHE students who will advance to the Austin Area Regionals and have received an award of excellence:
@@ -4287,17 +4450,20 @@ Photographer</td>
       },
       {
         id: 'no-school-wed-nov-11th',
-        title: `No School Wed. Nov 11th`,
+        title: 'No School Wed. Nov 11th',
         date: '2015-11-04',
-        excerpt: `Just a friendly reminder - there is no school next Wednesday, November 11th. Enjoy your day off!`,
-        content: `Just a friendly reminder - there is no school next Wednesday, November 11th.  Enjoy your day off!`,
+        excerpt:
+          'Just a friendly reminder - there is no school next Wednesday, November 11th. Enjoy your day off!',
+        content:
+          'Just a friendly reminder - there is no school next Wednesday, November 11th.  Enjoy your day off!',
         category: 'News',
       },
       {
         id: 'sneak-peek-at-silent-auction-items',
-        title: `Sneak Peek at Silent Auction Items`,
+        title: 'Sneak Peek at Silent Auction Items',
         date: '2015-10-30',
-        excerpt: `Our exciting BHE carnival is just around the corner, and back again this year is the silent auction! Get a sneak peek at all of the wonderful items available for bidding: Silent Auction Items Bidding…`,
+        excerpt:
+          'Our exciting BHE carnival is just around the corner, and back again this year is the silent auction! Get a sneak peek at all of the wonderful items available for bidding: Silent Auction Items Bidding…',
         content: `Our exciting BHE carnival is just around the corner, and back again this year is the silent auction!  Get a sneak peek at all of the wonderful items available for bidding:
 
 <a href="http://bheeagles.com/fundraising/carnival/silent-auction-2/">Silent Auction Items</a>
@@ -4307,7 +4473,7 @@ Bidding starts at noon.  Cash, check and credit cards are accepted.`,
       },
       {
         id: 'restaurant-gift-certificates-with-carnival-sponsorships',
-        title: `Restaurant Gift Certificates with Carnival Sponsorships`,
+        title: 'Restaurant Gift Certificates with Carnival Sponsorships',
         date: '2015-10-22',
         excerpt: `Craving a nice dinner out at a delicious Austin restaurant? Then you don't want to miss this opportunity! We are giving $100 restaurant gift certificates with carnival sponsors. Don't delay - this…`,
         content: `Craving a nice dinner out at a delicious Austin restaurant?  Then you don't want to miss this opportunity!  We are giving $100 restaurant gift certificates with carnival sponsors.  Don't delay - this offer ends <strong>in two days. </strong> More details here:
@@ -4317,9 +4483,10 @@ Bidding starts at noon.  Cash, check and credit cards are accepted.`,
       },
       {
         id: 'voting-open-for-2016-2017-aisd-calendar',
-        title: `Voting Open for 2016-2017 AISD Calendar`,
+        title: 'Voting Open for 2016-2017 AISD Calendar',
         date: '2015-10-16',
-        excerpt: `Austin ISD is currently working on the calendar for the 2016-2017 school year and are seeking your input. Parents and staff are encouraged to vote for one of the two different options:…`,
+        excerpt:
+          'Austin ISD is currently working on the calendar for the 2016-2017 school year and are seeking your input. Parents and staff are encouraged to vote for one of the two different options:…',
         content: `Austin ISD is currently working on the calendar for the 2016-2017 school year and are seeking your input.  Parents and staff are encouraged to vote for one of the two different options:
 
 <a href="http://www.austinisd.org/announcements/vote-options-2016-17-school-calendar-votar-en-opciones-para-el-calendario-2016-17">http://www.austinisd.org/announcements/vote-options-2016-17-school-calendar-votar-en-opciones-para-el-calendario-2016-17</a>`,
@@ -4327,15 +4494,16 @@ Bidding starts at noon.  Cash, check and credit cards are accepted.`,
       },
       {
         id: 'congrats-barton-hills-choir',
-        title: `Congrats, Barton Hills Choir`,
+        title: 'Congrats, Barton Hills Choir',
         date: '2015-10-14',
-        excerpt: `Congratulations to the Barton Hills Choir on another two successful weekends performing at ACL. If you missed it, you can catch some videos from the shows on the Barton Hills Choir YouTube channel .`,
+        excerpt:
+          'Congratulations to the Barton Hills Choir on another two successful weekends performing at ACL. If you missed it, you can catch some videos from the shows on the Barton Hills Choir YouTube channel .',
         content: `Congratulations to the Barton Hills Choir on another two successful weekends performing at ACL.  If you missed it, you can catch some videos from the shows on the <a href="https://www.youtube.com/channel/UCrpZzzRXgZIHHQbc-mBZKpQ">Barton Hills Choir YouTube channel</a>.`,
         category: 'News',
       },
       {
         id: 'and-the-golden-sneaker-goes-to',
-        title: `And the Golden Sneaker goes to...`,
+        title: 'And the Golden Sneaker goes to...',
         date: '2015-10-07',
         excerpt: `Thanks to all for participating in Walk and Bike to School week. Mrs. Schroeder's Kindergarten class ran away with it! Walk and Bike to school week may be over, but the fun doesn't have to end! We…`,
         content: `Thanks to all for participating in Walk and Bike to School week.  Mrs. Schroeder's Kindergarten class ran away with it!
@@ -4355,9 +4523,10 @@ Friday: <strong>Mrs. Schroeder's Kindergarten</strong>`,
       },
       {
         id: 'whose-going-to-get-the-golden-sneaker',
-        title: `Whose going to get the Golden Sneaker?`,
+        title: 'Whose going to get the Golden Sneaker?',
         date: '2015-10-02',
-        excerpt: `Next week, October 5-9, is Walk and Bike to School Week ! The class with the greatest percentage of walkers and bikers each day will be presented with the Golden Sneaker Award. On Wednesday, join…`,
+        excerpt:
+          'Next week, October 5-9, is Walk and Bike to School Week ! The class with the greatest percentage of walkers and bikers each day will be presented with the Golden Sneaker Award. On Wednesday, join…',
         content: `Next week, October 5-9, is <strong>Walk and Bike to School Week</strong>!  The class with the greatest percentage of walkers and bikers each day will be presented with the <strong>Golden Sneaker Award.  </strong>On Wednesday, join Mellow Johnny's after school for a Bike and Helmet safety check.
 
 Good luck!
@@ -4367,9 +4536,10 @@ Good luck!
       },
       {
         id: 'support-bhe-with-a-t-shirt',
-        title: `Support BHE with a T-Shirt`,
+        title: 'Support BHE with a T-Shirt',
         date: '2015-09-08',
-        excerpt: `BHE School T-shirt Sales BHE school t-shirts are available for sale through Friday, September 11 . They make a great gift for siblings, parents, grandparents or other friends of BHE. BHE t-shirts can…`,
+        excerpt:
+          'BHE School T-shirt Sales BHE school t-shirts are available for sale through Friday, September 11 . They make a great gift for siblings, parents, grandparents or other friends of BHE. BHE t-shirts can…',
         content: `<div><strong>BHE School T-shirt Sales</strong></div>
 <div>BHE school t-shirts are available for sale through <strong>Friday, September 11</strong>.  They make a great gift for siblings, parents, grandparents or other friends of BHE.  BHE t-shirts can be purchased online at <a href="http://bhepta.us8.list-manage2.com/track/click?u=bec8051159f5dd775329aa6af&amp;id=61c742210b&amp;e=bce17f9811" target="_blank">http://bheeagles.com/<wbr />fundraising/payments-and-<wbr />donations/</a></div>
 <div></div>
@@ -4378,7 +4548,7 @@ Good luck!
       },
       {
         id: 'bhe-annual-fund',
-        title: `BHE Annual Fund`,
+        title: 'BHE Annual Fund',
         date: '2015-09-08',
         excerpt: `What is the BHE Annual Fund? The BHE Annual Fund is Barton Hills Elementary PTA's hassle free fundraising campaign. The BHE PTA raises funds each school year via two fundraisers - the Annual Fund and…`,
         content: `<strong>What is the BHE Annual Fund? </strong>
@@ -4419,9 +4589,10 @@ Let's work together to achieve 100% participation in Annual Fund this school yea
       },
       {
         id: 'back-to-school-night-%e2%80%a2-thursday-september-3',
-        title: `Back to School Night • Thursday, September 3`,
+        title: 'Back to School Night • Thursday, September 3',
         date: '2015-08-29',
-        excerpt: `Join us for Back to School Night 5:30 Kinder and New Parent Orientation in the Library 6:30 PTA General Assembly Meeting in the Cafeteria 7:00 Classroom presentations There will be sign ups for after…`,
+        excerpt:
+          'Join us for Back to School Night 5:30 Kinder and New Parent Orientation in the Library 6:30 PTA General Assembly Meeting in the Cafeteria 7:00 Classroom presentations There will be sign ups for after…',
         content: `Join us for Back to School Night
 
 5:30 Kinder and New Parent Orientation in the Library
@@ -4437,9 +4608,10 @@ Child care will be provided by Earth Kids. Please reserve your space. Space is l
       },
       {
         id: 'first-day-of-school',
-        title: `First Day of School`,
+        title: 'First Day of School',
         date: '2015-08-23',
-        excerpt: `Monday, August 24th | School bell rings at 7:45 am Report to your classroom on Monday. Unless otherwise instructed, drop off will be in the cafeteria for the rest of the week. Be sure to plan plenty…`,
+        excerpt:
+          'Monday, August 24th | School bell rings at 7:45 am Report to your classroom on Monday. Unless otherwise instructed, drop off will be in the cafeteria for the rest of the week. Be sure to plan plenty…',
         content: `<strong>Monday, August 24th  |  School bell rings at 7:45 am</strong>
 Report to your classroom on Monday. Unless otherwise instructed, drop off will be in the cafeteria for the rest of the week. Be sure to plan plenty of time for those first day of school photos, hugs and kisses, and a cheerful wave before the bell rings. Your kids and the teachers will be excited to begin class promptly once the bell rings.
 
@@ -4450,15 +4622,16 @@ BHEPTA is pleased to sponsor a welcome coffee for all parents. Stop in for a BOO
       },
       {
         id: 'meet-your-bhe-teacher',
-        title: `Meet Your BHE Teacher`,
+        title: 'Meet Your BHE Teacher',
         date: '2015-08-10',
-        excerpt: `With summer winding down, it is time to come and meet your BHE teacher for the 2015-16 school year. Meet Your Teacher day will be Friday, August 21st from 11:00 am - 12:00 pm. More details here: Meet…`,
+        excerpt:
+          'With summer winding down, it is time to come and meet your BHE teacher for the 2015-16 school year. Meet Your Teacher day will be Friday, August 21st from 11:00 am - 12:00 pm. More details here: Meet…',
         content: `<p style="text-align: left;">With summer winding down, it is time to come and meet your BHE teacher for the 2015-16 school year.  Meet Your Teacher day will be Friday, August 21st from 11:00 am - 12:00 pm.  More details here: <a href="http://bheeagles.com/calendar/meet-your-teacher-day/">Meet Your Teacher Day</a></p>`,
         category: 'News',
       },
       {
         id: '2015-16-school-supply-lists',
-        title: `2015-16 School Supply Lists`,
+        title: '2015-16 School Supply Lists',
         date: '2015-08-05',
         excerpt: `*If you pre-ordered school supplies, they will be delivered to your child's classroom before the first day of school. KINDERGARTEN 2 boxes of crayons, 24 count (Crayola) 2 Vinyl pocket folders w/o…`,
         content: `<em>*If  you pre-ordered school supplies, they will be delivered to your child's classroom before the first day of school.</em>
@@ -4814,9 +4987,10 @@ Canvas Tote Bag
       },
       {
         id: 'barton-hills-elementary-new-andor-returning-student-registration',
-        title: `Barton Hills Elementary New and/or Returning Student Registration`,
+        title: 'Barton Hills Elementary New and/or Returning Student Registration',
         date: '2015-07-25',
-        excerpt: `Barton Hills Elementary New and/or Returning Student Registration August 10, 11,13 8:00 am to 4:00 pm August 12 8:00 am to 6:00 pm If you have not registered (or re-registered) online, please come…`,
+        excerpt:
+          'Barton Hills Elementary New and/or Returning Student Registration August 10, 11,13 8:00 am to 4:00 pm August 12 8:00 am to 6:00 pm If you have not registered (or re-registered) online, please come…',
         content: `Barton Hills Elementary
 New and/or Returning Student Registration
 
@@ -4850,7 +5024,7 @@ Due to ongoing construction in the building, registration will be held in Portab
       },
       {
         id: 'mylunchmoney-is-now-myschoolbucks',
-        title: `MyLunchMoney is now MySchoolBucks`,
+        title: 'MyLunchMoney is now MySchoolBucks',
         date: '2015-07-10',
         excerpt: `If you have been funding your child's school lunches through MyLunchMoney, you may have seen some emails lately about an upcoming change. MyLunchMoney has undergone a name change and is now…`,
         content: `If you have been funding your child's school lunches through MyLunchMoney, you may have seen some emails lately about an upcoming change.  MyLunchMoney has undergone a name change and is now MySchoolBucks.  If you have a MyLunchMoney account already, no need to create a new one - just log in as usual at <a title="MySchoolBucks" href="http://www.myschoolbucks.com">MySchoolBucks.com</a>
@@ -4866,17 +5040,20 @@ In addition to the website, you can also put a MySchoolBucks app on your mobile 
       },
       {
         id: 'thursday-june-4-last-day-of-school',
-        title: `Thursday, June 4: LAST DAY OF SCHOOL`,
+        title: 'Thursday, June 4: LAST DAY OF SCHOOL',
         date: '2015-06-03',
-        excerpt: `Have a super summer! Barton Hills Elementary will resume classes on Monday, August 24.`,
-        content: `Have a super summer! Barton Hills Elementary will resume classes on <strong>Monday, August 24.</strong>`,
+        excerpt:
+          'Have a super summer! Barton Hills Elementary will resume classes on Monday, August 24.',
+        content:
+          'Have a super summer! Barton Hills Elementary will resume classes on <strong>Monday, August 24.</strong>',
         category: 'News',
       },
       {
         id: 'purchase-your-school-supplies-online',
-        title: `Just a Few More Days - Purchase your school supplies ONLINE!`,
+        title: 'Just a Few More Days - Purchase your school supplies ONLINE!',
         date: '2015-06-03',
-        excerpt: `Only a few more days to avoid the last minute rush to find all of the items on your school supplies list and order a prepackaged set of school supplies. We are again using Educational Products, Inc.,…`,
+        excerpt:
+          'Only a few more days to avoid the last minute rush to find all of the items on your school supplies list and order a prepackaged set of school supplies. We are again using Educational Products, Inc.,…',
         content: `Only a few more days to avoid the last minute rush to find all of the items on your school supplies list and order a prepackaged set of school supplies. We are again using Educational Products, Inc., to provide this service to BHE families (this is not a fundraiser). Go to the following website www.educationalproducts.com/shoppacks  and enter our school code BAR061 (note—the 4th digit is a zero). You can choose packs for each child you will have at BHE in the fall. Please choose the grade your child(ren) will be entering, not their current grade. You will be able to pay for your packs via credit card through this site through <strong>July 15th</strong>. The packs will be delivered to classrooms before Meet the Teacher day in August.
 
 If you have any questions, please contact Jennifer Volk, School Supplies Coordinator, at jenvolk@gmail.com or 512-970-0872.`,
@@ -4889,9 +5066,10 @@ If you have any questions, please contact Jennifer Volk, School Supplies Coordin
     posts: [
       {
         id: 'health-wellness-fair-thank-sponsors',
-        title: `Health & Wellness Fair: Thank You Sponsors`,
+        title: 'Health & Wellness Fair: Thank You Sponsors',
         date: '2015-02-08',
-        excerpt: `Thank you for a wonderful Family Fun Run and Health & Wellness Fair. A special thank you to our sponsors who donated services, time and wonderful door prizes: 1379 Family Sports Store 501st Legion…`,
+        excerpt:
+          'Thank you for a wonderful Family Fun Run and Health & Wellness Fair. A special thank you to our sponsors who donated services, time and wonderful door prizes: 1379 Family Sports Store 501st Legion…',
         content: `<h4>Thank you for a wonderful Family Fun Run and Health &amp; Wellness Fair.</h4>
 <strong>A special thank you to our sponsors who donated services, time and wonderful door prizes:</strong>
 1379 Family Sports Store
@@ -4926,9 +5104,10 @@ Yoga Yoga`,
       },
       {
         id: 'funraiser-princess-bride-alamo-drafthouse',
-        title: `FUNRaiser: The Princess Bride at Alamo Drafthouse`,
+        title: 'FUNRaiser: The Princess Bride at Alamo Drafthouse',
         date: '2015-02-03',
-        excerpt: `Saturday, February 14 at 9am Alamo Drafthouse South Lamar Celebrate Love, TRUE LOVE, while raising money for Barton Hills. Watch Wesley battle Rodents of Unusual Size, climb the cliffs of insanity…`,
+        excerpt:
+          'Saturday, February 14 at 9am Alamo Drafthouse South Lamar Celebrate Love, TRUE LOVE, while raising money for Barton Hills. Watch Wesley battle Rodents of Unusual Size, climb the cliffs of insanity…',
         content: `<h2>Saturday, February 14 at 9am</h2>
 <h2>Alamo Drafthouse South Lamar</h2>
 Celebrate Love, TRUE LOVE, while raising money for Barton Hills. Watch Wesley battle Rodents of Unusual Size, climb the cliffs of insanity and best Prince Humperdink to save his one true love, Princess Buttercup.
@@ -4943,9 +5122,10 @@ Contact Michelle Crosby with any questions. crosby.michelle@gmail.com`,
       },
       {
         id: 'health-wellness-fair-family-fun-run',
-        title: `Health and Wellness Fair and Family Fun Run`,
+        title: 'Health and Wellness Fair and Family Fun Run',
         date: '2015-01-30',
-        excerpt: `Thursday, February 5 5:00-5:30 | Family Fun Run Barton Hills families come out to our Family Fun Run before the Health and Wellness Fair. Run or Walk! Enjoy 30 minutes on the BHE track with family…`,
+        excerpt:
+          'Thursday, February 5 5:00-5:30 | Family Fun Run Barton Hills families come out to our Family Fun Run before the Health and Wellness Fair. Run or Walk! Enjoy 30 minutes on the BHE track with family…',
         content: `<h1>Thursday, February 5</h1>
 <h2>5:00-5:30  |  Family Fun Run</h2>
 <strong>Barton Hills families come out to our Family Fun Run before the Health and Wellness Fair. Run or Walk! Enjoy 30 minutes on the BHE track with family and friends to get your blood flowing before the Health and Wellness Fair starts at 5:30. You can earn a raffle prize ticket for every lap you run (parents &amp; siblings can earn tickets, too!) Some of our Fabulous Raffle Prizes are listed below.</strong>
@@ -4990,9 +5170,10 @@ Water &amp; snacks provided by H-E-B Westlake during the run.
       },
       {
         id: 'bhe-newsletter-week-october-19-2014',
-        title: `BHE Newsletter: Week of October 19, 2014`,
+        title: 'BHE Newsletter: Week of October 19, 2014',
         date: '2014-10-20',
-        excerpt: `BHE are you ready for something new? Something exciting? Say Goodbye to the old boring newsletter and say hello to the new and improved one. Starting next week the PTA weekly newsletter will come…`,
+        excerpt:
+          'BHE are you ready for something new? Something exciting? Say Goodbye to the old boring newsletter and say hello to the new and improved one. Starting next week the PTA weekly newsletter will come…',
         content: `<div><strong>BHE are you ready for something new? Something exciting? Say Goodbye to the old boring newsletter and say hello to the new and improved one. Starting next week the PTA weekly newsletter will come strait to your inbox in a whole new way!</strong></div>
 <div></div>
 <div>•If you subscribe to the yahoo list serve AND are currently listed in the online directory there is nothing more for you to do.</div>
@@ -5065,9 +5246,10 @@ Water &amp; snacks provided by H-E-B Westlake during the run.
       },
       {
         id: 'bhe-newsletter-week-october-13-2014',
-        title: `BHE Newsletter: Week of October 13, 2014`,
+        title: 'BHE Newsletter: Week of October 13, 2014',
         date: '2014-10-14',
-        excerpt: `Happy short week parents! If you were unable to attend ACL this year please check out http://bartonhillschoir.org for links to the amazing performances of our own BHE choir lead by the incomparable…`,
+        excerpt:
+          'Happy short week parents! If you were unable to attend ACL this year please check out http://bartonhillschoir.org for links to the amazing performances of our own BHE choir lead by the incomparable…',
         content: `<strong>Happy short week parents!</strong>
 
 <strong> If you were unable to attend ACL this year please check out http://bartonhillschoir.org for links to the amazing performances of our own BHE choir lead by the incomparable Gavin Tabone.</strong>
@@ -5183,7 +5365,7 @@ If any questions, please contact Ms. Solis, Orchestra Director ana.solisherrera@
       },
       {
         id: 'bhe-newsletter-week-october-5-2014',
-        title: `BHE Newsletter: Week of October 5, 2014`,
+        title: 'BHE Newsletter: Week of October 5, 2014',
         date: '2014-10-05',
         excerpt: `With September in the review mirror there is so much amazing stuff ahead for October! In this issue you'll find: •Walk/Bike to School Week: October 6-10 •A new way to donate to BHE •The Online…`,
         content: `<div dir="ltr">With September in the review mirror there is so much amazing stuff ahead for October!</div>
@@ -5396,9 +5578,10 @@ The AmazonSmile Foundation is a 501(c)(3) private foundation created by Amazon t
       },
       {
         id: 'bhe-newsletter-week-september-28-2014',
-        title: `BHE Newsletter: Week of September 28, 2014`,
+        title: 'BHE Newsletter: Week of September 28, 2014',
         date: '2014-10-01',
-        excerpt: `Happy Fall everyone! This week is full of exciting events and news... In this issue you will find: •Details on the launch of the new online directory • A note from Mrs Achtermann regarding email from…`,
+        excerpt:
+          'Happy Fall everyone! This week is full of exciting events and news... In this issue you will find: •Details on the launch of the new online directory • A note from Mrs Achtermann regarding email from…',
         content: `<h3>Happy Fall everyone!</h3>
 This week is full of exciting events and news...
 
@@ -5526,9 +5709,10 @@ This week is full of exciting events and news...
       },
       {
         id: 'fresh-friday-sunflower-sprouts',
-        title: `Fresh Friday: Sunflower Sprouts`,
+        title: 'Fresh Friday: Sunflower Sprouts',
         date: '2014-09-16',
-        excerpt: `This Friday, students will have the opportunity to taste sunflower sprouts during their lunch break in the cafeteria. YUM! Thank you to the Wellness Committee for expanding our taste horizons!`,
+        excerpt:
+          'This Friday, students will have the opportunity to taste sunflower sprouts during their lunch break in the cafeteria. YUM! Thank you to the Wellness Committee for expanding our taste horizons!',
         content: `This Friday, students will have the opportunity to taste sunflower sprouts during their lunch break in the cafeteria. YUM!
 
 Thank you to the Wellness Committee for expanding our taste horizons!<img class="aligncenter size-full wp-image-3000" src="https://archive.bheeagles.com/wp-content/uploads/2014/09/sunflower-sprouts.jpeg" alt="sunflower-sprouts" width="500" height="333" />`,
@@ -5536,7 +5720,7 @@ Thank you to the Wellness Committee for expanding our taste horizons!<img class=
       },
       {
         id: 'open-pta-board-positions',
-        title: `Open PTA Board Positions`,
+        title: 'Open PTA Board Positions',
         date: '2014-09-02',
         excerpt: `Volunteer Coordinator Join Barton Hill's PTA as it's Volunteer Coordinator. The Volunteer Coordinator takes a high level approach to managing the volunteers and volunteer activities throughout the…`,
         content: `<h3>Volunteer Coordinator</h3>
@@ -5564,9 +5748,10 @@ For more information, contact Suzanne Soares at <a style="color: #1155cc;" href
       },
       {
         id: 'back-to-school-night',
-        title: `Back to School Night`,
+        title: 'Back to School Night',
         date: '2014-08-25',
-        excerpt: `Thursday, September 4 6:30-8:30 pm This event is for parents only. Please make arrangements for your children and plan to attend. Back to School Night is a great opportunity to learn more about your…`,
+        excerpt:
+          'Thursday, September 4 6:30-8:30 pm This event is for parents only. Please make arrangements for your children and plan to attend. Back to School Night is a great opportunity to learn more about your…',
         content: `Thursday, September 4
 
 6:30-8:30 pm
@@ -5578,7 +5763,7 @@ For more information, contact Suzanne Soares at <a style="color: #1155cc;" href
       },
       {
         id: 'back-to-school-coffee',
-        title: `New Parent & Kinder Parent Back to School Coffee`,
+        title: 'New Parent & Kinder Parent Back to School Coffee',
         date: '2014-08-23',
         excerpt: `Please stop by the school library and enjoy a cup of coffee after drop off Monday. Welcome back! It's going to be a great year at BHE.`,
         content: `School begins Monday, August 25, 2014.
@@ -5592,9 +5777,10 @@ Thank you to the <a href="http://www.iriebean.com/">Irie Bean Coffee Bar</a> for
       },
       {
         id: '2014-2015-school-supply-lists',
-        title: `2014-2015 School Supply Lists`,
+        title: '2014-2015 School Supply Lists',
         date: '2014-08-07',
-        excerpt: `Special Area Teachers are asking donations of Kleenex and Hand Soap For Kinder and NEW Barton Hills Students: Technology Support Fee of $10.00 to be given to your child’s teacher. The technology…`,
+        excerpt:
+          'Special Area Teachers are asking donations of Kleenex and Hand Soap For Kinder and NEW Barton Hills Students: Technology Support Fee of $10.00 to be given to your child’s teacher. The technology…',
         content: `<p style="color: #000000;"><em>Special Area Teachers are asking for donations of Kleenex and Hand Soap
 </em>
 <strong>For Kinder and NEW Barton Hills Students:</strong> Technology Support Fee of <strong>$10.00</strong> to be given to your child’s teacher. The technology support fee will be used to purchase quality headphones for each child for classroom and computer lab use. By purchasing in bulk, we are able to get a discounted price and make replacement headphones available.</p>
@@ -5767,7 +5953,7 @@ Ear buds markers</p>
       },
       {
         id: 'incoming-kinder-playdates-other-dates-of-note',
-        title: `INCOMING KINDER PLAYDATES & OTHER DATES OF NOTE`,
+        title: 'INCOMING KINDER PLAYDATES & OTHER DATES OF NOTE',
         date: '2014-06-24',
         excerpt: `J U N E Saturday, June 28 Butler Park Splash Pad 10:30a. http://www.austinparks.org/ our-parks.html?parkid=684 J U L Y Tuesday, July 15 Phil's Ice House, South Lamar 5:30p.…`,
         content: `<strong>J U N E
@@ -5817,9 +6003,10 @@ Monday, August 25
       },
       {
         id: 'spanish-after-school-classes-2014-2015',
-        title: `SPANISH AFTER SCHOOL CLASSES 2014-2015`,
+        title: 'SPANISH AFTER SCHOOL CLASSES 2014-2015',
         date: '2014-06-04',
-        excerpt: `BHE and Futura Language Professionals bring to you SPANISH AFTER SCHOOL CLASSES 2014-2015 Tuition $150 Fall semester (13 weeks) $195 spring (16 weeks) or Full year: $300 (29 weeks) $45 savings! Time:…`,
+        excerpt:
+          'BHE and Futura Language Professionals bring to you SPANISH AFTER SCHOOL CLASSES 2014-2015 Tuition $150 Fall semester (13 weeks) $195 spring (16 weeks) or Full year: $300 (29 weeks) $45 savings! Time:…',
         content: `<blockquote>
 <div>
 <div lang="ES">
@@ -5848,9 +6035,10 @@ Monday, August 25
     posts: [
       {
         id: 'order-school-supplies-now',
-        title: `Order School Supplies NOW!`,
+        title: 'Order School Supplies NOW!',
         date: '2014-05-31',
-        excerpt: `Avoid the last minute rush to find all of the items on your school supplies list and order a prepackaged set of school supplies now. We are again using Educational Products, Inc., to provide this…`,
+        excerpt:
+          'Avoid the last minute rush to find all of the items on your school supplies list and order a prepackaged set of school supplies now. We are again using Educational Products, Inc., to provide this…',
         content: `<div><b>Avoid the last minute rush to find all of the items on your school supplies list and order a prepackaged set of school supplies now. We are again using Educational Products, Inc., to provide this service to BHE families (this is not a fundraiser).  Go to the following website </b><a href="http://www.epipacks.com/" target="_blank"><b>www.epipacks.com</b></a><b>  and enter our school code BAR061 (note—the 4</b><b><sup>th</sup></b><b> digit is a zero). You can choose packs for each child you will have at BHE in the fall. Please choose the grade your child(ren) will be entering, not their current grade. You will be able to pay for your packs via credit card through this site through June 16</b><b><sup>th</sup></b><b>. The packs will be delivered to classrooms before Meet the Teacher day on August 22</b><b><sup>nd</sup></b><b>.</b></div>
 <div></div>
 <div><b>If you have any questions, please contact Liz Gershoff, School Supplies Coordinator, at </b><b><a href="mailto:lizgershoff@gmail.com" target="_blank">lizgershoff@gmail.com</a></b></div>`,
@@ -5858,7 +6046,7 @@ Monday, August 25
       },
       {
         id: '2620',
-        title: `BHE Track & Field Day`,
+        title: 'BHE Track & Field Day',
         date: '2014-02-27',
         excerpt: `BHE Track & Field Day Friday, March 7 8:00-11:30 (4th-6th grade Tug-of-War @ 1:30) This year's theme is Wacky Weather! VOLUNTEERS NEEDED For all the new BHE families, you don't want to miss this…`,
         content: `<span style="font-size: x-large; color: #008000;"><strong>BHE Track &amp; Field Day</strong></span>
@@ -5898,7 +6086,7 @@ Check out Champions Spring Break camp and other special events at <a href="http:
       },
       {
         id: 'thanks-to-our-health-wellness-fair-sponsors',
-        title: `Thanks to our Health & Wellness Fair Sponsors!`,
+        title: 'Thanks to our Health & Wellness Fair Sponsors!',
         date: '2014-02-12',
         excerpt: `Peoples Pharmacy Mellow Johnny's Bike Shop AOMA Jennifer Pollard, MD Integrative Health and Wellness LunchBox Kids HEB Westlake Bright Roots-Jilly Bars Lee Chiropractic Growin' Together Whole Foods…`,
         content: `<table style="width: 369px;" border="0" cellspacing="0" cellpadding="0">
@@ -5984,10 +6172,10 @@ Check out Champions Spring Break camp and other special events at <a href="http:
       },
       {
         id: 'happy-new-year-welcome-back',
-        title: `Happy New Year! Welcome Back!`,
+        title: 'Happy New Year! Welcome Back!',
         date: '2014-01-08',
-        excerpt: `2014 is off to a great, but chilly start! Welcome back, Barton Hills Eagles.`,
-        content: `2014 is off to a great, but chilly start! Welcome back, Barton Hills Eagles.`,
+        excerpt: '2014 is off to a great, but chilly start! Welcome back, Barton Hills Eagles.',
+        content: '2014 is off to a great, but chilly start! Welcome back, Barton Hills Eagles.',
         category: 'Events',
       },
     ],

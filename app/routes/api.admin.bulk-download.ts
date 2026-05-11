@@ -1,4 +1,4 @@
-import {zipSync, strToU8} from 'fflate';
+import {zipSync} from 'fflate';
 import {requireAdmin} from '~/lib/admin/auth';
 import type {Route} from './+types/api.admin.bulk-download';
 
@@ -78,7 +78,10 @@ export async function loader({request, context}: Route.LoaderArgs) {
       if (!object) return;
 
       const bytes = new Uint8Array(await object.arrayBuffer());
-      const requesterName = (nameMap.get(file.submission_id) ?? 'Unknown').replace(/[^a-zA-Z0-9 _-]/g, '');
+      const requesterName = (nameMap.get(file.submission_id) ?? 'Unknown').replace(
+        /[^a-zA-Z0-9 _-]/g,
+        '',
+      );
       const folder = `${requesterName} - ${file.submission_id}`;
       let path = `${folder}/${file.original_filename}`;
 
@@ -100,7 +103,9 @@ export async function loader({request, context}: Route.LoaderArgs) {
     return Response.json({error: 'No files could be retrieved'}, {status: 404});
   }
 
-  const zipped = zipSync(zipFiles);
+  // Admin bulk downloads can include many PDFs/images; storing files without compression
+  // dramatically reduces Worker CPU time and avoids CPU limit errors on larger batches.
+  const zipped = zipSync(zipFiles, {level: 0});
 
   const body = zipped.buffer.slice(
     zipped.byteOffset,

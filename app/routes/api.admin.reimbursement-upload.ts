@@ -1,9 +1,9 @@
 import {requireAdmin} from '~/lib/admin/auth';
 import {
   ACCEPTED_TYPES,
-  MAX_FILE_SIZE,
   extractReceiptData,
   generateReceiptPDF,
+  MAX_FILE_SIZE,
 } from '~/lib/reimbursement/receipt';
 import type {Route} from './+types/api.admin.reimbursement-upload';
 
@@ -54,7 +54,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
     if ('error' in result) {
       return Response.json({error: result.error}, {status: result.status});
     }
-    const {receipt} = result;
+    const {receipts} = result;
 
     // Get next sort order
     const maxSort = await db
@@ -67,7 +67,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
     const baseName = file.name.replace(/\.[^.]+$/, '');
     const sanitizedName = baseName.replace(/[^a-zA-Z0-9.-]/g, '_');
     const receiptTitle = `${submission.requester_name}: ${sanitizedName}`;
-    const pdfBuffer = generateReceiptPDF(receipt, receiptTitle);
+    const pdfBuffer = generateReceiptPDF(receipts, receiptTitle);
 
     const isPDF = file.type === 'application/pdf';
     const timestamp = Date.now();

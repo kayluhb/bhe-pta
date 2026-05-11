@@ -86,7 +86,7 @@ function parseEventDate(dateStr: string): Date {
     // Treat naive datetime strings as Central Time
     return dateStr.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(dateStr)
       ? new Date(dateStr)
-      : new Date(dateStr + '-06:00');
+      : new Date(`${dateStr}-06:00`);
   }
   const [y, m, d] = dateStr.split('-').map(Number);
   // Use UTC noon so that timeZone formatting never shifts to the wrong date
@@ -197,8 +197,8 @@ export default function Events() {
     year: 'numeric',
     month: 'numeric',
   }).formatToParts(now);
-  const initYear = Number(nowCT.find((p) => p.type === 'year')!.value);
-  const initMonth = Number(nowCT.find((p) => p.type === 'month')!.value) - 1;
+  const initYear = Number(nowCT.find((p) => p.type === 'year')?.value ?? '0');
+  const initMonth = Number(nowCT.find((p) => p.type === 'month')?.value ?? '1') - 1;
   const [currentYear, setCurrentYear] = useState(initYear);
   const [currentMonth, setCurrentMonth] = useState(initMonth);
   const eventListRef = useRef<HTMLDivElement>(null);
@@ -251,8 +251,8 @@ export default function Events() {
       year: 'numeric',
       month: 'numeric',
     }).formatToParts(today);
-    setCurrentYear(Number(parts.find((p) => p.type === 'year')!.value));
-    setCurrentMonth(Number(parts.find((p) => p.type === 'month')!.value) - 1);
+    setCurrentYear(Number(parts.find((p) => p.type === 'year')?.value ?? '0'));
+    setCurrentMonth(Number(parts.find((p) => p.type === 'month')?.value ?? '1') - 1);
   }, []);
 
   const monthEvents = events

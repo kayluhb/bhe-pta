@@ -54,17 +54,17 @@ export async function loader({context}: Route.LoaderArgs) {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function formatEventMonth(dateStr: string): string {
-  const date = dateStr.includes('T') ? new Date(dateStr) : new Date(dateStr + 'T00:00:00');
+  const date = dateStr.includes('T') ? new Date(dateStr) : new Date(`${dateStr}T00:00:00`);
   return date.toLocaleDateString('en-US', {month: 'short'});
 }
 
 function formatEventDay(dateStr: string): string {
-  const date = dateStr.includes('T') ? new Date(dateStr) : new Date(dateStr + 'T00:00:00');
+  const date = dateStr.includes('T') ? new Date(dateStr) : new Date(`${dateStr}T00:00:00`);
   return date.getDate().toString();
 }
 
 function formatNewsDate(dateStr: string): string {
-  const date = new Date(dateStr + 'T00:00:00');
+  const date = new Date(`${dateStr}T00:00:00`);
   return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',

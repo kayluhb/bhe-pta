@@ -15,7 +15,7 @@ export function meta({matches}: Route.MetaArgs) {
   ]);
 }
 
-export function loader({}: Route.LoaderArgs) {
+export function loader(_args: Route.LoaderArgs) {
   return {years: archiveData};
 }
 
@@ -148,19 +148,25 @@ function Lightbox({item, onClose}: {item: ArchiveItem; onClose: () => void}) {
 
   return (
     <div
-      aria-label={item.title}
+      aria-labelledby="lightbox-title"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
-      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
       ref={dialogRef}
       role="dialog"
     >
-      <div className="relative max-w-4xl w-full max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+      <button
+        aria-label="Close lightbox"
+        className="absolute inset-0 bg-black/80"
+        onClick={onClose}
+        type="button"
+      />
+      <div className="relative z-10 max-w-4xl w-full max-h-[90vh]">
         <button
           aria-label="Close"
           className="absolute -top-10 right-0 text-white/80 hover:text-white transition-colors cursor-pointer"
           onClick={onClose}
           ref={closeButtonRef}
+          type="button"
         >
           <svg
             aria-hidden="true"
@@ -178,7 +184,9 @@ function Lightbox({item, onClose}: {item: ArchiveItem; onClose: () => void}) {
           className="w-full h-auto max-h-[85vh] object-contain rounded-lg"
           src={`https://archive.bheeagles.com/${item.r2Key}`}
         />
-        <p className="mt-3 text-center text-white font-heading font-semibold">{item.title}</p>
+        <p className="mt-3 text-center text-white font-heading font-semibold" id="lightbox-title">
+          {item.title}
+        </p>
       </div>
     </div>
   );
@@ -206,13 +214,17 @@ function YearSection({
         aria-expanded={open}
         className="w-full flex items-center justify-between px-6 py-5 text-left cursor-pointer hover:bg-charcoal/[0.02] transition-colors"
         onClick={() => setOpen(!open)}
+        type="button"
       >
         <div className="flex items-center gap-4">
           <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-eagle-blue text-white font-heading font-bold text-sm shrink-0">
             {yearData.year.slice(2, 4)}
           </div>
           <div>
-            <h2 className="text-xl md:text-2xl font-heading font-bold text-charcoal">
+            <h2
+              className="text-xl md:text-2xl font-heading font-bold text-charcoal"
+              id={`year-heading-${yearData.year}`}
+            >
               {yearData.year}
             </h2>
             {yearData.description && (
@@ -248,10 +260,10 @@ function YearSection({
       </button>
 
       {open && (
-        <div
+        <section
+          aria-labelledby={`year-heading-${yearData.year}`}
           className="border-t border-charcoal/5"
           id={`year-panel-${yearData.year}`}
-          role="region"
         >
           {/* ── Posts ── */}
           {yearData.posts && yearData.posts.length > 0 && (
@@ -268,7 +280,7 @@ function YearSection({
           {yearData.items.length > 0 && (
             <MediaSection items={yearData.items} onImageClick={onImageClick} />
           )}
-        </div>
+        </section>
       )}
     </div>
   );
@@ -289,6 +301,7 @@ function PostCard({post}: {post: ArchivePost}) {
       <button
         className="w-full text-left px-5 py-4 cursor-pointer"
         onClick={() => setExpanded(!expanded)}
+        type="button"
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
@@ -334,6 +347,7 @@ function PostCard({post}: {post: ArchivePost}) {
               prose-img:rounded-lg prose-img:max-h-96 prose-img:w-auto
               prose-table:text-sm
               [&_img]:my-3 [&_table]:my-3"
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: Static WordPress HTML embedded in curated archive data.
             dangerouslySetInnerHTML={{__html: post.content}}
           />
         </div>
@@ -358,6 +372,7 @@ function MediaSection({
       <button
         className="flex items-center gap-2 text-sm font-heading font-semibold text-charcoal/50 hover:text-eagle-blue transition-colors cursor-pointer"
         onClick={() => setShowMedia(!showMedia)}
+        type="button"
       >
         <svg
           aria-hidden="true"
@@ -421,6 +436,7 @@ function ItemCard({
       <button
         className="group relative aspect-[4/3] rounded-lg overflow-hidden bg-charcoal/5 cursor-pointer text-left"
         onClick={() => onImageClick(item)}
+        type="button"
       >
         {thumbUrl && (
           <img

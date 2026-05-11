@@ -7,12 +7,12 @@ export function NewsletterSignup() {
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  const turnstileRef = useRef<HTMLDivElement>(null);
+  const turnstileRef = useRef<HTMLElement>(null);
   const widgetIdRef = useRef<string | null>(null);
 
   const renderWidget = useCallback(() => {
     if (!turnstileRef.current || widgetIdRef.current !== null) return;
-    const turnstile = (window as any).turnstile;
+    const turnstile = window.turnstile;
     if (!turnstile) return;
     widgetIdRef.current = turnstile.render(turnstileRef.current, {
       sitekey: TURNSTILE_SITE_KEY,
@@ -24,7 +24,7 @@ export function NewsletterSignup() {
   }, []);
 
   useEffect(() => {
-    if ((window as any).turnstile) {
+    if (window.turnstile) {
       renderWidget();
       return;
     }
@@ -43,7 +43,7 @@ export function NewsletterSignup() {
     return () => {
       if (widgetIdRef.current !== null) {
         try {
-          (window as any).turnstile?.remove(widgetIdRef.current);
+          window.turnstile?.remove(widgetIdRef.current);
         } catch {}
         widgetIdRef.current = null;
       }
@@ -95,7 +95,7 @@ export function NewsletterSignup() {
     // Reset Turnstile widget after submission attempt
     if (widgetIdRef.current !== null) {
       try {
-        (window as any).turnstile?.reset(widgetIdRef.current);
+        window.turnstile?.reset(widgetIdRef.current);
       } catch {}
       setTurnstileToken(null);
     }
@@ -169,7 +169,7 @@ export function NewsletterSignup() {
         </div>
       </div>
       <div className="flex justify-center mt-6">
-        <div aria-label="Security verification" ref={turnstileRef} />
+        <section aria-label="Security verification" className="min-h-[1px]" ref={turnstileRef} />
       </div>
     </section>
   );

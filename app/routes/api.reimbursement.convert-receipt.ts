@@ -1,7 +1,9 @@
 import {
-  ACCEPTED_TYPES,
-  MAX_FILE_SIZE,
-} from '~/lib/reimbursement/receipt';
+  FILE_ACCESS_TTL_SEC,
+  resolveFilePreviewSigningSecret,
+  signFileAccess,
+} from '~/lib/reimbursement/file-url-signature';
+import {ACCEPTED_TYPES, MAX_FILE_SIZE} from '~/lib/reimbursement/receipt';
 import {
   issueReceiptUploadContinuationToken,
   verifyReceiptUploadContinuationToken,
@@ -89,24 +91,23 @@ export async function action({request, context}: Route.ActionArgs) {
     const db = env.REIMBURSEMENT_DB;
     if (!db) {
       logConvertReceipt({requestId, outcome: 'reject', reason: 'no_db'});
-      return Response.json({error: 'Storage is not configured for this environment.'}, {status: 503});
+      return Response.json(
+        {error: 'Storage is not configured for this environment.'},
+        {status: 503},
+      );
     }
-    if (!env.RECEIPT_CONVERSION_QUEUE) {
-      logConvertReceipt({requestId, outcome: 'reject', reason: 'no_queue'});
-      return Response.json({error: 'Receipt processing queue is not configured.'}, {status: 503});
-    }
-
     const timestamp = Date.now();
     const baseName = file.name.replace(/\.[^.]+$/, '');
     const sanitizedName = baseName.replace(/[^a-zA-Z0-9.-]/g, '_');
 
     if (!env.R2_BUCKET) {
       logConvertReceipt({requestId, outcome: 'reject', reason: 'no_r2_bucket'});
-      console.error('[convert-receipt] R2_BUCKET is not configured; cannot store original + converted');
+      console.error(
+        '[convert-receipt] R2_BUCKET is not configured; cannot store original + converted',
+      );
       return Response.json(
         {
-          error:
-            'File storage is not available. Check that R2 is configured for this environment.',
+          error: 'File storage is not available. Check that R2 is configured for this environment.',
         },
         {status: 503},
       );
@@ -136,8 +137,6 @@ export async function action({request, context}: Route.ActionArgs) {
       )
       .run();
 
-    await env.RECEIPT_CONVERSION_QUEUE.send({jobId});
-
     const totalMs = Date.now() - startedAt;
     logConvertReceipt({
       requestId,
@@ -153,10 +152,25 @@ export async function action({request, context}: Route.ActionArgs) {
       receiptUploadToken = await issueReceiptUploadContinuationToken(continuationSecret);
     }
 
+    const signingSecret = resolveFilePreviewSigningSecret(env);
+    let originalSignedPreview: {fileAccessExp: number; fileAccessSig: string} | undefined;
+    if (signingSecret) {
+      const fileAccessExp = Math.floor(Date.now() / 1000) + FILE_ACCESS_TTL_SEC;
+      const fileAccessSig = await signFileAccess(originalKey, fileAccessExp, signingSecret);
+      originalSignedPreview = {fileAccessExp, fileAccessSig};
+    }
+
     return Response.json({
       jobId,
       receiptUploadToken,
       status: 'queued',
+      original: {
+        key: originalKey,
+        filename: file.name,
+        contentType: file.type,
+        size: fileBytes.byteLength,
+        ...(originalSignedPreview ?? {}),
+      },
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

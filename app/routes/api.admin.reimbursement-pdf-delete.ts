@@ -30,9 +30,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
   }
 
   await db
-    .prepare(
-      `UPDATE submissions SET pdf_key = NULL, updated_at = datetime('now') WHERE id = ?`,
-    )
+    .prepare(`UPDATE submissions SET pdf_key = NULL, updated_at = datetime('now') WHERE id = ?`)
     .bind(submissionId)
     .run();
 

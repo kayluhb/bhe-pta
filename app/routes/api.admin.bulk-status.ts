@@ -2,7 +2,14 @@ import {requireAdmin} from '~/lib/admin/auth';
 import {sendCheckDeliveredEmail} from '~/lib/reimbursement/email/resend';
 import type {Route} from './+types/api.admin.bulk-status';
 
-const VALID_STATUSES = ['pending', 'approved', 'rejected', 'needs_info', 'check_delivered'];
+const VALID_STATUSES = [
+  'pending',
+  'approved',
+  'check_written',
+  'check_delivered',
+  'check_deposited',
+  'rejected',
+];
 
 export async function action({request, context}: Route.ActionArgs) {
   const auth = await requireAdmin(request, context.cloudflare.env);

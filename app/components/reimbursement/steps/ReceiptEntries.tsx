@@ -2,7 +2,7 @@ import {Button} from '~/components/reimbursement/ui/Button';
 import {Input} from '~/components/reimbursement/ui/Input';
 import {useFileUpload} from '~/hooks/useFileUpload';
 import type {FileData, ReceiptData} from '~/lib/reimbursement/validation';
-import {MAX_RECEIPT_FILE_RECORDS} from '~/lib/reimbursement/validation';
+import {MAX_RECEIPT_UPLOADS} from '~/lib/reimbursement/validation';
 import {ReceiptLineFiles} from './ReceiptLineFiles';
 
 interface ReceiptEntriesProps {
@@ -41,12 +41,11 @@ export function ReceiptEntries({
   const {
     clearReceiptUploadContinuation,
     clearUpload,
-    registerPendingBatch,
     uploadFilesBatch,
     uploads,
   } = useFileUpload(turnstileToken);
 
-  const isAnyUploading = uploads.some((u) => u.status === 'uploading' || u.status === 'pending');
+  const isAnyUploading = uploads.some((u) => u.status === 'uploading');
   const totalAttachedFiles = filesByReceipt.reduce((sum, row) => sum + row.length, 0);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -100,7 +99,7 @@ export function ReceiptEntries({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
                   label="Date of Purchase"
-                    onChange={(event) => onUpdate(index, {date: event.target.value})}
+                  onChange={(event) => onUpdate(index, {date: event.target.value})}
                   required
                   type="date"
                   value={receipt.date}
@@ -132,9 +131,7 @@ export function ReceiptEntries({
                 <div className="md:col-span-2">
                   <Input
                     label="Place of Purchase"
-                    onChange={(event) =>
-                      onUpdate(index, {placeOfPurchase: event.target.value})
-                    }
+                    onChange={(event) => onUpdate(index, {placeOfPurchase: event.target.value})}
                     placeholder="Name of store or location of website"
                     value={receipt.placeOfPurchase || ''}
                   />
@@ -147,16 +144,15 @@ export function ReceiptEntries({
               <ReceiptLineFiles
                 clearUpload={clearUpload}
                 disabled={isAnyUploading}
+                onAppendRowFiles={(files) => onAppendReceiptFiles(index, files)}
                 onBatchUploadComplete={() => {
                   clearReceiptUploadContinuation();
                   onResetTurnstile();
                 }}
                 onRemoveFile={(key) => onRemoveFileFromReceipt(index, key)}
-                onAppendRowFiles={(files) => onAppendReceiptFiles(index, files)}
                 payableTo={payableTo}
                 receiptRowIndex={index}
-                registerPendingBatch={registerPendingBatch}
-                remainingFileSlots={Math.max(0, MAX_RECEIPT_FILE_RECORDS - totalAttachedFiles)}
+                remainingFileSlots={Math.max(0, MAX_RECEIPT_UPLOADS - totalAttachedFiles)}
                 rowFiles={filesByReceipt[index] ?? []}
                 rowUploads={uploads.filter((u) => u.receiptRowIndex === index)}
                 uploadFilesBatch={uploadFilesBatch}

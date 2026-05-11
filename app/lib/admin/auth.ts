@@ -11,6 +11,31 @@ interface SessionPayloadWithExp extends SessionPayload {
 const SESSION_COOKIE_NAME = 'admin_session';
 const SESSION_TTL_SECONDS = 24 * 60 * 60; // 24 hours
 
+/**
+ * Prefer `SESSION_SECRET` from the environment. In Vite dev only, if it is missing or empty, use
+ * a fixed local fallback so admin auth works without `.dev.vars`. Production builds never use this
+ * fallback (`import.meta.env.DEV` is false).
+ */
+export function resolveSessionSecret(env: {SESSION_SECRET?: string}): string {
+  const configured = typeof env.SESSION_SECRET === 'string' ? env.SESSION_SECRET.trim() : '';
+  if (configured.length > 0) {
+    return configured;
+  }
+  if (import.meta.env.DEV) {
+    return '__bhe_pta_local_dev_session_hmac_key_v1__';
+  }
+  return '';
+}
+
+/** `Secure` is omitted on http:// so the session cookie works during local `pnpm dev`. */
+export function buildAdminSessionSetCookie(request: Request, cookieValue: string): string {
+  const useSecure = new URL(request.url).protocol === 'https:';
+  const tail = useSecure
+    ? 'HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=86400'
+    : 'HttpOnly; SameSite=Lax; Path=/; Max-Age=86400';
+  return `${SESSION_COOKIE_NAME}=${cookieValue}; ${tail}`;
+}
+
 function toBase64Url(data: string): string {
   return btoa(data).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
@@ -66,6 +91,12 @@ async function hmacVerify(data: string, signature: string, secret: string): Prom
  * Format: base64url(json).base64url(hmac-sha256)
  */
 export async function signSession(payload: SessionPayload, secret: string): Promise<string> {
+  if (!secret || secret.trim().length === 0) {
+    throw new Error(
+      'SESSION_SECRET is not configured. Set SESSION_SECRET for deployed Workers, or rely on the local dev fallback by running `pnpm dev`.',
+    );
+  }
+
   const payloadWithExp: SessionPayloadWithExp = {
     ...payload,
     exp: Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS,
@@ -85,6 +116,10 @@ export async function verifySession(
   cookie: string,
   secret: string,
 ): Promise<SessionPayload | null> {
+  if (!secret || secret.trim().length === 0) {
+    return null;
+  }
+
   const dotIndex = cookie.indexOf('.');
   if (dotIndex === -1) return null;
 
@@ -119,7 +154,7 @@ export async function verifySession(
  */
 export async function requireAdmin(
   request: Request,
-  env: {SESSION_SECRET: string},
+  env: {SESSION_SECRET?: string},
 ): Promise<SessionPayload | Response> {
   const cookieHeader = request.headers.get('Cookie') ?? '';
   const cookies = cookieHeader.split('; ');
@@ -132,7 +167,7 @@ export async function requireAdmin(
   }
 
   const cookieValue = sessionCookie.substring(SESSION_COOKIE_NAME.length + 1);
-  const payload = await verifySession(cookieValue, env.SESSION_SECRET);
+  const payload = await verifySession(cookieValue, resolveSessionSecret(env));
 
   if (!payload) {
     return Response.redirect(`${origin}/admin/login`, 302);

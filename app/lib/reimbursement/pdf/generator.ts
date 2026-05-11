@@ -220,9 +220,7 @@ export async function generatePDF(data: PDFData): Promise<Uint8Array> {
   const dateApprovedStr = submission.dateApproved?.trim()
     ? formatDate(submission.dateApproved.trim())
     : '';
-  const datePaidStr = submission.datePaid?.trim()
-    ? formatDate(submission.datePaid.trim())
-    : '';
+  const datePaidStr = submission.datePaid?.trim() ? formatDate(submission.datePaid.trim()) : '';
   const checkNumStr = submission.checkNumber?.trim() ?? '';
   const checkAmtStr =
     submission.checkAmount != null && !Number.isNaN(Number(submission.checkAmount))

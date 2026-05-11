@@ -24,6 +24,7 @@ export function FormWizard() {
     appendReceiptFiles,
     removeFileFromReceipt,
     flattenFilesForSubmit,
+    flattenReceiptUploadsForSubmit,
     updateBudget,
     nextStep,
     prevStep,
@@ -44,6 +45,7 @@ export function FormWizard() {
           budgetAccount: getReceiptBudgetAccount(i),
         })),
         files: flattenFilesForSubmit(),
+        receiptUploads: flattenReceiptUploadsForSubmit(),
         budget: state.budget,
         turnstileToken,
       }),
@@ -155,8 +157,8 @@ export function FormWizard() {
                 You may include up to four items per request. Submit another request for more.
               </li>
               <li>
-                On the Receipts step, use the upload under each line to attach a photo or scan (optional
-                per line). Uploading again replaces that line&apos;s file.
+                On the Receipts step, use the upload under each line to attach a photo or scan
+                (optional per line). Each upload is added to the list for that line.
               </li>
             </ul>
           </div>
@@ -177,21 +179,24 @@ export function FormWizard() {
       </div>
 
       {currentStep === 0 && (
-        <>
-          <RequesterInfo data={state.requester} onChange={updateRequester} onNext={nextStep} onShowHelp={() => setShowHelp(true)} />
-        </>
+        <RequesterInfo
+          data={state.requester}
+          onChange={updateRequester}
+          onNext={nextStep}
+          onShowHelp={() => setShowHelp(true)}
+        />
       )}
 
       {currentStep === 1 && (
         <ReceiptEntries
-          filesByReceipt={state.filesByReceipt}
           fileError={fileError}
+          filesByReceipt={state.filesByReceipt}
           onAdd={addReceipt}
+          onAppendReceiptFiles={appendReceiptFiles}
           onBack={prevStep}
           onNext={nextStep}
           onRemove={removeReceipt}
           onRemoveFileFromReceipt={removeFileFromReceipt}
-          onAppendReceiptFiles={appendReceiptFiles}
           onResetTurnstile={resetTurnstile}
           onUpdate={updateReceipt}
           payableTo={state.requester.payableTo}

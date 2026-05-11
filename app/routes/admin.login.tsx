@@ -1,4 +1,6 @@
-import {verifySession} from '~/lib/admin/auth';
+import {useState} from 'react';
+import {useLoaderData} from 'react-router';
+import {resolveSessionSecret, verifySession} from '~/lib/admin/auth';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/admin.login';
 
@@ -12,15 +14,38 @@ export async function loader({request, context}: Route.LoaderArgs) {
   const sessionCookie = cookieHeader.split('; ').find((c) => c.startsWith('admin_session='));
   if (sessionCookie) {
     const value = sessionCookie.substring('admin_session='.length);
-    const payload = await verifySession(value, context.cloudflare.env.SESSION_SECRET);
+    const payload = await verifySession(value, resolveSessionSecret(context.cloudflare.env));
     if (payload) {
       return Response.redirect(new URL('/admin', request.url).toString(), 302);
     }
   }
-  return {};
+  return {devLoginEnabled: import.meta.env.DEV};
 }
 
 export default function AdminLogin() {
+  const {devLoginEnabled} = useLoaderData<typeof loader>();
+  const [devBusy, setDevBusy] = useState(false);
+  const [devError, setDevError] = useState<string | null>(null);
+
+  const handleDevLogin = async () => {
+    setDevBusy(true);
+    setDevError(null);
+    try {
+      const res = await fetch('/api/auth/dev-login', {method: 'POST'});
+      const data = (await res.json().catch(() => ({}))) as {error?: string; redirect?: string};
+      if (!res.ok) {
+        throw new Error(data.error || 'Dev login failed');
+      }
+      if (data.redirect) {
+        window.location.assign(data.redirect);
+      }
+    } catch (err) {
+      setDevError(err instanceof Error ? err.message : 'Dev login failed');
+    } finally {
+      setDevBusy(false);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-warm-white flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm">
@@ -52,6 +77,33 @@ export default function AdminLogin() {
             Sign in with your <span className="font-medium">@bheeagles.com</span> Google account to
             access the admin dashboard.
           </p>
+
+          {devLoginEnabled ? (
+            <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50/80 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-amber-900/90 font-body mb-1">
+                Local development
+              </p>
+              <p className="text-xs text-amber-950/80 font-body mb-3">
+                Sign in as <span className="font-mono font-medium">kayluhb@gmail.com</span> without
+                Google. Only when running <code className="rounded bg-white/80 px-1">pnpm dev</code>.
+                If <code className="rounded bg-white/80 px-1">SESSION_SECRET</code> is unset, a
+                fixed dev-only key is used so you do not need <code className="rounded bg-white/80 px-1">.dev.vars</code> for this button.
+              </p>
+              {devError && (
+                <p className="text-xs text-red-700 font-body mb-2" role="alert">
+                  {devError}
+                </p>
+              )}
+              <button
+                className="w-full rounded-md bg-amber-800 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-900 disabled:opacity-50 font-body"
+                disabled={devBusy}
+                onClick={handleDevLogin}
+                type="button"
+              >
+                {devBusy ? 'Signing in…' : 'Sign in as kayluhb@gmail.com (dev)'}
+              </button>
+            </div>
+          ) : null}
 
           <a
             className="flex items-center justify-center gap-3 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-charcoal shadow-sm hover:bg-gray-50 transition-colors font-body"

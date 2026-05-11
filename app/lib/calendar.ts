@@ -54,7 +54,7 @@ function parseIcsDate(d: string): string {
     return `${clean.slice(0, 4)}-${clean.slice(4, 6)}-${clean.slice(6, 8)}`;
   }
   const iso = `${clean.slice(0, 4)}-${clean.slice(4, 6)}-${clean.slice(6, 8)}T${clean.slice(9, 11)}:${clean.slice(11, 13)}:${clean.slice(13, 15)}`;
-  return isUtc ? iso + 'Z' : iso;
+  return isUtc ? `${iso}Z` : iso;
 }
 
 /** Parse a raw ICS text string into CalendarEvent objects. */

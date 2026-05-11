@@ -236,10 +236,10 @@ export default function About() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {boardMembers.map((member, i) => (
+            {boardMembers.map((member) => (
               <div
                 className="bg-white rounded-lg shadow-md p-8 text-center transition-all duration-200 hover:shadow-lg"
-                key={i}
+                key={member.name}
               >
                 {/* Circular photo placeholder */}
                 <div className="mx-auto h-24 w-24 rounded-full bg-eagle-blue/10 border-4 border-spirit-gold/30 flex items-center justify-center mb-5">
@@ -283,7 +283,7 @@ export default function About() {
               {documents.map((doc) => (
                 <a
                   className="flex items-center gap-4 bg-warm-white rounded-lg p-5 shadow-sm border border-charcoal/5 hover:shadow-md hover:border-spirit-gold/30 transition-all duration-200 group"
-                  href="#"
+                  href={`/about#${encodeURIComponent(doc.title)}`}
                   key={doc.title}
                 >
                   <div className="shrink-0 h-10 w-10 rounded-lg bg-eagle-blue/10 flex items-center justify-center text-eagle-blue group-hover:bg-eagle-blue group-hover:text-white transition-colors">

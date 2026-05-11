@@ -8,11 +8,18 @@ export function meta({matches}: Route.MetaArgs) {
   return mergeParentMeta(matches, [{title: 'Submission Details | Admin'}]);
 }
 
+interface SchoolYearOption {
+  id: string;
+  label: string;
+}
+
 interface Submission {
   id: string;
   requester_name: string;
   requester_email: string;
   requester_phone: string | null;
+  school_year_id: string;
+  school_year_label: string | null;
   status: string;
   total_amount: number;
   pdf_key: string | null;
@@ -55,13 +62,21 @@ export async function loader({request, params, context}: Route.LoaderArgs) {
   const db = context.cloudflare.env.REIMBURSEMENT_DB;
 
   const results = await db.batch([
-    db.prepare('SELECT * FROM submissions WHERE id = ?').bind(id),
+    db
+      .prepare(
+        `SELECT s.*, y.label AS school_year_label
+         FROM submissions s
+         LEFT JOIN school_years y ON y.id = s.school_year_id
+         WHERE s.id = ?`,
+      )
+      .bind(id),
     db
       .prepare('SELECT * FROM receipt_entries WHERE submission_id = ? ORDER BY sort_order')
       .bind(id),
     db
       .prepare('SELECT * FROM file_attachments WHERE submission_id = ? ORDER BY sort_order')
       .bind(id),
+    db.prepare('SELECT id, label FROM school_years ORDER BY sort_order DESC, starts_on DESC'),
   ]);
 
   const submission = results[0].results[0] as Submission | undefined;
@@ -71,25 +86,28 @@ export async function loader({request, params, context}: Route.LoaderArgs) {
 
   const receipts = results[1].results as ReceiptEntry[];
   const files = results[2].results as FileAttachment[];
+  const schoolYears = results[3].results as SchoolYearOption[];
 
-  return {submission, receipts, files, user};
+  return {files, receipts, schoolYears, submission, user};
 }
 
 function StatusBadge({status}: {status: string}) {
   const styles: Record<string, string> = {
     approved: 'bg-creek-green/15 text-creek-green border-creek-green/30',
+    check_deposited: 'bg-slate-100 text-slate-700 border-slate-300',
     check_delivered: 'bg-purple-100 text-purple-700 border-purple-300',
+    check_written: 'bg-indigo-100 text-indigo-800 border-indigo-300',
     pending: 'bg-spirit-gold/15 text-spirit-gold border-spirit-gold/30',
     rejected: 'bg-red-100 text-red-700 border-red-300',
-    needs_info: 'bg-eagle-blue/10 text-eagle-blue border-eagle-blue/30',
   };
 
   const labels: Record<string, string> = {
     approved: 'Approved',
+    check_deposited: 'Check Deposited',
     check_delivered: 'Check Delivered',
+    check_written: 'Check Written',
     pending: 'Pending',
     rejected: 'Rejected',
-    needs_info: 'Needs Info',
   };
 
   return (
@@ -136,7 +154,7 @@ function checkAmountInputFromDb(value: number | null): string {
 }
 
 export default function AdminReimbursementDetail() {
-  const {submission, receipts, files, user} = useLoaderData<typeof loader>();
+  const {files, receipts, schoolYears, submission, user} = useLoaderData<typeof loader>();
   const revalidator = useRevalidator();
   const [status, setStatus] = useState(submission.status);
   const [notes, setNotes] = useState(submission.admin_notes ?? '');
@@ -160,6 +178,7 @@ export default function AdminReimbursementDetail() {
   const [regeneratingPdf, setRegeneratingPdf] = useState(false);
   const [removingPdf, setRemovingPdf] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [convertingAttachmentId, setConvertingAttachmentId] = useState<string | null>(null);
   const [uploadFeedback, setUploadFeedback] = useState<{
     type: 'success' | 'error';
     message: string;
@@ -179,6 +198,12 @@ export default function AdminReimbursementDetail() {
     type: 'success' | 'error';
     message: string;
   } | null>(null);
+  const [schoolYearId, setSchoolYearId] = useState(submission.school_year_id);
+  const [savingSchoolYear, setSavingSchoolYear] = useState(false);
+  const [schoolYearFeedback, setSchoolYearFeedback] = useState<{
+    type: 'success' | 'error';
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     setRequesterName(submission.requester_name);
@@ -192,19 +217,54 @@ export default function AdminReimbursementDetail() {
     setDatePaid(isoDateForInput(submission.date_paid));
   }, [submission.check_amount, submission.check_number, submission.date_paid]);
 
+  useEffect(() => {
+    setSchoolYearId(submission.school_year_id);
+  }, [submission.school_year_id]);
+
+  const handleSchoolYearSave = async () => {
+    setSavingSchoolYear(true);
+    setSchoolYearFeedback(null);
+    try {
+      const res = await fetch(
+        `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/school-year`,
+        {
+          body: JSON.stringify({school_year_id: schoolYearId}),
+          headers: {'Content-Type': 'application/json'},
+          method: 'POST',
+        },
+      );
+      const data = (await res.json().catch(() => ({}))) as {error?: string};
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to update school year');
+      }
+      setSchoolYearFeedback({type: 'success', message: 'School year updated.'});
+      revalidator.revalidate();
+    } catch (err) {
+      setSchoolYearFeedback({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'Failed to update school year.',
+      });
+    } finally {
+      setSavingSchoolYear(false);
+    }
+  };
+
   const handleContactSave = async () => {
     setSavingContact(true);
     setContactFeedback(null);
     try {
-      const res = await fetch(`/api/admin/reimbursements/${encodeURIComponent(submission.id)}/contact`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          requester_name: requesterName,
-          requester_email: requesterEmail,
-          requester_phone: requesterPhone.trim() === '' ? null : requesterPhone.trim(),
-        }),
-      });
+      const res = await fetch(
+        `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/contact`,
+        {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            requester_name: requesterName,
+            requester_email: requesterEmail,
+            requester_phone: requesterPhone.trim() === '' ? null : requesterPhone.trim(),
+          }),
+        },
+      );
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as {error?: string};
         throw new Error(data.error || (await res.text()) || 'Failed to save contact info');
@@ -304,7 +364,8 @@ export default function AdminReimbursementDetail() {
     }
   };
 
-  const attachmentBusy = removingAttachmentId !== null || removingPdf || regeneratingPdf;
+  const attachmentBusy =
+    convertingAttachmentId !== null || removingAttachmentId !== null || removingPdf || regeneratingPdf;
 
   const handleRemoveAttachment = async (attachmentId: string, filename: string) => {
     if (
@@ -329,6 +390,39 @@ export default function AdminReimbursementDetail() {
       alert(err instanceof Error ? err.message : 'Failed to remove attachment.');
     } finally {
       setRemovingAttachmentId(null);
+    }
+  };
+
+  const handleConvertAttachment = async (attachmentId: string, filename: string) => {
+    setConvertingAttachmentId(attachmentId);
+    setUploadFeedback(null);
+    try {
+      const res = await fetch(
+        `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/attachments/${encodeURIComponent(attachmentId)}/convert`,
+        {method: 'POST'},
+      );
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        existingFilename?: string;
+        skipped?: boolean;
+      };
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to convert attachment');
+      }
+      setUploadFeedback({
+        type: 'success',
+        message: data.skipped
+          ? `A converted PDF already exists (${data.existingFilename ?? 'existing file'}).`
+          : `Converted ${filename} to an AI PDF and added it to attachments.`,
+      });
+      revalidator.revalidate();
+    } catch (err) {
+      setUploadFeedback({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'Failed to convert attachment.',
+      });
+    } finally {
+      setConvertingAttachmentId(null);
     }
   };
 
@@ -404,11 +498,14 @@ export default function AdminReimbursementDetail() {
     setSaving(true);
     setFeedback(null);
     try {
-      const res = await fetch(`/api/admin/reimbursements/${encodeURIComponent(submission.id)}/status`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({status, notes, ...(skipEmail && {skipEmail: true})}),
-      });
+      const res = await fetch(
+        `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/status`,
+        {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({status, notes, ...(skipEmail && {skipEmail: true})}),
+        },
+      );
       if (!res.ok) {
         const text = await res.text();
         throw new Error(text || 'Failed to update status');
@@ -429,9 +526,12 @@ export default function AdminReimbursementDetail() {
     if (!window.confirm('Are you sure you want to delete this submission?')) return;
     setDeleting(true);
     try {
-      const res = await fetch(`/api/admin/reimbursements/${encodeURIComponent(submission.id)}/delete`, {
-        method: 'DELETE',
-      });
+      const res = await fetch(
+        `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/delete`,
+        {
+          method: 'DELETE',
+        },
+      );
       if (!res.ok) {
         const text = await res.text();
         throw new Error(text || 'Failed to delete submission');
@@ -451,10 +551,13 @@ export default function AdminReimbursementDetail() {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const res = await fetch(`/api/admin/reimbursements/${encodeURIComponent(submission.id)}/upload`, {
-        method: 'POST',
-        body: formData,
-      });
+      const res = await fetch(
+        `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/upload`,
+        {
+          method: 'POST',
+          body: formData,
+        },
+      );
       if (!res.ok) {
         const data = (await res.json()) as {error?: string};
         throw new Error(data.error || 'Upload failed');
@@ -482,7 +585,13 @@ export default function AdminReimbursementDetail() {
           <h1 className="text-xl md:text-2xl font-heading font-bold text-white">
             Submission Details
           </h1>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+            <a
+              className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
+              href="/admin/school-years"
+            >
+              School years
+            </a>
             <span className="text-sm text-white/80 hidden sm:inline">{user.name}</span>
             <a
               className="text-sm text-white/70 hover:text-white underline underline-offset-2 transition-colors"
@@ -513,6 +622,48 @@ export default function AdminReimbursementDetail() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-heading font-semibold text-charcoal mb-4">Submission Info</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm font-body">
+            <div className="sm:col-span-2">
+              <label
+                className="block text-sm font-medium text-charcoal font-body mb-1"
+                htmlFor="school-year-select"
+              >
+                School year
+              </label>
+              <div className="flex flex-wrap items-center gap-3">
+                <select
+                  className="min-w-40 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
+                  id="school-year-select"
+                  onChange={(e) => setSchoolYearId(e.target.value)}
+                  value={schoolYearId}
+                >
+                  {schoolYears.map((y) => (
+                    <option key={y.id} value={y.id}>
+                      {y.label}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-charcoal shadow-sm hover:bg-gray-50 font-body disabled:opacity-50"
+                  disabled={savingSchoolYear || schoolYearId === submission.school_year_id}
+                  onClick={handleSchoolYearSave}
+                  type="button"
+                >
+                  {savingSchoolYear ? 'Saving…' : 'Save school year'}
+                </button>
+              </div>
+              {schoolYearFeedback && (
+                <p
+                  className={`mt-2 text-sm font-body ${
+                    schoolYearFeedback.type === 'success'
+                      ? 'text-creek-green'
+                      : 'text-red-600'
+                  }`}
+                  role="status"
+                >
+                  {schoolYearFeedback.message}
+                </p>
+              )}
+            </div>
             <div className="sm:col-span-2">
               <label
                 className="block text-sm font-medium text-charcoal font-body mb-1"
@@ -599,9 +750,9 @@ export default function AdminReimbursementDetail() {
           </h2>
           <p className="text-sm text-gray-600 font-body mb-4">
             On the PDF, <strong className="font-medium text-charcoal">Date received</strong> is the
-            submission date. <strong className="font-medium text-charcoal">Date approved</strong> is set
-            automatically when you save status as Approved (including from the list bulk action).
-            Saving check details below updates the stored request PDF automatically.
+            submission date. <strong className="font-medium text-charcoal">Date approved</strong> is
+            set automatically when you save status as Approved (including from the list bulk
+            action). Saving check details below updates the stored request PDF automatically.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm font-body">
             <div>
@@ -703,9 +854,10 @@ export default function AdminReimbursementDetail() {
               >
                 <option value="pending">Pending</option>
                 <option value="approved">Approved</option>
+                <option value="check_written">Check Written</option>
                 <option value="check_delivered">Check Delivered</option>
+                <option value="check_deposited">Check Deposited</option>
                 <option value="rejected">Rejected</option>
-                <option value="needs_info">Needs Info</option>
               </select>
             </div>
             {status === 'check_delivered' && (
@@ -963,6 +1115,16 @@ export default function AdminReimbursementDetail() {
                     </p>
                   </div>
                   <div className="flex items-center gap-4 shrink-0">
+                    {f.content_type !== 'application/pdf' && (
+                      <button
+                        className="text-sm text-creek-green hover:text-creek-green/80 font-medium font-body disabled:opacity-50 whitespace-nowrap"
+                        disabled={attachmentBusy || removingLineId !== null}
+                        onClick={() => handleConvertAttachment(f.id, f.original_filename)}
+                        type="button"
+                      >
+                        {convertingAttachmentId === f.id ? 'Converting…' : 'Convert to AI PDF'}
+                      </button>
+                    )}
                     <a
                       className="text-sm text-eagle-blue hover:text-eagle-blue/80 font-medium font-body transition-colors whitespace-nowrap"
                       href={`/api/admin/reimbursements/file?key=${encodeURIComponent(f.r2_key)}&download=1`}

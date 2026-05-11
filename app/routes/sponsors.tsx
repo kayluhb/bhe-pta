@@ -1,3 +1,5 @@
+import {Fragment} from 'react';
+
 import {mergeParentMeta} from '~/lib/meta';
 import {tiers} from '~/lib/sponsors';
 import type {Route} from './+types/sponsors';
@@ -161,37 +163,41 @@ export default function Sponsors() {
 
                 {/* Sponsor logos + empty slots */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                  {tier.sponsors.map((sponsor) => {
-                    const card = (
-                      <div className="aspect-[3/2] rounded-lg bg-white border border-charcoal/10 flex items-center justify-center p-3">
-                        <img
-                          alt={sponsor.name}
-                          className={`max-h-full max-w-full object-contain ${sponsor.logoClassName ?? ''}`}
-                          src={sponsor.logo}
-                        />
-                      </div>
-                    );
-                    return sponsor.url ? (
-                      <a
-                        aria-label={`Visit ${sponsor.name} website (opens in new tab)`}
-                        className="transition-transform hover:scale-105"
-                        href={sponsor.url}
-                        key={sponsor.name}
-                        rel="noopener noreferrer"
-                        target="_blank"
-                      >
-                        {card}
-                      </a>
-                    ) : (
-                      <div key={sponsor.name}>{card}</div>
-                    );
-                  })}
+                  {tier.sponsors.map((sponsor) => (
+                    <Fragment key={sponsor.name}>
+                      {sponsor.url ? (
+                        <a
+                          aria-label={`Visit ${sponsor.name} website (opens in new tab)`}
+                          className="transition-transform hover:scale-105"
+                          href={sponsor.url}
+                          rel="noopener noreferrer"
+                          target="_blank"
+                        >
+                          <div className="aspect-[3/2] rounded-lg bg-white border border-charcoal/10 flex items-center justify-center p-3">
+                            <img
+                              alt={sponsor.name}
+                              className={`max-h-full max-w-full object-contain ${sponsor.logoClassName ?? ''}`}
+                              src={sponsor.logo}
+                            />
+                          </div>
+                        </a>
+                      ) : (
+                        <div className="aspect-[3/2] rounded-lg bg-white border border-charcoal/10 flex items-center justify-center p-3">
+                          <img
+                            alt={sponsor.name}
+                            className={`max-h-full max-w-full object-contain ${sponsor.logoClassName ?? ''}`}
+                            src={sponsor.logo}
+                          />
+                        </div>
+                      )}
+                    </Fragment>
+                  ))}
                   {Array.from({
                     length: Math.min(1, Math.max(0, tier.slots - tier.sponsors.length)),
-                  }).map((_, i) => (
+                  }).map(() => (
                     <div
                       className={`aspect-[3/2] rounded-lg ${tier.bgLight} border-2 border-dashed ${tier.borderColor} flex items-center justify-center transition-colors hover:border-spirit-gold/50`}
-                      key={`empty-${i}`}
+                      key={`${tier.name}-empty-placeholder`}
                     >
                       <span className="text-xs font-medium text-charcoal/30 text-center px-3">
                         Your Logo Here

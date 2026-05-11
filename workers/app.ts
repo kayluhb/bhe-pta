@@ -30,6 +30,10 @@ interface Env {
   /** HMAC secret for time-limited public preview URLs (GET /api/reimbursement/file). */
   FILE_URL_SIGNING_SECRET?: string;
   RECEIPT_CONVERSION_QUEUE: Queue;
+  /** Optional stage-only HTTP Basic Auth username. */
+  STAGE_BASIC_AUTH_USER?: string;
+  /** Optional stage-only HTTP Basic Auth password. */
+  STAGE_BASIC_AUTH_PASSWORD?: string;
 }
 
 declare module 'react-router' {
@@ -45,6 +49,38 @@ const requestHandler = createRequestHandler(
   () => import('virtual:react-router/server-build'),
   import.meta.env.MODE,
 );
+
+function unauthorizedStageResponse() {
+  return new Response('Authentication required', {
+    status: 401,
+    headers: {
+      'WWW-Authenticate': 'Basic realm="BHE PTA Stage"',
+    },
+  });
+}
+
+function hasValidStageBasicAuth(request: Request, env: Env): boolean {
+  const expectedUser = env.STAGE_BASIC_AUTH_USER?.trim();
+  const expectedPassword = env.STAGE_BASIC_AUTH_PASSWORD;
+
+  // Disabled unless both vars are configured (intended for stage only).
+  if (!expectedUser || !expectedPassword) return true;
+
+  const auth = request.headers.get('Authorization');
+  if (!auth?.startsWith('Basic ')) return false;
+
+  try {
+    const encoded = auth.slice(6).trim();
+    const decoded = atob(encoded);
+    const colon = decoded.indexOf(':');
+    if (colon < 0) return false;
+    const user = decoded.slice(0, colon);
+    const password = decoded.slice(colon + 1);
+    return user === expectedUser && password === expectedPassword;
+  } catch {
+    return false;
+  }
+}
 
 async function runDataRefresh(env: Env): Promise<string[]> {
   const log: string[] = [];
@@ -88,7 +124,7 @@ async function runDataRefresh(env: Env): Promise<string[]> {
   }
 
   if (ptaCalendarResult.status === 'rejected') {
-    const msg = 'Failed to fetch PTA calendar: ' + ptaCalendarResult.reason;
+    const msg = `Failed to fetch PTA calendar: ${ptaCalendarResult.reason}`;
     console.error(msg);
     log.push(msg);
   }
@@ -97,7 +133,7 @@ async function runDataRefresh(env: Env): Promise<string[]> {
     await env.BHE_PTA_NEWSLETTERS.put('latest', JSON.stringify(mailchimpResult.value));
     log.push(`Stored ${mailchimpResult.value.length} PTA newsletters from Mailchimp`);
   } else if (mailchimpResult.status === 'rejected') {
-    const msg = 'Failed to fetch Mailchimp campaigns: ' + mailchimpResult.reason;
+    const msg = `Failed to fetch Mailchimp campaigns: ${mailchimpResult.reason}`;
     console.error(msg);
     log.push(msg);
   }
@@ -108,6 +144,24 @@ async function runDataRefresh(env: Env): Promise<string[]> {
 const handler = {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+
+    // Some bots/CDNs send OPTIONS probes to arbitrary paths; React Router throws on
+    // unmatched OPTIONS requests, so handle them at the edge first.
+    if (request.method === 'OPTIONS') {
+      const allowMethods =
+        url.pathname === '/api/refresh' ? 'GET, HEAD, OPTIONS, POST' : 'GET, HEAD, OPTIONS';
+      return new Response(null, {
+        status: 204,
+        headers: {
+          Allow: allowMethods,
+        },
+      });
+    }
+
+    if (!hasValidStageBasicAuth(request, env)) {
+      return unauthorizedStageResponse();
+    }
+
     if (url.hostname.startsWith('www.')) {
       url.hostname = url.hostname.replace(/^www\./, '');
       return Response.redirect(url.toString(), 301);
@@ -140,7 +194,7 @@ const handler = {
       "font-src 'self' https://fonts.gstatic.com data:",
       "img-src 'self' data: https: blob:",
       "connect-src 'self' https://challenges.cloudflare.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io",
-      "frame-src https://challenges.cloudflare.com",
+      'frame-src https://challenges.cloudflare.com',
       "base-uri 'self'",
       "form-action 'self'",
       "frame-ancestors 'self'",
@@ -182,18 +236,15 @@ const handler = {
   },
 } satisfies ExportedHandler<Env>;
 
-export default Sentry.withSentry<Env>(
-  (env: Env) => {
-    if (!env.SENTRY_DSN) {
-      return undefined;
-    }
+export default Sentry.withSentry<Env>((env: Env) => {
+  if (!env.SENTRY_DSN) {
+    return undefined;
+  }
 
-    return {
-      dsn: env.SENTRY_DSN,
-      // Keep sampling conservative for free-tier quota.
-      tracesSampleRate: 0.1,
-      sendDefaultPii: true,
-    };
-  },
-  handler,
-);
+  return {
+    dsn: env.SENTRY_DSN,
+    // Keep sampling conservative for free-tier quota.
+    tracesSampleRate: 0.1,
+    sendDefaultPii: true,
+  };
+}, handler);

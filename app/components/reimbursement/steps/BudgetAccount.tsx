@@ -30,7 +30,7 @@ function SearchableSelect({
   const [search, setSearch] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
-  const listboxRef = useRef<HTMLUListElement>(null);
+  const listboxRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const id = useId();
@@ -162,19 +162,24 @@ function SearchableSelect({
           </button>
         )}
         {isOpen && (
-          <ul
+          <div
             className="absolute z-10 w-full mt-1 bg-white border border-charcoal/20 rounded-lg shadow-lg max-h-60 overflow-auto"
             id={listboxId}
             ref={listboxRef}
             role="listbox"
           >
             {filteredAccounts.length === 0 ? (
-              <li aria-selected={false} className="px-3 py-2 text-charcoal/70" role="option">
+              <div
+                aria-selected={false}
+                className="px-3 py-2 text-charcoal/70"
+                role="option"
+                tabIndex={-1}
+              >
                 No accounts found
-              </li>
+              </div>
             ) : (
               filteredAccounts.map((account, index) => (
-                <li
+                <div
                   aria-selected={account === value}
                   className={`px-3 py-2 cursor-pointer text-charcoal hover:bg-eagle-blue/10 ${
                     account === value ? 'bg-eagle-blue/20 font-medium' : ''
@@ -186,12 +191,13 @@ function SearchableSelect({
                     handleSelect(account);
                   }}
                   role="option"
+                  tabIndex={index === activeIndex ? 0 : -1}
                 >
                   {account}
-                </li>
+                </div>
               ))
             )}
-          </ul>
+          </div>
         )}
       </div>
     </div>
@@ -359,7 +365,12 @@ export function BudgetAccount({
                 Assign accounts to each receipt:
               </h3>
               {receipts.map((receipt, index) => (
-                <div className="p-3 bg-warm-white rounded-lg border border-charcoal/10" key={index}>
+                <div
+                  className="p-3 bg-warm-white rounded-lg border border-charcoal/10"
+                  key={
+                    receipt.clientKey ?? `${receipt.date}-${receipt.amount}-${receipt.description}`
+                  }
+                >
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm font-medium text-charcoal">
                       Receipt {index + 1}: {receipt.description || 'No description'}

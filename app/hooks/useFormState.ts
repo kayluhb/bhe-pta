@@ -1,9 +1,10 @@
 import {useCallback, useEffect, useState} from 'react';
 import {
-  MAX_RECEIPT_FILE_RECORDS,
   type BudgetSelectionData,
   type FileData,
+  MAX_RECEIPT_UPLOADS,
   type ReceiptData,
+  type ReceiptUploadData,
   type RequesterData,
 } from '~/lib/reimbursement/validation';
 
@@ -40,7 +41,7 @@ function saveRequesterInfo(data: RequesterData) {
 export interface FormState {
   requester: RequesterData;
   receipts: ReceiptData[];
-  /** One array per receipt row; each entry holds converted + optional original from one upload. */
+  /** One array per receipt row; each entry is the original file from a single upload (carries its `jobId`). */
   filesByReceipt: FileData[][];
   budget: BudgetSelectionData;
 }
@@ -88,9 +89,7 @@ function buildDefaultFormState(): FormState {
 const TOTAL_STEPS = 4; // Info, Receipts, Budget, Review
 
 function reindexFilesByReceipt(rows: FileData[][]): FileData[][] {
-  return rows.map((files, i) =>
-    files.map((f) => ({...f, receiptLineIndex: i + 1})),
-  );
+  return rows.map((files, i) => files.map((f) => ({...f, receiptLineIndex: i + 1})));
 }
 
 export function useFormState() {
@@ -178,10 +177,8 @@ export function useFormState() {
       const nextRows = [...prev.filesByReceipt];
       nextRows[receiptIndex] = stamped;
       const total = nextRows.reduce((s, row) => s + row.length, 0);
-      if (total > MAX_RECEIPT_FILE_RECORDS) {
-        setFileError(
-          'You can attach up to 8 receipt images or PDFs total (each upload stores an original and a converted copy).',
-        );
+      if (total > MAX_RECEIPT_UPLOADS) {
+        setFileError(`You can attach up to ${MAX_RECEIPT_UPLOADS} receipt images or PDFs total.`);
         return prev;
       }
       setFileError(null);
@@ -198,10 +195,8 @@ export function useFormState() {
       const existing = nextRows[receiptIndex] ?? [];
       nextRows[receiptIndex] = [...existing, ...stamped];
       const total = nextRows.reduce((sum, row) => sum + row.length, 0);
-      if (total > MAX_RECEIPT_FILE_RECORDS) {
-        setFileError(
-          'You can attach up to 8 receipt images or PDFs total (each upload stores an original and a converted copy).',
-        );
+      if (total > MAX_RECEIPT_UPLOADS) {
+        setFileError(`You can attach up to ${MAX_RECEIPT_UPLOADS} receipt images or PDFs total.`);
         return prev;
       }
       didAppend = true;
@@ -260,6 +255,18 @@ export function useFormState() {
     return state.filesByReceipt.flat();
   }, [state.filesByReceipt]);
 
+  const flattenReceiptUploadsForSubmit = useCallback((): ReceiptUploadData[] => {
+    const out: ReceiptUploadData[] = [];
+    for (const row of state.filesByReceipt) {
+      for (const file of row) {
+        if (file.jobId) {
+          out.push({jobId: file.jobId, receiptLineIndex: file.receiptLineIndex});
+        }
+      }
+    }
+    return out;
+  }, [state.filesByReceipt]);
+
   const getReceiptBudgetAccount = useCallback(
     (index: number): string => {
       if (state.budget.splitAccounts && state.receipts[index]?.budgetAccount) {
@@ -283,6 +290,7 @@ export function useFormState() {
     appendReceiptFiles,
     removeFileFromReceipt,
     flattenFilesForSubmit,
+    flattenReceiptUploadsForSubmit,
     updateBudget,
     nextStep,
     prevStep,

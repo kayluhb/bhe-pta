@@ -35,7 +35,7 @@ export async function loader({context}: Route.LoaderArgs) {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatDate(dateStr: string): string {
-  const date = new Date(dateStr + 'T00:00:00');
+  const date = new Date(`${dateStr}T00:00:00`);
   return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -134,6 +134,7 @@ export default function News() {
                 }}
                 role="tab"
                 tabIndex={activeTab === tab.id ? 0 : -1}
+                type="button"
               >
                 {tab.label}
                 {activeTab === tab.id && (
@@ -165,6 +166,7 @@ export default function News() {
                     [activeTab]: prev[activeTab] + 5,
                   }))
                 }
+                type="button"
               >
                 Load More
                 <svg

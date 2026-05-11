@@ -39,9 +39,7 @@ export function buildPdfDataFromSubmission(
     placeOfPurchase: r.vendor?.trim() ? r.vendor : undefined,
   }));
 
-  const categories = entries
-    .map((r) => r.category)
-    .filter((c): c is string => Boolean(c?.trim()));
+  const categories = entries.map((r) => r.category).filter((c): c is string => Boolean(c?.trim()));
   const distinct = new Set(categories);
   const primaryAccount = categories[0] ?? '—';
 
