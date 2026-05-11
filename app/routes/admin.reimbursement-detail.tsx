@@ -1,6 +1,11 @@
 import {useEffect, useState} from 'react';
 import {useLoaderData, useRevalidator} from 'react-router';
 import {requireAdmin, type SessionPayload} from '~/lib/admin/auth';
+import {
+  ADMIN_SUBMISSION_STATUSES,
+  ADMIN_SUBMISSION_STATUS_LABELS,
+  isAdminSubmissionStatus,
+} from '~/lib/admin/reimbursement-submission-statuses';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/admin.reimbursement-detail';
 
@@ -101,20 +106,11 @@ function StatusBadge({status}: {status: string}) {
     rejected: 'bg-red-100 text-red-700 border-red-300',
   };
 
-  const labels: Record<string, string> = {
-    approved: 'Approved',
-    check_deposited: 'Check Deposited',
-    check_delivered: 'Check Delivered',
-    check_written: 'Check Written',
-    pending: 'Pending',
-    rejected: 'Rejected',
-  };
-
   return (
     <span
       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[status] ?? 'bg-gray-100 text-gray-700 border-gray-300'}`}
     >
-      {labels[status] ?? status}
+      {isAdminSubmissionStatus(status) ? ADMIN_SUBMISSION_STATUS_LABELS[status] : status}
     </span>
   );
 }
@@ -852,12 +848,11 @@ export default function AdminReimbursementDetail() {
                 onChange={(e) => setStatus(e.target.value)}
                 value={status}
               >
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="check_written">Check Written</option>
-                <option value="check_delivered">Check Delivered</option>
-                <option value="check_deposited">Check Deposited</option>
-                <option value="rejected">Rejected</option>
+                {ADMIN_SUBMISSION_STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {ADMIN_SUBMISSION_STATUS_LABELS[s]}
+                  </option>
+                ))}
               </select>
             </div>
             {status === 'check_delivered' && (

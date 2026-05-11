@@ -1,15 +1,10 @@
 import {requireAdmin} from '~/lib/admin/auth';
+import {
+  ADMIN_SUBMISSION_STATUSES,
+  isAdminSubmissionStatus,
+} from '~/lib/admin/reimbursement-submission-statuses';
 import {sendCheckDeliveredEmail} from '~/lib/reimbursement/email/resend';
 import type {Route} from './+types/api.admin.reimbursement-status';
-
-const VALID_STATUSES = [
-  'pending',
-  'approved',
-  'check_written',
-  'check_delivered',
-  'check_deposited',
-  'rejected',
-];
 
 export async function action({request, params, context}: Route.ActionArgs) {
   const auth = await requireAdmin(request, context.cloudflare.env);
@@ -18,9 +13,9 @@ export async function action({request, params, context}: Route.ActionArgs) {
   const id = params.id;
   const body = (await request.json()) as {status?: string; notes?: string; skipEmail?: boolean};
 
-  if (!body.status || !VALID_STATUSES.includes(body.status)) {
+  if (!body.status || !isAdminSubmissionStatus(body.status)) {
     return Response.json(
-      {error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}`},
+      {error: `Invalid status. Must be one of: ${ADMIN_SUBMISSION_STATUSES.join(', ')}`},
       {status: 400},
     );
   }

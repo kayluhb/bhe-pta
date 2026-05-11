@@ -1,4 +1,5 @@
 import {requireAdmin} from '~/lib/admin/auth';
+import {submissionSearchCondition} from '~/lib/admin/submission-search-sql';
 import type {Route} from './+types/api.admin.reimbursements-export';
 
 function escapeCsvValue(value: string | number | null | undefined): string {
@@ -39,6 +40,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
   const idsParam = url.searchParams.get('ids');
   const schoolYearFilter = url.searchParams.get('schoolYear');
   const statusFilter = url.searchParams.get('status');
+  const qParam = url.searchParams.get('q') ?? '';
 
   const db = context.cloudflare.env.REIMBURSEMENT_DB;
 
@@ -52,19 +54,19 @@ export async function loader({request, context}: Route.LoaderArgs) {
     LEFT JOIN receipt_entries r ON r.submission_id = s.id
   `;
 
-  const params: string[] = [];
+  const binds: (string | number)[] = [];
   const conditions: string[] = [];
 
   if (idsParam) {
     const ids = idsParam.split(',').filter(Boolean);
     if (ids.length > 0) {
       conditions.push(`s.id IN (${ids.map(() => '?').join(', ')})`);
-      params.push(...ids);
+      binds.push(...ids);
     }
   } else {
     if (statusFilter) {
       conditions.push('s.status = ?');
-      params.push(statusFilter);
+      binds.push(statusFilter);
     }
     if (schoolYearFilter) {
       const valid = await db
@@ -73,8 +75,13 @@ export async function loader({request, context}: Route.LoaderArgs) {
         .first<{id: string}>();
       if (valid) {
         conditions.push('s.school_year_id = ?');
-        params.push(schoolYearFilter);
+        binds.push(schoolYearFilter);
       }
+    }
+    const search = submissionSearchCondition(qParam, 's');
+    if (search.sql) {
+      conditions.push(search.sql);
+      binds.push(...search.binds);
     }
   }
 
@@ -84,7 +91,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
 
   query += ' ORDER BY s.submitted_at DESC, r.sort_order';
 
-  const stmt = params.length ? db.prepare(query).bind(...params) : db.prepare(query);
+  const stmt = binds.length ? db.prepare(query).bind(...binds) : db.prepare(query);
 
   const results = await stmt.all<ExportRow>();
 
