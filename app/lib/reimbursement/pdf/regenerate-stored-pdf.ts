@@ -72,7 +72,15 @@ export async function regenerateStoredSubmissionPdf(
   }
 
   const datePrefix = submission.submitted_at.slice(0, 10);
-  const slug = slugifyName(submission.requester_name, datePrefix);
+  const priorBasename =
+    submission.pdf_key
+      ?.split('/')
+      .pop()
+      ?.replace(/\.pdf$/i, '')
+      ?.trim() ?? '';
+  const slug = priorBasename.length
+    ? priorBasename
+    : slugifyName(submission.requester_name, datePrefix);
   const pdfFilename = buildPdfFilename(slug);
   const newKey = `submissions/${submissionId}/${pdfFilename}`;
 

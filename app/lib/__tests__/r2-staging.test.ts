@@ -8,6 +8,12 @@ describe('isValidStagingUploadKey', () => {
     expect(isValidStagingUploadKey(key)).toBe(true);
   });
 
+  it('accepts short converted staging PDF keys', () => {
+    const key =
+      'uploads/kathy-carr-1778621772980-5ea5d37f-0a8e-48a7-ae18-3d76c0532357-receipt-3-converted.pdf';
+    expect(isValidStagingUploadKey(key)).toBe(true);
+  });
+
   it('rejects empty, traversal, slashes, and bad patterns', () => {
     expect(isValidStagingUploadKey('')).toBe(false);
     expect(isValidStagingUploadKey('uploads/../x')).toBe(false);

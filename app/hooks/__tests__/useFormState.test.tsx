@@ -2,13 +2,14 @@
 import {act, renderHook} from '@testing-library/react';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
-import {MAX_RECEIPT_UPLOADS} from '~/lib/reimbursement/validation';
+import {MAX_RECEIPT_LINES, MAX_RECEIPT_UPLOADS} from '~/lib/reimbursement/validation';
 
 import {useFormState} from '../useFormState';
 
 describe('useFormState', () => {
   afterEach(() => {
     localStorage.clear();
+    sessionStorage.clear();
     vi.restoreAllMocks();
   });
 
@@ -21,12 +22,25 @@ describe('useFormState', () => {
     expect(result.current.state.requester.payableTo).toBe('P');
   });
 
+  it('assigns reimbursementDraftId via sessionStorage', async () => {
+    sessionStorage.clear();
+    const {result} = renderHook(() => useFormState());
+    await act(async () => {
+      await Promise.resolve();
+    });
+    const id = result.current.state.reimbursementDraftId;
+    expect(id).toMatch(
+      /^\d{10,20}-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+    );
+    expect(sessionStorage.getItem('bhe-pta-reimbursement-draft-id')).toBe(id);
+  });
+
   it('adds and removes receipt rows within limits', () => {
     const {result} = renderHook(() => useFormState());
     act(() => {
-      for (let i = 0; i < 5; i++) result.current.addReceipt();
+      for (let i = 0; i < MAX_RECEIPT_LINES + 1; i++) result.current.addReceipt();
     });
-    expect(result.current.state.receipts.length).toBe(4);
+    expect(result.current.state.receipts.length).toBe(MAX_RECEIPT_LINES);
     act(() => {
       result.current.removeReceipt(0);
     });

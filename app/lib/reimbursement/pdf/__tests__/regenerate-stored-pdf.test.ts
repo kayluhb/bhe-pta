@@ -71,9 +71,13 @@ describe('regenerateStoredSubmissionPdf', () => {
     const r2 = {delete: del, put} as unknown as R2Bucket;
 
     const out = await regenerateStoredSubmissionPdf(db, r2, 's1');
-    expect(out).toEqual({ok: true, pdfKey: expect.stringContaining('submissions/s1/')});
-    expect(put).toHaveBeenCalled();
-    expect(del).toHaveBeenCalledWith('submissions/s1/old.pdf');
+    expect(out).toEqual({ok: true, pdfKey: 'submissions/s1/old.pdf'});
+    expect(put).toHaveBeenCalledWith(
+      'submissions/s1/old.pdf',
+      expect.any(Uint8Array),
+      expect.objectContaining({httpMetadata: {contentType: 'application/pdf'}}),
+    );
+    expect(del).not.toHaveBeenCalled();
     expect(run).toHaveBeenCalled();
   });
 

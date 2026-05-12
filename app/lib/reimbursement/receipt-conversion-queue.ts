@@ -4,6 +4,7 @@ import {
   parseSubmissionReceiptLineForPdf,
   receiptFieldString,
 } from '~/lib/reimbursement/receipt';
+import {buildConvertedStagingPdfBasename} from '~/lib/reimbursement/receipt-staging-filenames';
 import {
   attachConvertedToSubmission,
   type ConvertedJobData,
@@ -33,6 +34,7 @@ interface ReceiptConversionJobRow {
   original_size: number;
   payable_to: string | null;
   receipt_number: string | null;
+  reimbursement_draft_id: string | null;
   submission_id: string | null;
   submission_slug: string | null;
   receipt_line_index: number | null;
@@ -100,7 +102,7 @@ async function loadLatestJobRow(
   return db
     .prepare(
       `SELECT id, status, original_key, original_filename, original_content_type, original_size,
-              payable_to, receipt_number, submission_id, submission_slug, receipt_line_index,
+              payable_to, receipt_number, reimbursement_draft_id, submission_id, submission_slug, receipt_line_index,
               converted_key, converted_filename, converted_size
        FROM receipt_conversion_jobs
        WHERE id = ?`,
@@ -168,10 +170,17 @@ export async function processReceiptConversionJob(
       submissionReceiptLine: lineForPdf,
     });
 
-    const baseName = row.original_filename.replace(/\.[^.]+$/, '');
-    const sanitizedName = baseName.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const convertedKey = `uploads/${Date.now()}-${crypto.randomUUID()}-${sanitizedName}.pdf`;
-    const convertedFilename = `${sanitizedName}-converted.pdf`;
+    const ts = Date.now();
+    const stagingUuid = crypto.randomUUID();
+    const convertedFilename = buildConvertedStagingPdfBasename({
+      newUuid: stagingUuid,
+      payableTo: row.payable_to,
+      receiptLineIndex: row.receipt_line_index,
+      receiptNumber: row.receipt_number,
+      reimbursementDraftId: row.reimbursement_draft_id,
+      timestamp: ts,
+    });
+    const convertedKey = `uploads/${convertedFilename}`;
 
     await env.R2_BUCKET.put(convertedKey, pdfBuffer, {
       httpMetadata: {contentType: 'application/pdf'},

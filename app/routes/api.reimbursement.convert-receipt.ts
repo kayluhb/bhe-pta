@@ -3,6 +3,7 @@ import {
   resolveFilePreviewSigningSecret,
   signFileAccess,
 } from '~/lib/reimbursement/file-url-signature';
+import {isValidReimbursementDraftId} from '~/lib/reimbursement/filename';
 import {ACCEPTED_TYPES, MAX_FILE_SIZE} from '~/lib/reimbursement/receipt';
 import {
   issueReceiptUploadContinuationToken,
@@ -79,6 +80,12 @@ export async function action({request, context}: Route.ActionArgs) {
 
     const payableTo = formData.get('payableTo') as string | null;
     const receiptNumber = formData.get('receiptNumber') as string | null;
+    const reimbursementDraftIdRaw = formData.get('reimbursementDraftId') as string | null;
+    const reimbursementDraftId = reimbursementDraftIdRaw?.trim() || null;
+    if (reimbursementDraftId && !isValidReimbursementDraftId(reimbursementDraftId)) {
+      logConvertReceipt({requestId, outcome: 'reject', reason: 'bad_reimbursement_draft_id'});
+      return Response.json({error: 'Invalid reimbursement draft id.'}, {status: 400});
+    }
 
     // Read once: Workers may not allow a second file.arrayBuffer().
     const fileBytes = new Uint8Array(await file.arrayBuffer());
@@ -123,8 +130,8 @@ export async function action({request, context}: Route.ActionArgs) {
     await db
       .prepare(
         `INSERT INTO receipt_conversion_jobs
-         (id, status, original_key, original_filename, original_content_type, original_size, receipt_number, payable_to)
-         VALUES (?, 'queued', ?, ?, ?, ?, ?, ?)`,
+         (id, status, original_key, original_filename, original_content_type, original_size, receipt_number, payable_to, reimbursement_draft_id)
+         VALUES (?, 'queued', ?, ?, ?, ?, ?, ?, ?)`,
       )
       .bind(
         jobId,
@@ -134,6 +141,7 @@ export async function action({request, context}: Route.ActionArgs) {
         fileBytes.byteLength,
         receiptNumber?.trim() || null,
         payableTo?.trim() || null,
+        reimbursementDraftId,
       )
       .run();
 

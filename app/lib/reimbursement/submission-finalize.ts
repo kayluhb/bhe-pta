@@ -52,7 +52,7 @@ function jobSuffix(jobId: string): string {
 }
 
 /**
- * Move a converted PDF from its staging key (`uploads/...`) to the friendly
+ * Move a converted PDF from its staging key (`uploads/{slug}-{ts}-{uuid}-receipt-{n}-converted.pdf`) to the friendly
  * `submissions/{id}/{slug}-receipt-{lineIdx}-{jobSuffix}.pdf` and insert a `file_attachments` row.
  * Idempotent: if a `file_attachments` row already exists for the friendly key it returns
  * without re-doing work, and skips the move if the staging object is already gone.

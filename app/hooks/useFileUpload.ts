@@ -63,9 +63,11 @@ export function useFileUpload(turnstileToken: string | null) {
       items: Array<{id: string; file: File}>,
       receiptRowIndex: number,
       payableTo?: string,
+      reimbursementDraftId?: string,
     ): Promise<(FileData | null)[]> => {
       const receiptLineIndex = receiptRowIndex + 1;
       const out: (FileData | null)[] = items.map(() => null);
+      const draftId = reimbursementDraftId?.trim();
 
       const setProgress = (id: string, filename: string, progress: number, receiptRow: number) => {
         setUploads((prev) => {
@@ -106,6 +108,7 @@ export function useFileUpload(turnstileToken: string | null) {
         formData.append('file', file);
         if (payableTo) formData.append('payableTo', payableTo);
         formData.append('receiptNumber', String(receiptLineIndex));
+        if (draftId) formData.append('reimbursementDraftId', draftId);
 
         const headers: Record<string, string> = {};
         if (auth === 'continuation') {

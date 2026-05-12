@@ -4,21 +4,23 @@ import type {UploadProgress} from '~/hooks/useFileUpload';
 import type {FileData} from '~/lib/reimbursement/validation';
 
 interface ReceiptLineFilesProps {
+  clearUpload: (id: string) => void;
+  disabled: boolean;
+  onAppendRowFiles: (files: FileData[]) => boolean;
+  onBatchUploadComplete: () => void;
+  onRemoveFile: (key: string) => void;
+  payableTo: string;
   receiptRowIndex: number;
+  reimbursementDraftId: string;
+  remainingFileSlots: number;
   rowFiles: FileData[];
   rowUploads: UploadProgress[];
   uploadFilesBatch: (
     items: Array<{id: string; file: File}>,
     receiptRowIndex: number,
     payableTo?: string,
+    reimbursementDraftId?: string,
   ) => Promise<(FileData | null)[]>;
-  clearUpload: (id: string) => void;
-  onBatchUploadComplete: () => void;
-  onAppendRowFiles: (files: FileData[]) => boolean;
-  onRemoveFile: (key: string) => void;
-  payableTo: string;
-  disabled: boolean;
-  remainingFileSlots: number;
 }
 
 function previewFileHref(file: FileData): string | null {
@@ -40,17 +42,18 @@ function formatFileSize(bytes: number) {
 }
 
 export function ReceiptLineFiles({
+  clearUpload,
+  disabled,
+  onAppendRowFiles,
+  onBatchUploadComplete,
+  onRemoveFile,
+  payableTo,
   receiptRowIndex,
+  reimbursementDraftId,
+  remainingFileSlots,
   rowFiles,
   rowUploads,
   uploadFilesBatch,
-  clearUpload,
-  onBatchUploadComplete,
-  onAppendRowFiles,
-  onRemoveFile,
-  payableTo,
-  disabled,
-  remainingFileSlots,
 }: ReceiptLineFilesProps) {
   const [selectionError, setSelectionError] = useState<string | null>(null);
 
@@ -71,6 +74,11 @@ export function ReceiptLineFiles({
       return;
     }
 
+    if (!reimbursementDraftId.trim()) {
+      setSelectionError('Preparing your request id. Please try again in a moment.');
+      return;
+    }
+
     const filesToProcess =
       selectedFiles.length > remainingFileSlots
         ? selectedFiles.slice(0, remainingFileSlots)
@@ -84,7 +92,12 @@ export function ReceiptLineFiles({
 
     const slots = filesToProcess.map((file) => ({id: crypto.randomUUID(), file}));
 
-    const batchResults = await uploadFilesBatch(slots, receiptRowIndex, payableTo);
+    const batchResults = await uploadFilesBatch(
+      slots,
+      receiptRowIndex,
+      payableTo,
+      reimbursementDraftId,
+    );
 
     const anyUploadFailed = batchResults.some((r) => r === null);
     const filesToAppend = batchResults.filter((r): r is FileData => r !== null);

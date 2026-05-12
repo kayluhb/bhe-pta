@@ -1,4 +1,4 @@
-import {BUDGET_ACCOUNTS} from '~/lib/reimbursement/validation';
+import {BUDGET_ACCOUNTS, MAX_RECEIPT_LINES} from '~/lib/reimbursement/validation';
 import {requireTurnstile} from '~/lib/turnstile';
 import type {Route} from './+types/api.reimbursement.suggest-budget';
 
@@ -28,7 +28,7 @@ export async function action({request, context}: Route.ActionArgs) {
       return Response.json({error: 'receipts array is required'}, {status: 400});
     }
 
-    const receipts = body.receipts.slice(0, 4);
+    const receipts = body.receipts.slice(0, MAX_RECEIPT_LINES);
 
     const receiptDescriptions = receipts
       .map(

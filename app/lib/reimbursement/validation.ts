@@ -1,5 +1,6 @@
 import {z} from 'zod';
 
+import {isValidReimbursementDraftId} from '~/lib/reimbursement/filename';
 import {isValidStagingUploadKey} from '~/lib/reimbursement/r2-staging';
 
 export const BUDGET_ACCOUNTS = [
@@ -123,6 +124,15 @@ export const adminTreasurerFieldsSchema = z.object({
 
 export type AdminTreasurerFields = z.infer<typeof adminTreasurerFieldsSchema>;
 
+/** Maximum reimbursement line items (receipt rows) per submission. */
+export const MAX_RECEIPT_LINES = 10;
+
+/** Maximum original receipt files per submission (matches line capacity). */
+export const MAX_RECEIPT_UPLOADS = MAX_RECEIPT_LINES;
+
+/** Stored rows per submission: each user upload adds converted + original (2 rows). */
+export const MAX_RECEIPT_FILE_RECORDS = MAX_RECEIPT_UPLOADS * 2;
+
 export const receiptSchema = z.object({
   /** Stable React list key; not used by the server beyond optional passthrough. */
   clientKey: z.string().optional(),
@@ -139,7 +149,7 @@ export const fileSchema = z.object({
   contentType: z.string(),
   size: z.number(),
   /** 1-based index matching the receipt row on the form (used for R2 friendly names). */
-  receiptLineIndex: z.number().int().min(1).max(4),
+  receiptLineIndex: z.number().int().min(1).max(MAX_RECEIPT_LINES),
   /** Conversion job that produced this upload (links the converted PDF once it's done). */
   jobId: z.string().uuid().optional(),
   /** Signed preview URL params from convert-receipt (not persisted on submit). */
@@ -152,20 +162,22 @@ export const budgetSelectionSchema = z.object({
   splitAccounts: z.boolean().default(false),
 });
 
-/** Maximum number of user-visible uploads per submission (one original file each). */
-export const MAX_RECEIPT_UPLOADS = 8;
-
-/** Stored rows per submission: each user upload adds converted + original (2 rows). 16 = 8 uploads. */
-export const MAX_RECEIPT_FILE_RECORDS = MAX_RECEIPT_UPLOADS * 2;
-
 export const receiptUploadSchema = z.object({
   jobId: z.string().uuid(),
-  receiptLineIndex: z.number().int().min(1).max(4),
+  receiptLineIndex: z.number().int().min(1).max(MAX_RECEIPT_LINES),
 });
 
 export const submissionSchema = z.object({
+  /** Per-tab draft id `{ms}-{uuid}`; used in PDF / attachment filenames with payable name. */
+  reimbursementDraftId: z
+    .string()
+    .min(1, 'Reimbursement draft id is required')
+    .refine(isValidReimbursementDraftId, 'Invalid reimbursement draft id'),
   requester: requesterSchema,
-  receipts: z.array(receiptSchema).min(1, 'At least one receipt is required').max(4),
+  receipts: z
+    .array(receiptSchema)
+    .min(1, 'At least one receipt is required')
+    .max(MAX_RECEIPT_LINES),
   files: z.array(fileSchema).max(MAX_RECEIPT_UPLOADS),
   receiptUploads: z.array(receiptUploadSchema).max(MAX_RECEIPT_UPLOADS).default([]),
   budget: budgetSelectionSchema,

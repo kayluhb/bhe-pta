@@ -1,5 +1,6 @@
-import {buildPdfFilename, slugifyName} from '~/lib/reimbursement/filename';
+import {buildPdfFilename, buildSubmissionSlug} from '~/lib/reimbursement/filename';
 import {generatePDF} from '~/lib/reimbursement/pdf/generator';
+import {resolveSchoolYearIdForNewSubmission} from '~/lib/reimbursement/school-years';
 import {
   attachConvertedToSubmission,
   type ConvertedJobData,
@@ -7,7 +8,6 @@ import {
   releaseEmailDispatchClaim,
   tryClaimEmailDispatch,
 } from '~/lib/reimbursement/submission-finalize';
-import {resolveSchoolYearIdForNewSubmission} from '~/lib/reimbursement/school-years';
 import {submissionSchema} from '~/lib/reimbursement/validation';
 import type {Route} from './+types/api.reimbursement.submit';
 
@@ -39,7 +39,12 @@ function jobSuffix(jobId: string): string {
   return jobId.split('-')[0] || jobId.slice(0, 8);
 }
 
-function buildFriendlyOriginalName(slug: string, receiptLineIndex: number, jobId: string, ext: string) {
+function buildFriendlyOriginalName(
+  slug: string,
+  receiptLineIndex: number,
+  jobId: string,
+  ext: string,
+) {
   return `${slug}-receipt-${receiptLineIndex}-${jobSuffix(jobId)}-original.${ext}`;
 }
 
@@ -89,7 +94,8 @@ export async function action({request, context}: Route.ActionArgs) {
       );
     }
 
-    const {requester, receipts, files, receiptUploads, budget} = validationResult.data;
+    const {budget, files, receiptUploads, receipts, reimbursementDraftId, requester} =
+      validationResult.data;
 
     const env = context.cloudflare.env;
     const db = env.REIMBURSEMENT_DB;
@@ -159,9 +165,7 @@ export async function action({request, context}: Route.ActionArgs) {
         if (!job) continue;
         const originalHead = await r2.head(job.original_key);
         const convertedHead =
-          job.status === 'complete' && job.converted_key
-            ? await r2.head(job.converted_key)
-            : null;
+          job.status === 'complete' && job.converted_key ? await r2.head(job.converted_key) : null;
         if (!originalHead && !convertedHead) {
           return Response.json(
             {error: 'An uploaded file is missing or expired. Please re-upload your receipts.'},
@@ -193,7 +197,7 @@ export async function action({request, context}: Route.ActionArgs) {
       budget,
     });
 
-    const slug = slugifyName(requester.payableTo, submittedAt.slice(0, 10));
+    const slug = buildSubmissionSlug(requester.payableTo, reimbursementDraftId);
     const pdfFilename = buildPdfFilename(slug);
     const pdfKey = `submissions/${submissionId}/${pdfFilename}`;
     await r2.put(pdfKey, pdfBuffer, {

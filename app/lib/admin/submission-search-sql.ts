@@ -6,7 +6,7 @@ export function escapeSqlLikePattern(s: string): string {
 const LIKE_ESCAPE = "ESCAPE '\\'";
 
 /**
- * WHERE fragment matching requester name/email; if `term` is all digits, also matches submission `id`.
+ * WHERE fragment matching requester name/email, check number, and (if `term` is all digits) submission `id`.
  * `alias` is optional table prefix (e.g. `s` for `s.requester_name`).
  */
 export function submissionSearchCondition(
@@ -19,12 +19,12 @@ export function submissionSearchCondition(
   const pattern = `%${escapeSqlLikePattern(t)}%`;
   if (/^\d+$/.test(t)) {
     return {
-      binds: [Number(t), pattern, pattern],
-      sql: `(${col('id')} = ? OR ${col('requester_name')} LIKE ? ${LIKE_ESCAPE} OR ${col('requester_email')} LIKE ? ${LIKE_ESCAPE})`,
+      binds: [Number(t), pattern, pattern, pattern],
+      sql: `(${col('id')} = ? OR ${col('requester_name')} LIKE ? ${LIKE_ESCAPE} OR ${col('requester_email')} LIKE ? ${LIKE_ESCAPE} OR ${col('check_number')} LIKE ? ${LIKE_ESCAPE})`,
     };
   }
   return {
-    binds: [pattern, pattern],
-    sql: `(${col('requester_name')} LIKE ? ${LIKE_ESCAPE} OR ${col('requester_email')} LIKE ? ${LIKE_ESCAPE})`,
+    binds: [pattern, pattern, pattern],
+    sql: `(${col('requester_name')} LIKE ? ${LIKE_ESCAPE} OR ${col('requester_email')} LIKE ? ${LIKE_ESCAPE} OR ${col('check_number')} LIKE ? ${LIKE_ESCAPE})`,
   };
 }

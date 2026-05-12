@@ -1,9 +1,9 @@
-import {useEffect, useState, type ReactNode} from 'react';
+import {type ReactNode, useEffect, useState} from 'react';
 import {useLoaderData, useNavigate, useRevalidator} from 'react-router';
 import {requireAdmin, type SessionPayload} from '~/lib/admin/auth';
 import {
-  ADMIN_SUBMISSION_STATUSES,
   ADMIN_SUBMISSION_STATUS_LABELS,
+  ADMIN_SUBMISSION_STATUSES,
   isAdminSubmissionStatus,
 } from '~/lib/admin/reimbursement-submission-statuses';
 import {submissionSearchCondition} from '~/lib/admin/submission-search-sql';
@@ -26,6 +26,7 @@ const VALID_SORT_COLUMNS = [
 const VALID_ORDERS = ['asc', 'desc'] as const;
 
 interface Submission {
+  check_number: string | null;
   id: string;
   requester_email: string;
   requester_name: string;
@@ -141,7 +142,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
     : db.prepare(snapshotSql).first<SnapshotRow>();
 
   const listSql = `SELECT s.id, s.requester_name, s.requester_email, s.total_amount, s.status, s.submitted_at, s.updated_at,
-       s.school_year_id, y.label AS school_year_label
+       s.school_year_id, y.label AS school_year_label, s.check_number
      FROM submissions s
      LEFT JOIN school_years y ON y.id = s.school_year_id
      ${whereClause}
@@ -162,8 +163,14 @@ export async function loader({request, context}: Route.LoaderArgs) {
 
   const [listBundle, snapshotRow, aggResult] = await Promise.all([
     Promise.all([
-      db.prepare(listSql).bind(...whereBinds, PAGE_SIZE, offset).all<Submission>(),
-      db.prepare(countSql).bind(...whereBinds).first<{count: number}>(),
+      db
+        .prepare(listSql)
+        .bind(...whereBinds, PAGE_SIZE, offset)
+        .all<Submission>(),
+      db
+        .prepare(countSql)
+        .bind(...whereBinds)
+        .first<{count: number}>(),
     ]),
     snapshotPromise,
     aggPromise,
@@ -612,15 +619,12 @@ export default function AdminReimbursements() {
             Snapshot
           </h2>
           <p className="mt-1 text-xs text-gray-500 font-body max-w-3xl mb-4">
-            Volume and pipeline for the selected <strong className="font-medium">school year</strong>{' '}
-            (or all years). Table filters below do not change these totals.
+            Volume and pipeline for the selected{' '}
+            <strong className="font-medium">school year</strong> (or all years). Table filters below
+            do not change these totals.
           </p>
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-            <KpiTile
-              label="Submissions"
-              sublabel="In scope"
-              value={snapshot.totalSubmissions}
-            />
+            <KpiTile label="Submissions" sublabel="In scope" value={snapshot.totalSubmissions} />
             <KpiTile
               label="Total requested"
               sublabel="Sum of claim totals"
@@ -652,16 +656,8 @@ export default function AdminReimbursements() {
               sublabel="Approved + uncashed"
               value={formatAmount(snapshot.inPipelineAmount)}
             />
-            <KpiTile
-              label="New (7 days)"
-              sublabel="By submit date"
-              value={snapshot.newLast7d}
-            />
-            <KpiTile
-              label="New (30 days)"
-              sublabel="By submit date"
-              value={snapshot.newLast30d}
-            />
+            <KpiTile label="New (7 days)" sublabel="By submit date" value={snapshot.newLast7d} />
+            <KpiTile label="New (30 days)" sublabel="By submit date" value={snapshot.newLast30d} />
             <KpiTile
               label="Oldest pending"
               sublabel="Submitted"
@@ -731,40 +727,57 @@ export default function AdminReimbursements() {
         </section>
 
         {/* Filter Bar */}
-        <div className="flex flex-wrap items-center gap-3 mb-6">
-          <label className="text-sm font-medium text-charcoal font-body" htmlFor="school-year-filter">
-            School year:
-          </label>
-          <select
-            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
-            id="school-year-filter"
-            onChange={handleSchoolYearChange}
-            value={filters.schoolYear}
-          >
-            <option value="">All years</option>
-            {schoolYears.map((y) => (
-              <option key={y.id} value={y.id}>
-                {y.label}
-              </option>
-            ))}
-          </select>
-          <label className="text-sm font-medium text-charcoal font-body" htmlFor="status-filter">
-            Status:
-          </label>
-          <select
-            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
-            id="status-filter"
-            onChange={handleStatusChange}
-            value={filters.status}
-          >
-            {statusFilterSelectOptions(stats).map((opt) => (
-              <option key={opt.value === '' ? 'all' : opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+        <div className="mb-6 flex flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <label
+              className="text-sm font-medium text-charcoal font-body"
+              htmlFor="school-year-filter"
+            >
+              School year:
+            </label>
+            <select
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
+              id="school-year-filter"
+              onChange={handleSchoolYearChange}
+              value={filters.schoolYear}
+            >
+              <option value="">All years</option>
+              {schoolYears.map((y) => (
+                <option key={y.id} value={y.id}>
+                  {y.label}
+                </option>
+              ))}
+            </select>
+            <label className="text-sm font-medium text-charcoal font-body" htmlFor="status-filter">
+              Status:
+            </label>
+            <select
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
+              id="status-filter"
+              onChange={handleStatusChange}
+              value={filters.status}
+            >
+              {statusFilterSelectOptions(stats).map((opt) => (
+                <option key={opt.value === '' ? 'all' : opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <button
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-charcoal shadow-sm hover:bg-gray-50 font-body transition-colors"
+              onClick={() => {
+                setR2CleanupOpen(true);
+                setR2Error(null);
+                setR2Orphans([]);
+                setR2SelectedKeys(new Set());
+              }}
+              type="button"
+            >
+              Unused R2 files…
+            </button>
+          </div>
           <form
-            className="flex flex-wrap items-center gap-2"
+            className="flex w-full min-w-0 max-w-4xl flex-wrap items-center gap-2"
             onSubmit={(e) => {
               e.preventDefault();
               const fd = new FormData(e.currentTarget);
@@ -773,15 +786,16 @@ export default function AdminReimbursements() {
             }}
           >
             <label className="sr-only" htmlFor="admin-reimb-search">
-              Search by requester name, email, or submission ID
+              Search by requester name, email, check number, or submission ID
             </label>
             <input
-              className="min-w-48 max-w-xs rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm placeholder:text-gray-400 focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
+              autoComplete="off"
+              className="min-h-[2.5rem] min-w-0 flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm placeholder:text-gray-400 focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
               defaultValue={filters.q}
               id="admin-reimb-search"
               key={filters.q}
               name="q"
-              placeholder="Search name, email, or ID"
+              placeholder="Search name, email, check #, or submission ID"
               type="search"
             />
             <button
@@ -800,18 +814,6 @@ export default function AdminReimbursements() {
               </button>
             ) : null}
           </form>
-          <button
-            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-charcoal shadow-sm hover:bg-gray-50 font-body transition-colors"
-            onClick={() => {
-              setR2CleanupOpen(true);
-              setR2Error(null);
-              setR2Orphans([]);
-              setR2SelectedKeys(new Set());
-            }}
-            type="button"
-          >
-            Unused R2 files…
-          </button>
         </div>
 
         <section aria-labelledby="submission-stats-heading" className="mb-6">
@@ -1000,6 +1002,12 @@ export default function AdminReimbursements() {
                       Amount
                     </th>
                     <th
+                      className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body hidden md:table-cell text-right"
+                      scope="col"
+                    >
+                      Check #
+                    </th>
+                    <th
                       className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body hidden lg:table-cell"
                       scope="col"
                     >
@@ -1045,6 +1053,9 @@ export default function AdminReimbursements() {
                       </td>
                       <td className="px-4 py-3 text-sm text-charcoal font-body text-right tabular-nums">
                         {formatAmount(sub.total_amount)}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-charcoal font-body hidden md:table-cell text-right tabular-nums whitespace-nowrap">
+                        {sub.check_number?.trim() ? sub.check_number.trim() : '—'}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600 font-body hidden lg:table-cell whitespace-nowrap">
                         {sub.school_year_label ?? sub.school_year_id}

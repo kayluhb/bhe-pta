@@ -1110,7 +1110,7 @@ export default function AdminReimbursementDetail() {
                     </p>
                   </div>
                   <div className="flex items-center gap-4 shrink-0">
-                    {f.content_type !== 'application/pdf' && (
+                    {!f.original_filename.toLowerCase().endsWith('-converted.pdf') && (
                       <button
                         className="text-sm text-creek-green hover:text-creek-green/80 font-medium font-body disabled:opacity-50 whitespace-nowrap"
                         disabled={attachmentBusy || removingLineId !== null}

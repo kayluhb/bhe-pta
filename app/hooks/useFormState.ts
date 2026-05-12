@@ -1,7 +1,9 @@
 import {useCallback, useEffect, useState} from 'react';
+import {isValidReimbursementDraftId} from '~/lib/reimbursement/filename';
 import {
   type BudgetSelectionData,
   type FileData,
+  MAX_RECEIPT_LINES,
   MAX_RECEIPT_UPLOADS,
   type ReceiptData,
   type ReceiptUploadData,
@@ -9,6 +11,7 @@ import {
 } from '~/lib/reimbursement/validation';
 
 const STORAGE_KEY = 'bhe-pta-requester-info';
+const REIMBURSEMENT_DRAFT_SESSION_KEY = 'bhe-pta-reimbursement-draft-id';
 
 type SavedRequesterInfo = Pick<RequesterData, 'payableTo' | 'email' | 'phone' | 'address'>;
 
@@ -39,6 +42,8 @@ function saveRequesterInfo(data: RequesterData) {
 }
 
 export interface FormState {
+  /** Stable client id for this draft (`{ms}-{uuid}`); pairs with payable name on submitted files. */
+  reimbursementDraftId: string;
   requester: RequesterData;
   receipts: ReceiptData[];
   /** One array per receipt row; each entry is the original file from a single upload (carries its `jobId`). */
@@ -68,6 +73,7 @@ function newReceiptRow(): ReceiptData {
 /** Must not call `crypto.randomUUID()` at module scope (Cloudflare Workers disallow I/O in global scope). */
 function buildDefaultFormState(): FormState {
   return {
+    reimbursementDraftId: '',
     requester: {
       payableTo: '',
       email: '',
@@ -92,6 +98,27 @@ function reindexFilesByReceipt(rows: FileData[][]): FileData[][] {
   return rows.map((files, i) => files.map((f) => ({...f, receiptLineIndex: i + 1})));
 }
 
+function loadOrCreateReimbursementDraftId(): string {
+  if (typeof window === 'undefined') {
+    return '';
+  }
+  try {
+    const existing = sessionStorage.getItem(REIMBURSEMENT_DRAFT_SESSION_KEY);
+    if (existing && isValidReimbursementDraftId(existing)) {
+      return existing;
+    }
+  } catch {
+    // ignore
+  }
+  const id = `${Date.now()}-${crypto.randomUUID()}`;
+  try {
+    sessionStorage.setItem(REIMBURSEMENT_DRAFT_SESSION_KEY, id);
+  } catch {
+    // ignore
+  }
+  return id;
+}
+
 export function useFormState() {
   const [state, setState] = useState<FormState>(() => {
     const saved = loadSavedRequesterInfo();
@@ -110,6 +137,14 @@ export function useFormState() {
   });
   const [currentStep, setCurrentStep] = useState(0);
   const [fileError, setFileError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const id = loadOrCreateReimbursementDraftId();
+    if (!id) return;
+    setState((prev) =>
+      prev.reimbursementDraftId === id ? prev : {...prev, reimbursementDraftId: id},
+    );
+  }, []);
 
   // Persist requester info to localStorage when it changes
   useEffect(() => {
@@ -136,7 +171,7 @@ export function useFormState() {
 
   const addReceipt = useCallback(() => {
     setState((prev) => {
-      if (prev.receipts.length >= 4) return prev;
+      if (prev.receipts.length >= MAX_RECEIPT_LINES) return prev;
       const lastReceipt = prev.receipts[prev.receipts.length - 1];
       return {
         ...prev,
@@ -238,8 +273,15 @@ export function useFormState() {
   const reset = useCallback(() => {
     const saved = loadSavedRequesterInfo();
     const base = buildDefaultFormState();
+    try {
+      sessionStorage.removeItem(REIMBURSEMENT_DRAFT_SESSION_KEY);
+    } catch {
+      // ignore
+    }
+    const reimbursementDraftId = loadOrCreateReimbursementDraftId();
     setState({
       ...base,
+      reimbursementDraftId,
       requester: {
         ...base.requester,
         ...(saved || {}),

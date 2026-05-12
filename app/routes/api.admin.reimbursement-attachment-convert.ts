@@ -50,11 +50,40 @@ export async function action({request, params, context}: Route.ActionArgs) {
     if (!attachment) {
       return Response.json({error: 'Attachment not found'}, {status: 404});
     }
-    if (attachment.content_type === 'application/pdf') {
-      return Response.json(
-        {error: 'This file is already a PDF. Only images can be converted.'},
-        {status: 400},
-      );
+
+    const baseName = attachment.original_filename.replace(/\.[^.]+$/, '');
+    const sanitizedName = baseName.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const withoutOriginalSuffix = sanitizedName.replace(/-original$/i, '');
+
+    // Avoid duplicate "converted" assets for the same original upload.
+    const existingPdf = await db
+      .prepare(
+        `SELECT id, original_filename
+         FROM file_attachments
+         WHERE submission_id = ?
+           AND id != ?
+           AND content_type = 'application/pdf'
+           AND (
+             original_filename = ?
+             OR original_filename = ?
+             OR original_filename = ?
+           )
+         LIMIT 1`,
+      )
+      .bind(
+        submissionId,
+        attachmentId,
+        `${withoutOriginalSuffix}.pdf`,
+        `${withoutOriginalSuffix}-converted.pdf`,
+        `${sanitizedName}-converted.pdf`,
+      )
+      .first<ExistingPdfRow>();
+    if (existingPdf) {
+      return Response.json({
+        existingFilename: existingPdf.original_filename,
+        skipped: true,
+        success: true,
+      });
     }
 
     const originalObj = await r2.get(attachment.r2_key);
@@ -70,39 +99,6 @@ export async function action({request, params, context}: Route.ActionArgs) {
     const result = await extractReceiptData(fileBytes, attachment.content_type, env.GEMINI_API_KEY);
     if ('error' in result) {
       return Response.json({error: result.error}, {status: result.status});
-    }
-
-    const baseName = attachment.original_filename.replace(/\.[^.]+$/, '');
-    const sanitizedName = baseName.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const withoutOriginalSuffix = sanitizedName.replace(/-original$/i, '');
-
-    // Avoid duplicate "converted" assets for the same original upload.
-    const existingPdf = await db
-      .prepare(
-        `SELECT id, original_filename
-         FROM file_attachments
-         WHERE submission_id = ?
-           AND content_type = 'application/pdf'
-           AND (
-             original_filename = ?
-             OR original_filename = ?
-             OR original_filename = ?
-           )
-         LIMIT 1`,
-      )
-      .bind(
-        submissionId,
-        `${withoutOriginalSuffix}.pdf`,
-        `${withoutOriginalSuffix}-converted.pdf`,
-        `${sanitizedName}-converted.pdf`,
-      )
-      .first<ExistingPdfRow>();
-    if (existingPdf) {
-      return Response.json({
-        existingFilename: existingPdf.original_filename,
-        skipped: true,
-        success: true,
-      });
     }
 
     const receiptTitle = `${submission.requester_name}: ${sanitizedName}`;

@@ -11,8 +11,8 @@ vi.mock('~/lib/reimbursement/submission-finalize', () => ({
   tryClaimEmailDispatch: vi.fn(async () => false),
 }));
 
-import {action} from '../api.reimbursement.submit';
 import {attachConvertedToSubmission} from '~/lib/reimbursement/submission-finalize';
+import {action} from '../api.reimbursement.submit';
 
 interface JobRow {
   id: string;
@@ -24,20 +24,18 @@ interface JobRow {
   converted_key: string | null;
   converted_filename: string | null;
   converted_size: number | null;
+  reimbursement_draft_id?: string | null;
   submission_id: string | null;
 }
 
 function buildBody(jobIds: string[]) {
   return {
-    requester: {
-      payableTo: 'Pat Tester',
-      email: 'pat@example.com',
-      phone: '',
-      address: '123 Main St',
-      dateOfRequest: '2026-04-29',
-      dateCheckNeeded: '2026-05-10',
-      invoiceNumber: '',
+    budget: {
+      primaryAccount: 'General',
+      splitAccounts: false,
     },
+    files: [],
+    receiptUploads: jobIds.map((jobId) => ({jobId, receiptLineIndex: 1})),
     receipts: [
       {
         clientKey: 'c1',
@@ -48,11 +46,15 @@ function buildBody(jobIds: string[]) {
         budgetAccount: 'General',
       },
     ],
-    files: [],
-    receiptUploads: jobIds.map((jobId) => ({jobId, receiptLineIndex: 1})),
-    budget: {
-      primaryAccount: 'General',
-      splitAccounts: false,
+    reimbursementDraftId: '1700000000000-00000000-0000-4000-8000-000000000001',
+    requester: {
+      payableTo: 'Pat Tester',
+      email: 'pat@example.com',
+      phone: '',
+      address: '123 Main St',
+      dateOfRequest: '2026-04-29',
+      dateCheckNeeded: '2026-05-10',
+      invoiceNumber: '',
     },
     turnstileToken: 'tok',
   };
@@ -175,7 +177,9 @@ describe('api.reimbursement.submit action', () => {
 
     expect(response.status).toBe(200);
     const putKeys = (r2Put.mock.calls as unknown[][]).map((call) => String(call[0]));
-    const receiptKeys = putKeys.filter((k) => k.includes('-receipt-1-') && k.endsWith('-original.jpg'));
+    const receiptKeys = putKeys.filter(
+      (k) => k.includes('-receipt-1-') && k.endsWith('-original.jpg'),
+    );
     expect(receiptKeys).toHaveLength(2);
     expect(new Set(receiptKeys).size).toBe(2);
     expect(receiptKeys.some((k) => k.includes('-11111111-'))).toBe(true);
@@ -196,6 +200,7 @@ describe('api.reimbursement.submit action', () => {
           converted_key: 'uploads/a-converted.pdf',
           converted_filename: 'a-converted.pdf',
           converted_size: 99,
+          reimbursement_draft_id: null,
           submission_id: null,
         },
       ],

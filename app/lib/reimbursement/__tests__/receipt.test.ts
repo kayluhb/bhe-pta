@@ -1,13 +1,108 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
+import {MAX_RECEIPT_LINES} from '~/lib/reimbursement/validation';
+
 import {
   ACCEPTED_TYPES,
+  assessReceiptExtractionQuality,
   extractReceiptData,
   generateReceiptPDF,
   MAX_FILE_SIZE,
   parseSubmissionReceiptLineForPdf,
   receiptFieldString,
 } from '../receipt';
+
+describe('assessReceiptExtractionQuality', () => {
+  it('rejects tab-merged line item fields (multi-column collapse)', () => {
+    const r = assessReceiptExtractionQuality({
+      line_items: [
+        {description: 'A', qty: '1', total: '1'},
+        {description: 'B\tC\tD', qty: '1', total: '2'},
+      ],
+      subtotal: '3',
+    });
+    expect(r.ok).toBe(false);
+  });
+
+  it('rejects raw_transcript lines with many tab separators', () => {
+    const r = assessReceiptExtractionQuality({
+      line_items: [{description: 'Only', qty: '1', total: '1'}],
+      raw_transcript: 'ok line\na\tb\tc\td\te',
+    });
+    expect(r.ok).toBe(false);
+  });
+
+  it('rejects when line totals do not reconcile with subtotal on long slips', () => {
+    const items = Array.from({length: 6}, (_, i) => ({
+      description: `Item ${i}`,
+      qty: '1',
+      total: '10',
+    }));
+    const r = assessReceiptExtractionQuality({
+      line_items: items,
+      subtotal: '100',
+    });
+    expect(r.ok).toBe(false);
+  });
+
+  it('accepts dense slips when totals match subtotal', () => {
+    const r = assessReceiptExtractionQuality({
+      line_items: [
+        {description: 'A', qty: '1', total: '10'},
+        {description: 'B', qty: '1', total: '10'},
+        {description: 'C', qty: '1', total: '10'},
+        {description: 'D', qty: '1', total: '10'},
+        {description: 'E', qty: '1', total: '10'},
+      ],
+      subtotal: '50',
+    });
+    expect(r.ok).toBe(true);
+  });
+
+  it('accepts when subtotal is mislabeled but total_before_tax matches line sum', () => {
+    const r = assessReceiptExtractionQuality({
+      line_items: [
+        {description: 'A', qty: '1', total: '10'},
+        {description: 'B', qty: '1', total: '10'},
+        {description: 'C', qty: '1', total: '10'},
+        {description: 'D', qty: '1', total: '10'},
+        {description: 'E', qty: '1', total: '10'},
+      ],
+      subtotal: '40',
+      total_before_tax: '50',
+    });
+    expect(r.ok).toBe(true);
+  });
+
+  it('accepts when subtotal is wrong but grand total minus tax/shipping/tip matches line sum', () => {
+    const r = assessReceiptExtractionQuality({
+      line_items: [
+        {description: 'A', qty: '1', total: '10'},
+        {description: 'B', qty: '1', total: '10'},
+        {description: 'C', qty: '1', total: '10'},
+        {description: 'D', qty: '1', total: '10'},
+        {description: 'E', qty: '1', total: '10'},
+      ],
+      shipping: '0',
+      subtotal: '999',
+      tax: '8',
+      total: '58',
+      tip: '0',
+    });
+    expect(r.ok).toBe(true);
+  });
+
+  it('skips sum check when fewer than five line items', () => {
+    const r = assessReceiptExtractionQuality({
+      line_items: [
+        {description: 'A', qty: '1', total: '1'},
+        {description: 'B', qty: '1', total: '99'},
+      ],
+      subtotal: '5',
+    });
+    expect(r.ok).toBe(true);
+  });
+});
 
 describe('receiptFieldString', () => {
   it('normalizes primitives', () => {
@@ -23,12 +118,16 @@ describe('receiptFieldString', () => {
 });
 
 describe('parseSubmissionReceiptLineForPdf', () => {
-  it('parses valid 1-4 or rejects', () => {
+  it('parses valid line numbers or rejects', () => {
     expect(parseSubmissionReceiptLineForPdf(null)).toBeUndefined();
     expect(parseSubmissionReceiptLineForPdf('')).toBeUndefined();
     expect(parseSubmissionReceiptLineForPdf(' 2 ')).toBe('2');
     expect(parseSubmissionReceiptLineForPdf('0')).toBeUndefined();
-    expect(parseSubmissionReceiptLineForPdf('9')).toBeUndefined();
+    expect(parseSubmissionReceiptLineForPdf('9')).toBe('9');
+    expect(parseSubmissionReceiptLineForPdf(String(MAX_RECEIPT_LINES))).toBe(
+      String(MAX_RECEIPT_LINES),
+    );
+    expect(parseSubmissionReceiptLineForPdf(String(MAX_RECEIPT_LINES + 1))).toBeUndefined();
   });
 });
 
@@ -139,6 +238,28 @@ describe('extractReceiptData', () => {
     };
   }
 
+  it('returns 422 when extraction quality checks fail', async () => {
+    const body = JSON.stringify({
+      receipts: [
+        {
+          line_items: [{description: 'merged\tcolumns', qty: '1', total: '1'}],
+          subtotal: '1',
+          total: '1',
+          vendor_name: 'V',
+        },
+      ],
+    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ...geminiResponse(body),
+        text: async () => '',
+      }),
+    );
+    const out = await extractReceiptData(new Uint8Array(100), 'image/jpeg', 'api-key');
+    expect('error' in out && out.status).toBe(422);
+  });
+
   it('returns structured receipt from Gemini', async () => {
     const body = JSON.stringify({
       raw_transcript: 'hello',
@@ -196,7 +317,9 @@ describe('extractReceiptData', () => {
 
     const big = new Uint8Array(7000);
     const out = await extractReceiptData(big, 'application/pdf', 'api-key');
-    expect('receipts' in out && (out.receipts[0]?.raw_transcript?.length ?? 0)).toBeGreaterThan(100);
+    expect('receipts' in out && (out.receipts[0]?.raw_transcript?.length ?? 0)).toBeGreaterThan(
+      100,
+    );
   });
 
   it('does not replace transcript when plain response is shorter', async () => {

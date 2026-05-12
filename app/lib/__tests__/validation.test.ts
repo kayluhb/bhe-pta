@@ -13,6 +13,7 @@ import {
 describe('validation schemas', () => {
   it('parses a complete submission', () => {
     const data = submissionSchema.parse({
+      reimbursementDraftId: '1700000000000-00000000-0000-4000-8000-000000000001',
       requester: {
         payableTo: 'A',
         email: 'a@bheeagles.com',
