@@ -1,4 +1,8 @@
-import {isValidReimbursementDraftId} from '~/lib/reimbursement/filename';
+import {
+  buildSubmissionSlug,
+  isValidReimbursementDraftId,
+  slugifyPayableName,
+} from '~/lib/reimbursement/filename';
 import {MAX_RECEIPT_LINES} from '~/lib/reimbursement/validation';
 
 /** Lowercase slug for converted receipt filenames (payable-to, no spaces). */
@@ -46,12 +50,13 @@ export function buildConvertedStagingPdfBasename(args: {
   reimbursementDraftId: string | null;
   timestamp: number;
 }): string {
-  const slug = slugifyPayableToForReceiptFile(args.payableTo);
   const line = resolveStagingReceiptLineIndex(args.receiptNumber, args.receiptLineIndex);
+  const payable = (args.payableTo ?? '').trim();
   const raw = args.reimbursementDraftId?.trim() ?? '';
-  const idSegment =
-    raw && isValidReimbursementDraftId(raw)
-      ? raw.toLowerCase()
-      : `${args.timestamp}-${args.newUuid}`;
-  return `${slug}-${idSegment}-receipt-${line}-converted.pdf`;
+  if (raw && isValidReimbursementDraftId(raw)) {
+    return `${buildSubmissionSlug(payable, raw)}-receipt-${line}-converted.pdf`;
+  }
+  const nameSlug = slugifyPayableName(payable) || 'receipt';
+  const idSegment = `${args.timestamp}-${args.newUuid}`;
+  return `${nameSlug}-${idSegment}-receipt-${line}-converted.pdf`;
 }

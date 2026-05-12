@@ -45,4 +45,20 @@ describe('buildConvertedStagingPdfBasename', () => {
     );
     expect(isValidStagingUploadKey(`uploads/${name}`)).toBe(true);
   });
+
+  it('uses the same payable + draft slug as submission PDFs (differs from legacy receipt-file slug rules)', () => {
+    const draftId = '1700000000000-00000000-0000-4000-8000-000000000001';
+    const name = buildConvertedStagingPdfBasename({
+      newUuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      payableTo: "O'Brien",
+      receiptLineIndex: 1,
+      receiptNumber: null,
+      reimbursementDraftId: draftId,
+      timestamp: 1,
+    });
+    expect(name).toBe(
+      'obrien-1700000000000-00000000-0000-4000-8000-000000000001-receipt-1-converted.pdf',
+    );
+    expect(isValidStagingUploadKey(`uploads/${name}`)).toBe(true);
+  });
 });
