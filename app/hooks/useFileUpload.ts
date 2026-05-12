@@ -200,7 +200,9 @@ export function useFileUpload(turnstileToken: string | null) {
       }
 
       const settled = await Promise.allSettled(
-        items.slice(1).map(({file: f, id: uid}) => postOne(f, uid, 'continuation')),
+        items
+          .slice(1)
+          .map(({file: nextFile, id: nextId}) => postOne(nextFile, nextId, 'continuation')),
       );
       settled.forEach((result, j) => {
         const idx = j + 1;

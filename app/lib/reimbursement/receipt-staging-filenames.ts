@@ -3,17 +3,17 @@ import {MAX_RECEIPT_LINES} from '~/lib/reimbursement/validation';
 
 /** Lowercase slug for converted receipt filenames (payable-to, no spaces). */
 export function slugifyPayableToForReceiptFile(payableTo: string | null): string {
-  let s = (payableTo ?? '')
+  let slug = (payableTo ?? '')
     .trim()
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .replace(/-{2,}/g, '-')
     .slice(0, 48);
-  if (!s || /^\d+$/.test(s)) {
-    s = 'receipt';
+  if (!slug || /^\d+$/.test(slug)) {
+    slug = 'receipt';
   }
-  return s;
+  return slug;
 }
 
 export function resolveStagingReceiptLineIndex(

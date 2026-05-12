@@ -6,6 +6,10 @@ import {
 import {sendCheckDeliveredEmail} from '~/lib/reimbursement/email/resend';
 import type {Route} from './+types/api.admin.bulk-status';
 
+/** SQL CASE / UI branch alignment with `submissions.status` values. */
+const SUBMISSION_STATUS_APPROVED = 'approved';
+const SUBMISSION_STATUS_CHECK_DELIVERED = 'check_delivered';
+
 export async function action({request, context}: Route.ActionArgs) {
   const auth = await requireAdmin(request, context.cloudflare.env);
   if (auth instanceof Response) return auth;
@@ -30,7 +34,7 @@ export async function action({request, context}: Route.ActionArgs) {
       `UPDATE submissions SET
          status = ?,
          date_approved = CASE
-           WHEN ? = 'approved' AND status != 'approved' THEN date('now')
+           WHEN ? = '${SUBMISSION_STATUS_APPROVED}' AND status != '${SUBMISSION_STATUS_APPROVED}' THEN date('now')
            ELSE date_approved
          END,
          updated_at = datetime('now')
@@ -39,7 +43,7 @@ export async function action({request, context}: Route.ActionArgs) {
     .bind(body.status, body.status, ...body.ids)
     .run();
 
-  if (body.status === 'check_delivered' && !body.skipEmail) {
+  if (body.status === SUBMISSION_STATUS_CHECK_DELIVERED && !body.skipEmail) {
     const subs = await db
       .prepare(
         `SELECT requester_name, requester_email FROM submissions WHERE id IN (${placeholders})`,

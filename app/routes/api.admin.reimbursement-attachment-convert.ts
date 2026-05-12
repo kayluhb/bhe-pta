@@ -20,6 +20,8 @@ interface ExistingPdfRow {
   original_filename: string;
 }
 
+const PDF_CONTENT_TYPE = 'application/pdf';
+
 export async function action({request, params, context}: Route.ActionArgs) {
   const auth = await requireAdmin(request, context.cloudflare.env);
   if (auth instanceof Response) return auth;
@@ -62,7 +64,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
          FROM file_attachments
          WHERE submission_id = ?
            AND id != ?
-           AND content_type = 'application/pdf'
+           AND content_type = ?
            AND (
              original_filename = ?
              OR original_filename = ?
@@ -73,6 +75,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
       .bind(
         submissionId,
         attachmentId,
+        PDF_CONTENT_TYPE,
         `${withoutOriginalSuffix}.pdf`,
         `${withoutOriginalSuffix}-converted.pdf`,
         `${sanitizedName}-converted.pdf`,
@@ -106,7 +109,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
     const pdfFilename = `${sanitizedName}-converted.pdf`;
     const pdfKey = `submissions/${submissionId}/${Date.now()}-${crypto.randomUUID()}-${pdfFilename}`;
 
-    await r2.put(pdfKey, pdfBuffer, {httpMetadata: {contentType: 'application/pdf'}});
+    await r2.put(pdfKey, pdfBuffer, {httpMetadata: {contentType: PDF_CONTENT_TYPE}});
 
     const maxSort = await db
       .prepare('SELECT MAX(sort_order) as max_sort FROM file_attachments WHERE submission_id = ?')
@@ -124,14 +127,14 @@ export async function action({request, params, context}: Route.ActionArgs) {
         submissionId,
         pdfKey,
         pdfFilename,
-        'application/pdf',
+        PDF_CONTENT_TYPE,
         pdfBuffer.length,
         nextSort,
       )
       .run();
 
     return Response.json({
-      file: {content_type: 'application/pdf', filename: pdfFilename, size: pdfBuffer.length},
+      file: {content_type: PDF_CONTENT_TYPE, filename: pdfFilename, size: pdfBuffer.length},
       success: true,
     });
   } catch (error) {

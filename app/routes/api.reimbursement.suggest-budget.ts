@@ -13,6 +13,13 @@ interface SuggestionResult {
   confidence: 'high' | 'medium' | 'low';
 }
 
+const CONFIDENCE_LEVELS = ['high', 'medium', 'low'] as const;
+type AiConfidence = (typeof CONFIDENCE_LEVELS)[number];
+
+function isAiConfidence(value: unknown): value is AiConfidence {
+  return typeof value === 'string' && (CONFIDENCE_LEVELS as readonly string[]).includes(value);
+}
+
 const validAccounts = new Set<string>(BUDGET_ACCOUNTS);
 
 export async function action({request, context}: Route.ActionArgs) {
@@ -32,8 +39,8 @@ export async function action({request, context}: Route.ActionArgs) {
 
     const receiptDescriptions = receipts
       .map(
-        (r, i) =>
-          `Receipt ${i + 1}: "${r.description}"${r.placeOfPurchase ? ` purchased at "${r.placeOfPurchase}"` : ''} for $${r.amount.toFixed(2)}`,
+        (receipt, receiptIndex) =>
+          `Receipt ${receiptIndex + 1}: "${receipt.description}"${receipt.placeOfPurchase ? ` purchased at "${receipt.placeOfPurchase}"` : ''} for $${receipt.amount.toFixed(2)}`,
       )
       .join('\n');
 
@@ -76,14 +83,12 @@ RULES:
       return Response.json({suggestions: receipts.map(() => null)});
     }
 
-    const suggestions = receipts.map((_, i) => {
-      const item = parsed[i] as SuggestionResult | undefined;
+    const suggestions = receipts.map((_, receiptIndex) => {
+      const item = parsed[receiptIndex] as SuggestionResult | undefined;
       if (!item || typeof item.account !== 'string' || !validAccounts.has(item.account)) {
         return null;
       }
-      const confidence = ['high', 'medium', 'low'].includes(item.confidence)
-        ? item.confidence
-        : 'low';
+      const confidence = isAiConfidence(item.confidence) ? item.confidence : 'low';
       return {account: item.account, confidence};
     });
 

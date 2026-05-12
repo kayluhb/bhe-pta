@@ -115,8 +115,8 @@ export default function AdminSchoolYears() {
       setCreateSort('');
       setCreateDefault(false);
       revalidator.revalidate();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Create failed');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Create failed');
     } finally {
       setCreating(false);
     }
@@ -149,8 +149,8 @@ export default function AdminSchoolYears() {
       }
       setEditId(null);
       revalidator.revalidate();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Save failed');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Save failed');
     } finally {
       setSavingEdit(false);
     }
@@ -170,8 +170,8 @@ export default function AdminSchoolYears() {
         throw new Error(data.error || 'Update failed');
       }
       revalidator.revalidate();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Update failed');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Update failed');
     } finally {
       setBusyId(null);
     }
@@ -191,8 +191,8 @@ export default function AdminSchoolYears() {
       }
       if (editId === id) setEditId(null);
       revalidator.revalidate();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Delete failed');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Delete failed');
     } finally {
       setBusyId(null);
     }

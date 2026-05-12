@@ -57,13 +57,11 @@ export async function loader({request, context}: Route.LoaderArgs) {
   const binds: (string | number)[] = [];
   const conditions: string[] = [];
 
-  if (idsParam) {
-    const ids = idsParam.split(',').filter(Boolean);
-    if (ids.length > 0) {
-      conditions.push(`s.id IN (${ids.map(() => '?').join(', ')})`);
-      binds.push(...ids);
-    }
-  } else {
+  const idList = idsParam ? idsParam.split(',').filter(Boolean) : null;
+  if (idList && idList.length > 0) {
+    conditions.push(`s.id IN (${idList.map(() => '?').join(', ')})`);
+    binds.push(...idList);
+  } else if (!idsParam) {
     if (statusFilter) {
       conditions.push('s.status = ?');
       binds.push(statusFilter);
