@@ -309,13 +309,7 @@ E-commerce (Amazon, Walmart, Target, DoorDash, etc.): map the order summary fait
 
 If there is exactly one receipt, still use "receipts": [ { ... } ] with a single element.`;
 
-  const structured = await geminiMultimodal(
-    apiKey,
-    mimeType,
-    base64Data,
-    structuredPrompt,
-    16_384,
-  );
+  const structured = await geminiMultimodal(apiKey, mimeType, base64Data, structuredPrompt, 16_384);
   if (!structured.ok) {
     return {error: structured.error, status: structured.status};
   }

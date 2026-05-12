@@ -51,7 +51,10 @@ export async function action({request, params, context}: Route.ActionArgs) {
         .bind(nextLabel, schoolYearId)
         .first<{id: string}>();
       if (other) {
-        return Response.json({error: 'Another school year already uses this label.'}, {status: 409});
+        return Response.json(
+          {error: 'Another school year already uses this label.'},
+          {status: 409},
+        );
       }
     }
 
@@ -71,7 +74,9 @@ export async function action({request, params, context}: Route.ActionArgs) {
     const wantsDefault = body.is_default === true;
     const statements: D1PreparedStatement[] = [];
     if (wantsDefault) {
-      statements.push(db.prepare(`UPDATE school_years SET is_default = 0, updated_at = datetime('now')`));
+      statements.push(
+        db.prepare(`UPDATE school_years SET is_default = 0, updated_at = datetime('now')`),
+      );
     }
     statements.push(
       db
@@ -113,7 +118,9 @@ export async function action({request, params, context}: Route.ActionArgs) {
       );
     }
 
-    const totalYears = await db.prepare('SELECT COUNT(*) as c FROM school_years').first<{c: number}>();
+    const totalYears = await db
+      .prepare('SELECT COUNT(*) as c FROM school_years')
+      .first<{c: number}>();
     if ((Number(totalYears?.c ?? 0) || 0) <= 1) {
       return Response.json({error: 'Cannot delete the only school year.'}, {status: 400});
     }

@@ -24,7 +24,12 @@ export async function action({request, context}: Route.ActionArgs) {
   if (!body.label || typeof body.label !== 'string' || !body.label.trim()) {
     return Response.json({error: 'label is required'}, {status: 400});
   }
-  if (!body.starts_on || typeof body.starts_on !== 'string' || !body.ends_on || typeof body.ends_on !== 'string') {
+  if (
+    !body.starts_on ||
+    typeof body.starts_on !== 'string' ||
+    !body.ends_on ||
+    typeof body.ends_on !== 'string'
+  ) {
     return Response.json({error: 'starts_on and ends_on are required (YYYY-MM-DD)'}, {status: 400});
   }
   if (!ISO_DATE.test(body.starts_on) || !ISO_DATE.test(body.ends_on)) {
@@ -32,7 +37,9 @@ export async function action({request, context}: Route.ActionArgs) {
   }
 
   const idCandidate =
-    typeof body.id === 'string' && body.id.trim() ? body.id.trim() : slugSchoolYearIdFromLabel(body.label);
+    typeof body.id === 'string' && body.id.trim()
+      ? body.id.trim()
+      : slugSchoolYearIdFromLabel(body.label);
   const idErr = assertValidSchoolYearId(idCandidate);
   if (idErr) {
     return Response.json({error: idErr}, {status: 400});
@@ -58,7 +65,9 @@ export async function action({request, context}: Route.ActionArgs) {
 
   const statements = [];
   if (isDefault) {
-    statements.push(db.prepare(`UPDATE school_years SET is_default = 0, updated_at = datetime('now')`));
+    statements.push(
+      db.prepare(`UPDATE school_years SET is_default = 0, updated_at = datetime('now')`),
+    );
   }
   statements.push(
     db
@@ -66,7 +75,14 @@ export async function action({request, context}: Route.ActionArgs) {
         `INSERT INTO school_years (id, label, starts_on, ends_on, is_default, sort_order)
          VALUES (?, ?, ?, ?, ?, ?)`,
       )
-      .bind(idCandidate, body.label.trim(), body.starts_on, body.ends_on, isDefault ? 1 : 0, sortOrder),
+      .bind(
+        idCandidate,
+        body.label.trim(),
+        body.starts_on,
+        body.ends_on,
+        isDefault ? 1 : 0,
+        sortOrder,
+      ),
   );
 
   await db.batch(statements as D1PreparedStatement[]);
