@@ -1,10 +1,7 @@
-import {useCallback, useId, useMemo, useRef, useState} from 'react';
+import {useState} from 'react';
+import {SearchableBudgetAccountSelect} from '~/components/reimbursement/SearchableBudgetAccountSelect';
 import {Button} from '~/components/reimbursement/ui/Button';
-import {
-  BUDGET_ACCOUNTS,
-  type BudgetSelectionData,
-  type ReceiptData,
-} from '~/lib/reimbursement/validation';
+import type {BudgetSelectionData, ReceiptData} from '~/lib/reimbursement/validation';
 
 interface BudgetAccountProps {
   budget: BudgetSelectionData;
@@ -14,194 +11,6 @@ interface BudgetAccountProps {
   onNext: () => void;
   onBack: () => void;
   turnstileToken: string | null;
-}
-
-function SearchableSelect({
-  value,
-  onChange,
-  label,
-  required = false,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  label: string;
-  required?: boolean;
-}) {
-  const [search, setSearch] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(-1);
-  const listboxRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const id = useId();
-  const listboxId = `${id}-listbox`;
-
-  const filteredAccounts = useMemo(() => {
-    if (!search) return BUDGET_ACCOUNTS;
-    const lower = search.toLowerCase();
-    return BUDGET_ACCOUNTS.filter((account) => account.toLowerCase().includes(lower));
-  }, [search]);
-
-  const handleSelect = useCallback(
-    (account: string) => {
-      onChange(account);
-      setSearch('');
-      setIsOpen(false);
-      setActiveIndex(-1);
-      inputRef.current?.focus();
-    },
-    [onChange],
-  );
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!isOpen) {
-      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-        e.preventDefault();
-        setIsOpen(true);
-        setActiveIndex(0);
-      }
-      return;
-    }
-
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        setActiveIndex((prev) => (prev < filteredAccounts.length - 1 ? prev + 1 : 0));
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        setActiveIndex((prev) => (prev > 0 ? prev - 1 : filteredAccounts.length - 1));
-        break;
-      case 'Enter':
-        e.preventDefault();
-        if (activeIndex >= 0 && activeIndex < filteredAccounts.length) {
-          handleSelect(filteredAccounts[activeIndex]);
-        }
-        break;
-      case 'Escape':
-        e.preventDefault();
-        setIsOpen(false);
-        setActiveIndex(-1);
-        break;
-    }
-  };
-
-  // Scroll active option into view
-  const activeOptionId = activeIndex >= 0 ? `${id}-option-${activeIndex}` : undefined;
-  if (listboxRef.current && activeOptionId) {
-    const activeEl = listboxRef.current.querySelector(`#${CSS.escape(activeOptionId)}`);
-    activeEl?.scrollIntoView({block: 'nearest'});
-  }
-
-  return (
-    <div className="w-full" ref={containerRef}>
-      <label className="block text-sm font-medium text-charcoal/80 mb-1" htmlFor={`${id}-input`}>
-        {label}
-        {required && (
-          <span aria-hidden="true" className="text-red-500 ml-1">
-            *
-          </span>
-        )}
-      </label>
-      <div className="relative">
-        <input
-          aria-activedescendant={activeOptionId}
-          aria-autocomplete="list"
-          aria-controls={listboxId}
-          aria-expanded={isOpen}
-          aria-required={required || undefined}
-          autoComplete="off"
-          className="w-full px-3 py-2 border border-charcoal/20 rounded-lg shadow-sm text-charcoal placeholder:text-charcoal/70 focus:outline-none focus:ring-2 focus:ring-eagle-blue focus:border-eagle-blue"
-          id={`${id}-input`}
-          onBlur={(e) => {
-            // Close only if focus moves outside the container
-            if (!containerRef.current?.contains(e.relatedTarget as Node)) {
-              setIsOpen(false);
-              setActiveIndex(-1);
-            }
-          }}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setActiveIndex(-1);
-            if (!isOpen) setIsOpen(true);
-          }}
-          onFocus={() => setIsOpen(true)}
-          onKeyDown={handleKeyDown}
-          placeholder="Search or select an account..."
-          ref={inputRef}
-          required={required}
-          role="combobox"
-          type="text"
-          value={isOpen ? search : value}
-        />
-        {value && !isOpen && (
-          <button
-            aria-label="Clear selection"
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-charcoal/70 hover:text-charcoal/80"
-            onClick={() => {
-              onChange('');
-              setIsOpen(true);
-              inputRef.current?.focus();
-            }}
-            type="button"
-          >
-            <svg
-              aria-hidden="true"
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M6 18L18 6M6 6l12 12"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-              />
-            </svg>
-          </button>
-        )}
-        {isOpen && (
-          <div
-            className="absolute z-10 w-full mt-1 bg-white border border-charcoal/20 rounded-lg shadow-lg max-h-60 overflow-auto"
-            id={listboxId}
-            ref={listboxRef}
-            role="listbox"
-          >
-            {filteredAccounts.length === 0 ? (
-              <div
-                aria-selected={false}
-                className="px-3 py-2 text-charcoal/70"
-                role="option"
-                tabIndex={-1}
-              >
-                No accounts found
-              </div>
-            ) : (
-              filteredAccounts.map((account, index) => (
-                <div
-                  aria-selected={account === value}
-                  className={`px-3 py-2 cursor-pointer text-charcoal hover:bg-eagle-blue/10 ${
-                    account === value ? 'bg-eagle-blue/20 font-medium' : ''
-                  } ${index === activeIndex ? 'bg-eagle-blue/10 outline outline-2 outline-eagle-blue' : ''}`}
-                  id={`${id}-option-${index}`}
-                  key={account}
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    handleSelect(account);
-                  }}
-                  role="option"
-                  tabIndex={index === activeIndex ? 0 : -1}
-                >
-                  {account}
-                </div>
-              ))
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
 }
 
 function SuggestHelper({
@@ -328,7 +137,7 @@ export function BudgetAccount({
 
         <div className="space-y-6">
           <div>
-            <SearchableSelect
+            <SearchableBudgetAccountSelect
               label="Budget Account to Debit"
               onChange={(value) => onUpdateBudget({primaryAccount: value})}
               required
@@ -379,7 +188,7 @@ export function BudgetAccount({
                       {formatCurrency(receipt.amount)}
                     </span>
                   </div>
-                  <SearchableSelect
+                  <SearchableBudgetAccountSelect
                     label="Budget account"
                     onChange={(value) => onUpdateReceipt(index, {budgetAccount: value})}
                     value={receipt.budgetAccount || budget.primaryAccount}

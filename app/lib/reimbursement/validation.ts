@@ -189,3 +189,30 @@ export type FileData = z.infer<typeof fileSchema>;
 export type ReceiptUploadData = z.infer<typeof receiptUploadSchema>;
 export type BudgetSelectionData = z.infer<typeof budgetSelectionSchema>;
 export type SubmissionData = z.infer<typeof submissionSchema>;
+
+const isoDayString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Use YYYY-MM-DD');
+
+/** Admin-only: record a printed reimbursement with no uploads (treasurer-entered). */
+export const adminPaperSubmissionLineSchema = z.object({
+  amount: z.number().positive('Amount must be positive'),
+  date: isoDayString.optional(),
+  description: z.string().max(500).optional(),
+});
+
+export const adminPaperSubmissionSchema = z.object({
+  lines: z
+    .array(adminPaperSubmissionLineSchema)
+    .min(1, 'Add at least one amount')
+    .max(MAX_RECEIPT_LINES),
+  payableTo: z.string().min(1, 'Payable to is required').max(200),
+  primaryBudgetAccount: z
+    .string()
+    .min(1, 'Budget account is required')
+    .refine(
+      (v): v is BudgetAccount => (BUDGET_ACCOUNTS as readonly string[]).includes(v),
+      'Invalid budget account',
+    ),
+});
+
+export type AdminPaperSubmissionLine = z.infer<typeof adminPaperSubmissionLineSchema>;
+export type AdminPaperSubmission = z.infer<typeof adminPaperSubmissionSchema>;

@@ -1,4 +1,5 @@
 import {forwardRef, type InputHTMLAttributes} from 'react';
+import {blurNumberInputOnWheel} from '~/lib/blur-number-input-on-wheel';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -6,7 +7,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({className = '', label, error, id, required, ...props}, ref) => {
+  ({className = '', label, error, id, onWheel, required, type, ...props}, ref) => {
     const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
     const errorId = error ? `${inputId}-error` : undefined;
 
@@ -29,8 +30,15 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             error ? 'border-red-500' : 'border-charcoal/20'
           } ${className}`}
           id={inputId}
+          onWheel={(event) => {
+            if (type === 'number') {
+              blurNumberInputOnWheel(event);
+            }
+            onWheel?.(event);
+          }}
           ref={ref}
           required={required}
+          type={type}
           {...props}
         />
         {error && (
