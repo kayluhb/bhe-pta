@@ -1,15 +1,13 @@
 import {requireAdmin} from '~/lib/admin/auth';
+import {
+  ADMIN_SUBMISSION_STATUSES,
+  isAdminSubmissionStatus,
+} from '~/lib/admin/reimbursement-submission-statuses';
 import {sendCheckDeliveredEmail} from '~/lib/reimbursement/email/resend';
 import type {Route} from './+types/api.admin.reimbursement-status';
 
-const VALID_STATUSES = [
-  'pending',
-  'approved',
-  'check_written',
-  'check_delivered',
-  'check_deposited',
-  'rejected',
-];
+const SUBMISSION_STATUS_APPROVED = 'approved';
+const SUBMISSION_STATUS_CHECK_DELIVERED = 'check_delivered';
 
 export async function action({request, params, context}: Route.ActionArgs) {
   const auth = await requireAdmin(request, context.cloudflare.env);
@@ -18,9 +16,9 @@ export async function action({request, params, context}: Route.ActionArgs) {
   const id = params.id;
   const body = (await request.json()) as {status?: string; notes?: string; skipEmail?: boolean};
 
-  if (!body.status || !VALID_STATUSES.includes(body.status)) {
+  if (!body.status || !isAdminSubmissionStatus(body.status)) {
     return Response.json(
-      {error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}`},
+      {error: `Invalid status. Must be one of: ${ADMIN_SUBMISSION_STATUSES.join(', ')}`},
       {status: 400},
     );
   }
@@ -32,7 +30,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
          status = ?,
          admin_notes = ?,
          date_approved = CASE
-           WHEN ? = 'approved' AND status != 'approved' THEN date('now')
+           WHEN ? = '${SUBMISSION_STATUS_APPROVED}' AND status != '${SUBMISSION_STATUS_APPROVED}' THEN date('now')
            ELSE date_approved
          END,
          updated_at = datetime('now')
@@ -45,7 +43,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
     return Response.json({error: 'Submission not found'}, {status: 404});
   }
 
-  if (body.status === 'check_delivered' && !body.skipEmail) {
+  if (body.status === SUBMISSION_STATUS_CHECK_DELIVERED && !body.skipEmail) {
     const sub = await db
       .prepare('SELECT requester_name, requester_email FROM submissions WHERE id = ?')
       .bind(id)

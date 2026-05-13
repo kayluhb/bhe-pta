@@ -63,9 +63,11 @@ export function useFileUpload(turnstileToken: string | null) {
       items: Array<{id: string; file: File}>,
       receiptRowIndex: number,
       payableTo?: string,
+      reimbursementDraftId?: string,
     ): Promise<(FileData | null)[]> => {
       const receiptLineIndex = receiptRowIndex + 1;
       const out: (FileData | null)[] = items.map(() => null);
+      const draftId = reimbursementDraftId?.trim();
 
       const setProgress = (id: string, filename: string, progress: number, receiptRow: number) => {
         setUploads((prev) => {
@@ -106,6 +108,7 @@ export function useFileUpload(turnstileToken: string | null) {
         formData.append('file', file);
         if (payableTo) formData.append('payableTo', payableTo);
         formData.append('receiptNumber', String(receiptLineIndex));
+        if (draftId) formData.append('reimbursementDraftId', draftId);
 
         const headers: Record<string, string> = {};
         if (auth === 'continuation') {
@@ -197,7 +200,9 @@ export function useFileUpload(turnstileToken: string | null) {
       }
 
       const settled = await Promise.allSettled(
-        items.slice(1).map(({file: f, id: uid}) => postOne(f, uid, 'continuation')),
+        items
+          .slice(1)
+          .map(({file: nextFile, id: nextId}) => postOne(nextFile, nextId, 'continuation')),
       );
       settled.forEach((result, j) => {
         const idx = j + 1;

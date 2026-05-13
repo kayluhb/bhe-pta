@@ -52,8 +52,8 @@ function jobSuffix(jobId: string): string {
 }
 
 /**
- * Move a converted PDF from its staging key (`uploads/...`) to the friendly
- * `submissions/{id}/{slug}-receipt-{lineIdx}-{jobSuffix}.pdf` and insert a `file_attachments` row.
+ * Move a converted PDF from its staging key (`uploads/{slug}-{ts}-{uuid}-receipt-{n}-converted.pdf`) to the friendly
+ * `submissions/{id}/{slug}-receipt-{lineIdx}-{jobSuffix}-converted.pdf` and insert a `file_attachments` row.
  * Idempotent: if a `file_attachments` row already exists for the friendly key it returns
  * without re-doing work, and skips the move if the staging object is already gone.
  */
@@ -70,7 +70,7 @@ export async function attachConvertedToSubmission(
     converted_size: convertedSize,
   } = job;
 
-  const friendlyFilename = `${slug}-receipt-${lineIdx}-${jobSuffix(jobId)}.pdf`;
+  const friendlyFilename = `${slug}-receipt-${lineIdx}-${jobSuffix(jobId)}-converted.pdf`;
   const friendlyKey = `submissions/${submissionId}/${friendlyFilename}`;
   const originalFriendlyPdfKey = `submissions/${submissionId}/${slug}-receipt-${lineIdx}-${jobSuffix(jobId)}-original.pdf`;
 

@@ -1,120 +1,116 @@
 {
-	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "bhe-pta",
-	"compatibility_date": "2025-04-04",
-	"compatibility_flags": [
-		"nodejs_compat"
-	],
-	"main": "./workers/app.ts",
-	"kv_namespaces": [
-		{
-			"binding": "BHE_NEWSLETTERS",
-			"id": "4c77b6f69f774a458fa7e1c312f9115d"
-		},
-		{
-			"binding": "BHE_PTA_NEWSLETTERS",
-			"id": "2c28fd7859d24acfacbda32a83f27015"
-		},
-		{
-			"binding": "BHE_CALENDAR",
-			"id": "197ef44ed4744f0fb77d5df135137706"
-		}
-	],
-	"d1_databases": [
-		{
-			"binding": "REIMBURSEMENT_DB",
-			"database_name": "pta-reimbursement-db",
-			"database_id": "dbba0b11-db79-48f9-b2d9-b4f638f04cf1"
-		}
-	],
-	"r2_buckets": [
-		{
-			"binding": "R2_BUCKET",
-			"bucket_name": "pta-reimbursement-uploads"
-		},
-		{
-			"binding": "R2_ARCHIVE",
-			"bucket_name": "pta-archive"
-		}
-	],
-	"ai": {
-		"binding": "AI"
-	},
-	"queues": {
-		"producers": [
-			{
-				"binding": "RECEIPT_CONVERSION_QUEUE",
-				"queue": "bhe-pta-receipt-conversion"
-			}
-		],
-		"consumers": [
-			{
-				"queue": "bhe-pta-receipt-conversion",
-				"max_batch_size": 5,
-				"max_batch_timeout": 10,
-				"max_retries": 3,
-				"max_concurrency": 3
-			}
-		]
-	},
-	"triggers": {
-		"crons": [
-			"0 2 * * *"
-		]
-	},
-	"env": {
-		"stage": {
-			"kv_namespaces": [
-				{
-					"binding": "BHE_NEWSLETTERS",
-					"id": "4c77b6f69f774a458fa7e1c312f9115d"
-				},
-				{
-					"binding": "BHE_PTA_NEWSLETTERS",
-					"id": "2c28fd7859d24acfacbda32a83f27015"
-				},
-				{
-					"binding": "BHE_CALENDAR",
-					"id": "197ef44ed4744f0fb77d5df135137706"
-				}
-			],
-			"d1_databases": [
-				{
-					"binding": "REIMBURSEMENT_DB",
-					"database_name": "pta-reimbursement-db-stage",
-					"database_id": "060bf392-6c88-4d79-ba1a-94002ecffbc3"
-				}
-			],
-			"r2_buckets": [
-				{
-					"binding": "R2_BUCKET",
-					"bucket_name": "pta-reimbursement-uploads-stage"
-				},
-				{
-					"binding": "R2_ARCHIVE",
-					"bucket_name": "pta-archive-stage"
-				}
-			],
-			"ai": {
-				"binding": "AI"
-			},
-			"queues": {
-				"producers": [
-					{
-						"binding": "RECEIPT_CONVERSION_QUEUE",
-						"queue": "bhe-pta-receipt-conversion-stage"
-					}
-				],
-				"consumers": [
-					{
-						"queue": "bhe-pta-receipt-conversion-stage",
-						"max_batch_size": 5,
-						"max_batch_timeout": 10,
-						"max_retries": 3,
-						"max_concurrency": 3
-					}
-				]
-			}
-		}
-	}
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "bhe-pta",
+  "compatibility_date": "2025-04-04",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "./workers/app.ts",
+  "kv_namespaces": [
+    {
+      "binding": "BHE_NEWSLETTERS",
+      "id": "4c77b6f69f774a458fa7e1c312f9115d"
+    },
+    {
+      "binding": "BHE_PTA_NEWSLETTERS",
+      "id": "2c28fd7859d24acfacbda32a83f27015"
+    },
+    {
+      "binding": "BHE_CALENDAR",
+      "id": "197ef44ed4744f0fb77d5df135137706"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "REIMBURSEMENT_DB",
+      "database_name": "pta-reimbursement-db",
+      "database_id": "dbba0b11-db79-48f9-b2d9-b4f638f04cf1"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "R2_BUCKET",
+      "bucket_name": "pta-reimbursement-uploads"
+    },
+    {
+      "binding": "R2_ARCHIVE",
+      "bucket_name": "pta-archive"
+    }
+  ],
+  "ai": {
+    "binding": "AI"
+  },
+  "queues": {
+    "producers": [
+      {
+        "binding": "RECEIPT_CONVERSION_QUEUE",
+        "queue": "bhe-pta-receipt-conversion"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "bhe-pta-receipt-conversion",
+        "max_batch_size": 5,
+        "max_batch_timeout": 10,
+        "max_retries": 3,
+        "max_concurrency": 3
+      }
+    ]
+  },
+  "triggers": {
+    "crons": ["0 2 * * *"]
+  },
+  "env": {
+    "stage": {
+      "kv_namespaces": [
+        {
+          "binding": "BHE_NEWSLETTERS",
+          "id": "4c77b6f69f774a458fa7e1c312f9115d"
+        },
+        {
+          "binding": "BHE_PTA_NEWSLETTERS",
+          "id": "2c28fd7859d24acfacbda32a83f27015"
+        },
+        {
+          "binding": "BHE_CALENDAR",
+          "id": "197ef44ed4744f0fb77d5df135137706"
+        }
+      ],
+      "d1_databases": [
+        {
+          "binding": "REIMBURSEMENT_DB",
+          "database_name": "pta-reimbursement-db-stage",
+          "database_id": "060bf392-6c88-4d79-ba1a-94002ecffbc3"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "R2_BUCKET",
+          "bucket_name": "pta-reimbursement-uploads-stage"
+        },
+        {
+          "binding": "R2_ARCHIVE",
+          "bucket_name": "pta-archive-stage"
+        }
+      ],
+      "ai": {
+        "binding": "AI"
+      },
+      "queues": {
+        "producers": [
+          {
+            "binding": "RECEIPT_CONVERSION_QUEUE",
+            "queue": "bhe-pta-receipt-conversion-stage"
+          }
+        ],
+        "consumers": [
+          {
+            "queue": "bhe-pta-receipt-conversion-stage",
+            "max_batch_size": 5,
+            "max_batch_timeout": 10,
+            "max_retries": 3,
+            "max_concurrency": 3
+          }
+        ]
+      }
+    }
+  }
 }

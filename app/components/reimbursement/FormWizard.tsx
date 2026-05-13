@@ -39,14 +39,15 @@ export function FormWizard() {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        requester: state.requester,
+        budget: state.budget,
+        files: flattenFilesForSubmit(),
+        receiptUploads: flattenReceiptUploadsForSubmit(),
         receipts: state.receipts.map((r, i) => ({
           ...r,
           budgetAccount: getReceiptBudgetAccount(i),
         })),
-        files: flattenFilesForSubmit(),
-        receiptUploads: flattenReceiptUploadsForSubmit(),
-        budget: state.budget,
+        reimbursementDraftId: state.reimbursementDraftId,
+        requester: state.requester,
         turnstileToken,
       }),
     });
@@ -201,6 +202,7 @@ export function FormWizard() {
           onUpdate={updateReceipt}
           payableTo={state.requester.payableTo}
           receipts={state.receipts}
+          reimbursementDraftId={state.reimbursementDraftId}
           totalAmount={totalAmount}
           turnstileToken={turnstileToken}
         />

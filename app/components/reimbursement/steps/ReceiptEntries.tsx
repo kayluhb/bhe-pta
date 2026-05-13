@@ -2,48 +2,46 @@ import {Button} from '~/components/reimbursement/ui/Button';
 import {Input} from '~/components/reimbursement/ui/Input';
 import {useFileUpload} from '~/hooks/useFileUpload';
 import type {FileData, ReceiptData} from '~/lib/reimbursement/validation';
-import {MAX_RECEIPT_UPLOADS} from '~/lib/reimbursement/validation';
+import {MAX_RECEIPT_LINES, MAX_RECEIPT_UPLOADS} from '~/lib/reimbursement/validation';
 import {ReceiptLineFiles} from './ReceiptLineFiles';
 
 interface ReceiptEntriesProps {
-  receipts: ReceiptData[];
-  filesByReceipt: FileData[][];
   fileError?: string | null;
-  onUpdate: (index: number, data: Partial<ReceiptData>) => void;
+  filesByReceipt: FileData[][];
   onAdd: () => void;
-  onRemove: (index: number) => void;
   onAppendReceiptFiles: (receiptIndex: number, files: FileData[]) => boolean;
-  onRemoveFileFromReceipt: (receiptIndex: number, key: string) => void;
-  onNext: () => void;
   onBack: () => void;
-  totalAmount: number;
-  payableTo: string;
-  turnstileToken: string | null;
+  onNext: () => void;
+  onRemove: (index: number) => void;
+  onRemoveFileFromReceipt: (receiptIndex: number, key: string) => void;
   onResetTurnstile: () => void;
+  onUpdate: (index: number, data: Partial<ReceiptData>) => void;
+  payableTo: string;
+  receipts: ReceiptData[];
+  reimbursementDraftId: string;
+  totalAmount: number;
+  turnstileToken: string | null;
 }
 
 export function ReceiptEntries({
-  receipts,
-  filesByReceipt,
   fileError,
-  onUpdate,
+  filesByReceipt,
   onAdd,
-  onRemove,
   onAppendReceiptFiles,
-  onRemoveFileFromReceipt,
-  onNext,
   onBack,
-  totalAmount,
-  payableTo,
-  turnstileToken,
+  onNext,
+  onRemove,
+  onRemoveFileFromReceipt,
   onResetTurnstile,
+  onUpdate,
+  payableTo,
+  receipts,
+  reimbursementDraftId,
+  totalAmount,
+  turnstileToken,
 }: ReceiptEntriesProps) {
-  const {
-    clearReceiptUploadContinuation,
-    clearUpload,
-    uploadFilesBatch,
-    uploads,
-  } = useFileUpload(turnstileToken);
+  const {clearReceiptUploadContinuation, clearUpload, uploadFilesBatch, uploads} =
+    useFileUpload(turnstileToken);
 
   const isAnyUploading = uploads.some((u) => u.status === 'uploading');
   const totalAttachedFiles = filesByReceipt.reduce((sum, row) => sum + row.length, 0);
@@ -67,7 +65,8 @@ export function ReceiptEntries({
           <div>
             <h2 className="text-xl font-semibold text-charcoal">Receipt Details</h2>
             <p className="text-charcoal/70 mt-1">
-              Add up to 4 receipts. Attach a photo or PDF on each line (optional).
+              Add a row for each reimbursement line. Attach a photo or PDF on each row (optional).
+              You can attach up to {MAX_RECEIPT_UPLOADS} files total across all rows.
             </p>
           </div>
           <div aria-live="polite" className="text-right">
@@ -152,6 +151,7 @@ export function ReceiptEntries({
                 onRemoveFile={(key) => onRemoveFileFromReceipt(index, key)}
                 payableTo={payableTo}
                 receiptRowIndex={index}
+                reimbursementDraftId={reimbursementDraftId}
                 remainingFileSlots={Math.max(0, MAX_RECEIPT_UPLOADS - totalAttachedFiles)}
                 rowFiles={filesByReceipt[index] ?? []}
                 rowUploads={uploads.filter((u) => u.receiptRowIndex === index)}
@@ -167,7 +167,7 @@ export function ReceiptEntries({
           </div>
         )}
 
-        {receipts.length < 4 && (
+        {receipts.length < MAX_RECEIPT_LINES && (
           <button
             className="mt-4 w-full py-3 border-2 border-dashed border-charcoal/20 rounded-lg text-charcoal/70 hover:border-eagle-blue hover:text-eagle-blue transition-colors"
             onClick={onAdd}

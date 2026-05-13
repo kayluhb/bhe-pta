@@ -1,6 +1,12 @@
-import {useState, type ReactNode} from 'react';
+import {type ReactNode, useEffect, useState} from 'react';
 import {useLoaderData, useNavigate, useRevalidator} from 'react-router';
 import {requireAdmin, type SessionPayload} from '~/lib/admin/auth';
+import {
+  ADMIN_SUBMISSION_STATUS_LABELS,
+  ADMIN_SUBMISSION_STATUSES,
+  isAdminSubmissionStatus,
+} from '~/lib/admin/reimbursement-submission-statuses';
+import {submissionSearchCondition} from '~/lib/admin/submission-search-sql';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/admin.reimbursements';
 
@@ -19,16 +25,8 @@ const VALID_SORT_COLUMNS = [
 
 const VALID_ORDERS = ['asc', 'desc'] as const;
 
-const VALID_STATUSES = [
-  'pending',
-  'approved',
-  'check_written',
-  'check_delivered',
-  'check_deposited',
-  'rejected',
-] as const;
-
 interface Submission {
+  check_number: string | null;
   id: string;
   requester_email: string;
   requester_name: string;
@@ -40,8 +38,22 @@ interface Submission {
   updated_at: string;
 }
 
+interface StatusAggRow {
+  count: number;
+  status: string;
+  sum_amount: number;
+}
+
+interface SubmissionStats {
+  grandAmount: number;
+  grandCount: number;
+  other: null | {amount: number; count: number; statuses: string[]};
+  perStatus: {amount: number; count: number; status: (typeof ADMIN_SUBMISSION_STATUSES)[number]}[];
+}
+
 const PAGE_SIZE = 25;
 const LARGE_DOWNLOAD_WARNING_THRESHOLD = 4;
+const BULK_CHECK_DELIVERED_NO_EMAIL = 'check_delivered__no_email';
 
 interface SnapshotRow {
   approved_cnt: number | null;
@@ -68,6 +80,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
   const url = new URL(request.url);
   const statusFilter = url.searchParams.get('status') || '';
   const schoolYearParam = url.searchParams.get('schoolYear') || '';
+  const qRaw = url.searchParams.get('q') ?? '';
   const sort = url.searchParams.get('sort') || 'submitted_at';
   const order = url.searchParams.get('order') || 'desc';
   const page = Math.max(1, Number(url.searchParams.get('page')) || 1);
@@ -89,14 +102,19 @@ export async function loader({request, context}: Route.LoaderArgs) {
     schoolYearParam && schoolYearIds.has(schoolYearParam) ? schoolYearParam : '';
 
   const whereParts: string[] = [];
-  const whereBinds: string[] = [];
-  if (statusFilter && VALID_STATUSES.includes(statusFilter as (typeof VALID_STATUSES)[number])) {
+  const whereBinds: (string | number)[] = [];
+  if (statusFilter && isAdminSubmissionStatus(statusFilter)) {
     whereParts.push('s.status = ?');
     whereBinds.push(statusFilter);
   }
   if (schoolYearFilter) {
     whereParts.push('s.school_year_id = ?');
     whereBinds.push(schoolYearFilter);
+  }
+  const search = submissionSearchCondition(qRaw, 's');
+  if (search.sql) {
+    whereParts.push(search.sql);
+    whereBinds.push(...search.binds);
   }
   const whereClause = whereParts.length > 0 ? `WHERE ${whereParts.join(' AND ')}` : '';
 
@@ -124,7 +142,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
     : db.prepare(snapshotSql).first<SnapshotRow>();
 
   const listSql = `SELECT s.id, s.requester_name, s.requester_email, s.total_amount, s.status, s.submitted_at, s.updated_at,
-       s.school_year_id, y.label AS school_year_label
+       s.school_year_id, y.label AS school_year_label, s.check_number
      FROM submissions s
      LEFT JOIN school_years y ON y.id = s.school_year_id
      ${whereClause}
@@ -133,17 +151,59 @@ export async function loader({request, context}: Route.LoaderArgs) {
 
   const countSql = `SELECT COUNT(*) as count FROM submissions s ${whereClause}`;
 
-  const [listBundle, snapshotRow] = await Promise.all([
+  // Per-status aggregation: scoped to school year (matches the snapshot scope),
+  // not affected by status/search filters so the cards always show the full picture.
+  const aggSql = `SELECT status, COUNT(*) as count, COALESCE(SUM(total_amount), 0) as sum_amount
+     FROM submissions s
+     ${snapshotWhere}
+     GROUP BY status`;
+  const aggPromise = schoolYearFilter
+    ? db.prepare(aggSql).bind(schoolYearFilter).all<StatusAggRow>()
+    : db.prepare(aggSql).all<StatusAggRow>();
+
+  const [listBundle, snapshotRow, aggResult] = await Promise.all([
     Promise.all([
-      db.prepare(listSql).bind(...whereBinds, PAGE_SIZE, offset).all<Submission>(),
-      db.prepare(countSql).bind(...whereBinds).first<{count: number}>(),
+      db
+        .prepare(listSql)
+        .bind(...whereBinds, PAGE_SIZE, offset)
+        .all<Submission>(),
+      db
+        .prepare(countSql)
+        .bind(...whereBinds)
+        .first<{count: number}>(),
     ]),
     snapshotPromise,
+    aggPromise,
   ]);
 
   const [result, countResult] = listBundle;
   const submissions = result.results;
   const totalCount = countResult?.count ?? 0;
+
+  const aggRows = aggResult.results;
+  const byStatus = new Map<string, {count: number; sum_amount: number}>();
+  let grandCount = 0;
+  let grandAmount = 0;
+  for (const row of aggRows) {
+    const sumAmount = Number(row.sum_amount);
+    byStatus.set(row.status, {count: row.count, sum_amount: sumAmount});
+    grandCount += row.count;
+    grandAmount += sumAmount;
+  }
+  const perStatus = ADMIN_SUBMISSION_STATUSES.map((status) => {
+    const row = byStatus.get(status);
+    return {amount: row?.sum_amount ?? 0, count: row?.count ?? 0, status};
+  });
+  const unknownAgg = aggRows.filter((r) => !isAdminSubmissionStatus(r.status));
+  const other: SubmissionStats['other'] =
+    unknownAgg.length === 0
+      ? null
+      : {
+          amount: unknownAgg.reduce((s, r) => s + Number(r.sum_amount), 0),
+          count: unknownAgg.reduce((s, r) => s + r.count, 0),
+          statuses: [...new Set(unknownAgg.map((r) => r.status))],
+        };
+  const stats: SubmissionStats = {grandAmount, grandCount, other, perStatus};
 
   const snap = snapshotRow ?? ({} as SnapshotRow);
   const writtenCount = Number(snap.check_written_cnt ?? 0) || 0;
@@ -172,25 +232,55 @@ export async function loader({request, context}: Route.LoaderArgs) {
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   return {
-    filters: {order: validOrder, schoolYear: schoolYearFilter, sort: validSort, status: statusFilter},
+    filters: {
+      order: validOrder,
+      q: qRaw.trim(),
+      schoolYear: schoolYearFilter,
+      sort: validSort,
+      status: statusFilter,
+    },
     pagination: {page, totalPages, totalCount},
     schoolYears: schoolYearsResult.results,
     snapshot,
+    stats,
     submissions,
     uncashedStats,
     user,
   };
 }
 
-const STATUS_OPTIONS = [
-  {value: '', label: 'All'},
-  {value: 'pending', label: 'Pending'},
-  {value: 'approved', label: 'Approved'},
-  {value: 'check_written', label: 'Check Written'},
-  {value: 'check_delivered', label: 'Check Delivered'},
-  {value: 'check_deposited', label: 'Check Deposited'},
-  {value: 'rejected', label: 'Rejected'},
-];
+function buildBulkStatusApplyOptions(): {label: string; value: string}[] {
+  const out: {label: string; value: string}[] = [];
+  for (const s of ADMIN_SUBMISSION_STATUSES) {
+    if (s === 'check_delivered') {
+      out.push(
+        {
+          label: `${ADMIN_SUBMISSION_STATUS_LABELS.check_delivered} (send email)`,
+          value: 'check_delivered',
+        },
+        {
+          label: `${ADMIN_SUBMISSION_STATUS_LABELS.check_delivered} (no email)`,
+          value: BULK_CHECK_DELIVERED_NO_EMAIL,
+        },
+      );
+    } else {
+      out.push({label: ADMIN_SUBMISSION_STATUS_LABELS[s], value: s});
+    }
+  }
+  return out;
+}
+
+const BULK_STATUS_APPLY_OPTIONS = buildBulkStatusApplyOptions();
+
+function statusFilterSelectOptions(stats: SubmissionStats): {label: string; value: string}[] {
+  return [
+    {label: `All (${stats.grandCount})`, value: ''},
+    ...stats.perStatus.map(({count, status}) => ({
+      label: `${ADMIN_SUBMISSION_STATUS_LABELS[status]} (${count})`,
+      value: status,
+    })),
+  ];
+}
 
 function StatusBadge({status}: {status: string}) {
   const styles: Record<string, string> = {
@@ -202,20 +292,11 @@ function StatusBadge({status}: {status: string}) {
     rejected: 'bg-red-100 text-red-700 border-red-300',
   };
 
-  const labels: Record<string, string> = {
-    approved: 'Approved',
-    check_deposited: 'Check Deposited',
-    check_delivered: 'Check Delivered',
-    check_written: 'Check Written',
-    pending: 'Pending',
-    rejected: 'Rejected',
-  };
-
   return (
     <span
       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[status] ?? 'bg-gray-100 text-gray-700 border-gray-300'}`}
     >
-      {labels[status] ?? status}
+      {isAdminSubmissionStatus(status) ? ADMIN_SUBMISSION_STATUS_LABELS[status] : status}
     </span>
   );
 }
@@ -282,12 +363,13 @@ function KpiTile({
 }
 
 export default function AdminReimbursements() {
-  const {filters, pagination, schoolYears, snapshot, submissions, uncashedStats, user} =
+  const {filters, pagination, schoolYears, snapshot, stats, submissions, uncashedStats, user} =
     useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const revalidator = useRevalidator();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkLoading, setBulkLoading] = useState(false);
+  const [bulkStatusChoice, setBulkStatusChoice] = useState('');
   const [r2CleanupOpen, setR2CleanupOpen] = useState(false);
   const [r2DeleteLoading, setR2DeleteLoading] = useState(false);
   const [r2Error, setR2Error] = useState<string | null>(null);
@@ -297,6 +379,10 @@ export default function AdminReimbursements() {
   const [r2ScanWarning, setR2ScanWarning] = useState<string | null>(null);
 
   const allSelected = submissions.length > 0 && selected.size === submissions.length;
+
+  useEffect(() => {
+    if (selected.size === 0) setBulkStatusChoice('');
+  }, [selected.size]);
 
   const toggleAll = () => {
     if (allSelected) {
@@ -325,11 +411,21 @@ export default function AdminReimbursements() {
         body: JSON.stringify({ids: Array.from(selected), status, ...options}),
       });
       if (res.ok) {
+        setBulkStatusChoice('');
         setSelected(new Set());
         revalidator.revalidate();
       }
     } finally {
       setBulkLoading(false);
+    }
+  };
+
+  const applyBulkStatus = () => {
+    if (selected.size === 0 || !bulkStatusChoice) return;
+    if (bulkStatusChoice === BULK_CHECK_DELIVERED_NO_EMAIL) {
+      void handleBulkStatus('check_delivered', {skipEmail: true});
+    } else {
+      void handleBulkStatus(bulkStatusChoice);
     }
   };
 
@@ -368,6 +464,7 @@ export default function AdminReimbursements() {
     const merged = {
       order: filters.order,
       page: String(pagination.page),
+      q: filters.q,
       schoolYear: filters.schoolYear,
       sort: filters.sort,
       status: filters.status,
@@ -378,6 +475,7 @@ export default function AdminReimbursements() {
     if (merged.sort !== 'submitted_at') params.set('sort', merged.sort);
     if (merged.order !== 'desc') params.set('order', merged.order);
     if (merged.page && merged.page !== '1') params.set('page', merged.page);
+    if (merged.q) params.set('q', merged.q);
     const qs = params.toString();
     return qs ? `?${qs}` : '/admin';
   };
@@ -521,15 +619,12 @@ export default function AdminReimbursements() {
             Snapshot
           </h2>
           <p className="mt-1 text-xs text-gray-500 font-body max-w-3xl mb-4">
-            Volume and pipeline for the selected <strong className="font-medium">school year</strong>{' '}
-            (or all years). Table filters below do not change these totals.
+            Volume and pipeline for the selected{' '}
+            <strong className="font-medium">school year</strong> (or all years). Table filters below
+            do not change these totals.
           </p>
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-            <KpiTile
-              label="Submissions"
-              sublabel="In scope"
-              value={snapshot.totalSubmissions}
-            />
+            <KpiTile label="Submissions" sublabel="In scope" value={snapshot.totalSubmissions} />
             <KpiTile
               label="Total requested"
               sublabel="Sum of claim totals"
@@ -561,16 +656,8 @@ export default function AdminReimbursements() {
               sublabel="Approved + uncashed"
               value={formatAmount(snapshot.inPipelineAmount)}
             />
-            <KpiTile
-              label="New (7 days)"
-              sublabel="By submit date"
-              value={snapshot.newLast7d}
-            />
-            <KpiTile
-              label="New (30 days)"
-              sublabel="By submit date"
-              value={snapshot.newLast30d}
-            />
+            <KpiTile label="New (7 days)" sublabel="By submit date" value={snapshot.newLast7d} />
+            <KpiTile label="New (30 days)" sublabel="By submit date" value={snapshot.newLast30d} />
             <KpiTile
               label="Oldest pending"
               sublabel="Submitted"
@@ -640,51 +727,157 @@ export default function AdminReimbursements() {
         </section>
 
         {/* Filter Bar */}
-        <div className="flex flex-wrap items-center gap-3 mb-6">
-          <label className="text-sm font-medium text-charcoal font-body" htmlFor="school-year-filter">
-            School year:
-          </label>
-          <select
-            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
-            id="school-year-filter"
-            onChange={handleSchoolYearChange}
-            value={filters.schoolYear}
-          >
-            <option value="">All years</option>
-            {schoolYears.map((y) => (
-              <option key={y.id} value={y.id}>
-                {y.label}
-              </option>
-            ))}
-          </select>
-          <label className="text-sm font-medium text-charcoal font-body" htmlFor="status-filter">
-            Status:
-          </label>
-          <select
-            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
-            id="status-filter"
-            onChange={handleStatusChange}
-            value={filters.status}
-          >
-            {STATUS_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-          <button
-            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-charcoal shadow-sm hover:bg-gray-50 font-body transition-colors"
-            onClick={() => {
-              setR2CleanupOpen(true);
-              setR2Error(null);
-              setR2Orphans([]);
-              setR2SelectedKeys(new Set());
+        <div className="mb-6 flex flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <label
+              className="text-sm font-medium text-charcoal font-body"
+              htmlFor="school-year-filter"
+            >
+              School year:
+            </label>
+            <select
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
+              id="school-year-filter"
+              onChange={handleSchoolYearChange}
+              value={filters.schoolYear}
+            >
+              <option value="">All years</option>
+              {schoolYears.map((y) => (
+                <option key={y.id} value={y.id}>
+                  {y.label}
+                </option>
+              ))}
+            </select>
+            <label className="text-sm font-medium text-charcoal font-body" htmlFor="status-filter">
+              Status:
+            </label>
+            <select
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
+              id="status-filter"
+              onChange={handleStatusChange}
+              value={filters.status}
+            >
+              {statusFilterSelectOptions(stats).map((opt) => (
+                <option key={opt.value === '' ? 'all' : opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <button
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-charcoal shadow-sm hover:bg-gray-50 font-body transition-colors"
+              onClick={() => {
+                setR2CleanupOpen(true);
+                setR2Error(null);
+                setR2Orphans([]);
+                setR2SelectedKeys(new Set());
+              }}
+              type="button"
+            >
+              Unused R2 files…
+            </button>
+          </div>
+          <form
+            className="flex w-full min-w-0 max-w-4xl flex-wrap items-center gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const fd = new FormData(e.currentTarget);
+              const next = String(fd.get('q') ?? '').trim();
+              navigate(buildSearch({page: '1', q: next || undefined}));
             }}
-            type="button"
           >
-            Unused R2 files…
-          </button>
+            <label className="sr-only" htmlFor="admin-reimb-search">
+              Search by requester name, email, check number, or submission ID
+            </label>
+            <input
+              autoComplete="off"
+              className="min-h-[2.5rem] min-w-0 flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm placeholder:text-gray-400 focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
+              defaultValue={filters.q}
+              id="admin-reimb-search"
+              key={filters.q}
+              name="q"
+              placeholder="Search name, email, check #, or submission ID"
+              type="search"
+            />
+            <button
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-charcoal shadow-sm hover:bg-gray-50 font-body transition-colors"
+              type="submit"
+            >
+              Search
+            </button>
+            {filters.q ? (
+              <button
+                className="text-sm text-eagle-blue hover:text-eagle-blue/80 font-medium font-body underline-offset-2 hover:underline"
+                onClick={() => navigate(buildSearch({page: '1', q: undefined}))}
+                type="button"
+              >
+                Clear
+              </button>
+            ) : null}
+          </form>
         </div>
+
+        <section aria-labelledby="submission-stats-heading" className="mb-6">
+          <h2
+            className="text-sm font-semibold text-charcoal font-heading mb-2"
+            id="submission-stats-heading"
+          >
+            Totals by status
+          </h2>
+          <p className="text-xs text-gray-500 font-body mb-3">
+            Counts and amounts are scoped to the current school year filter. They do not change when
+            you search or change the status filter below.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <a
+              className={`block min-w-[6.5rem] rounded-lg border px-3 py-2 text-left shadow-sm transition-colors font-body ${
+                filters.status === ''
+                  ? 'border-eagle-blue bg-eagle-blue/5 ring-2 ring-eagle-blue/40'
+                  : 'border-gray-200 bg-white hover:bg-gray-50'
+              }`}
+              href={buildSearch({page: '1', status: ''})}
+            >
+              <div className="text-xs font-medium text-gray-500">All</div>
+              <div className="text-lg font-semibold text-charcoal tabular-nums">
+                {stats.grandCount}
+              </div>
+              <div className="text-xs text-gray-600 tabular-nums">
+                {formatAmount(stats.grandAmount)}
+              </div>
+            </a>
+            {stats.perStatus.map(({amount, count, status}) => (
+              <a
+                className={`block min-w-[6.5rem] max-w-[10rem] rounded-lg border px-3 py-2 text-left shadow-sm transition-colors font-body ${
+                  filters.status === status
+                    ? 'border-eagle-blue bg-eagle-blue/5 ring-2 ring-eagle-blue/40'
+                    : 'border-gray-200 bg-white hover:bg-gray-50'
+                }`}
+                href={buildSearch({page: '1', status})}
+                key={status}
+                title={ADMIN_SUBMISSION_STATUS_LABELS[status]}
+              >
+                <div className="text-xs font-medium text-gray-500 truncate">
+                  {ADMIN_SUBMISSION_STATUS_LABELS[status]}
+                </div>
+                <div className="text-lg font-semibold text-charcoal tabular-nums">{count}</div>
+                <div className="text-xs text-gray-600 tabular-nums">{formatAmount(amount)}</div>
+              </a>
+            ))}
+            {stats.other ? (
+              <div
+                className="block min-w-[6.5rem] max-w-[12rem] rounded-lg border border-amber-200 bg-amber-50/60 px-3 py-2 text-left shadow-sm font-body"
+                title={stats.other.statuses.join(', ')}
+              >
+                <div className="text-xs font-medium text-amber-900/80">Other status</div>
+                <div className="text-lg font-semibold text-charcoal tabular-nums">
+                  {stats.other.count}
+                </div>
+                <div className="text-xs text-gray-700 tabular-nums">
+                  {formatAmount(stats.other.amount)}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </section>
 
         {/* Bulk Action Bar */}
         {selected.size > 0 && (
@@ -693,39 +886,33 @@ export default function AdminReimbursements() {
               {selected.size} selected
             </span>
             <div className="h-4 w-px bg-gray-300" />
-            <button
-              className="rounded-md bg-creek-green px-3 py-1.5 text-xs font-medium text-white hover:bg-creek-green/90 disabled:opacity-50 transition-colors"
+            <label
+              className="text-sm font-medium text-charcoal font-body"
+              htmlFor="bulk-status-select"
+            >
+              Set status:
+            </label>
+            <select
+              className="rounded-md border border-gray-300 bg-white px-2 py-1.5 text-xs text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body max-w-[16rem]"
               disabled={bulkLoading}
-              onClick={() => handleBulkStatus('approved')}
+              id="bulk-status-select"
+              onChange={(e) => setBulkStatusChoice(e.target.value)}
+              value={bulkStatusChoice}
+            >
+              <option value="">Choose status…</option>
+              {BULK_STATUS_APPLY_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <button
+              className="rounded-md bg-eagle-blue px-3 py-1.5 text-xs font-medium text-white hover:bg-eagle-blue/90 disabled:opacity-50 transition-colors"
+              disabled={bulkLoading || !bulkStatusChoice}
+              onClick={applyBulkStatus}
               type="button"
             >
-              Approve
-            </button>
-            <button
-              className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
-              disabled={bulkLoading}
-              onClick={() => handleBulkStatus('rejected')}
-              type="button"
-            >
-              Reject
-            </button>
-            <button
-              className="rounded-md bg-purple-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-purple-700 disabled:opacity-50 transition-colors"
-              disabled={bulkLoading}
-              onClick={() => handleBulkStatus('check_delivered')}
-              title="Mark as check delivered and send notification email"
-              type="button"
-            >
-              Check Delivered
-            </button>
-            <button
-              className="rounded-md border border-purple-300 bg-white px-3 py-1.5 text-xs font-medium text-purple-600 hover:bg-purple-50 disabled:opacity-50 transition-colors"
-              disabled={bulkLoading}
-              onClick={() => handleBulkStatus('check_delivered', {skipEmail: true})}
-              title="Mark as check delivered without sending email"
-              type="button"
-            >
-              Check Delivered (no email)
+              Apply
             </button>
             <button
               className="rounded-md bg-spirit-gold px-3 py-1.5 text-xs font-medium text-charcoal hover:bg-spirit-gold/90 disabled:opacity-50 transition-colors"
@@ -765,9 +952,13 @@ export default function AdminReimbursements() {
           {submissions.length === 0 ? (
             <div className="px-6 py-16 text-center">
               <p className="text-gray-500 font-body text-lg">No submissions found</p>
-              {filters.status && (
+              {(filters.status || filters.q) && (
                 <p className="text-gray-400 font-body text-sm mt-1">
-                  Try changing the status filter
+                  {filters.q && filters.status
+                    ? 'Try a different search or status filter'
+                    : filters.q
+                      ? 'Try a different search term'
+                      : 'Try changing the status filter'}
                 </p>
               )}
             </div>
@@ -809,6 +1000,12 @@ export default function AdminReimbursements() {
                       scope="col"
                     >
                       Amount
+                    </th>
+                    <th
+                      className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body hidden md:table-cell text-right"
+                      scope="col"
+                    >
+                      Check #
                     </th>
                     <th
                       className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body hidden lg:table-cell"
@@ -856,6 +1053,9 @@ export default function AdminReimbursements() {
                       </td>
                       <td className="px-4 py-3 text-sm text-charcoal font-body text-right tabular-nums">
                         {formatAmount(sub.total_amount)}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-charcoal font-body hidden md:table-cell text-right tabular-nums whitespace-nowrap">
+                        {sub.check_number?.trim() ? sub.check_number.trim() : '—'}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600 font-body hidden lg:table-cell whitespace-nowrap">
                         {sub.school_year_label ?? sub.school_year_id}

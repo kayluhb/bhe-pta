@@ -48,6 +48,7 @@ describe('processReceiptConversionJob', () => {
       original_size: 10,
       payable_to: 'Pat',
       receipt_number: '1',
+      reimbursement_draft_id: null,
     };
     const prepare = vi.fn().mockReturnValue({
       bind: vi.fn().mockReturnValue({
@@ -80,6 +81,7 @@ describe('processReceiptConversionJob', () => {
       original_size: 100,
       payable_to: 'Pat',
       receipt_number: '2',
+      reimbursement_draft_id: '1700000000000-00000000-0000-4000-8000-000000000001',
     };
     const prepare = vi.fn().mockReturnValue({
       bind: vi.fn().mockReturnValue({
@@ -99,6 +101,10 @@ describe('processReceiptConversionJob', () => {
 
     await processReceiptConversionJob(env, {jobId: 'j2'});
     expect(put).toHaveBeenCalled();
+    const putKey = put.mock.calls[0]?.[0] as string;
+    expect(putKey).toMatch(
+      /^uploads\/pat-1700000000000-00000000-0000-4000-8000-000000000001-receipt-2-converted\.pdf$/,
+    );
     expect(extractReceiptData).toHaveBeenCalled();
   });
 
@@ -114,6 +120,7 @@ describe('processReceiptConversionJob', () => {
       original_size: 10,
       payable_to: null,
       receipt_number: null,
+      reimbursement_draft_id: null,
     };
     const prepare = vi.fn().mockReturnValue({
       bind: vi.fn().mockReturnValue({
@@ -144,6 +151,7 @@ describe('processReceiptConversionJob', () => {
       original_size: 0,
       payable_to: null,
       receipt_number: null,
+      reimbursement_draft_id: null,
     };
     const prepare = vi.fn().mockReturnValue({
       bind: vi.fn().mockReturnValue({

@@ -83,29 +83,32 @@ describe('useDiscoMode', () => {
       (globalThis as unknown as {DeviceMotionEvent: typeof DeviceMotionEvent}).DeviceMotionEvent =
         Polyfill as typeof DeviceMotionEvent;
     }
-    vi.spyOn(window, 'Audio').mockImplementation(
-      () =>
-        ({
-          currentTime: 0,
-          pause: vi.fn(),
-          play: vi.fn().mockResolvedValue(undefined),
-        }) as unknown as InstanceType<typeof Audio>,
-    );
-    render(<Harness />);
-    const mk = (x: number) => {
-      const acc: DeviceMotionEventAcceleration = {x, y: 0, z: 0};
-      return new DeviceMotionEvent('devicemotion', {accelerationIncludingGravity: acc});
-    };
-    window.dispatchEvent(mk(50));
-    await new Promise((r) => setTimeout(r, 55));
-    window.dispatchEvent(mk(90));
-    await new Promise((r) => setTimeout(r, 55));
-    window.dispatchEvent(mk(130));
-    await waitFor(
-      () => {
-        expect(document.querySelector('[data-testid="d"]')?.textContent).toBe('on');
-      },
-      {timeout: 4000},
-    );
+    class TestAudio {
+      currentTime = 0;
+      pause = vi.fn();
+      play = vi.fn().mockResolvedValue(undefined);
+    }
+    const OriginalAudio = globalThis.Audio;
+    globalThis.Audio = TestAudio as unknown as typeof Audio;
+    try {
+      render(<Harness />);
+      const mk = (x: number) => {
+        const acc: DeviceMotionEventAcceleration = {x, y: 0, z: 0};
+        return new DeviceMotionEvent('devicemotion', {accelerationIncludingGravity: acc});
+      };
+      window.dispatchEvent(mk(50));
+      await new Promise((r) => setTimeout(r, 55));
+      window.dispatchEvent(mk(90));
+      await new Promise((r) => setTimeout(r, 55));
+      window.dispatchEvent(mk(130));
+      await waitFor(
+        () => {
+          expect(document.querySelector('[data-testid="d"]')?.textContent).toBe('on');
+        },
+        {timeout: 4000},
+      );
+    } finally {
+      globalThis.Audio = OriginalAudio;
+    }
   });
 });

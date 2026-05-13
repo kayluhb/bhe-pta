@@ -20,6 +20,8 @@ interface ExistingPdfRow {
   original_filename: string;
 }
 
+const PDF_CONTENT_TYPE = 'application/pdf';
+
 export async function action({request, params, context}: Route.ActionArgs) {
   const auth = await requireAdmin(request, context.cloudflare.env);
   if (auth instanceof Response) return auth;
@@ -50,11 +52,41 @@ export async function action({request, params, context}: Route.ActionArgs) {
     if (!attachment) {
       return Response.json({error: 'Attachment not found'}, {status: 404});
     }
-    if (attachment.content_type === 'application/pdf') {
-      return Response.json(
-        {error: 'This file is already a PDF. Only images can be converted.'},
-        {status: 400},
-      );
+
+    const baseName = attachment.original_filename.replace(/\.[^.]+$/, '');
+    const sanitizedName = baseName.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const withoutOriginalSuffix = sanitizedName.replace(/-original$/i, '');
+
+    // Avoid duplicate "converted" assets for the same original upload.
+    const existingPdf = await db
+      .prepare(
+        `SELECT id, original_filename
+         FROM file_attachments
+         WHERE submission_id = ?
+           AND id != ?
+           AND content_type = ?
+           AND (
+             original_filename = ?
+             OR original_filename = ?
+             OR original_filename = ?
+           )
+         LIMIT 1`,
+      )
+      .bind(
+        submissionId,
+        attachmentId,
+        PDF_CONTENT_TYPE,
+        `${withoutOriginalSuffix}.pdf`,
+        `${withoutOriginalSuffix}-converted.pdf`,
+        `${sanitizedName}-converted.pdf`,
+      )
+      .first<ExistingPdfRow>();
+    if (existingPdf) {
+      return Response.json({
+        existingFilename: existingPdf.original_filename,
+        skipped: true,
+        success: true,
+      });
     }
 
     const originalObj = await r2.get(attachment.r2_key);
@@ -72,45 +104,12 @@ export async function action({request, params, context}: Route.ActionArgs) {
       return Response.json({error: result.error}, {status: result.status});
     }
 
-    const baseName = attachment.original_filename.replace(/\.[^.]+$/, '');
-    const sanitizedName = baseName.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const withoutOriginalSuffix = sanitizedName.replace(/-original$/i, '');
-
-    // Avoid duplicate "converted" assets for the same original upload.
-    const existingPdf = await db
-      .prepare(
-        `SELECT id, original_filename
-         FROM file_attachments
-         WHERE submission_id = ?
-           AND content_type = 'application/pdf'
-           AND (
-             original_filename = ?
-             OR original_filename = ?
-             OR original_filename = ?
-           )
-         LIMIT 1`,
-      )
-      .bind(
-        submissionId,
-        `${withoutOriginalSuffix}.pdf`,
-        `${withoutOriginalSuffix}-converted.pdf`,
-        `${sanitizedName}-converted.pdf`,
-      )
-      .first<ExistingPdfRow>();
-    if (existingPdf) {
-      return Response.json({
-        existingFilename: existingPdf.original_filename,
-        skipped: true,
-        success: true,
-      });
-    }
-
     const receiptTitle = `${submission.requester_name}: ${sanitizedName}`;
     const pdfBuffer = generateReceiptPDF(result.receipts, receiptTitle);
     const pdfFilename = `${sanitizedName}-converted.pdf`;
     const pdfKey = `submissions/${submissionId}/${Date.now()}-${crypto.randomUUID()}-${pdfFilename}`;
 
-    await r2.put(pdfKey, pdfBuffer, {httpMetadata: {contentType: 'application/pdf'}});
+    await r2.put(pdfKey, pdfBuffer, {httpMetadata: {contentType: PDF_CONTENT_TYPE}});
 
     const maxSort = await db
       .prepare('SELECT MAX(sort_order) as max_sort FROM file_attachments WHERE submission_id = ?')
@@ -128,14 +127,14 @@ export async function action({request, params, context}: Route.ActionArgs) {
         submissionId,
         pdfKey,
         pdfFilename,
-        'application/pdf',
+        PDF_CONTENT_TYPE,
         pdfBuffer.length,
         nextSort,
       )
       .run();
 
     return Response.json({
-      file: {content_type: 'application/pdf', filename: pdfFilename, size: pdfBuffer.length},
+      file: {content_type: PDF_CONTENT_TYPE, filename: pdfFilename, size: pdfBuffer.length},
       success: true,
     });
   } catch (error) {

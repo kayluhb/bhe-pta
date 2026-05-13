@@ -15,7 +15,11 @@ export async function action({request, params, context}: Route.ActionArgs) {
   }
 
   const body = (await request.json()) as {school_year_id?: string};
-  if (!body.school_year_id || typeof body.school_year_id !== 'string' || !body.school_year_id.trim()) {
+  if (
+    !body.school_year_id ||
+    typeof body.school_year_id !== 'string' ||
+    !body.school_year_id.trim()
+  ) {
     return Response.json({error: 'school_year_id is required'}, {status: 400});
   }
 
@@ -31,9 +35,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
   }
 
   const result = await db
-    .prepare(
-      `UPDATE submissions SET school_year_id = ?, updated_at = datetime('now') WHERE id = ?`,
-    )
+    .prepare(`UPDATE submissions SET school_year_id = ?, updated_at = datetime('now') WHERE id = ?`)
     .bind(schoolYearId, id)
     .run();
 

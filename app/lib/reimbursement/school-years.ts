@@ -25,7 +25,7 @@ export async function resolveSchoolYearIdForNewSubmission(
 ): Promise<{ok: true; schoolYearId: string} | {ok: false; response: Response}> {
   const preferred = await db
     .prepare(
-      `SELECT id FROM school_years WHERE is_default = 1 ORDER BY sort_order DESC, starts_on DESC LIMIT 1`,
+      'SELECT id FROM school_years WHERE is_default = 1 ORDER BY sort_order DESC, starts_on DESC LIMIT 1',
     )
     .first<{id: string}>();
 
@@ -34,7 +34,7 @@ export async function resolveSchoolYearIdForNewSubmission(
   }
 
   const fallback = await db
-    .prepare(`SELECT id FROM school_years ORDER BY sort_order DESC, starts_on DESC LIMIT 1`)
+    .prepare('SELECT id FROM school_years ORDER BY sort_order DESC, starts_on DESC LIMIT 1')
     .first<{id: string}>();
 
   if (fallback?.id) {

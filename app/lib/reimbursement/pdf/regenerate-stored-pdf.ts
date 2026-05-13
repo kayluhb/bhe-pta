@@ -2,6 +2,8 @@ import {buildPdfFilename, slugifyName} from '~/lib/reimbursement/filename';
 import {buildPdfDataFromSubmission} from '~/lib/reimbursement/pdf/from-submission';
 import {generatePDF} from '~/lib/reimbursement/pdf/generator';
 
+const PDF_CONTENT_TYPE = 'application/pdf';
+
 export type RegenerateStoredPdfResult =
   | {ok: true; pdfKey: string}
   | {ok: false; reason: 'no_r2' | 'not_found' | 'generate_failed'; message?: string};
@@ -62,23 +64,31 @@ export async function regenerateStoredSubmissionPdf(
   let pdfBuffer: Uint8Array;
   try {
     pdfBuffer = await generatePDF(pdfData);
-  } catch (e) {
-    console.error('regenerateStoredSubmissionPdf:', e);
+  } catch (error) {
+    console.error('regenerateStoredSubmissionPdf:', error);
     return {
       ok: false,
       reason: 'generate_failed',
-      message: e instanceof Error ? e.message : 'Failed to generate PDF',
+      message: error instanceof Error ? error.message : 'Failed to generate PDF',
     };
   }
 
   const datePrefix = submission.submitted_at.slice(0, 10);
-  const slug = slugifyName(submission.requester_name, datePrefix);
+  const priorBasename =
+    submission.pdf_key
+      ?.split('/')
+      .pop()
+      ?.replace(/\.pdf$/i, '')
+      ?.trim() ?? '';
+  const slug = priorBasename.length
+    ? priorBasename
+    : slugifyName(submission.requester_name, datePrefix);
   const pdfFilename = buildPdfFilename(slug);
   const newKey = `submissions/${submissionId}/${pdfFilename}`;
 
   const oldKey = submission.pdf_key;
   await r2.put(newKey, pdfBuffer, {
-    httpMetadata: {contentType: 'application/pdf'},
+    httpMetadata: {contentType: PDF_CONTENT_TYPE},
   });
   if (oldKey && oldKey !== newKey) {
     await r2.delete(oldKey);

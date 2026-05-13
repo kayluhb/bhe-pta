@@ -1,6 +1,19 @@
 import {describe, expect, it} from 'vitest';
 
-import {buildPdfFilename, buildReceiptFilename, slugifyName} from '../reimbursement/filename';
+import {
+  buildPdfFilename,
+  buildReceiptFilename,
+  buildSubmissionSlug,
+  slugifyName,
+} from '../reimbursement/filename';
+
+describe('buildSubmissionSlug', () => {
+  it('combines payable slug with draft id', () => {
+    expect(
+      buildSubmissionSlug('Kathy Carr', '1778621753152-53750fdd-1f89-4cf1-b78a-0e379015d88e'),
+    ).toBe('kathy-carr-1778621753152-53750fdd-1f89-4cf1-b78a-0e379015d88e');
+  });
+});
 
 describe('slugifyName', () => {
   it('slugifies and appends compact date', () => {

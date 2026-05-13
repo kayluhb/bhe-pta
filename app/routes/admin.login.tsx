@@ -85,9 +85,10 @@ export default function AdminLogin() {
               </p>
               <p className="text-xs text-amber-950/80 font-body mb-3">
                 Sign in as <span className="font-mono font-medium">kayluhb@gmail.com</span> without
-                Google. Only when running <code className="rounded bg-white/80 px-1">pnpm dev</code>.
-                If <code className="rounded bg-white/80 px-1">SESSION_SECRET</code> is unset, a
-                fixed dev-only key is used so you do not need <code className="rounded bg-white/80 px-1">.dev.vars</code> for this button.
+                Google. Only when running <code className="rounded bg-white/80 px-1">pnpm dev</code>
+                . If <code className="rounded bg-white/80 px-1">SESSION_SECRET</code> is unset, a
+                fixed dev-only key is used so you do not need{' '}
+                <code className="rounded bg-white/80 px-1">.dev.vars</code> for this button.
               </p>
               {devError && (
                 <p className="text-xs text-red-700 font-body mb-2" role="alert">

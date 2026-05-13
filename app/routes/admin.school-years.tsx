@@ -115,8 +115,8 @@ export default function AdminSchoolYears() {
       setCreateSort('');
       setCreateDefault(false);
       revalidator.revalidate();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Create failed');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Create failed');
     } finally {
       setCreating(false);
     }
@@ -149,8 +149,8 @@ export default function AdminSchoolYears() {
       }
       setEditId(null);
       revalidator.revalidate();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Save failed');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Save failed');
     } finally {
       setSavingEdit(false);
     }
@@ -170,8 +170,8 @@ export default function AdminSchoolYears() {
         throw new Error(data.error || 'Update failed');
       }
       revalidator.revalidate();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Update failed');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Update failed');
     } finally {
       setBusyId(null);
     }
@@ -191,8 +191,8 @@ export default function AdminSchoolYears() {
       }
       if (editId === id) setEditId(null);
       revalidator.revalidate();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Delete failed');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Delete failed');
     } finally {
       setBusyId(null);
     }
@@ -224,8 +224,7 @@ export default function AdminSchoolYears() {
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-8">
         <p className="text-sm text-gray-600 font-body max-w-2xl">
           New reimbursement submissions are assigned to the year marked <strong>Default</strong>.
-          Existing submissions keep their year unless you change them on the submission detail
-          page.
+          Existing submissions keep their year unless you change them on the submission detail page.
         </p>
 
         {error && (
@@ -254,7 +253,8 @@ export default function AdminSchoolYears() {
             </div>
             <div>
               <label className="block font-medium text-charcoal mb-1" htmlFor="create-id">
-                Id <span className="text-gray-500 font-normal">(optional; defaults from label)</span>
+                Id{' '}
+                <span className="text-gray-500 font-normal">(optional; defaults from label)</span>
               </label>
               <input
                 className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-mono text-xs"

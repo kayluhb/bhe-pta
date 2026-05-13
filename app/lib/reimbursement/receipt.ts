@@ -1,5 +1,7 @@
 import jsPDF from 'jspdf';
 
+import {MAX_RECEIPT_LINES} from '~/lib/reimbursement/validation';
+
 export const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
 export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -45,6 +47,115 @@ export function receiptFieldString(value: unknown): string {
   if (typeof value === 'number' && Number.isFinite(value)) return String(value);
   if (typeof value === 'boolean') return value ? 'yes' : '';
   return String(value).trim();
+}
+
+/** User-facing error when Gemini output would produce a misleading treasurer PDF. */
+export const RECEIPT_EXTRACTION_QUALITY_ERROR =
+  'Automatic transcription does not match this receipt reliably (merged columns or mismatched line totals). For long or multi-page receipts, try the full PDF from the store if you have it; otherwise a clearer photo helps. You can also keep the original without conversion.';
+
+function parseMoneyAmount(raw: string): number | null {
+  const t = receiptFieldString(raw).replace(/\$/g, '').replace(/,/g, '').trim();
+  if (!t) return null;
+  const n = Number.parseFloat(t);
+  return Number.isFinite(n) ? n : null;
+}
+
+function maxTabsPerLine(text: string): number {
+  let max = 0;
+  for (const line of text.split(/\r?\n/)) {
+    const n = (line.match(/\t/g) ?? []).length;
+    if (n > max) max = n;
+  }
+  return max;
+}
+
+function lineItemTotalsSum(items: ReceiptData['line_items']): {sum: number; withTotal: number} {
+  let sum = 0;
+  let withTotal = 0;
+  for (const li of items ?? []) {
+    const t = parseMoneyAmount(receiptFieldString(li.total));
+    if (t != null) {
+      sum += t;
+      withTotal++;
+    }
+  }
+  return {sum, withTotal};
+}
+
+/**
+ * When the model mis-labels "subtotal" (common on multi-page or tall register tapes),
+ * line totals may still match total_before_tax or (grand total − tax − shipping − tip).
+ */
+function lineTotalsReconcileWithAnchors(
+  receipt: ReceiptData,
+  sum: number,
+  sub: number,
+  primaryTolerance: number,
+): boolean {
+  if (Math.abs(sum - sub) <= primaryTolerance) return true;
+
+  const magnitude = Math.max(Math.abs(sum), Math.abs(sub), 1);
+  const altTol = Math.max(5, primaryTolerance * 1.5, magnitude * 0.045);
+
+  const tbt = parseMoneyAmount(receiptFieldString(receipt.total_before_tax));
+  if (tbt != null && Math.abs(sum - tbt) <= altTol) return true;
+
+  const total = parseMoneyAmount(receiptFieldString(receipt.total));
+  if (total != null) {
+    const tax = parseMoneyAmount(receiptFieldString(receipt.tax)) ?? 0;
+    const ship = parseMoneyAmount(receiptFieldString(receipt.shipping)) ?? 0;
+    const tip = parseMoneyAmount(receiptFieldString(receipt.tip)) ?? 0;
+    const impliedMerchandise = total - tax - ship - tip;
+    if (Number.isFinite(impliedMerchandise) && Math.abs(sum - impliedMerchandise) <= altTol) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Reject extractions where the model merged table columns (tabs), dumped tab-separated
+ * blocks into transcript/notes, or line-item totals do not add up to the stated subtotal.
+ * Exported for unit tests.
+ */
+export function assessReceiptExtractionQuality(
+  receipt: ReceiptData,
+): {ok: true} | {ok: false; message: string} {
+  const items = receipt.line_items ?? [];
+  for (const li of items) {
+    for (const key of ['description', 'qty', 'unit_price', 'total'] as const) {
+      const v = receiptFieldString(li[key]);
+      if (v.includes('\t')) {
+        return {ok: false, message: RECEIPT_EXTRACTION_QUALITY_ERROR};
+      }
+    }
+  }
+
+  for (const block of [
+    receiptFieldString(receipt.raw_transcript),
+    receiptFieldString(receipt.notes),
+  ]) {
+    if (block && maxTabsPerLine(block) >= 4) {
+      return {ok: false, message: RECEIPT_EXTRACTION_QUALITY_ERROR};
+    }
+  }
+
+  if (items.length >= 5) {
+    const sub = parseMoneyAmount(receiptFieldString(receipt.subtotal));
+    if (sub != null) {
+      const {sum, withTotal} = lineItemTotalsSum(items);
+      const needTotals = Math.ceil(items.length * 0.7);
+      if (withTotal >= needTotals) {
+        const tolerance = Math.max(2.5, sub * 0.03, items.length * 0.015);
+        if (!lineTotalsReconcileWithAnchors(receipt, sum, sub, tolerance)) {
+          return {ok: false, message: RECEIPT_EXTRACTION_QUALITY_ERROR};
+        }
+      }
+    }
+  }
+
+  return {ok: true};
 }
 
 function bytesToBase64(fileBytes: Uint8Array): string {
@@ -174,6 +285,8 @@ Return a single JSON object. No markdown code fences. Escape quotes inside strin
 
 First, count how many DISTINCT purchase documents / register receipts are visible (e.g. two separate paper slips in one photo, or two unrelated store receipts in one frame). One Amazon order = one receipt. A receipt plus unrelated marketing text = still one receipt.
 
+Multi-page PDFs and very long register tapes: If ONE purchase / one payment spans multiple pages or a single tall image, return exactly ONE object in "receipts" with "line_items" listing every product/service row from all pages in reading order (do not stop after the first page). "subtotal" must be the full merchandise / item subtotal for that entire purchase (not a running subtotal printed partway down the slip). If the slip shows "total before tax" or similar, align "subtotal" and "line_items" so the sum of line totals matches that merchandise total.
+
 Required:
 - "receipts": array of one or more objects — one object per distinct receipt, in reading order (top to bottom, then page order for PDFs). Do not merge two slips into one object.
 
@@ -196,7 +309,7 @@ E-commerce (Amazon, Walmart, Target, DoorDash, etc.): map the order summary fait
 
 If there is exactly one receipt, still use "receipts": [ { ... } ] with a single element.`;
 
-  const structured = await geminiMultimodal(apiKey, mimeType, base64Data, structuredPrompt, 8192);
+  const structured = await geminiMultimodal(apiKey, mimeType, base64Data, structuredPrompt, 16_384);
   if (!structured.ok) {
     return {error: structured.error, status: structured.status};
   }
@@ -207,7 +320,11 @@ If there is exactly one receipt, still use "receipts": [ { ... } ] with a single
   }
 
   const [onlyReceipt] = receipts;
-  if (receipts.length === 1 && onlyReceipt && needsPlainTranscriptFallback(onlyReceipt, fileBytes)) {
+  if (
+    receipts.length === 1 &&
+    onlyReceipt &&
+    needsPlainTranscriptFallback(onlyReceipt, fileBytes)
+  ) {
     const plainPrompt = `This is a receipt, invoice, or order confirmation (${isPDF ? 'PDF — read every page in order' : 'image'}).
 
 Output ONLY plain text. Do not use JSON or markdown.
@@ -220,7 +337,7 @@ Transcribe every visible word in natural reading order (top to bottom). Include:
 
 Use blank lines between sections. If text is in columns or a table, read row by row so a treasurer can follow it.`;
 
-    const plain = await geminiMultimodal(apiKey, mimeType, base64Data, plainPrompt, 8192);
+    const plain = await geminiMultimodal(apiKey, mimeType, base64Data, plainPrompt, 16_384);
     if (plain.ok) {
       const cleaned = stripMarkdownCodeFence(plain.text);
       const prevLen = receiptFieldString(onlyReceipt.raw_transcript).length;
@@ -234,6 +351,13 @@ Use blank lines between sections. If text is in columns or a table, read row by 
           })}`,
         );
       }
+    }
+  }
+
+  for (const r of receipts) {
+    const q = assessReceiptExtractionQuality(r);
+    if (!q.ok) {
+      return {error: q.message, status: 422};
     }
   }
 
@@ -413,7 +537,7 @@ export function parseSubmissionReceiptLineForPdf(raw: string | null): string | u
   const t = raw.trim();
   if (!/^\d+$/.test(t)) return undefined;
   const n = Number.parseInt(t, 10);
-  if (n < 1 || n > 4) return undefined;
+  if (n < 1 || n > MAX_RECEIPT_LINES) return undefined;
   return String(n);
 }
 
