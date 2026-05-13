@@ -7,6 +7,7 @@ import {
   isAdminSubmissionStatus,
 } from '~/lib/admin/reimbursement-submission-statuses';
 import {submissionSearchCondition} from '~/lib/admin/submission-search-sql';
+import {formatUsd} from '~/lib/format-currency';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/admin.reimbursements';
 
@@ -95,30 +96,46 @@ export async function loader({request, context}: Route.LoaderArgs) {
   const offset = (page - 1) * PAGE_SIZE;
 
   const schoolYearsResult = await db
-    .prepare('SELECT id, label FROM school_years ORDER BY sort_order DESC, starts_on DESC')
-    .all<{id: string; label: string}>();
-  const schoolYearIds = new Set(schoolYearsResult.results.map((r) => r.id));
-  const schoolYearFilter =
-    schoolYearParam && schoolYearIds.has(schoolYearParam) ? schoolYearParam : '';
-
-  const whereParts: string[] = [];
-  const whereBinds: (string | number)[] = [];
-  if (statusFilter && isAdminSubmissionStatus(statusFilter)) {
-    whereParts.push('s.status = ?');
-    whereBinds.push(statusFilter);
+    .prepare('SELECT id, label, is_default FROM school_years ORDER BY sort_order DESC, starts_on DESC')
+    .all<{id: string; is_default: number; label: string}>();
+  const schoolYears = schoolYearsResult.results;
+  const schoolYearIds = new Set(schoolYears.map((r) => r.id));
+  // Pre-select the default (current) school year when no filter is in the URL.
+  // Use the 'all' sentinel so the user can still explicitly opt out of the year filter.
+  const defaultYearId =
+    schoolYears.find((y) => y.is_default === 1)?.id ?? schoolYears[0]?.id ?? '';
+  let selectedSchoolYear: string;
+  if (schoolYearParam === 'all') {
+    selectedSchoolYear = 'all';
+  } else if (schoolYearParam && schoolYearIds.has(schoolYearParam)) {
+    selectedSchoolYear = schoolYearParam;
+  } else {
+    selectedSchoolYear = defaultYearId || 'all';
   }
+  const schoolYearFilter = selectedSchoolYear === 'all' ? '' : selectedSchoolYear;
+
+  const baseWhereParts: string[] = [];
+  const baseWhereBinds: (string | number)[] = [];
   if (schoolYearFilter) {
-    whereParts.push('s.school_year_id = ?');
-    whereBinds.push(schoolYearFilter);
+    baseWhereParts.push('s.school_year_id = ?');
+    baseWhereBinds.push(schoolYearFilter);
   }
   const search = submissionSearchCondition(qRaw, 's');
   if (search.sql) {
-    whereParts.push(search.sql);
-    whereBinds.push(...search.binds);
+    baseWhereParts.push(search.sql);
+    baseWhereBinds.push(...search.binds);
+  }
+  const baseWhereClause =
+    baseWhereParts.length > 0 ? `WHERE ${baseWhereParts.join(' AND ')}` : '';
+
+  const whereParts = [...baseWhereParts];
+  const whereBinds = [...baseWhereBinds];
+  if (statusFilter && isAdminSubmissionStatus(statusFilter)) {
+    whereParts.unshift('s.status = ?');
+    whereBinds.unshift(statusFilter);
   }
   const whereClause = whereParts.length > 0 ? `WHERE ${whereParts.join(' AND ')}` : '';
 
-  const snapshotWhere = schoolYearFilter ? 'WHERE s.school_year_id = ?' : '';
   const snapshotSql = `SELECT
        COUNT(*) AS total_submissions,
        COALESCE(SUM(s.total_amount), 0) AS sum_total_requested,
@@ -135,11 +152,13 @@ export async function loader({request, context}: Route.LoaderArgs) {
        SUM(CASE WHEN s.submitted_at >= datetime('now', '-30 days') THEN 1 ELSE 0 END) AS new_last_30d,
        MIN(CASE WHEN s.status = 'pending' THEN s.submitted_at END) AS oldest_pending_at
      FROM submissions s
-     ${snapshotWhere}`;
+     ${whereClause}`;
 
-  const snapshotPromise = schoolYearFilter
-    ? db.prepare(snapshotSql).bind(schoolYearFilter).first<SnapshotRow>()
-    : db.prepare(snapshotSql).first<SnapshotRow>();
+  const snapshotStmt = db.prepare(snapshotSql);
+  const snapshotPromise =
+    whereBinds.length > 0
+      ? snapshotStmt.bind(...whereBinds).first<SnapshotRow>()
+      : snapshotStmt.first<SnapshotRow>();
 
   const listSql = `SELECT s.id, s.requester_name, s.requester_email, s.total_amount, s.status, s.submitted_at, s.updated_at,
        s.school_year_id, y.label AS school_year_label, s.check_number
@@ -151,17 +170,25 @@ export async function loader({request, context}: Route.LoaderArgs) {
 
   const countSql = `SELECT COUNT(*) as count FROM submissions s ${whereClause}`;
 
-  // Per-status aggregation: scoped to school year (matches the snapshot scope),
-  // not affected by status/search filters so the cards always show the full picture.
   const aggSql = `SELECT status, COUNT(*) as count, COALESCE(SUM(total_amount), 0) as sum_amount
      FROM submissions s
-     ${snapshotWhere}
+     ${whereClause}
      GROUP BY status`;
-  const aggPromise = schoolYearFilter
-    ? db.prepare(aggSql).bind(schoolYearFilter).all<StatusAggRow>()
-    : db.prepare(aggSql).all<StatusAggRow>();
+  const aggStmt = db.prepare(aggSql);
+  const aggPromise =
+    whereBinds.length > 0 ? aggStmt.bind(...whereBinds).all<StatusAggRow>() : aggStmt.all<StatusAggRow>();
 
-  const [listBundle, snapshotRow, aggResult] = await Promise.all([
+  const dropdownAggSql = `SELECT status, COUNT(*) as count, COALESCE(SUM(total_amount), 0) as sum_amount
+     FROM submissions s
+     ${baseWhereClause}
+     GROUP BY status`;
+  const dropdownAggStmt = db.prepare(dropdownAggSql);
+  const dropdownAggPromise =
+    baseWhereBinds.length > 0
+      ? dropdownAggStmt.bind(...baseWhereBinds).all<StatusAggRow>()
+      : dropdownAggStmt.all<StatusAggRow>();
+
+  const [listBundle, snapshotRow, aggResult, dropdownAggResult] = await Promise.all([
     Promise.all([
       db
         .prepare(listSql)
@@ -174,36 +201,15 @@ export async function loader({request, context}: Route.LoaderArgs) {
     ]),
     snapshotPromise,
     aggPromise,
+    dropdownAggPromise,
   ]);
 
   const [result, countResult] = listBundle;
   const submissions = result.results;
   const totalCount = countResult?.count ?? 0;
 
-  const aggRows = aggResult.results;
-  const byStatus = new Map<string, {count: number; sum_amount: number}>();
-  let grandCount = 0;
-  let grandAmount = 0;
-  for (const row of aggRows) {
-    const sumAmount = Number(row.sum_amount);
-    byStatus.set(row.status, {count: row.count, sum_amount: sumAmount});
-    grandCount += row.count;
-    grandAmount += sumAmount;
-  }
-  const perStatus = ADMIN_SUBMISSION_STATUSES.map((status) => {
-    const row = byStatus.get(status);
-    return {amount: row?.sum_amount ?? 0, count: row?.count ?? 0, status};
-  });
-  const unknownAgg = aggRows.filter((r) => !isAdminSubmissionStatus(r.status));
-  const other: SubmissionStats['other'] =
-    unknownAgg.length === 0
-      ? null
-      : {
-          amount: unknownAgg.reduce((s, r) => s + Number(r.sum_amount), 0),
-          count: unknownAgg.reduce((s, r) => s + r.count, 0),
-          statuses: [...new Set(unknownAgg.map((r) => r.status))],
-        };
-  const stats: SubmissionStats = {grandAmount, grandCount, other, perStatus};
+  const stats = buildSubmissionStatsFromAggRows(aggResult.results);
+  const dropdownStats = buildSubmissionStatsFromAggRows(dropdownAggResult.results);
 
   const snap = snapshotRow ?? ({} as SnapshotRow);
   const writtenCount = Number(snap.check_written_cnt ?? 0) || 0;
@@ -235,18 +241,45 @@ export async function loader({request, context}: Route.LoaderArgs) {
     filters: {
       order: validOrder,
       q: qRaw.trim(),
-      schoolYear: schoolYearFilter,
+      schoolYear: selectedSchoolYear,
       sort: validSort,
       status: statusFilter,
     },
+    dropdownStats,
     pagination: {page, totalPages, totalCount},
-    schoolYears: schoolYearsResult.results,
+    schoolYears,
     snapshot,
     stats,
     submissions,
     uncashedStats,
     user,
   };
+}
+
+function buildSubmissionStatsFromAggRows(aggRows: StatusAggRow[]): SubmissionStats {
+  const byStatus = new Map<string, {count: number; sum_amount: number}>();
+  let grandCount = 0;
+  let grandAmount = 0;
+  for (const row of aggRows) {
+    const sumAmount = Number(row.sum_amount);
+    byStatus.set(row.status, {count: row.count, sum_amount: sumAmount});
+    grandCount += row.count;
+    grandAmount += sumAmount;
+  }
+  const perStatus = ADMIN_SUBMISSION_STATUSES.map((status) => {
+    const row = byStatus.get(status);
+    return {amount: row?.sum_amount ?? 0, count: row?.count ?? 0, status};
+  });
+  const unknownAgg = aggRows.filter((r) => !isAdminSubmissionStatus(r.status));
+  const other: SubmissionStats['other'] =
+    unknownAgg.length === 0
+      ? null
+      : {
+          amount: unknownAgg.reduce((s, r) => s + Number(r.sum_amount), 0),
+          count: unknownAgg.reduce((s, r) => s + r.count, 0),
+          statuses: [...new Set(unknownAgg.map((r) => r.status))],
+        };
+  return {grandAmount, grandCount, other, perStatus};
 }
 
 function buildBulkStatusApplyOptions(): {label: string; value: string}[] {
@@ -314,10 +347,6 @@ function formatDate(dateStr: string): string {
   }
 }
 
-function formatAmount(amount: number): string {
-  return `$${Number(amount).toFixed(2)}`;
-}
-
 function formatBytes(n: number): string {
   if (n < 1024) return `${n} B`;
   if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
@@ -363,8 +392,17 @@ function KpiTile({
 }
 
 export default function AdminReimbursements() {
-  const {filters, pagination, schoolYears, snapshot, stats, submissions, uncashedStats, user} =
-    useLoaderData<typeof loader>();
+  const {
+    dropdownStats,
+    filters,
+    pagination,
+    schoolYears,
+    snapshot,
+    stats,
+    submissions,
+    uncashedStats,
+    user,
+  } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const revalidator = useRevalidator();
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -591,6 +629,12 @@ export default function AdminReimbursements() {
           <div className="flex flex-wrap items-center gap-3 sm:gap-4">
             <a
               className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
+              href="/admin/reimbursements/paper"
+            >
+              Add paper
+            </a>
+            <a
+              className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
               href="/admin/school-years"
             >
               School years
@@ -607,7 +651,7 @@ export default function AdminReimbursements() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Dashboard snapshot KPIs (school year scope only; not filtered by status) */}
+        {/* Dashboard snapshot KPIs (same scope as the table: school year, status, search) */}
         <section
           aria-labelledby="snapshot-heading"
           className="mb-6 rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
@@ -619,21 +663,22 @@ export default function AdminReimbursements() {
             Snapshot
           </h2>
           <p className="mt-1 text-xs text-gray-500 font-body max-w-3xl mb-4">
-            Volume and pipeline for the selected{' '}
-            <strong className="font-medium">school year</strong> (or all years). Table filters below
-            do not change these totals.
+            Volume and pipeline for the same rows as the table below:{' '}
+            <strong className="font-medium">school year</strong>,{' '}
+            <strong className="font-medium">status</strong>, and{' '}
+            <strong className="font-medium">search</strong> filters all apply.
           </p>
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
             <KpiTile label="Submissions" sublabel="In scope" value={snapshot.totalSubmissions} />
             <KpiTile
               label="Total requested"
               sublabel="Sum of claim totals"
-              value={formatAmount(snapshot.sumTotalRequested)}
+              value={formatUsd(snapshot.sumTotalRequested)}
             />
             <KpiTile
               href={buildSearch({page: '1', status: 'pending'})}
               label="Pending"
-              sublabel={formatAmount(snapshot.pendingAmount)}
+              sublabel={formatUsd(snapshot.pendingAmount)}
               value={snapshot.pendingCount}
             />
             <KpiTile
@@ -654,7 +699,7 @@ export default function AdminReimbursements() {
             <KpiTile
               label="In pipeline $"
               sublabel="Approved + uncashed"
-              value={formatAmount(snapshot.inPipelineAmount)}
+              value={formatUsd(snapshot.inPipelineAmount)}
             />
             <KpiTile label="New (7 days)" sublabel="By submit date" value={snapshot.newLast7d} />
             <KpiTile label="New (30 days)" sublabel="By submit date" value={snapshot.newLast30d} />
@@ -687,14 +732,10 @@ export default function AdminReimbursements() {
             Submissions in <strong className="font-medium">Check written</strong> or{' '}
             <strong className="font-medium">Check delivered</strong> (not yet{' '}
             <strong className="font-medium">Check deposited</strong>). Dollar total uses the
-            treasurer check amount when set, otherwise the submission total.
-            {filters.schoolYear ? (
-              <>
-                {' '}
-                Totals below are limited to the <strong className="font-medium">school year</strong>{' '}
-                filter.
-              </>
-            ) : null}
+            treasurer check amount when set, otherwise the submission total. Open items and amounts
+            use the same <strong className="font-medium">school year</strong>,{' '}
+            <strong className="font-medium">status</strong>, and{' '}
+            <strong className="font-medium">search</strong> filters as the table.
           </p>
           <div className="mt-4 flex flex-wrap items-end gap-6 sm:gap-10">
             <div>
@@ -706,7 +747,7 @@ export default function AdminReimbursements() {
             <div>
               <p className="text-xs font-medium text-indigo-900/70 font-body">Combined amount</p>
               <p className="mt-0.5 text-3xl font-heading font-bold tabular-nums text-indigo-950">
-                {formatAmount(uncashedStats.totalAmount)}
+                {formatUsd(uncashedStats.totalAmount)}
               </p>
             </div>
             <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-body border-t border-indigo-200/60 pt-3 sm:border-t-0 sm:border-l sm:pl-8 sm:pt-0 w-full sm:w-auto">
@@ -741,7 +782,7 @@ export default function AdminReimbursements() {
               onChange={handleSchoolYearChange}
               value={filters.schoolYear}
             >
-              <option value="">All years</option>
+              <option value="all">All years</option>
               {schoolYears.map((y) => (
                 <option key={y.id} value={y.id}>
                   {y.label}
@@ -757,7 +798,7 @@ export default function AdminReimbursements() {
               onChange={handleStatusChange}
               value={filters.status}
             >
-              {statusFilterSelectOptions(stats).map((opt) => (
+              {statusFilterSelectOptions(dropdownStats).map((opt) => (
                 <option key={opt.value === '' ? 'all' : opt.value} value={opt.value}>
                   {opt.label}
                 </option>
@@ -824,8 +865,9 @@ export default function AdminReimbursements() {
             Totals by status
           </h2>
           <p className="text-xs text-gray-500 font-body mb-3">
-            Counts and amounts are scoped to the current school year filter. They do not change when
-            you search or change the status filter below.
+            Counts and amounts match the table: school year, status, and search filters apply. Use
+            the status dropdown for counts across all statuses (still scoped by school year and
+            search).
           </p>
           <div className="flex flex-wrap gap-2">
             <a
@@ -841,7 +883,7 @@ export default function AdminReimbursements() {
                 {stats.grandCount}
               </div>
               <div className="text-xs text-gray-600 tabular-nums">
-                {formatAmount(stats.grandAmount)}
+                {formatUsd(stats.grandAmount)}
               </div>
             </a>
             {stats.perStatus.map(({amount, count, status}) => (
@@ -859,7 +901,7 @@ export default function AdminReimbursements() {
                   {ADMIN_SUBMISSION_STATUS_LABELS[status]}
                 </div>
                 <div className="text-lg font-semibold text-charcoal tabular-nums">{count}</div>
-                <div className="text-xs text-gray-600 tabular-nums">{formatAmount(amount)}</div>
+                <div className="text-xs text-gray-600 tabular-nums">{formatUsd(amount)}</div>
               </a>
             ))}
             {stats.other ? (
@@ -872,7 +914,7 @@ export default function AdminReimbursements() {
                   {stats.other.count}
                 </div>
                 <div className="text-xs text-gray-700 tabular-nums">
-                  {formatAmount(stats.other.amount)}
+                  {formatUsd(stats.other.amount)}
                 </div>
               </div>
             ) : null}
@@ -1052,7 +1094,7 @@ export default function AdminReimbursements() {
                         {sub.requester_email}
                       </td>
                       <td className="px-4 py-3 text-sm text-charcoal font-body text-right tabular-nums">
-                        {formatAmount(sub.total_amount)}
+                        {formatUsd(sub.total_amount)}
                       </td>
                       <td className="px-4 py-3 text-sm text-charcoal font-body hidden md:table-cell text-right tabular-nums whitespace-nowrap">
                         {sub.check_number?.trim() ? sub.check_number.trim() : '—'}

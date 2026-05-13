@@ -1,13 +1,7 @@
 import {requireAdmin} from '~/lib/admin/auth';
+import {formatUsd} from '~/lib/format-currency';
 import {sendCashCheckNudgeEmail} from '~/lib/reimbursement/email/resend';
 import type {Route} from './+types/api.admin.reimbursement-cash-check-nudge';
-
-function formatAmount(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(amount);
-}
 
 export async function action({request, params, context}: Route.ActionArgs) {
   const auth = await requireAdmin(request, context.cloudflare.env);
@@ -58,7 +52,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
       requesterName: sub.requester_name,
       requesterEmail: sub.requester_email,
       resendApiKey,
-      totalAmountFormatted: formatAmount(Number(sub.total_amount)),
+      totalAmountFormatted: formatUsd(Number(sub.total_amount)),
     });
   } catch (err) {
     console.error('Cash check nudge email failed:', err);
