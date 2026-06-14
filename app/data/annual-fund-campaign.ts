@@ -22,7 +22,7 @@ export const corporateContributionsUrl =
 /** Update raisedAmount and lastUpdated here, then deploy to publish progress. */
 export const annualFundCampaign: AnnualFundCampaign = {
   schoolYear: '2026-27',
-  title: 'BHE Annual Fund',
+  title: '2026-2027 Annual Fund Milestones',
   giveUrl: annualFundGiveUrl,
   goalAmount: 252_340,
   raisedAmount: 0,

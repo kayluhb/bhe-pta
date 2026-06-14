@@ -1,10 +1,11 @@
 import type {AnnualFundCampaign} from '~/data/annual-fund-campaign';
 import {
   formatCurrency,
-  getMilestoneMarkerPercent,
   getMilestoneStatus,
   getProgressPercent,
 } from '~/lib/fundraising/progress';
+
+import {FundraisingThermometer} from './FundraisingThermometer';
 
 interface FundraisingProgressProps {
   campaign: AnnualFundCampaign;
@@ -19,53 +20,62 @@ export function FundraisingProgress({campaign, className}: FundraisingProgressPr
 
   return (
     <div
-      className={`rounded-xl border border-charcoal/10 bg-warm-white/50 p-6 md:p-8 ${className ?? 'mt-8'}`}
+      className={`rounded-xl border border-charcoal/10 bg-warm-white/50 p-6 shadow-sm md:p-8 ${className ?? 'mt-8'}`}
     >
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-        <div>
-          <p className="font-heading font-bold text-lg text-charcoal">
-            {formatCurrency(campaign.raisedAmount)} of {formatCurrency(campaign.goalAmount)}
-          </p>
-          <p className="text-sm text-charcoal/60 mt-1">Last updated {campaign.lastUpdated}</p>
-        </div>
-        <p className="text-3xl font-heading font-bold text-eagle-blue">{percent}%</p>
+      <h2 className="font-heading font-bold text-xl text-charcoal md:text-2xl">
+        {campaign.title}
+      </h2>
+      <div aria-hidden="true" className="mt-2 h-1 w-12 rounded-full bg-spirit-gold" />
+
+      <div className="mt-4">
+        <p className="font-heading font-bold text-lg text-charcoal">
+          {formatCurrency(campaign.raisedAmount)} of {formatCurrency(campaign.goalAmount)}
+        </p>
+        <p className="mt-1 text-sm text-charcoal/60">Last updated {campaign.lastUpdated}</p>
       </div>
 
-      <div className="relative mt-5">
-        <div aria-hidden="true" className="h-4 w-full overflow-hidden rounded-full bg-charcoal/10">
-          <div
-            className="h-4 rounded-full bg-eagle-blue transition-[width] duration-500 ease-out"
-            style={{width: `${Math.max(percent, isEmpty ? 0 : 3)}%`}}
+      <div className="mt-4 flex items-end gap-3 sm:gap-4">
+        <div className="min-w-0 flex-1">
+          <FundraisingThermometer
+            ariaLabel={campaign.title}
+            goalAmount={campaign.goalAmount}
+            isEmpty={isEmpty}
+            milestones={campaign.milestones}
+            percent={percent}
           />
         </div>
-        {campaign.milestones
-          .filter(
-            (m) => getMilestoneMarkerPercent(m.amount, campaign.goalAmount) < 100,
-          )
-          .map((m) => (
-          <div
-            aria-hidden="true"
-            className="absolute top-0 bottom-0 w-0.5 bg-charcoal/25"
-            key={m.id}
-            style={{left: `${getMilestoneMarkerPercent(m.amount, campaign.goalAmount)}%`}}
-          />
-        ))}
+        <p className="shrink-0 pb-2 font-heading font-bold text-2xl text-spirit-gold sm:text-3xl">
+          {percent}%
+        </p>
       </div>
 
       {isEmpty && (
-        <p className="mt-4 text-charcoal/70 text-sm">
-          Our Annual Fund campaign is underway — be among the first to give!
+        <p className="mt-4 text-sm text-charcoal/70">
+          Our eagle is ready to soar — help us hit the first milestone!
         </p>
       )}
 
-      <ul className="mt-6 space-y-3">
-        {campaign.milestones.map((m) => {
+      <ul aria-live="polite" className="mt-6 space-y-3">
+        {campaign.milestones.map((m, index) => {
           const reached = statusById[m.id] ?? false;
           return (
-            <li className="flex items-start gap-3" key={m.id}>
+            <li
+              className={`flex items-start gap-3 rounded-lg border p-3 ${
+                reached
+                  ? 'border-creek-green/30 border-l-4 border-l-creek-green bg-creek-green/5'
+                  : 'border-charcoal/10 bg-white/60'
+              }`}
+              key={m.id}
+            >
+              <span
+                aria-hidden="true"
+                className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-spirit-gold/25 font-heading text-xs font-bold text-charcoal"
+              >
+                {index + 1}
+              </span>
               <svg
                 aria-hidden="true"
-                className={`h-5 w-5 shrink-0 mt-0.5 ${reached ? 'text-creek-green' : 'text-charcoal/30'}`}
+                className={`mt-0.5 h-5 w-5 shrink-0 ${reached ? 'text-creek-green' : 'text-charcoal/30'}`}
                 fill="none"
                 stroke="currentColor"
                 strokeWidth={2}
@@ -83,6 +93,7 @@ export function FundraisingProgress({campaign, className}: FundraisingProgressPr
                 >
                   {m.label}
                   <span className="font-normal text-charcoal/60"> — {formatCurrency(m.amount)}</span>
+                  {reached && <span className="sr-only"> — reached</span>}
                 </p>
                 <p className="text-sm text-charcoal/60">{m.description}</p>
               </div>
