@@ -196,3 +196,25 @@ dialog[open]::backdrop {
     disco-badge-enter 0.5s ease-out forwards,
     disco-badge-pulse 1.2s ease-in-out 0.5s infinite;
 }
+
+/* Thermometer mascot — subtle idle animation when campaign is at 0% */
+@keyframes thermometer-warm {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+.thermometer-eagle-pulse {
+  animation: thermometer-warm 2.5s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thermometer-eagle-pulse {
+    animation: none;
+  }
+}
