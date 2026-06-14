@@ -1,5 +1,11 @@
+import {FundraisingProgress} from '~/components/fundraising/FundraisingProgress';
+import {annualFundCampaign} from '~/data/annual-fund-campaign';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/get-involved';
+
+export async function loader() {
+  return {annualFundCampaign};
+}
 
 export function meta({matches}: Route.MetaArgs) {
   return mergeParentMeta(matches, [
@@ -61,7 +67,8 @@ const oneTimeVolunteer = ['Carnival contributions', 'Seasonal parent parties (fa
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export default function GetInvolved() {
+export default function GetInvolved({loaderData}: Route.ComponentProps) {
+  const {annualFundCampaign: campaign} = loaderData;
   return (
     <div>
       {/* ── 1. Page Banner ───────────────────────────────────────────────── */}
@@ -142,10 +149,12 @@ export default function GetInvolved() {
                 </div>
               </div>
 
+              <FundraisingProgress campaign={campaign} />
+
               <div className="mt-10">
                 <a
                   className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
-                  href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
+                  href={campaign.giveUrl}
                   rel="noopener noreferrer"
                   target="_blank"
                 >
