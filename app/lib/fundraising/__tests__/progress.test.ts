@@ -5,9 +5,7 @@ import {formatCurrency, getMilestoneStatus, getProgressPercent} from '~/lib/fund
 
 const milestones: FundraisingMilestone[] = [
   {id: 'a', label: 'A', description: '', amount: 85_000},
-  {id: 'b', label: 'B', description: '', amount: 150_650},
-  {id: 'c', label: 'C', description: '', amount: 202_900},
-  {id: 'd', label: 'D', description: '', amount: 252_340},
+  {id: 'b', label: 'B', description: '', amount: 187_000},
 ];
 
 describe('getProgressPercent', () => {
@@ -16,11 +14,11 @@ describe('getProgressPercent', () => {
   });
 
   it('caps at 100 when raised exceeds goal', () => {
-    expect(getProgressPercent(260_000, 252_340)).toBe(100);
+    expect(getProgressPercent(200_000, 187_000)).toBe(100);
   });
 
   it('rounds to nearest integer percent', () => {
-    expect(getProgressPercent(126_170, 252_340)).toBe(50);
+    expect(getProgressPercent(93_500, 187_000)).toBe(50);
   });
 });
 
@@ -30,14 +28,12 @@ describe('getMilestoneStatus', () => {
     expect(status).toEqual([
       {id: 'a', reached: true},
       {id: 'b', reached: false},
-      {id: 'c', reached: false},
-      {id: 'd', reached: false},
     ]);
   });
 });
 
 describe('formatCurrency', () => {
   it('formats whole dollars without cents', () => {
-    expect(formatCurrency(252_340)).toBe('$252,340');
+    expect(formatCurrency(187_000)).toBe('$187,000');
   });
 });
