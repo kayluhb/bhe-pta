@@ -2,6 +2,7 @@ import {useState} from 'react';
 import {useLoaderData, useNavigate} from 'react-router';
 import {SearchableBudgetAccountSelect} from '~/components/reimbursement/SearchableBudgetAccountSelect';
 import {requireAdmin, type SessionPayload} from '~/lib/admin/auth';
+import {randomUUID} from '~/lib/random-uuid';
 import {blurNumberInputOnWheel} from '~/lib/blur-number-input-on-wheel';
 import {mergeParentMeta} from '~/lib/meta';
 import {BUDGET_ACCOUNTS, MAX_RECEIPT_LINES} from '~/lib/reimbursement/validation';
@@ -10,7 +11,7 @@ import type {Route} from './+types/admin.reimbursement-paper';
 type AmountRow = {id: string; value: string};
 
 function newAmountRow(): AmountRow {
-  return {id: crypto.randomUUID(), value: ''};
+  return {id: randomUUID(), value: ''};
 }
 
 export function meta({matches}: Route.MetaArgs) {

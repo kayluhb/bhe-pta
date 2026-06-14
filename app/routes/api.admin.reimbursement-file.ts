@@ -1,4 +1,5 @@
 import {requireAdmin} from '~/lib/admin/auth';
+import {downloadFilenameForR2Object} from '~/lib/reimbursement/filename';
 import type {Route} from './+types/api.admin.reimbursement-file';
 
 export async function loader({request, context}: Route.LoaderArgs) {
@@ -19,7 +20,17 @@ export async function loader({request, context}: Route.LoaderArgs) {
     return Response.json({error: 'File not found'}, {status: 404});
   }
 
-  const filename = key.split('/').pop() || 'download';
+  let storedOriginalFilename: string | null = null;
+  const db = context.cloudflare.env.REIMBURSEMENT_DB;
+  if (db) {
+    const attachment = await db
+      .prepare('SELECT original_filename FROM file_attachments WHERE r2_key = ? LIMIT 1')
+      .bind(key)
+      .first<{original_filename: string}>();
+    storedOriginalFilename = attachment?.original_filename ?? null;
+  }
+
+  const filename = downloadFilenameForR2Object(key, storedOriginalFilename);
   const forceDownload =
     url.searchParams.get('download') === '1' || url.searchParams.get('attachment') === '1';
   const disposition = forceDownload ? 'attachment' : 'inline';
