@@ -1,3 +1,4 @@
+import {annualFundGiveUrl} from '~/data/annual-fund-campaign';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/about';
 
@@ -344,7 +345,7 @@ export default function About() {
           </p>
           <a
             className="mt-8 inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
-            href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
+            href={annualFundGiveUrl}
             rel="noopener noreferrer"
             target="_blank"
           >
