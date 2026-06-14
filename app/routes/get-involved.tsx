@@ -1,5 +1,5 @@
 import {FundraisingProgress} from '~/components/fundraising/FundraisingProgress';
-import {annualFundCampaign} from '~/data/annual-fund-campaign';
+import {annualFundCampaign, corporateContributionsUrl} from '~/data/annual-fund-campaign';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/get-involved';
 
@@ -183,7 +183,7 @@ export default function GetInvolved({loaderData}: Route.ComponentProps) {
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               <a
                 className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
-                href="https://my.cheddarup.com/c/bhe-corporate-contributions-2024-25-copy"
+                href={corporateContributionsUrl}
                 rel="noopener noreferrer"
                 target="_blank"
               >
@@ -322,7 +322,7 @@ export default function GetInvolved({loaderData}: Route.ComponentProps) {
             <div className="mt-8">
               <a
                 className="inline-flex items-center bg-eagle-blue text-white font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-eagle-blue/90 transition-all duration-200 hover:shadow-lg"
-                href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
+                href={campaign.giveUrl}
                 rel="noopener noreferrer"
                 target="_blank"
               >

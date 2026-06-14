@@ -1,6 +1,8 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {Link, NavLink, useLocation} from 'react-router';
 
+import {annualFundGiveUrl} from '~/data/annual-fund-campaign';
+
 const navLinks = [
   {to: '/about', label: 'About'},
   {to: '/news', label: 'News'},
@@ -128,7 +130,7 @@ export function Header() {
         <div className="flex items-center gap-3">
           <a
             className="hidden sm:inline-block bg-spirit-gold text-night-blue font-heading font-bold text-sm px-5 py-2 rounded-full hover:bg-spirit-gold/90 transition-colors"
-            href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
+            href={annualFundGiveUrl}
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -206,7 +208,7 @@ export function Header() {
             ))}
             <a
               className="mt-2 bg-spirit-gold text-night-blue font-heading font-bold text-sm px-5 py-2 rounded-full text-center hover:bg-spirit-gold/90 transition-colors block"
-              href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
+              href={annualFundGiveUrl}
               onClick={() => setMobileMenuOpen(false)}
               rel="noopener noreferrer"
               tabIndex={mobileMenuOpen ? 0 : -1}

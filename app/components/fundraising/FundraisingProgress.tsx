@@ -8,16 +8,19 @@ import {
 
 interface FundraisingProgressProps {
   campaign: AnnualFundCampaign;
+  className?: string;
 }
 
-export function FundraisingProgress({campaign}: FundraisingProgressProps) {
+export function FundraisingProgress({campaign, className}: FundraisingProgressProps) {
   const percent = getProgressPercent(campaign.raisedAmount, campaign.goalAmount);
   const milestoneStatus = getMilestoneStatus(campaign.raisedAmount, campaign.milestones);
   const statusById = Object.fromEntries(milestoneStatus.map((s) => [s.id, s.reached]));
   const isEmpty = campaign.raisedAmount === 0;
 
   return (
-    <div className="mt-8 rounded-xl border border-charcoal/10 bg-warm-white/50 p-6 md:p-8">
+    <div
+      className={`rounded-xl border border-charcoal/10 bg-warm-white/50 p-6 md:p-8 ${className ?? 'mt-8'}`}
+    >
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
           <p className="font-heading font-bold text-lg text-charcoal">
@@ -35,7 +38,11 @@ export function FundraisingProgress({campaign}: FundraisingProgressProps) {
             style={{width: `${Math.max(percent, isEmpty ? 0 : 3)}%`}}
           />
         </div>
-        {campaign.milestones.map((m) => (
+        {campaign.milestones
+          .filter(
+            (m) => getMilestoneMarkerPercent(m.amount, campaign.goalAmount) < 100,
+          )
+          .map((m) => (
           <div
             aria-hidden="true"
             className="absolute top-0 bottom-0 w-0.5 bg-charcoal/25"

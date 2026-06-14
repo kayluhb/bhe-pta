@@ -1,6 +1,6 @@
 import {Link} from 'react-router';
 import {EventCard} from '~/components/EventCard';
-import {FundraisingTeaser} from '~/components/fundraising/FundraisingTeaser';
+import {FundraisingProgress} from '~/components/fundraising/FundraisingProgress';
 import {NewsCard} from '~/components/NewsCard';
 import {annualFundCampaign} from '~/data/annual-fund-campaign';
 import {mergeParentMeta} from '~/lib/meta';
@@ -273,7 +273,22 @@ export default function Home({loaderData}: Route.ComponentProps) {
         />
       </section>
 
-      <FundraisingTeaser campaign={campaign} />
+      <section className="bg-white py-16 md:py-20 border-y border-charcoal/5">
+        <div className="max-w-7xl mx-auto px-4">
+          <FundraisingProgress campaign={campaign} className="mt-0" />
+          <div className="mt-10">
+            <a
+              className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
+              href={campaign.giveUrl}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Become a Member
+              <span className="sr-only"> (opens in new tab)</span>
+            </a>
+          </div>
+        </div>
+      </section>
 
       {/* ── 2. Upcoming Events Section ──────────────────────────────────── */}
       <section className="bg-warm-white py-16 md:py-24">
@@ -461,7 +476,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
               </p>
               <a
                 className="mt-5 inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
-                href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
+                href={campaign.giveUrl}
                 rel="noopener noreferrer"
                 target="_blank"
               >
@@ -509,7 +524,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
               </p>
               <a
                 className="mt-5 inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
-                href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
+                href={campaign.giveUrl}
                 rel="noopener noreferrer"
                 target="_blank"
               >
