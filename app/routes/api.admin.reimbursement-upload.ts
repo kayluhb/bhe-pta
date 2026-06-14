@@ -1,4 +1,5 @@
 import {requireAdmin} from '~/lib/admin/auth';
+import {buildAdminReceiptPdfTitle} from '~/lib/reimbursement/filename';
 import {
   ACCEPTED_TYPES,
   extractReceiptData,
@@ -66,14 +67,13 @@ export async function action({request, params, context}: Route.ActionArgs) {
     // Generate formatted PDF
     const baseName = file.name.replace(/\.[^.]+$/, '');
     const sanitizedName = baseName.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const receiptTitle = `${submission.requester_name}: ${sanitizedName}`;
+    const receiptTitle = buildAdminReceiptPdfTitle(submission.requester_name, sanitizedName);
     const pdfBuffer = generateReceiptPDF(receipts, receiptTitle);
 
     const isPDF = file.type === 'application/pdf';
-    const timestamp = Date.now();
-    const pdfKey = `submissions/${submissionId}/${timestamp}-${sanitizedName}-converted.pdf`;
+    const pdfKey = `submissions/${submissionId}/${sanitizedName}-converted.pdf`;
     const originalExt = file.name.split('.').pop() || (isPDF ? 'pdf' : 'jpg');
-    const originalKey = `submissions/${submissionId}/${timestamp}-${sanitizedName}-original.${originalExt}`;
+    const originalKey = `submissions/${submissionId}/${sanitizedName}-original.${originalExt}`;
 
     // Upload both files to R2 and insert DB records
     const r2 = env.R2_BUCKET;

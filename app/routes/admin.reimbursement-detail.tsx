@@ -6,6 +6,8 @@ import {
   ADMIN_SUBMISSION_STATUSES,
   isAdminSubmissionStatus,
 } from '~/lib/admin/reimbursement-submission-statuses';
+import {blurNumberInputOnWheel} from '~/lib/blur-number-input-on-wheel';
+import {formatUsd} from '~/lib/format-currency';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/admin.reimbursement-detail';
 
@@ -126,10 +128,6 @@ function formatDate(dateStr: string): string {
   } catch {
     return dateStr;
   }
-}
-
-function formatAmount(amount: number): string {
-  return `$${Number(amount).toFixed(2)}`;
 }
 
 function formatFileSize(bytes: number): string {
@@ -713,7 +711,7 @@ export default function AdminReimbursementDetail() {
             <div>
               <p className="text-gray-500 mb-1">Total amount</p>
               <p className="text-charcoal font-semibold text-base">
-                {formatAmount(submission.total_amount)}
+                {formatUsd(submission.total_amount)}
               </p>
             </div>
             {contactFeedback && (
@@ -802,6 +800,7 @@ export default function AdminReimbursementDetail() {
                 id="treasurer-check-amount"
                 min={0}
                 onChange={(e) => setCheckAmountInput(e.target.value)}
+                onWheel={blurNumberInputOnWheel}
                 step="0.01"
                 type="number"
                 value={checkAmountInput}
@@ -1001,7 +1000,7 @@ export default function AdminReimbursementDetail() {
                         {r.category ?? '—'}
                       </td>
                       <td className="px-4 py-3 text-sm text-charcoal font-body text-right tabular-nums">
-                        {formatAmount(r.amount)}
+                        {formatUsd(r.amount)}
                       </td>
                       <td className="px-4 py-3 text-sm text-right">
                         <button
@@ -1024,7 +1023,7 @@ export default function AdminReimbursementDetail() {
                       Total
                     </td>
                     <td className="px-4 py-3 text-sm text-charcoal font-body text-right tabular-nums">
-                      {formatAmount(receiptsTotal)}
+                      {formatUsd(receiptsTotal)}
                     </td>
                     <td className="px-4 py-3" />
                   </tr>

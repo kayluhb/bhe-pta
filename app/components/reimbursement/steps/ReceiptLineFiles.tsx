@@ -1,6 +1,7 @@
 import {useState} from 'react';
 import {FileUpload} from '~/components/reimbursement/ui/FileUpload';
 import type {UploadProgress} from '~/hooks/useFileUpload';
+import {randomUUID} from '~/lib/random-uuid';
 import type {FileData} from '~/lib/reimbursement/validation';
 
 interface ReceiptLineFilesProps {
@@ -90,7 +91,7 @@ export function ReceiptLineFiles({
       );
     }
 
-    const slots = filesToProcess.map((file) => ({id: crypto.randomUUID(), file}));
+    const slots = filesToProcess.map((file) => ({id: randomUUID(), file}));
 
     const batchResults = await uploadFilesBatch(
       slots,

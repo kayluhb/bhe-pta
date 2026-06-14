@@ -106,6 +106,53 @@ describe('processReceiptConversionJob', () => {
       /^uploads\/pat-1700000000000-00000000-0000-4000-8000-000000000001-receipt-2-converted\.pdf$/,
     );
     expect(extractReceiptData).toHaveBeenCalled();
+    expect(generateReceiptPDF).toHaveBeenCalledWith(
+      expect.anything(),
+      'Pat: Receipt 2',
+      expect.objectContaining({submissionReceiptLine: '2'}),
+    );
+  });
+
+  it('PDF title omits draft id when receipt_number is a storage slug', async () => {
+    extractReceiptData.mockResolvedValue({
+      receipts: [{raw_transcript: 'x', total: '10'}],
+    });
+
+    const run = vi.fn().mockResolvedValue({});
+    const draftId = '1778872539008-4b3ae639-cbe1-45b0-8490-f5ebb4b9ed92';
+    const row = {
+      id: 'j5',
+      original_content_type: 'image/jpeg',
+      original_filename: `stephanie-white-${draftId}-receipt-2-original.jpg`,
+      original_key: 'uploads/x.jpg',
+      original_size: 100,
+      payable_to: 'Stephanie White',
+      receipt_line_index: 2,
+      receipt_number: `stephanie-white-${draftId}-receipt-2`,
+      reimbursement_draft_id: draftId,
+    };
+    const prepare = vi.fn().mockReturnValue({
+      bind: vi.fn().mockReturnValue({
+        first: async () => row,
+        run,
+      }),
+    });
+    const get = vi.fn().mockResolvedValue({
+      arrayBuffer: async () => new Uint8Array([9]).buffer,
+    });
+    const put = vi.fn().mockResolvedValue(undefined);
+    const env = {
+      GEMINI_API_KEY: 'k',
+      R2_BUCKET: {delete: vi.fn(), get, put},
+      REIMBURSEMENT_DB: {prepare},
+    } as unknown as Parameters<typeof processReceiptConversionJob>[0];
+
+    await processReceiptConversionJob(env, {jobId: 'j5'});
+    expect(generateReceiptPDF).toHaveBeenCalledWith(
+      expect.anything(),
+      'Stephanie White: Receipt 2',
+      expect.anything(),
+    );
   });
 
   it('persists extractReceiptData errors', async () => {
