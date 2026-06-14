@@ -1,4 +1,5 @@
 import {useCallback, useEffect, useState} from 'react';
+import {randomUUID} from '~/lib/random-uuid';
 import {isValidReimbursementDraftId} from '~/lib/reimbursement/filename';
 import {
   type BudgetSelectionData,
@@ -61,7 +62,7 @@ const getTwoWeeksFromToday = () => {
 
 function newReceiptRow(): ReceiptData {
   return {
-    clientKey: crypto.randomUUID(),
+    clientKey: randomUUID(),
     date: getTodayDate(),
     description: '',
     amount: 0,
@@ -70,7 +71,7 @@ function newReceiptRow(): ReceiptData {
   };
 }
 
-/** Must not call `crypto.randomUUID()` at module scope (Cloudflare Workers disallow I/O in global scope). */
+/** Must not call `randomUUID()` at module scope (Cloudflare Workers disallow I/O in global scope). */
 function buildDefaultFormState(): FormState {
   return {
     reimbursementDraftId: '',
@@ -110,7 +111,7 @@ function loadOrCreateReimbursementDraftId(): string {
   } catch {
     // ignore
   }
-  const id = `${Date.now()}-${crypto.randomUUID()}`;
+  const id = `${Date.now()}-${randomUUID()}`;
   try {
     sessionStorage.setItem(REIMBURSEMENT_DRAFT_SESSION_KEY, id);
   } catch {
@@ -178,7 +179,7 @@ export function useFormState() {
         receipts: [
           ...prev.receipts,
           {
-            clientKey: crypto.randomUUID(),
+            clientKey: randomUUID(),
             date: lastReceipt?.date || getTodayDate(),
             description: '',
             amount: 0,

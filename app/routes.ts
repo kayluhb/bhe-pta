@@ -72,6 +72,7 @@ export default [
   route('api/admin/reimbursements/:id/status', './routes/api.admin.reimbursement-status.ts'),
   route('api/admin/reimbursements/:id/delete', './routes/api.admin.reimbursement-delete.ts'),
   route('api/admin/reimbursements/:id/upload', './routes/api.admin.reimbursement-upload.ts'),
+  route('official-name', './routes/official-name.tsx'),
   route('privacy', './routes/privacy.tsx'),
   route('terms', './routes/terms.tsx'),
   route('api/subscribe', './routes/api.subscribe.ts'),

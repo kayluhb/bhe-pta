@@ -1,4 +1,5 @@
 import {requireAdmin} from '~/lib/admin/auth';
+import {buildAdminReceiptPdfTitle} from '~/lib/reimbursement/filename';
 import {extractReceiptData, generateReceiptPDF} from '~/lib/reimbursement/receipt';
 import type {Route} from './+types/api.admin.reimbursement-attachment-convert';
 
@@ -104,10 +105,10 @@ export async function action({request, params, context}: Route.ActionArgs) {
       return Response.json({error: result.error}, {status: result.status});
     }
 
-    const receiptTitle = `${submission.requester_name}: ${sanitizedName}`;
+    const receiptTitle = buildAdminReceiptPdfTitle(submission.requester_name, sanitizedName);
     const pdfBuffer = generateReceiptPDF(result.receipts, receiptTitle);
     const pdfFilename = `${sanitizedName}-converted.pdf`;
-    const pdfKey = `submissions/${submissionId}/${Date.now()}-${crypto.randomUUID()}-${pdfFilename}`;
+    const pdfKey = `submissions/${submissionId}/${pdfFilename}`;
 
     await r2.put(pdfKey, pdfBuffer, {httpMetadata: {contentType: PDF_CONTENT_TYPE}});
 
