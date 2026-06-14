@@ -1,3 +1,6 @@
+import {Link} from 'react-router';
+
+import {annualFundCampaign, campaignGivePath} from '~/data/campaigns';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/about';
 
@@ -342,15 +345,12 @@ export default function About() {
             Membership in the Barton Hills PTA helps support our wonderful students, teachers,
             staff, and programs.
           </p>
-          <a
+          <Link
             className="mt-8 inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
-            href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
-            rel="noopener noreferrer"
-            target="_blank"
+            to={campaignGivePath(annualFundCampaign.slug)}
           >
             Join PTA
-            <span className="sr-only">(opens in new tab)</span>
-          </a>
+          </Link>
         </div>
       </section>
     </div>

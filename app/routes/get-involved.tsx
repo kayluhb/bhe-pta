@@ -1,3 +1,13 @@
+import {Link} from 'react-router';
+
+import {FundraisingProgress} from '~/components/fundraising/FundraisingProgress';
+import {
+  annualFundCampaign,
+  buildCampaignProgress,
+  campaignGivePath,
+  corporateCampaign,
+} from '~/data/campaigns';
+import {loadCampaignProgress} from '~/lib/donations/totals';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/get-involved';
 
@@ -9,6 +19,15 @@ export function meta({matches}: Route.MetaArgs) {
       content: 'Volunteer, join the PTA, and support the Annual Fund at Barton Hills Elementary.',
     },
   ]);
+}
+
+export async function loader({context}: Route.LoaderArgs) {
+  const progress = await loadCampaignProgress(
+    context.cloudflare.env.REIMBURSEMENT_DB,
+    annualFundCampaign,
+  );
+  const campaign = buildCampaignProgress(annualFundCampaign, progress);
+  return {campaign};
 }
 
 // ─── Data ────────────────────────────────────────────────────────────────────
@@ -61,7 +80,8 @@ const oneTimeVolunteer = ['Carnival contributions', 'Seasonal parent parties (fa
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export default function GetInvolved() {
+export default function GetInvolved({loaderData}: Route.ComponentProps) {
+  const {campaign} = loaderData;
   return (
     <div>
       {/* ── 1. Page Banner ───────────────────────────────────────────────── */}
@@ -142,16 +162,15 @@ export default function GetInvolved() {
                 </div>
               </div>
 
+              <FundraisingProgress campaign={campaign} />
+
               <div className="mt-10">
-                <a
+                <Link
                   className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
-                  href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
-                  rel="noopener noreferrer"
-                  target="_blank"
+                  to={campaignGivePath(annualFundCampaign.slug)}
                 >
-                  Become a Member
-                  <span className="sr-only">(opens in new tab)</span>
-                </a>
+                  Give to the Annual Fund
+                </Link>
               </div>
             </div>
           </div>
@@ -172,15 +191,12 @@ export default function GetInvolved() {
               for every student.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <a
+              <Link
                 className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
-                href="https://my.cheddarup.com/c/bhe-corporate-contributions-2024-25-copy"
-                rel="noopener noreferrer"
-                target="_blank"
+                to={campaignGivePath(corporateCampaign.slug)}
               >
                 Become a Local Business Sponsor
-                <span className="sr-only">(opens in new tab)</span>
-              </a>
+              </Link>
               <a
                 className="inline-flex items-center border-2 border-white text-white font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-white/10 transition-all duration-200"
                 href="/sponsors"
@@ -311,15 +327,12 @@ export default function GetInvolved() {
               to provide the programs, resources, and community that make our school exceptional.
             </p>
             <div className="mt-8">
-              <a
+              <Link
                 className="inline-flex items-center bg-eagle-blue text-white font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-eagle-blue/90 transition-all duration-200 hover:shadow-lg"
-                href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
-                rel="noopener noreferrer"
-                target="_blank"
+                to={campaignGivePath(annualFundCampaign.slug)}
               >
                 Become a Member
-                <span className="sr-only">(opens in new tab)</span>
-              </a>
+              </Link>
             </div>
           </div>
         </div>
