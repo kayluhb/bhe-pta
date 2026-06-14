@@ -1,10 +1,14 @@
+import {buildReceiptPdfTitle} from '~/lib/reimbursement/filename';
 import {
   extractReceiptData,
   generateReceiptPDF,
   parseSubmissionReceiptLineForPdf,
   receiptFieldString,
 } from '~/lib/reimbursement/receipt';
-import {buildConvertedStagingPdfBasename} from '~/lib/reimbursement/receipt-staging-filenames';
+import {
+  buildConvertedStagingPdfBasename,
+  resolveStagingReceiptLineIndex,
+} from '~/lib/reimbursement/receipt-staging-filenames';
 import {
   attachConvertedToSubmission,
   type ConvertedJobData,
@@ -162,10 +166,12 @@ export async function processReceiptConversionJob(
     }
 
     const lineForPdf = parseSubmissionReceiptLineForPdf(row.receipt_number);
-    const titleReceiptLabel = lineForPdf ?? (row.receipt_number?.trim() || '1');
-    const pdfTitle = row.payable_to
-      ? `${row.payable_to}: Receipt ${titleReceiptLabel}`
-      : 'Receipt Transcript';
+    const receiptLine = resolveStagingReceiptLineIndex(row.receipt_number, row.receipt_line_index);
+    const pdfTitle = buildReceiptPdfTitle({
+      payableTo: row.payable_to,
+      receiptLine,
+      receiptNumber: row.receipt_number,
+    });
     const pdfBuffer = generateReceiptPDF(result.receipts, pdfTitle, {
       submissionReceiptLine: lineForPdf,
     });

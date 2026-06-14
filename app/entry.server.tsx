@@ -1,7 +1,7 @@
 import {isbot} from 'isbot';
 import {renderToReadableStream} from 'react-dom/server';
-import type {AppLoadContext, EntryContext} from 'react-router';
-import {ServerRouter} from 'react-router';
+import type {AppLoadContext, EntryContext, HandleErrorFunction} from 'react-router';
+import {isRouteErrorResponse, ServerRouter} from 'react-router';
 
 export default async function handleRequest(
   request: Request,
@@ -42,3 +42,12 @@ export default async function handleRequest(
     status: statusCode,
   });
 }
+
+// Overrides React Router's default handleError, which unconditionally
+// console.errors every thrown response — including 404s from bot probes
+// (/.env, /wp-login.php, /config/master.key, etc.) that flood Workers logs.
+export const handleError: HandleErrorFunction = (error, {request}) => {
+  if (request.signal.aborted) return;
+  if (isRouteErrorResponse(error) && error.status === 404) return;
+  console.error(error);
+};
