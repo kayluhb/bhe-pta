@@ -1,6 +1,8 @@
 import {Link} from 'react-router';
 import {EventCard} from '~/components/EventCard';
+import {FundraisingTeaser} from '~/components/fundraising/FundraisingTeaser';
 import {NewsCard} from '~/components/NewsCard';
+import {annualFundCampaign} from '~/data/annual-fund-campaign';
 import {mergeParentMeta} from '~/lib/meta';
 import {mockNewsletters, mockPtaNewsletters} from '~/lib/mock-data';
 import {getRandomSponsors} from '~/lib/sponsors';
@@ -48,7 +50,7 @@ export async function loader({context}: Route.LoaderArgs) {
 
   const sponsors = getRandomSponsors(6);
 
-  return {events: upcomingEvents, news: allNews, sponsors};
+  return {annualFundCampaign, events: upcomingEvents, news: allNews, sponsors};
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -221,7 +223,7 @@ function SectionHeader({
 // ─── Homepage Component ─────────────────────────────────────────────────────
 
 export default function Home({loaderData}: Route.ComponentProps) {
-  const {events, news, sponsors} = loaderData;
+  const {annualFundCampaign: campaign, events, news, sponsors} = loaderData;
   return (
     <div>
       {/* ── 1. Hero Section ─────────────────────────────────────────────── */}
@@ -270,6 +272,8 @@ export default function Home({loaderData}: Route.ComponentProps) {
           style={{clipPath: 'polygon(0 100%, 100% 0, 100% 100%)'}}
         />
       </section>
+
+      <FundraisingTeaser campaign={campaign} />
 
       {/* ── 2. Upcoming Events Section ──────────────────────────────────── */}
       <section className="bg-warm-white py-16 md:py-24">
