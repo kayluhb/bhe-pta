@@ -34,6 +34,12 @@ interface Env {
   STAGE_BASIC_AUTH_USER?: string;
   /** Optional stage-only HTTP Basic Auth password. */
   STAGE_BASIC_AUTH_PASSWORD?: string;
+  PAYMENT_PROVIDER?: 'stripe' | 'paypal';
+  STRIPE_SECRET_KEY?: string;
+  STRIPE_WEBHOOK_SECRET?: string;
+  PAYPAL_CLIENT_ID?: string;
+  PAYPAL_CLIENT_SECRET?: string;
+  PAYPAL_WEBHOOK_ID?: string;
 }
 
 declare module 'react-router' {

@@ -1,6 +1,9 @@
 import {Link} from 'react-router';
 import {EventCard} from '~/components/EventCard';
+import {FundraisingTeaser} from '~/components/fundraising/FundraisingTeaser';
 import {NewsCard} from '~/components/NewsCard';
+import {annualFundCampaign, buildCampaignProgress, campaignGivePath} from '~/data/campaigns';
+import {loadCampaignProgress} from '~/lib/donations/totals';
 import {mergeParentMeta} from '~/lib/meta';
 import {mockNewsletters, mockPtaNewsletters} from '~/lib/mock-data';
 import {getRandomSponsors} from '~/lib/sponsors';
@@ -48,7 +51,13 @@ export async function loader({context}: Route.LoaderArgs) {
 
   const sponsors = getRandomSponsors(6);
 
-  return {events: upcomingEvents, news: allNews, sponsors};
+  const progress = await loadCampaignProgress(
+    context.cloudflare.env.REIMBURSEMENT_DB,
+    annualFundCampaign,
+  );
+  const campaign = buildCampaignProgress(annualFundCampaign, progress);
+
+  return {campaign, events: upcomingEvents, news: allNews, sponsors};
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -221,7 +230,7 @@ function SectionHeader({
 // ─── Homepage Component ─────────────────────────────────────────────────────
 
 export default function Home({loaderData}: Route.ComponentProps) {
-  const {events, news, sponsors} = loaderData;
+  const {campaign, events, news, sponsors} = loaderData;
   return (
     <div>
       {/* ── 1. Hero Section ─────────────────────────────────────────────── */}
@@ -270,6 +279,8 @@ export default function Home({loaderData}: Route.ComponentProps) {
           style={{clipPath: 'polygon(0 100%, 100% 0, 100% 100%)'}}
         />
       </section>
+
+      <FundraisingTeaser campaign={campaign} />
 
       {/* ── 2. Upcoming Events Section ──────────────────────────────────── */}
       <section className="bg-warm-white py-16 md:py-24">
@@ -455,14 +466,11 @@ export default function Home({loaderData}: Route.ComponentProps) {
                 Membership helps support students, teachers, staff, and programs that make Barton
                 Hills great.
               </p>
-              <a
+              <Link
                 className="mt-5 inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
-                href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
-                rel="noopener noreferrer"
-                target="_blank"
+                to={campaignGivePath(annualFundCampaign.slug)}
               >
                 Join Now
-                <span className="sr-only">(opens in new tab)</span>
                 <svg
                   aria-hidden="true"
                   className="h-4 w-4"
@@ -477,7 +485,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
                     strokeLinejoin="round"
                   />
                 </svg>
-              </a>
+              </Link>
             </div>
 
             {/* Annual Fund Card */}
@@ -503,14 +511,11 @@ export default function Home({loaderData}: Route.ComponentProps) {
                 Over <span className="font-bold text-charcoal">$600 per student</span> annually goes
                 directly to programs, staff, and resources.
               </p>
-              <a
+              <Link
                 className="mt-5 inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
-                href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
-                rel="noopener noreferrer"
-                target="_blank"
+                to={campaignGivePath(annualFundCampaign.slug)}
               >
                 Give Now
-                <span className="sr-only">(opens in new tab)</span>
                 <svg
                   aria-hidden="true"
                   className="h-4 w-4"
@@ -525,7 +530,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
                     strokeLinejoin="round"
                   />
                 </svg>
-              </a>
+              </Link>
             </div>
           </div>
         </div>

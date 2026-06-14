@@ -84,7 +84,7 @@ export default function Terms() {
 
           <h2 className="text-2xl font-heading font-bold text-charcoal mt-10">Third-Party Links</h2>
           <p className="text-charcoal/70 leading-relaxed mt-3">
-            Our website may contain links to external websites (e.g., Cheddar Up, Mailchimp, Austin
+            Our website may contain links to external websites (e.g., Stripe, Mailchimp, Austin
             ISD). We are not responsible for the content or privacy practices of those sites.
             Accessing third-party links is at your own risk.
           </p>

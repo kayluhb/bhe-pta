@@ -1,5 +1,7 @@
 import {Fragment} from 'react';
+import {Link} from 'react-router';
 
+import {campaignGivePath, corporateCampaign} from '~/data/campaigns';
 import {mergeParentMeta} from '~/lib/meta';
 import {tiers} from '~/lib/sponsors';
 import type {Route} from './+types/sponsors';
@@ -70,15 +72,12 @@ export default function Sponsors() {
             fence along Barton Hills Drive for one year.
           </p>
           <div className="mt-8">
-            <a
+            <Link
               className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
-              href="https://my.cheddarup.com/c/bhe-corporate-contributions-2024-25-copy"
-              rel="noopener noreferrer"
-              target="_blank"
+              to={campaignGivePath(corporateCampaign.slug)}
             >
               Contribute Now
-              <span className="sr-only">(opens in new tab)</span>
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -227,15 +226,12 @@ export default function Sponsors() {
             sponsorship directly funds programs that benefit every student.
           </p>
           <div className="mt-8">
-            <a
+            <Link
               className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
-              href="https://my.cheddarup.com/c/bhe-corporate-contributions-2024-25-copy"
-              rel="noopener noreferrer"
-              target="_blank"
+              to={campaignGivePath(corporateCampaign.slug)}
             >
               Contribute Now
-              <span className="sr-only">(opens in new tab)</span>
-            </a>
+            </Link>
           </div>
         </div>
       </section>

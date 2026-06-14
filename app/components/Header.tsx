@@ -1,6 +1,8 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {Link, NavLink, useLocation} from 'react-router';
 
+import {annualFundCampaign, campaignGivePath} from '~/data/campaigns';
+
 const navLinks = [
   {to: '/about', label: 'About'},
   {to: '/news', label: 'News'},
@@ -126,14 +128,12 @@ export function Header() {
 
         {/* CTA + Mobile Toggle */}
         <div className="flex items-center gap-3">
-          <a
+          <Link
             className="hidden sm:inline-block bg-spirit-gold text-night-blue font-heading font-bold text-sm px-5 py-2 rounded-full hover:bg-spirit-gold/90 transition-colors"
-            href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
-            rel="noopener noreferrer"
-            target="_blank"
+            to={campaignGivePath(annualFundCampaign.slug)}
           >
-            Join PTA<span className="sr-only"> (opens in new tab)</span>
-          </a>
+            Join PTA
+          </Link>
 
           {/* Hamburger Button */}
           <button
@@ -204,16 +204,14 @@ export function Header() {
                 {link.label}
               </NavLink>
             ))}
-            <a
+            <Link
               className="mt-2 bg-spirit-gold text-night-blue font-heading font-bold text-sm px-5 py-2 rounded-full text-center hover:bg-spirit-gold/90 transition-colors block"
-              href="https://my.cheddarup.com/c/bhe-pta-annual-fund-drive-2025-26"
               onClick={() => setMobileMenuOpen(false)}
-              rel="noopener noreferrer"
               tabIndex={mobileMenuOpen ? 0 : -1}
-              target="_blank"
+              to={campaignGivePath(annualFundCampaign.slug)}
             >
-              Join PTA<span className="sr-only"> (opens in new tab)</span>
-            </a>
+              Join PTA
+            </Link>
           </div>
         </nav>
       </div>

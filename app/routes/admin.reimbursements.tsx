@@ -591,6 +591,12 @@ export default function AdminReimbursements() {
           <div className="flex flex-wrap items-center gap-3 sm:gap-4">
             <a
               className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
+              href="/admin/donations"
+            >
+              Donations
+            </a>
+            <a
+              className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
               href="/admin/school-years"
             >
               School years
