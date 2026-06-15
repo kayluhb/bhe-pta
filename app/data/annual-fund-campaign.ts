@@ -25,8 +25,8 @@ export const annualFundCampaign: AnnualFundCampaign = {
   title: '2026-2027 Annual Fund Milestones',
   giveUrl: annualFundGiveUrl,
   goalAmount: 187_000,
-  raisedAmount: 0,
-  lastUpdated: '2026-06-14',
+  raisedAmount: 4_100,
+  lastUpdated: '2026-06-15',
   milestones: [
     {
       id: 'art-music-pe',
