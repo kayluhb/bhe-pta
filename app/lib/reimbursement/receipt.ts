@@ -1,4 +1,4 @@
-import jsPDF from 'jspdf';
+import {jsPDF} from 'jspdf';
 
 import {MAX_RECEIPT_LINES} from '~/lib/reimbursement/validation';
 

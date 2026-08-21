@@ -20,6 +20,14 @@ export function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
+export function formatTargetDate(isoDate: string): string {
+  const [year, month, day] = isoDate.split('-').map(Number);
+  return new Intl.DateTimeFormat('en-US', {
+    day: 'numeric',
+    month: 'short',
+  }).format(new Date(year, month - 1, day));
+}
+
 export function getMilestoneMarkerPercent(amount: number, goal: number): number {
   if (goal <= 0) return 0;
   return Math.min(100, (amount / goal) * 100);

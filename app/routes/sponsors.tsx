@@ -1,8 +1,16 @@
 import {Fragment} from 'react';
+import {Link, useLoaderData} from 'react-router';
 
 import {corporateContributionsUrl} from '~/data/annual-fund-campaign';
 import {mergeParentMeta} from '~/lib/meta';
-import {tiers} from '~/lib/sponsors';
+import {formatSchoolYearLong} from '~/lib/school-year';
+import {
+  getFeaturedSponsorSchoolYear,
+  getSponsorTiers,
+  listSponsorSchoolYears,
+  resolveSponsorSchoolYear,
+  type SponsorTier,
+} from '~/lib/sponsors';
 import type {Route} from './+types/sponsors';
 
 export function meta({matches}: Route.MetaArgs) {
@@ -14,6 +22,18 @@ export function meta({matches}: Route.MetaArgs) {
         'Become a local business sponsor of Barton Hills Elementary PTA. Your sponsorship supports students, teachers, and programs.',
     },
   ]);
+}
+
+export async function loader({request}: Route.LoaderArgs) {
+  const url = new URL(request.url);
+  const schoolYear = resolveSponsorSchoolYear(url.searchParams.get('year'));
+
+  return {
+    featuredSchoolYear: getFeaturedSponsorSchoolYear(),
+    schoolYear,
+    schoolYears: listSponsorSchoolYears(),
+    tiers: getSponsorTiers(schoolYear),
+  };
 }
 
 // ─── Data ────────────────────────────────────────────────────────────────────
@@ -32,9 +52,87 @@ const fundedItems = [
   'Academic enrichment fund',
 ];
 
-// ─── Component ───────────────────────────────────────────────────────────────
+// ─── Components ──────────────────────────────────────────────────────────────
+
+function SponsorTierSection({tier}: {tier: SponsorTier}) {
+  return (
+    <div>
+      <div className="flex items-center gap-4 mb-2">
+        <div className={`h-10 w-10 rounded-lg ${tier.color} flex items-center justify-center`}>
+          <svg
+            aria-hidden="true"
+            className="h-5 w-5 text-white"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+        <div>
+          <h3 className="text-2xl md:text-3xl font-heading font-bold text-charcoal">{tier.name}</h3>
+        </div>
+      </div>
+      <p className="text-sm text-charcoal/70 mb-6 ml-14">{tier.signage}</p>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        {tier.sponsors.map((sponsor) => (
+          <Fragment key={sponsor.name}>
+            {sponsor.url ? (
+              <a
+                aria-label={`Visit ${sponsor.name} website (opens in new tab)`}
+                className="transition-transform hover:scale-105"
+                href={sponsor.url}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                <div className="aspect-[3/2] rounded-lg bg-white border border-charcoal/10 flex items-center justify-center p-3">
+                  <img
+                    alt={sponsor.name}
+                    className={`max-h-full max-w-full object-contain ${sponsor.logoClassName ?? ''}`}
+                    src={sponsor.logo}
+                  />
+                </div>
+              </a>
+            ) : (
+              <div className="aspect-[3/2] rounded-lg bg-white border border-charcoal/10 flex items-center justify-center p-3">
+                <img
+                  alt={sponsor.name}
+                  className={`max-h-full max-w-full object-contain ${sponsor.logoClassName ?? ''}`}
+                  src={sponsor.logo}
+                />
+              </div>
+            )}
+          </Fragment>
+        ))}
+        {Array.from({
+          length: Math.min(1, Math.max(0, tier.slots - tier.sponsors.length)),
+        }).map(() => (
+          <div
+            className={`aspect-[3/2] rounded-lg ${tier.bgLight} border-2 border-dashed ${tier.borderColor} flex items-center justify-center transition-colors hover:border-spirit-gold/50`}
+            key={`${tier.name}-empty-placeholder`}
+          >
+            <span className="text-xs font-medium text-charcoal/30 text-center px-3">
+              Your Logo Here
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function Sponsors() {
+  const {featuredSchoolYear, schoolYear, schoolYears, tiers} = useLoaderData<typeof loader>();
+  const showYearPicker = schoolYears.length > 1;
+
   return (
     <div>
       {/* ── 1. Page Banner ───────────────────────────────────────────────── */}
@@ -51,7 +149,7 @@ export default function Sponsors() {
             Local Business Sponsors
           </h1>
           <p className="mt-4 text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
-            BHE Local Business Contributions 2025-2026
+            BHE Local Business Contributions {formatSchoolYearLong(schoolYear)}
           </p>
           <div className="mt-6 h-1 w-20 bg-spirit-gold rounded-full mx-auto" />
         </div>
@@ -129,84 +227,38 @@ export default function Sponsors() {
               Every sponsor receives a sign displayed on the school fence along Barton Hills Drive
               for one year.
             </p>
+            {showYearPicker && (
+              <div
+                aria-label="School year"
+                className="mt-8 inline-flex flex-wrap items-center justify-center gap-2 rounded-full bg-white p-1.5 shadow-sm border border-charcoal/10"
+                role="tablist"
+              >
+                {schoolYears.map((year) => {
+                  const isSelected = year === schoolYear;
+                  const yearHref = year === featuredSchoolYear ? '/sponsors' : `/sponsors?year=${year}`;
+                  return (
+                    <Link
+                      aria-current={isSelected ? 'page' : undefined}
+                      className={`rounded-full px-4 py-2 text-sm font-heading font-semibold transition-colors ${
+                        isSelected
+                          ? 'bg-eagle-blue text-white'
+                          : 'text-charcoal/70 hover:text-charcoal hover:bg-charcoal/5'
+                      }`}
+                      key={year}
+                      to={yearHref}
+                    >
+                      {year}
+                      {year === featuredSchoolYear ? ' (current)' : ''}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="space-y-16">
             {tiers.map((tier) => (
-              <div key={tier.name}>
-                {/* Tier header */}
-                <div className="flex items-center gap-4 mb-2">
-                  <div
-                    className={`h-10 w-10 rounded-lg ${tier.color} flex items-center justify-center`}
-                  >
-                    <svg
-                      aria-hidden="true"
-                      className="h-5 w-5 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={1.5}
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-2xl md:text-3xl font-heading font-bold text-charcoal">
-                      {tier.name}
-                    </h3>
-                  </div>
-                </div>
-                <p className="text-sm text-charcoal/70 mb-6 ml-14">{tier.signage}</p>
-
-                {/* Sponsor logos + empty slots */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                  {tier.sponsors.map((sponsor) => (
-                    <Fragment key={sponsor.name}>
-                      {sponsor.url ? (
-                        <a
-                          aria-label={`Visit ${sponsor.name} website (opens in new tab)`}
-                          className="transition-transform hover:scale-105"
-                          href={sponsor.url}
-                          rel="noopener noreferrer"
-                          target="_blank"
-                        >
-                          <div className="aspect-[3/2] rounded-lg bg-white border border-charcoal/10 flex items-center justify-center p-3">
-                            <img
-                              alt={sponsor.name}
-                              className={`max-h-full max-w-full object-contain ${sponsor.logoClassName ?? ''}`}
-                              src={sponsor.logo}
-                            />
-                          </div>
-                        </a>
-                      ) : (
-                        <div className="aspect-[3/2] rounded-lg bg-white border border-charcoal/10 flex items-center justify-center p-3">
-                          <img
-                            alt={sponsor.name}
-                            className={`max-h-full max-w-full object-contain ${sponsor.logoClassName ?? ''}`}
-                            src={sponsor.logo}
-                          />
-                        </div>
-                      )}
-                    </Fragment>
-                  ))}
-                  {Array.from({
-                    length: Math.min(1, Math.max(0, tier.slots - tier.sponsors.length)),
-                  }).map(() => (
-                    <div
-                      className={`aspect-[3/2] rounded-lg ${tier.bgLight} border-2 border-dashed ${tier.borderColor} flex items-center justify-center transition-colors hover:border-spirit-gold/50`}
-                      key={`${tier.name}-empty-placeholder`}
-                    >
-                      <span className="text-xs font-medium text-charcoal/30 text-center px-3">
-                        Your Logo Here
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <SponsorTierSection key={tier.name} tier={tier} />
             ))}
           </div>
         </div>

@@ -5,7 +5,8 @@ import {NewsCard} from '~/components/NewsCard';
 import {annualFundCampaign} from '~/data/annual-fund-campaign';
 import {mergeParentMeta} from '~/lib/meta';
 import {mockNewsletters, mockPtaNewsletters} from '~/lib/mock-data';
-import {getRandomSponsors} from '~/lib/sponsors';
+import {getFeaturedSponsorSchoolYear, getRandomSponsors} from '~/lib/sponsors';
+import {formatSchoolYearLong} from '~/lib/school-year';
 import type {CalendarEvent} from '~/lib/types';
 import type {Route} from './+types/home';
 
@@ -48,9 +49,10 @@ export async function loader({context}: Route.LoaderArgs) {
     .sort((a, b) => a.start.localeCompare(b.start))
     .slice(0, 6);
 
-  const sponsors = getRandomSponsors(6);
+  const sponsorSchoolYear = getFeaturedSponsorSchoolYear();
+  const sponsors = getRandomSponsors(6, sponsorSchoolYear);
 
-  return {annualFundCampaign, events: upcomingEvents, news: allNews, sponsors};
+  return {annualFundCampaign, events: upcomingEvents, news: allNews, sponsorSchoolYear, sponsors};
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -223,7 +225,7 @@ function SectionHeader({
 // ─── Homepage Component ─────────────────────────────────────────────────────
 
 export default function Home({loaderData}: Route.ComponentProps) {
-  const {annualFundCampaign: campaign, events, news, sponsors} = loaderData;
+  const {annualFundCampaign: campaign, events, news, sponsorSchoolYear, sponsors} = loaderData;
   return (
     <div>
       {/* ── 1. Hero Section ─────────────────────────────────────────────── */}
@@ -620,6 +622,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
 
           <p className="mt-6 text-charcoal/70 max-w-2xl mx-auto text-lg leading-relaxed">
             Thank you to our generous local business sponsors who make our programs possible
+            {sponsorSchoolYear ? ` (${formatSchoolYearLong(sponsorSchoolYear)})` : ''}
           </p>
 
           <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">

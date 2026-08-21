@@ -3,6 +3,7 @@ export interface FundraisingMilestone {
   description: string;
   id: string;
   label: string;
+  targetDate: string;
 }
 
 export interface AnnualFundCampaign {
@@ -25,20 +26,22 @@ export const annualFundCampaign: AnnualFundCampaign = {
   title: '2026-2027 Annual Fund Milestones',
   giveUrl: annualFundGiveUrl,
   goalAmount: 187_000,
-  raisedAmount: 4_100,
-  lastUpdated: '2026-06-15',
+  raisedAmount: 118_997.99,
+  lastUpdated: '2026-06-25',
   milestones: [
     {
       id: 'art-music-pe',
       label: 'Fund Art, Music & PE',
       description: 'Cost to fund the final third of each Music, Art & PE role',
       amount: 85_000,
+      targetDate: '2026-06-25',
     },
     {
       id: 'annual-programming',
       label: 'Our Usual Programming for Students, Teachers & Staff',
       description: 'The rest of our Annual Fund goal — grants, enrichment, hospitality, and more',
       amount: 187_000,
+      targetDate: '2026-11-01',
     },
   ],
 };

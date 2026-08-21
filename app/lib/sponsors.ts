@@ -1,282 +1,357 @@
-const LOGO_PATH = '/sponsors/2025-26';
-
 export interface Sponsor {
-  name: string;
   logo: string;
-  url?: string;
   logoClassName?: string;
+  name: string;
+  url?: string;
 }
 
 export interface SponsorTier {
-  name: string;
   amount: string;
+  bgLight: string;
+  borderColor: string;
+  color: string;
+  name: string;
   signage: string;
   slots: number;
-  color: string;
-  borderColor: string;
-  textColor: string;
-  bgLight: string;
   sponsors: Sponsor[];
+  textColor: string;
 }
 
-export const tiers: SponsorTier[] = [
-  {
-    name: 'Eagle Pride',
-    amount: '$5,000+',
-    signage: '96" x 72" sign with logo',
-    slots: 4,
-    color: 'bg-eagle-blue',
-    borderColor: 'border-eagle-blue',
-    textColor: 'text-eagle-blue',
-    bgLight: 'bg-eagle-blue/5',
-    sponsors: [
-      {
-        name: 'Berbar Group',
-        logo: `${LOGO_PATH}/berbar-group.png`,
-        url: 'https://www.berbasgroup.com',
-      },
-      {name: 'Chubbies', logo: `${LOGO_PATH}/chubbies.png`, url: 'https://www.chubbiesshorts.com/'},
-      {name: 'Realty Law', logo: `${LOGO_PATH}/realty-law.png`, url: 'https://realtylawtexas.com/'},
-      {
-        name: 'Skelly Build',
-        logo: `${LOGO_PATH}/skelly-build.png`,
-        url: 'https://skellybuild.com/',
-      },
-    ],
-  },
-  {
-    name: 'Eagle Support',
-    amount: '$2,500 - $4,999',
-    signage: '80" x 60" sign with logo',
-    slots: 12,
-    color: 'bg-charcoal',
-    borderColor: 'border-charcoal',
-    textColor: 'text-charcoal',
-    bgLight: 'bg-charcoal/5',
-    sponsors: [
-      {
-        name: 'HarBen House',
-        logo: `${LOGO_PATH}/harben-house.png`,
-        url: 'https://harbenhouse.com/',
-      },
-      {
-        name: 'House of Noa',
-        logo: `${LOGO_PATH}/house-of-noa.png`,
-        url: 'https://www.thehouseofnoa.com/',
-      },
-      {
-        name: 'JH Davidson & Associates',
-        logo: `${LOGO_PATH}/jhd.jpg`,
-        url: 'https://www.jhdavidson.com/',
-      },
-      {name: 'The Lyons Den', logo: `${LOGO_PATH}/lyons.png`},
-      {
-        name: 'Mahoney Engineering',
-        logo: `${LOGO_PATH}/mahoney.jpg`,
-        url: 'https://www.mahoneyeng.com/',
-      },
-      {name: 'NMSB', logo: `${LOGO_PATH}/nmsb.png`, url: 'https://nmsb-law.com/'},
-      {
-        name: 'PlainsCapital',
-        logo: `${LOGO_PATH}/plainscapital.png`,
-        url: 'https://plainscapital.com/',
-      },
-      {
-        name: 'See Me',
-        logo: `${LOGO_PATH}/see-me.png`,
-        url: 'https://nmsb-law.com/attorney/sam-colletti/',
-      },
-      {name: 'Stowell', logo: `${LOGO_PATH}/stowell.png`},
-      {name: 'Thomas Randolph Excavation', logo: `${LOGO_PATH}/tre.png`},
-    ],
-  },
-  {
-    name: 'Eagle Love',
-    amount: '$1,000 - $2,499',
-    signage: '64" x 48" sign with logo',
-    slots: 18,
-    color: 'bg-spirit-gold',
-    borderColor: 'border-spirit-gold',
-    textColor: 'text-spirit-gold',
-    bgLight: 'bg-spirit-gold/5',
-    sponsors: [
-      {
-        name: 'Allensworth Construction Lawyers',
-        logo: `${LOGO_PATH}/allensworth.png`,
-        url: 'https://www.allensworthlaw.com/',
-      },
-      {name: 'Ander Corp', logo: `${LOGO_PATH}/ander-corp.jpg`, url: 'https://andercorp.com/'},
-      {name: 'Audion', logo: `${LOGO_PATH}/audion.png`, url: 'https://audionllc.com/'},
-      {
-        name: 'Designtrait Architects',
-        logo: `${LOGO_PATH}/dt-logo.png`,
-        url: 'https://designtrait.com/',
-      },
-      {
-        name: 'Highline Homes',
-        logo: `${LOGO_PATH}/highline-homes.png`,
-        url: 'https://highlinehomes.com/',
-      },
-      {
-        name: 'Holt Engineering',
-        logo: `${LOGO_PATH}/holt-engineering.png`,
-        url: 'https://holteng.com/',
-      },
-      {
-        name: 'Kevin Haines - Realty Austin',
-        logo: `${LOGO_PATH}/kevin-haines-realty-austin.jpg`,
-        url: 'https://www.realtyaustin.com/agents/kevin-haines',
-      },
-      {
-        name: 'Local Building Group',
-        logo: `${LOGO_PATH}/local-building-group.png`,
-        url: 'https://mylocalbuild.com/',
-      },
-      {name: 'Nantz', logo: `${LOGO_PATH}/nantz.png`, url: 'https://www.nantzorthodontics.com/'},
-      {
-        name: 'Primrose',
-        logo: `${LOGO_PATH}/primrose.jpg`,
-        url: 'https://www.primroseschools.com/',
-      },
-      {
-        name: 'Rain King',
-        logo: `${LOGO_PATH}/rain-king.png`,
-        url: 'https://www.rainkinginc.com/',
-        logoClassName: 'rotate-90',
-      },
-      {
-        name: 'Roeder Group',
-        logo: `${LOGO_PATH}/roeder-group.png`,
-        url: 'https://brookeroeder.com/',
-      },
-      {
-        name: 'TX Keeper Cider',
-        logo: `${LOGO_PATH}/tx-keeper-cider.png`,
-        url: 'https://texaskeeper.com/',
-      },
-      {
-        name: 'Understated Leather',
-        logo: `${LOGO_PATH}/understated-leather.jpg`,
-        url: 'https://www.understatedleather.com/',
-      },
-      {
-        name: 'Zilker Belts',
-        logo: `${LOGO_PATH}/zilker-belts.png`,
-        url: 'https://www.zilkerbelts.com/',
-      },
-    ],
-  },
-  {
-    name: 'Eagle Friend',
-    amount: '$500 - $999',
-    signage: '48" x 36" sign with name or logo',
-    slots: 24,
-    color: 'bg-creek-green',
-    borderColor: 'border-creek-green',
-    textColor: 'text-creek-green',
-    bgLight: 'bg-creek-green/5',
-    sponsors: [
-      {name: 'ARC', logo: `${LOGO_PATH}/ai-vector.png`, url: 'https://www.e-arc.com/'},
-      {
-        name: 'BestLine Solutions',
-        logo: `${LOGO_PATH}/bestline-solutions.png`,
-        url: 'https://bestline.net/',
-      },
-      {
-        name: 'Carolyn P Interior Design',
-        logo: `${LOGO_PATH}/carolyn-p-interior-design.jpg`,
-        url: 'https://www.carolynpritchett.com',
-      },
-      {name: 'CMG', logo: `${LOGO_PATH}/cmg.png`, url: 'https://cmgaustin.com/'},
-      {
-        name: 'Cowboy Pools',
-        logo: `${LOGO_PATH}/cowboy-pools.png`,
-        url: 'https://www.cowboypools.com',
-      },
-      {name: 'DC Circle', logo: `${LOGO_PATH}/dc-circle.png`},
-      {
-        name: 'Easy Tiger',
-        logo: `${LOGO_PATH}/easy-tiger.png`,
-        url: 'https://www.easytigeraustin.com',
-      },
-      {name: 'ECO', logo: `${LOGO_PATH}/eco.jpg`, url: 'https://www.drcharlesosterberg.com/'},
+export interface SponsorYearGroup {
+  schoolYear: string;
+  tiers: SponsorTier[];
+}
 
-      {
-        name: 'GreenJay Therapy',
-        logo: `${LOGO_PATH}/greenjay-therapy.png`,
-        url: 'https://greenjaytherapy.com',
-      },
-      {
-        name: 'Hollingsworth Pack',
-        logo: `${LOGO_PATH}/hollingsworth-pack.png`,
-        url: 'https://www.hollingsworthpack.com',
-      },
-      {
-        name: 'Karen Kelly',
-        logo: `${LOGO_PATH}/karen-kelly.png`,
-        url: 'https://vanheuvenproperties.com/agent/karen-kelly',
-      },
-      {
-        name: 'Michele Roi - Realtor',
-        logo: `${LOGO_PATH}/michele-roi.png`,
-        url: 'https://blairfieldrealty.com/agent/michele-roi',
-      },
-      {
-        name: 'Mizner Design',
-        logo: `${LOGO_PATH}/mizner-design.png`,
-        url: 'https://www.miznerdesign.com',
-        logoClassName: '-rotate-90',
-      },
-      {name: 'Revent', logo: `${LOGO_PATH}/revent.png`, url: 'https://reventbuilds.com'},
-      {name: 'St. Elmo', logo: `${LOGO_PATH}/st-elmo.png`, url: 'https://www.stelmobrewing.com'},
-      {
-        name: "St. Mark's",
-        logo: `${LOGO_PATH}/st-marks.png`,
-        url: 'https://www.stmarksdayschoolaustin.org',
-      },
-      {
-        name: 'Swan Closet Design',
-        logo: `${LOGO_PATH}/swan-closet-design.jpg`,
-        url: 'https://www.swannclosetdesign.com',
-      },
-      {
-        name: 'The Sauna Place',
-        logo: `${LOGO_PATH}/the-sauna-place.svg`,
-        url: 'https://saunaplace.com/',
-      },
-      {name: 'VWood', logo: `${LOGO_PATH}/vwood.png`, url: 'https://www.vwoodinteriors.com'},
-    ],
-  },
-  {
-    name: 'Eagle Fan',
-    amount: '$200 - $499',
-    signage: '32" x 24" sign with name or logo',
-    slots: 6,
-    color: 'bg-charcoal/50',
-    borderColor: 'border-charcoal/30',
-    textColor: 'text-charcoal/70',
-    bgLight: 'bg-charcoal/[0.03]',
-    sponsors: [
-      {
-        name: "Inspired Closets by Maxwell's",
-        logo: `${LOGO_PATH}/bhe-sign-fan.jpg`,
-        url: 'https://www.inspiredclosets.com/locations/austin/',
-      },
-      {
-        name: 'Earth Kids',
-        logo: `${LOGO_PATH}/ek-logo.png`,
-        url: 'https://bartonhills.austinschools.org/programsandplaces/afterschool/childcare',
-      },
-    ],
-  },
+function buildTiers(logoPath: string): SponsorTier[] {
+  return [
+    {
+      amount: '$5,000+',
+      bgLight: 'bg-eagle-blue/5',
+      borderColor: 'border-eagle-blue',
+      color: 'bg-eagle-blue',
+      name: 'Eagle Pride',
+      signage: '96" x 72" sign with logo',
+      slots: 4,
+      textColor: 'text-eagle-blue',
+      sponsors: [
+        {
+          logo: `${logoPath}/berbar-group.png`,
+          name: 'Berbar Group',
+          url: 'https://www.berbasgroup.com',
+        },
+        {
+          logo: `${logoPath}/chubbies.png`,
+          name: 'Chubbies',
+          url: 'https://www.chubbiesshorts.com/',
+        },
+        {
+          logo: `${logoPath}/realty-law.png`,
+          name: 'Realty Law',
+          url: 'https://realtylawtexas.com/',
+        },
+        {
+          logo: `${logoPath}/skelly-build.png`,
+          name: 'Skelly Build',
+          url: 'https://skellybuild.com/',
+        },
+      ],
+    },
+    {
+      amount: '$2,500 - $4,999',
+      bgLight: 'bg-charcoal/5',
+      borderColor: 'border-charcoal',
+      color: 'bg-charcoal',
+      name: 'Eagle Support',
+      signage: '80" x 60" sign with logo',
+      slots: 12,
+      textColor: 'text-charcoal',
+      sponsors: [
+        {
+          logo: `${logoPath}/harben-house.png`,
+          name: 'HarBen House',
+          url: 'https://harbenhouse.com/',
+        },
+        {
+          logo: `${logoPath}/house-of-noa.png`,
+          name: 'House of Noa',
+          url: 'https://www.thehouseofnoa.com/',
+        },
+        {
+          logo: `${logoPath}/jhd.jpg`,
+          name: 'JH Davidson & Associates',
+          url: 'https://www.jhdavidson.com/',
+        },
+        {logo: `${logoPath}/lyons.png`, name: 'The Lyons Den'},
+        {
+          logo: `${logoPath}/mahoney.jpg`,
+          name: 'Mahoney Engineering',
+          url: 'https://www.mahoneyeng.com/',
+        },
+        {logo: `${logoPath}/nmsb.png`, name: 'NMSB', url: 'https://nmsb-law.com/'},
+        {
+          logo: `${logoPath}/plainscapital.png`,
+          name: 'PlainsCapital',
+          url: 'https://plainscapital.com/',
+        },
+        {
+          logo: `${logoPath}/see-me.png`,
+          name: 'See Me',
+          url: 'https://nmsb-law.com/attorney/sam-colletti/',
+        },
+        {logo: `${logoPath}/stowell.png`, name: 'Stowell'},
+        {logo: `${logoPath}/tre.png`, name: 'Thomas Randolph Excavation'},
+      ],
+    },
+    {
+      amount: '$1,000 - $2,499',
+      bgLight: 'bg-spirit-gold/5',
+      borderColor: 'border-spirit-gold',
+      color: 'bg-spirit-gold',
+      name: 'Eagle Love',
+      signage: '64" x 48" sign with logo',
+      slots: 18,
+      textColor: 'text-spirit-gold',
+      sponsors: [
+        {
+          logo: `${logoPath}/allensworth.png`,
+          name: 'Allensworth Construction Lawyers',
+          url: 'https://www.allensworthlaw.com/',
+        },
+        {
+          logo: `${logoPath}/ander-corp.jpg`,
+          name: 'Ander Corp',
+          url: 'https://andercorp.com/',
+        },
+        {logo: `${logoPath}/audion.png`, name: 'Audion', url: 'https://audionllc.com/'},
+        {
+          logo: `${logoPath}/dt-logo.png`,
+          name: 'Designtrait Architects',
+          url: 'https://designtrait.com/',
+        },
+        {
+          logo: `${logoPath}/highline-homes.png`,
+          name: 'Highline Homes',
+          url: 'https://highlinehomes.com/',
+        },
+        {
+          logo: `${logoPath}/holt-engineering.png`,
+          name: 'Holt Engineering',
+          url: 'https://holteng.com/',
+        },
+        {
+          logo: `${logoPath}/kevin-haines-realty-austin.jpg`,
+          name: 'Kevin Haines - Realty Austin',
+          url: 'https://www.realtyaustin.com/agents/kevin-haines',
+        },
+        {
+          logo: `${logoPath}/local-building-group.png`,
+          name: 'Local Building Group',
+          url: 'https://mylocalbuild.com/',
+        },
+        {
+          logo: `${logoPath}/nantz.png`,
+          name: 'Nantz',
+          url: 'https://www.nantzorthodontics.com/',
+        },
+        {
+          logo: `${logoPath}/primrose.jpg`,
+          name: 'Primrose',
+          url: 'https://www.primroseschools.com/',
+        },
+        {
+          logo: `${logoPath}/rain-king.png`,
+          logoClassName: 'rotate-90',
+          name: 'Rain King',
+          url: 'https://www.rainkinginc.com/',
+        },
+        {
+          logo: `${logoPath}/roeder-group.png`,
+          name: 'Roeder Group',
+          url: 'https://brookeroeder.com/',
+        },
+        {
+          logo: `${logoPath}/tx-keeper-cider.png`,
+          name: 'TX Keeper Cider',
+          url: 'https://texaskeeper.com/',
+        },
+        {
+          logo: `${logoPath}/understated-leather.jpg`,
+          name: 'Understated Leather',
+          url: 'https://www.understatedleather.com/',
+        },
+        {
+          logo: `${logoPath}/zilker-belts.png`,
+          name: 'Zilker Belts',
+          url: 'https://www.zilkerbelts.com/',
+        },
+      ],
+    },
+    {
+      amount: '$500 - $999',
+      bgLight: 'bg-creek-green/5',
+      borderColor: 'border-creek-green',
+      color: 'bg-creek-green',
+      name: 'Eagle Friend',
+      signage: '48" x 36" sign with name or logo',
+      slots: 24,
+      textColor: 'text-creek-green',
+      sponsors: [
+        {logo: `${logoPath}/ai-vector.png`, name: 'ARC', url: 'https://www.e-arc.com/'},
+        {
+          logo: `${logoPath}/bestline-solutions.png`,
+          name: 'BestLine Solutions',
+          url: 'https://bestline.net/',
+        },
+        {
+          logo: `${logoPath}/carolyn-p-interior-design.jpg`,
+          name: 'Carolyn P Interior Design',
+          url: 'https://www.carolynpritchett.com',
+        },
+        {logo: `${logoPath}/cmg.png`, name: 'CMG', url: 'https://cmgaustin.com/'},
+        {
+          logo: `${logoPath}/cowboy-pools.png`,
+          name: 'Cowboy Pools',
+          url: 'https://www.cowboypools.com',
+        },
+        {logo: `${logoPath}/dc-circle.png`, name: 'DC Circle'},
+        {
+          logo: `${logoPath}/easy-tiger.png`,
+          name: 'Easy Tiger',
+          url: 'https://www.easytigeraustin.com',
+        },
+        {logo: `${logoPath}/eco.jpg`, name: 'ECO', url: 'https://www.drcharlesosterberg.com/'},
+        {
+          logo: `${logoPath}/greenjay-therapy.png`,
+          name: 'GreenJay Therapy',
+          url: 'https://greenjaytherapy.com',
+        },
+        {
+          logo: `${logoPath}/hollingsworth-pack.png`,
+          name: 'Hollingsworth Pack',
+          url: 'https://www.hollingsworthpack.com',
+        },
+        {
+          logo: `${logoPath}/karen-kelly.png`,
+          name: 'Karen Kelly',
+          url: 'https://vanheuvenproperties.com/agent/karen-kelly',
+        },
+        {
+          logo: `${logoPath}/michele-roi.png`,
+          name: 'Michele Roi - Realtor',
+          url: 'https://blairfieldrealty.com/agent/michele-roi',
+        },
+        {
+          logo: `${logoPath}/mizner-design.png`,
+          logoClassName: '-rotate-90',
+          name: 'Mizner Design',
+          url: 'https://www.miznerdesign.com',
+        },
+        {logo: `${logoPath}/revent.png`, name: 'Revent', url: 'https://reventbuilds.com'},
+        {
+          logo: `${logoPath}/st-elmo.png`,
+          name: 'St. Elmo',
+          url: 'https://www.stelmobrewing.com',
+        },
+        {
+          logo: `${logoPath}/st-marks.png`,
+          name: "St. Mark's",
+          url: 'https://www.stmarksdayschoolaustin.org',
+        },
+        {
+          logo: `${logoPath}/swan-closet-design.jpg`,
+          name: 'Swan Closet Design',
+          url: 'https://www.swannclosetdesign.com',
+        },
+        {
+          logo: `${logoPath}/the-sauna-place.svg`,
+          name: 'The Sauna Place',
+          url: 'https://saunaplace.com/',
+        },
+        {logo: `${logoPath}/vwood.png`, name: 'VWood', url: 'https://www.vwoodinteriors.com'},
+      ],
+    },
+    {
+      amount: '$200 - $499',
+      bgLight: 'bg-charcoal/[0.03]',
+      borderColor: 'border-charcoal/30',
+      color: 'bg-charcoal/50',
+      name: 'Eagle Fan',
+      signage: '32" x 24" sign with name or logo',
+      slots: 6,
+      textColor: 'text-charcoal/70',
+      sponsors: [
+        {
+          logo: `${logoPath}/bhe-sign-fan.jpg`,
+          name: "Inspired Closets by Maxwell's",
+          url: 'https://www.inspiredclosets.com/locations/austin/',
+        },
+        {
+          logo: `${logoPath}/ek-logo.png`,
+          name: 'Earth Kids',
+          url: 'https://bartonhills.austinschools.org/programsandplaces/afterschool/childcare',
+        },
+      ],
+    },
+  ];
+}
+
+function buildEmptyTiers(logoPath: string): SponsorTier[] {
+  return buildTiers(logoPath).map((tier) => ({...tier, sponsors: []}));
+}
+
+/** Sponsor tiers grouped by school year, newest first. */
+export const sponsorYearGroups: SponsorYearGroup[] = [
+  {schoolYear: '2026-27', tiers: buildEmptyTiers('/sponsors/2026-27')},
+  {schoolYear: '2025-26', tiers: buildTiers('/sponsors/2025-26')},
 ];
 
-/** Flat list of all sponsors across all tiers. */
-export const allSponsors: Sponsor[] = tiers.flatMap((t) => t.sponsors);
+export function getFeaturedSponsorSchoolYear(): string {
+  for (const group of sponsorYearGroups) {
+    const sponsorCount = group.tiers.reduce((count, tier) => count + tier.sponsors.length, 0);
+    if (sponsorCount > 0) return group.schoolYear;
+  }
+  return sponsorYearGroups[0]?.schoolYear ?? '2025-26';
+}
+
+export function listSponsorSchoolYears(): string[] {
+  return sponsorYearGroups.map((group) => group.schoolYear);
+}
+
+export function resolveSponsorSchoolYear(year?: string | null): string {
+  if (year && getSponsorYearGroup(year)) return year;
+  return getFeaturedSponsorSchoolYear();
+}
+
+export function getSponsorYearGroup(schoolYear: string): SponsorYearGroup | undefined {
+  return sponsorYearGroups.find((group) => group.schoolYear === schoolYear);
+}
+
+export function getSponsorTiers(schoolYear = getFeaturedSponsorSchoolYear()): SponsorTier[] {
+  return getSponsorYearGroup(schoolYear)?.tiers ?? [];
+}
+
+function getSponsorPool(schoolYear?: string): Sponsor[] {
+  const preferredYear = schoolYear ?? getFeaturedSponsorSchoolYear();
+  const preferred = getSponsorYearGroup(preferredYear)?.tiers.flatMap((tier) => tier.sponsors) ?? [];
+  if (preferred.length > 0) return preferred;
+
+  for (const group of sponsorYearGroups) {
+    const sponsors = group.tiers.flatMap((tier) => tier.sponsors);
+    if (sponsors.length > 0) return sponsors;
+  }
+
+  return [];
+}
+
+/** Tiers for the current school year. */
+export const tiers = getSponsorTiers();
+
+/** Flat list of sponsors for the current school year (falls back to the latest year with sponsors). */
+export const allSponsors: Sponsor[] = getSponsorPool();
 
 /** Pick `count` random sponsors using Fisher-Yates shuffle. */
-export function getRandomSponsors(count: number): Sponsor[] {
-  const shuffled = [...allSponsors];
+export function getRandomSponsors(count: number, schoolYear?: string): Sponsor[] {
+  const shuffled = [...getSponsorPool(schoolYear)];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];

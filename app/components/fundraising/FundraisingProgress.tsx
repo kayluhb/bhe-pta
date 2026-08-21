@@ -1,6 +1,7 @@
 import type {AnnualFundCampaign} from '~/data/annual-fund-campaign';
 import {
   formatCurrency,
+  formatTargetDate,
   getMilestoneStatus,
   getProgressPercent,
 } from '~/lib/fundraising/progress';
@@ -97,7 +98,7 @@ export function FundraisingProgress({campaign, className}: FundraisingProgressPr
                   {m.label}
                   <span className="font-normal text-charcoal/60">
                     {' '}
-                    — {formatCurrency(trancheAmount)}
+                    — {formatCurrency(trancheAmount)} by {formatTargetDate(m.targetDate)}
                   </span>
                   {reached && <span className="sr-only"> — reached</span>}
                 </p>
