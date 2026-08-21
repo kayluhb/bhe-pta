@@ -12,12 +12,17 @@ const quickLinks = [
 
 export function Footer() {
   const {pathname} = useLocation();
-  const showNewsletter = pathname !== '/contact';
+  // Full signup already on home and contact — avoid a second Turnstile widget.
+  const showNewsletter = pathname !== '/' && pathname !== '/contact';
 
   return (
     <footer className="bg-night-blue text-white/90">
       <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+        <div
+          className={`grid grid-cols-1 md:grid-cols-2 gap-10 ${
+            showNewsletter ? 'lg:grid-cols-4' : 'lg:grid-cols-3'
+          }`}
+        >
           {/* Brand Column */}
           <div>
             <h3 className="text-white font-heading font-bold text-lg">
@@ -112,8 +117,8 @@ export function Footer() {
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-xs text-white/70">
-            &copy; {new Date().getFullYear()} PTA Texas Congress Barton Hills Elementary. All
-            rights reserved.
+            &copy; {new Date().getFullYear()} PTA Texas Congress Barton Hills Elementary. All rights
+            reserved.
           </p>
           <div className="flex items-center gap-4">
             <Link

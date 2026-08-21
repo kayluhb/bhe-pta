@@ -9,10 +9,17 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
-  const {token: turnstileToken, containerRef, reset} = useTurnstile();
+  const {
+    token: turnstileToken,
+    containerRef,
+    reset,
+  } = useTurnstile({
+    theme: variant === 'compact' ? 'dark' : 'light',
+  });
 
   const emailId = variant === 'compact' ? 'newsletter-email-footer' : 'newsletter-email';
   const errorId = variant === 'compact' ? 'subscribe-error-footer' : 'subscribe-error';
+  const hintId = variant === 'compact' ? 'newsletter-hint-footer' : 'newsletter-hint';
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,6 +67,10 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
   };
 
   if (variant === 'compact') {
+    const describedBy = [!turnstileToken ? hintId : null, status === 'error' ? errorId : null]
+      .filter(Boolean)
+      .join(' ');
+
     return (
       <div>
         <h3 className="text-white font-heading font-bold text-lg">Newsletter</h3>
@@ -76,10 +87,10 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
               Email address
             </label>
             <input
-              aria-describedby={status === 'error' ? errorId : undefined}
+              aria-describedby={describedBy || undefined}
               aria-invalid={status === 'error' ? true : undefined}
               aria-required="true"
-              className="w-full px-4 py-2.5 rounded-full border border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:outline-none focus:border-spirit-gold focus:ring-2 focus:ring-spirit-gold/30"
+              className="w-full px-4 py-2.5 rounded-full border border-white/50 bg-white/20 text-white placeholder:text-white/70 focus:outline-none focus:border-spirit-gold focus:ring-2 focus:ring-spirit-gold"
               disabled={status === 'submitting'}
               id={emailId}
               onChange={(e) => setEmail(e.target.value)}
@@ -88,8 +99,22 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
               type="email"
               value={email}
             />
+            <section aria-label="Security verification">
+              <div className="min-h-px" ref={containerRef} />
+            </section>
+            {!turnstileToken && (
+              <p className="text-xs text-white/80" id={hintId}>
+                Complete the security check above to enable Subscribe.
+              </p>
+            )}
+            {status === 'submitting' && (
+              <p className="sr-only" role="status">
+                Subscribing…
+              </p>
+            )}
             <button
-              className="w-full bg-spirit-gold text-night-blue font-heading font-bold px-5 py-2.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-describedby={!turnstileToken ? hintId : undefined}
+              className="w-full bg-spirit-gold text-night-blue font-heading font-bold px-5 py-2.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 motion-reduce:transition-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={status === 'submitting' || !turnstileToken}
               type="submit"
             >
@@ -102,11 +127,6 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
             {message}
           </p>
         )}
-        <div className="mt-3 flex justify-start overflow-hidden">
-          <section aria-label="Security verification">
-            <div className="min-h-px" ref={containerRef} />
-          </section>
-        </div>
         <p className="mt-3 text-xs text-white/60">Unsubscribe anytime.</p>
       </div>
     );
@@ -160,7 +180,7 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
                   value={email}
                 />
                 <button
-                  className="bg-spirit-gold text-night-blue font-heading font-bold px-8 py-3 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25 shrink-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-spirit-gold text-night-blue font-heading font-bold px-8 py-3 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 motion-reduce:transition-none hover:shadow-lg hover:shadow-spirit-gold/25 shrink-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={status === 'submitting' || !turnstileToken}
                   type="submit"
                 >
