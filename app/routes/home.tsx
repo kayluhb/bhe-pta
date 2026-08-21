@@ -4,10 +4,11 @@ import {FundraisingProgress} from '~/components/fundraising/FundraisingProgress'
 import {NewsCard} from '~/components/NewsCard';
 import {NewsletterSignup} from '~/components/NewsletterSignup';
 import {annualFundCampaign} from '~/data/annual-fund-campaign';
+import {getCloudflare} from '~/lib/cloudflare-context';
 import {mergeParentMeta} from '~/lib/meta';
 import {mockNewsletters, mockPtaNewsletters} from '~/lib/mock-data';
-import {getFeaturedSponsorSchoolYear, getRandomSponsors} from '~/lib/sponsors';
 import {formatSchoolYearLong} from '~/lib/school-year';
+import {getFeaturedSponsorSchoolYear, getRandomSponsors} from '~/lib/sponsors';
 import type {CalendarEvent} from '~/lib/types';
 import type {Route} from './+types/home';
 
@@ -30,11 +31,11 @@ export async function loader({context}: Route.LoaderArgs) {
   let ptaNews = mockPtaNewsletters;
 
   try {
-    const kvEvents = await context.cloudflare.env.BHE_CALENDAR.get('events', 'json');
+    const kvEvents = await getCloudflare(context).env.BHE_CALENDAR.get('events', 'json');
     if (kvEvents) events = kvEvents as typeof events;
-    const kvSchool = await context.cloudflare.env.BHE_NEWSLETTERS.get('latest', 'json');
+    const kvSchool = await getCloudflare(context).env.BHE_NEWSLETTERS.get('latest', 'json');
     if (kvSchool) schoolNews = kvSchool as typeof schoolNews;
-    const kvPta = await context.cloudflare.env.BHE_PTA_NEWSLETTERS.get('latest', 'json');
+    const kvPta = await getCloudflare(context).env.BHE_PTA_NEWSLETTERS.get('latest', 'json');
     if (kvPta) ptaNews = kvPta as typeof ptaNews;
   } catch {
     // KV not available — use mock data

@@ -1,6 +1,6 @@
 import {isbot} from 'isbot';
 import {renderToReadableStream} from 'react-dom/server';
-import type {AppLoadContext, EntryContext, HandleErrorFunction} from 'react-router';
+import type {EntryContext, HandleErrorFunction, RouterContextProvider} from 'react-router';
 import {isRouteErrorResponse, ServerRouter} from 'react-router';
 
 export default async function handleRequest(
@@ -8,7 +8,7 @@ export default async function handleRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   routerContext: EntryContext,
-  _loadContext: AppLoadContext,
+  _loadContext: RouterContextProvider,
 ) {
   let shellRendered = false;
   let statusCode = responseStatusCode;

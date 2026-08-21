@@ -1,4 +1,5 @@
 import {buildAdminSessionSetCookie, resolveSessionSecret, signSession} from '~/lib/admin/auth';
+import {getCloudflare} from '~/lib/cloudflare-context';
 import type {Route} from './+types/api.auth.dev-login';
 
 /** Hard-coded local-dev identity (Vite dev only; route returns 404 in production builds). */
@@ -16,7 +17,7 @@ export async function action({request, context}: Route.ActionArgs) {
     return Response.json({error: 'Not found'}, {status: 404});
   }
 
-  const env = context.cloudflare.env;
+  const env = getCloudflare(context).env;
   const origin = new URL(request.url).origin;
   const cookieValue = await signSession(
     {email: DEV_LOCAL_ADMIN.email, name: DEV_LOCAL_ADMIN.name},

@@ -2,9 +2,10 @@ import {useState} from 'react';
 import {useLoaderData, useNavigate} from 'react-router';
 import {SearchableBudgetAccountSelect} from '~/components/reimbursement/SearchableBudgetAccountSelect';
 import {requireAdmin, type SessionPayload} from '~/lib/admin/auth';
-import {randomUUID} from '~/lib/random-uuid';
 import {blurNumberInputOnWheel} from '~/lib/blur-number-input-on-wheel';
+import {getCloudflare} from '~/lib/cloudflare-context';
 import {mergeParentMeta} from '~/lib/meta';
+import {randomUUID} from '~/lib/random-uuid';
 import {BUDGET_ACCOUNTS, MAX_RECEIPT_LINES} from '~/lib/reimbursement/validation';
 import type {Route} from './+types/admin.reimbursement-paper';
 
@@ -19,7 +20,7 @@ export function meta({matches}: Route.MetaArgs) {
 }
 
 export async function loader({request, context}: Route.LoaderArgs) {
-  const auth = await requireAdmin(request, context.cloudflare.env);
+  const auth = await requireAdmin(request, getCloudflare(context).env);
   if (auth instanceof Response) return auth;
   const user: SessionPayload = auth;
   return {user};
@@ -98,7 +99,9 @@ export default function AdminReimbursementPaper() {
     <div className="min-h-screen bg-warm-white">
       <header className="bg-linear-to-r from-eagle-blue to-night-blue shadow-md">
         <div className="max-w-3xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-lg md:text-xl font-heading font-bold text-white">Paper reimbursement</h1>
+          <h1 className="text-lg md:text-xl font-heading font-bold text-white">
+            Paper reimbursement
+          </h1>
           <div className="flex flex-wrap items-center gap-3 text-sm">
             <a
               className="text-white/90 hover:text-white underline underline-offset-2"
@@ -120,7 +123,10 @@ export default function AdminReimbursementPaper() {
           payable name, budget account, and amounts (one row per expense line).
         </p>
 
-        <form className="space-y-5 rounded-xl border border-gray-200 bg-white p-6 shadow-sm" onSubmit={handleSubmit}>
+        <form
+          className="space-y-5 rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
+          onSubmit={handleSubmit}
+        >
           <div>
             <label className="block text-sm font-medium text-charcoal mb-1" htmlFor="payableTo">
               Payable to

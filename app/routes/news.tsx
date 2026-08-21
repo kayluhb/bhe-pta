@@ -1,5 +1,6 @@
 import {useRef, useState} from 'react';
 import {useLoaderData} from 'react-router';
+import {getCloudflare} from '~/lib/cloudflare-context';
 import {mergeParentMeta} from '~/lib/meta';
 import {mockNewsletters, mockPtaNewsletters} from '~/lib/mock-data';
 import type {Newsletter} from '~/lib/types';
@@ -20,9 +21,9 @@ export async function loader({context}: Route.LoaderArgs) {
   let ptaNews = mockPtaNewsletters;
 
   try {
-    const kvSchool = await context.cloudflare.env.BHE_NEWSLETTERS.get('latest', 'json');
+    const kvSchool = await getCloudflare(context).env.BHE_NEWSLETTERS.get('latest', 'json');
     if (kvSchool) schoolNews = kvSchool as typeof schoolNews;
-    const kvPta = await context.cloudflare.env.BHE_PTA_NEWSLETTERS.get('latest', 'json');
+    const kvPta = await getCloudflare(context).env.BHE_PTA_NEWSLETTERS.get('latest', 'json');
     if (kvPta) ptaNews = kvPta as typeof ptaNews;
   } catch {
     // KV not available in local dev — use mock data

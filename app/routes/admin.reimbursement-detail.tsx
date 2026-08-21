@@ -7,6 +7,7 @@ import {
   isAdminSubmissionStatus,
 } from '~/lib/admin/reimbursement-submission-statuses';
 import {blurNumberInputOnWheel} from '~/lib/blur-number-input-on-wheel';
+import {getCloudflare} from '~/lib/cloudflare-context';
 import {formatUsd} from '~/lib/format-currency';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/admin.reimbursement-detail';
@@ -61,12 +62,12 @@ interface FileAttachment {
 }
 
 export async function loader({request, params, context}: Route.LoaderArgs) {
-  const auth = await requireAdmin(request, context.cloudflare.env);
+  const auth = await requireAdmin(request, getCloudflare(context).env);
   if (auth instanceof Response) return auth;
   const user: SessionPayload = auth;
 
   const id = params.id;
-  const db = context.cloudflare.env.REIMBURSEMENT_DB;
+  const db = getCloudflare(context).env.REIMBURSEMENT_DB;
 
   const results = await db.batch([
     db

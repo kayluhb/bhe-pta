@@ -1,3 +1,4 @@
+import {getCloudflare} from '~/lib/cloudflare-context';
 import type {Route} from './+types/api.archive.file';
 
 export async function loader({request, context}: Route.LoaderArgs) {
@@ -8,7 +9,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
     return Response.json({error: 'Invalid key'}, {status: 400});
   }
 
-  const r2 = context.cloudflare.env.R2_ARCHIVE;
+  const r2 = getCloudflare(context).env.R2_ARCHIVE;
   if (!r2) {
     return Response.json({error: 'Storage not available'}, {status: 503});
   }

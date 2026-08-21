@@ -1,8 +1,9 @@
 import {requireAdmin} from '~/lib/admin/auth';
+import {getCloudflare} from '~/lib/cloudflare-context';
 import type {Route} from './+types/api.admin.reimbursement-attachment-delete';
 
 export async function action({request, params, context}: Route.ActionArgs) {
-  const auth = await requireAdmin(request, context.cloudflare.env);
+  const auth = await requireAdmin(request, getCloudflare(context).env);
   if (auth instanceof Response) return auth;
 
   if (request.method !== 'DELETE') {
@@ -11,7 +12,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
 
   const submissionId = params.id;
   const attachmentId = params.attachmentId;
-  const db = context.cloudflare.env.REIMBURSEMENT_DB;
+  const db = getCloudflare(context).env.REIMBURSEMENT_DB;
 
   const row = await db
     .prepare('SELECT r2_key FROM file_attachments WHERE id = ? AND submission_id = ?')
@@ -22,7 +23,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
     return Response.json({error: 'Attachment not found'}, {status: 404});
   }
 
-  const r2 = context.cloudflare.env.R2_BUCKET;
+  const r2 = getCloudflare(context).env.R2_BUCKET;
   if (r2) {
     await r2.delete(row.r2_key);
   }

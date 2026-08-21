@@ -1,3 +1,4 @@
+import {getCloudflare} from '~/lib/cloudflare-context';
 import {
   resolveFilePreviewSigningSecret,
   verifyFileAccess,
@@ -17,7 +18,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
     return Response.json({error: 'Invalid key'}, {status: 400});
   }
 
-  const secret = resolveFilePreviewSigningSecret(context.cloudflare.env);
+  const secret = resolveFilePreviewSigningSecret(getCloudflare(context).env);
   if (!secret || !sig || !Number.isFinite(expSec)) {
     return Response.json({error: 'Missing or invalid access token'}, {status: 403});
   }
@@ -27,7 +28,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
     return Response.json({error: 'Invalid or expired access token'}, {status: 403});
   }
 
-  const r2 = context.cloudflare.env.R2_BUCKET;
+  const r2 = getCloudflare(context).env.R2_BUCKET;
   if (!r2) {
     return Response.json({error: 'Storage not available'}, {status: 503});
   }

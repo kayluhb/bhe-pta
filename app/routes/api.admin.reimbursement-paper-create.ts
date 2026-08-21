@@ -1,4 +1,5 @@
 import {requireAdmin} from '~/lib/admin/auth';
+import {getCloudflare} from '~/lib/cloudflare-context';
 import {buildPdfFilename, buildSubmissionSlug} from '~/lib/reimbursement/filename';
 import {generatePDF} from '~/lib/reimbursement/pdf/generator';
 import {resolveSchoolYearIdForNewSubmission} from '~/lib/reimbursement/school-years';
@@ -24,7 +25,7 @@ function newReimbursementDraftId(): string {
 }
 
 export async function action({request, context}: Route.ActionArgs) {
-  const adminAuth = await requireAdmin(request, context.cloudflare.env);
+  const adminAuth = await requireAdmin(request, getCloudflare(context).env);
   if (adminAuth instanceof Response) return adminAuth;
 
   if (request.method !== 'POST') {
@@ -47,7 +48,7 @@ export async function action({request, context}: Route.ActionArgs) {
   }
 
   const {lines, payableTo, primaryBudgetAccount} = parsed.data;
-  const env = context.cloudflare.env;
+  const env = getCloudflare(context).env;
   const db = env.REIMBURSEMENT_DB;
   const r2 = env.R2_BUCKET;
 
@@ -55,7 +56,10 @@ export async function action({request, context}: Route.ActionArgs) {
     return Response.json({error: 'Storage is not configured for this environment.'}, {status: 503});
   }
   if (!r2) {
-    return Response.json({error: 'File storage is not configured for this environment.'}, {status: 503});
+    return Response.json(
+      {error: 'File storage is not configured for this environment.'},
+      {status: 503},
+    );
   }
 
   const submissionId = crypto.randomUUID();

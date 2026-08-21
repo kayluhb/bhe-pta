@@ -12,6 +12,7 @@ vi.mock('~/lib/reimbursement/submission-finalize', () => ({
 }));
 
 import {attachConvertedToSubmission} from '~/lib/reimbursement/submission-finalize';
+import {createTestLoadContext} from '~/lib/test-cloudflare-context';
 import {action} from '../api.reimbursement.submit';
 
 interface JobRow {
@@ -164,15 +165,14 @@ describe('api.reimbursement.submit action', () => {
 
     const response = await action({
       request,
-      context: {
-        cloudflare: {
-          env: {
-            R2_BUCKET: r2,
-            REIMBURSEMENT_DB: db,
-            TURNSTILE_SECRET_KEY: 'secret',
-          },
+      context: createTestLoadContext({
+        ctx: {} as ExecutionContext,
+        env: {
+          R2_BUCKET: r2,
+          REIMBURSEMENT_DB: db,
+          TURNSTILE_SECRET_KEY: 'secret',
         },
-      },
+      }),
     } as never);
 
     expect(response.status).toBe(200);
@@ -229,15 +229,14 @@ describe('api.reimbursement.submit action', () => {
 
     const response = await action({
       request,
-      context: {
-        cloudflare: {
-          env: {
-            R2_BUCKET: r2,
-            REIMBURSEMENT_DB: db,
-            TURNSTILE_SECRET_KEY: 'secret',
-          },
+      context: createTestLoadContext({
+        ctx: {} as ExecutionContext,
+        env: {
+          R2_BUCKET: r2,
+          REIMBURSEMENT_DB: db,
+          TURNSTILE_SECRET_KEY: 'secret',
         },
-      },
+      }),
     } as never);
 
     expect(response.status).toBe(200);
@@ -296,15 +295,14 @@ describe('api.reimbursement.submit action', () => {
 
     const response = await action({
       request,
-      context: {
-        cloudflare: {
-          env: {
-            R2_BUCKET: r2,
-            REIMBURSEMENT_DB: db,
-            TURNSTILE_SECRET_KEY: 'secret',
-          },
+      context: createTestLoadContext({
+        ctx: {} as ExecutionContext,
+        env: {
+          R2_BUCKET: r2,
+          REIMBURSEMENT_DB: db,
+          TURNSTILE_SECRET_KEY: 'secret',
         },
-      },
+      }),
     } as never);
 
     expect(response.status).toBe(409);
@@ -334,15 +332,14 @@ describe('api.reimbursement.submit action', () => {
 
     const response = await action({
       request,
-      context: {
-        cloudflare: {
-          env: {
-            R2_BUCKET: r2,
-            REIMBURSEMENT_DB: db,
-            TURNSTILE_SECRET_KEY: 'secret',
-          },
+      context: createTestLoadContext({
+        ctx: {} as ExecutionContext,
+        env: {
+          R2_BUCKET: r2,
+          REIMBURSEMENT_DB: db,
+          TURNSTILE_SECRET_KEY: 'secret',
         },
-      },
+      }),
     } as never);
 
     expect(response.status).toBe(503);

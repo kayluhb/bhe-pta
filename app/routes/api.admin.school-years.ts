@@ -1,4 +1,5 @@
 import {requireAdmin} from '~/lib/admin/auth';
+import {getCloudflare} from '~/lib/cloudflare-context';
 import {assertValidSchoolYearId, slugSchoolYearIdFromLabel} from '~/lib/reimbursement/school-years';
 import type {Route} from './+types/api.admin.school-years';
 
@@ -9,7 +10,7 @@ export async function action({request, context}: Route.ActionArgs) {
     return Response.json({error: 'Method not allowed'}, {status: 405});
   }
 
-  const auth = await requireAdmin(request, context.cloudflare.env);
+  const auth = await requireAdmin(request, getCloudflare(context).env);
   if (auth instanceof Response) return auth;
 
   const body = (await request.json()) as {
@@ -45,7 +46,7 @@ export async function action({request, context}: Route.ActionArgs) {
     return Response.json({error: idErr}, {status: 400});
   }
 
-  const db = context.cloudflare.env.REIMBURSEMENT_DB;
+  const db = getCloudflare(context).env.REIMBURSEMENT_DB;
   const clash = await db
     .prepare('SELECT id FROM school_years WHERE id = ? OR label = ?')
     .bind(idCandidate, body.label.trim())

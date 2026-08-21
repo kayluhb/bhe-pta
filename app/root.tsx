@@ -10,6 +10,7 @@ import {
   ScrollRestoration,
 } from 'react-router';
 
+import {getCloudflare} from '~/lib/cloudflare-context';
 import type {Route} from './+types/root';
 import {Footer} from './components/Footer';
 import {Header} from './components/Header';
@@ -17,11 +18,11 @@ import {useDiscoMode} from './hooks/useDiscoMode';
 import './app.css';
 
 export async function loader({context}: Route.LoaderArgs) {
-  const dsn = context.cloudflare.env.SENTRY_DSN?.trim();
+  const dsn = getCloudflare(context).env.SENTRY_DSN?.trim();
   return {sentryDsn: dsn && dsn.length > 0 ? dsn : null};
 }
 
-export function meta({data}: Route.MetaArgs) {
+export function meta({loaderData}: Route.MetaArgs) {
   const descriptors: Route.MetaDescriptors = [
     {title: 'Barton Hills Elementary PTA'},
     {
@@ -40,8 +41,8 @@ export function meta({data}: Route.MetaArgs) {
     {content: 'https://bheeagles.com/og-image.png', name: 'twitter:image'},
     {content: 'BHE PTA', name: 'apple-mobile-web-app-title'},
   ];
-  if (data?.sentryDsn) {
-    descriptors.push({content: data.sentryDsn, name: 'sentry-dsn'});
+  if (loaderData?.sentryDsn) {
+    descriptors.push({content: loaderData.sentryDsn, name: 'sentry-dsn'});
   }
   return descriptors;
 }

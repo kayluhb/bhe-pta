@@ -1,3 +1,4 @@
+import {getCloudflare} from '~/lib/cloudflare-context';
 import {BUDGET_ACCOUNTS, MAX_RECEIPT_LINES} from '~/lib/reimbursement/validation';
 import {requireTurnstile} from '~/lib/turnstile';
 import type {Route} from './+types/api.reimbursement.suggest-budget';
@@ -24,7 +25,7 @@ const validAccounts = new Set<string>(BUDGET_ACCOUNTS);
 
 export async function action({request, context}: Route.ActionArgs) {
   try {
-    const denied = await requireTurnstile(request, context.cloudflare.env.TURNSTILE_SECRET_KEY);
+    const denied = await requireTurnstile(request, getCloudflare(context).env.TURNSTILE_SECRET_KEY);
     if (denied) {
       return denied;
     }
@@ -60,7 +61,7 @@ RULES:
 
     const userPrompt = `Suggest budget accounts for these receipts:\n${receiptDescriptions}`;
 
-    const result = await context.cloudflare.env.AI.run('@cf/moonshotai/kimi-k2.6', {
+    const result = await getCloudflare(context).env.AI.run('@cf/moonshotai/kimi-k2.6', {
       messages: [
         {role: 'system', content: systemPrompt},
         {role: 'user', content: userPrompt},

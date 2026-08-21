@@ -1,4 +1,5 @@
 import {requireAdmin} from '~/lib/admin/auth';
+import {getCloudflare} from '~/lib/cloudflare-context';
 import {buildAdminReceiptPdfTitle} from '~/lib/reimbursement/filename';
 import {extractReceiptData, generateReceiptPDF} from '~/lib/reimbursement/receipt';
 import type {Route} from './+types/api.admin.reimbursement-attachment-convert';
@@ -24,13 +25,13 @@ interface ExistingPdfRow {
 const PDF_CONTENT_TYPE = 'application/pdf';
 
 export async function action({request, params, context}: Route.ActionArgs) {
-  const auth = await requireAdmin(request, context.cloudflare.env);
+  const auth = await requireAdmin(request, getCloudflare(context).env);
   if (auth instanceof Response) return auth;
 
   try {
     const submissionId = params.id;
     const attachmentId = params.attachmentId;
-    const env = context.cloudflare.env;
+    const env = getCloudflare(context).env;
     const db = env.REIMBURSEMENT_DB;
     const r2 = env.R2_BUCKET;
 

@@ -1,5 +1,6 @@
 import {redirect} from 'react-router';
 import {fetchCalendarEvents} from '~/lib/calendar';
+import {getCloudflare} from '~/lib/cloudflare-context';
 import type {Route} from './+types/dev.sync-calendar';
 
 /**
@@ -12,7 +13,7 @@ export async function loader({context}: Route.LoaderArgs) {
   }
 
   const events = await fetchCalendarEvents();
-  await context.cloudflare.env.BHE_CALENDAR.put('events', JSON.stringify(events));
+  await getCloudflare(context).env.BHE_CALENDAR.put('events', JSON.stringify(events));
 
   throw redirect('/events');
 }

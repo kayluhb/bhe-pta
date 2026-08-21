@@ -1,6 +1,7 @@
 import {useCallback, useRef, useState} from 'react';
 import {useLoaderData} from 'react-router';
 import {Calendar, CategoryLegend, getEventDaysInMonth, WeekCalendar} from '~/components/Calendar';
+import {getCloudflare} from '~/lib/cloudflare-context';
 import {mergeParentMeta} from '~/lib/meta';
 import type {CalendarEvent} from '~/lib/types';
 import type {Route} from './+types/events';
@@ -20,7 +21,7 @@ export async function loader({context}: Route.LoaderArgs) {
   let events: CalendarEvent[] = [];
 
   try {
-    const kvEvents = await context.cloudflare.env.BHE_CALENDAR.get('events', 'json');
+    const kvEvents = await getCloudflare(context).env.BHE_CALENDAR.get('events', 'json');
     if (kvEvents) events = kvEvents as CalendarEvent[];
   } catch {
     // KV not available — show empty; all events come from school calendar ICS

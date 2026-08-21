@@ -1,5 +1,6 @@
 import {requireAdmin} from '~/lib/admin/auth';
 import {submissionSearchCondition} from '~/lib/admin/submission-search-sql';
+import {getCloudflare} from '~/lib/cloudflare-context';
 import type {Route} from './+types/api.admin.reimbursements-export';
 
 function escapeCsvValue(value: string | number | null | undefined): string {
@@ -33,7 +34,7 @@ interface ExportRow {
 }
 
 export async function loader({request, context}: Route.LoaderArgs) {
-  const auth = await requireAdmin(request, context.cloudflare.env);
+  const auth = await requireAdmin(request, getCloudflare(context).env);
   if (auth instanceof Response) return auth;
 
   const url = new URL(request.url);
@@ -42,7 +43,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
   const statusFilter = url.searchParams.get('status');
   const qParam = url.searchParams.get('q') ?? '';
 
-  const db = context.cloudflare.env.REIMBURSEMENT_DB;
+  const db = getCloudflare(context).env.REIMBURSEMENT_DB;
 
   let query = `
     SELECT s.id, s.submitted_at, s.requester_name, s.requester_email, s.total_amount, s.status, s.admin_notes,

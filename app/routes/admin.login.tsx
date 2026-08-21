@@ -1,6 +1,7 @@
 import {useState} from 'react';
 import {useLoaderData} from 'react-router';
 import {resolveSessionSecret, verifySession} from '~/lib/admin/auth';
+import {getCloudflare} from '~/lib/cloudflare-context';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/admin.login';
 
@@ -14,7 +15,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
   const sessionCookie = cookieHeader.split('; ').find((c) => c.startsWith('admin_session='));
   if (sessionCookie) {
     const value = sessionCookie.substring('admin_session='.length);
-    const payload = await verifySession(value, resolveSessionSecret(context.cloudflare.env));
+    const payload = await verifySession(value, resolveSessionSecret(getCloudflare(context).env));
     if (payload) {
       return Response.redirect(new URL('/admin', request.url).toString(), 302);
     }
