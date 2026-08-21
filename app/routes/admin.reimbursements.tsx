@@ -75,7 +75,8 @@ interface SnapshotRow {
 }
 
 export async function loader({request, context}: Route.LoaderArgs) {
-  const auth = await requireAdmin(request, getCloudflare(context).env);
+  const env = getCloudflare(context).env;
+  const auth = await requireAdmin(request, env);
   if (auth instanceof Response) return auth;
   const user: SessionPayload = auth;
 
@@ -93,7 +94,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
     : 'submitted_at';
   const validOrder = VALID_ORDERS.includes(order as (typeof VALID_ORDERS)[number]) ? order : 'desc';
 
-  const db = getCloudflare(context).env.REIMBURSEMENT_DB;
+  const db = env.REIMBURSEMENT_DB;
   const offset = (page - 1) * PAGE_SIZE;
 
   const schoolYearsResult = await db

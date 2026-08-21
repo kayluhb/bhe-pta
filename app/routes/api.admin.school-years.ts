@@ -10,7 +10,8 @@ export async function action({request, context}: Route.ActionArgs) {
     return Response.json({error: 'Method not allowed'}, {status: 405});
   }
 
-  const auth = await requireAdmin(request, getCloudflare(context).env);
+  const env = getCloudflare(context).env;
+  const auth = await requireAdmin(request, env);
   if (auth instanceof Response) return auth;
 
   const body = (await request.json()) as {
@@ -46,7 +47,7 @@ export async function action({request, context}: Route.ActionArgs) {
     return Response.json({error: idErr}, {status: 400});
   }
 
-  const db = getCloudflare(context).env.REIMBURSEMENT_DB;
+  const db = env.REIMBURSEMENT_DB;
   const clash = await db
     .prepare('SELECT id FROM school_years WHERE id = ? OR label = ?')
     .bind(idCandidate, body.label.trim())

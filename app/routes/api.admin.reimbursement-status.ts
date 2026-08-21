@@ -11,7 +11,8 @@ const SUBMISSION_STATUS_APPROVED = 'approved';
 const SUBMISSION_STATUS_CHECK_DELIVERED = 'check_delivered';
 
 export async function action({request, params, context}: Route.ActionArgs) {
-  const auth = await requireAdmin(request, getCloudflare(context).env);
+  const env = getCloudflare(context).env;
+  const auth = await requireAdmin(request, env);
   if (auth instanceof Response) return auth;
 
   const id = params.id;
@@ -24,7 +25,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
     );
   }
 
-  const db = getCloudflare(context).env.REIMBURSEMENT_DB;
+  const db = env.REIMBURSEMENT_DB;
   const result = await db
     .prepare(
       `UPDATE submissions SET
@@ -54,7 +55,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
       await sendCheckDeliveredEmail({
         requesterName: sub.requester_name,
         requesterEmail: sub.requester_email,
-        resendApiKey: getCloudflare(context).env.RESEND_API_KEY,
+        resendApiKey: env.RESEND_API_KEY,
       });
     }
   }

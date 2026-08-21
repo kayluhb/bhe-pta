@@ -4,7 +4,8 @@ import {regenerateStoredSubmissionPdf} from '~/lib/reimbursement/pdf/regenerate-
 import type {Route} from './+types/api.admin.reimbursement-pdf-regenerate';
 
 export async function action({request, params, context}: Route.ActionArgs) {
-  const auth = await requireAdmin(request, getCloudflare(context).env);
+  const env = getCloudflare(context).env;
+  const auth = await requireAdmin(request, env);
   if (auth instanceof Response) return auth;
 
   if (request.method !== 'POST') {
@@ -12,7 +13,6 @@ export async function action({request, params, context}: Route.ActionArgs) {
   }
 
   const submissionId = params.id;
-  const env = getCloudflare(context).env;
   const result = await regenerateStoredSubmissionPdf(
     env.REIMBURSEMENT_DB,
     env.R2_BUCKET,

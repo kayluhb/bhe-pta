@@ -21,9 +21,10 @@ export async function loader({context}: Route.LoaderArgs) {
   let ptaNews = mockPtaNewsletters;
 
   try {
-    const kvSchool = await getCloudflare(context).env.BHE_NEWSLETTERS.get('latest', 'json');
+    const env = getCloudflare(context).env;
+    const kvSchool = await env.BHE_NEWSLETTERS.get('latest', 'json');
     if (kvSchool) schoolNews = kvSchool as typeof schoolNews;
-    const kvPta = await getCloudflare(context).env.BHE_PTA_NEWSLETTERS.get('latest', 'json');
+    const kvPta = await env.BHE_PTA_NEWSLETTERS.get('latest', 'json');
     if (kvPta) ptaNews = kvPta as typeof ptaNews;
   } catch {
     // KV not available in local dev — use mock data

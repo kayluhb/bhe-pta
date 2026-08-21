@@ -4,7 +4,9 @@
  */
 interface Env {
   CLOUDFLARE_ACCOUNT_ID: string;
+  /** Bearer token for POST /api/refresh (not the admin session signing secret). */
   DATA_REFRESH_SECRET?: string;
+  /** HMAC secret for time-limited public preview URLs (GET /api/reimbursement/file). */
   FILE_URL_SIGNING_SECRET?: string;
   GEMINI_API_KEY: string;
   GOOGLE_CLIENT_ID: string;

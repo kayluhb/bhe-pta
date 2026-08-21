@@ -25,7 +25,8 @@ function newReimbursementDraftId(): string {
 }
 
 export async function action({request, context}: Route.ActionArgs) {
-  const adminAuth = await requireAdmin(request, getCloudflare(context).env);
+  const env = getCloudflare(context).env;
+  const adminAuth = await requireAdmin(request, env);
   if (adminAuth instanceof Response) return adminAuth;
 
   if (request.method !== 'POST') {
@@ -48,7 +49,6 @@ export async function action({request, context}: Route.ActionArgs) {
   }
 
   const {lines, payableTo, primaryBudgetAccount} = parsed.data;
-  const env = getCloudflare(context).env;
   const db = env.REIMBURSEMENT_DB;
   const r2 = env.R2_BUCKET;
 

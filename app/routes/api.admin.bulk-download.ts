@@ -16,7 +16,8 @@ interface SubmissionRow {
 }
 
 export async function loader({request, context}: Route.LoaderArgs) {
-  const auth = await requireAdmin(request, getCloudflare(context).env);
+  const env = getCloudflare(context).env;
+  const auth = await requireAdmin(request, env);
   if (auth instanceof Response) return auth;
 
   const url = new URL(request.url);
@@ -35,8 +36,8 @@ export async function loader({request, context}: Route.LoaderArgs) {
     return Response.json({error: 'No valid ids provided'}, {status: 400});
   }
 
-  const db = getCloudflare(context).env.REIMBURSEMENT_DB;
-  const r2 = getCloudflare(context).env.R2_BUCKET;
+  const db = env.REIMBURSEMENT_DB;
+  const r2 = env.R2_BUCKET;
 
   const placeholders = ids.map(() => '?').join(',');
 

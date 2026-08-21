@@ -62,12 +62,13 @@ interface FileAttachment {
 }
 
 export async function loader({request, params, context}: Route.LoaderArgs) {
-  const auth = await requireAdmin(request, getCloudflare(context).env);
+  const env = getCloudflare(context).env;
+  const auth = await requireAdmin(request, env);
   if (auth instanceof Response) return auth;
   const user: SessionPayload = auth;
 
   const id = params.id;
-  const db = getCloudflare(context).env.REIMBURSEMENT_DB;
+  const db = env.REIMBURSEMENT_DB;
 
   const results = await db.batch([
     db

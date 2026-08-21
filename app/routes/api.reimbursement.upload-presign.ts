@@ -7,7 +7,8 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 export async function action({request, context}: Route.ActionArgs) {
   try {
-    const denied = await requireTurnstile(request, getCloudflare(context).env.TURNSTILE_SECRET_KEY);
+    const env = getCloudflare(context).env;
+    const denied = await requireTurnstile(request, env.TURNSTILE_SECRET_KEY);
     if (denied) return denied;
 
     const {filename, contentType, fileSize} = (await request.json()) as {
@@ -33,8 +34,6 @@ export async function action({request, context}: Route.ActionArgs) {
     const timestamp = Date.now();
     const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_');
     const key = `uploads/${timestamp}-${crypto.randomUUID()}-${sanitizedFilename}`;
-
-    const env = getCloudflare(context).env;
 
     if (env.R2_BUCKET && env.R2_ACCESS_KEY_ID) {
       // Production: Use R2 presigned URL

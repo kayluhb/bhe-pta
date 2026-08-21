@@ -3,11 +3,12 @@ import {getCloudflare} from '~/lib/cloudflare-context';
 import type {Route} from './+types/api.admin.reimbursement-delete';
 
 export async function action({request, params, context}: Route.ActionArgs) {
-  const auth = await requireAdmin(request, getCloudflare(context).env);
+  const env = getCloudflare(context).env;
+  const auth = await requireAdmin(request, env);
   if (auth instanceof Response) return auth;
 
   const id = params.id;
-  const db = getCloudflare(context).env.REIMBURSEMENT_DB;
+  const db = env.REIMBURSEMENT_DB;
 
   // Get the submission's pdf_key and all file attachment r2_keys
   const submission = await db
@@ -25,7 +26,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
     .all<{r2_key: string}>();
 
   // Delete files from R2
-  const r2 = getCloudflare(context).env.R2_BUCKET;
+  const r2 = env.R2_BUCKET;
   if (r2) {
     const keysToDelete = [submission.pdf_key, ...files.results.map((f) => f.r2_key)].filter(
       Boolean,

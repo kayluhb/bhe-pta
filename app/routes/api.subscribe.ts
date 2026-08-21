@@ -20,10 +20,11 @@ async function verifyTurnstile(token: string, secretKey: string, ip: string | nu
 
 export async function action({request, context}: Route.ActionArgs) {
   try {
+    const env = getCloudflare(context).env;
     const body = (await request.json()) as {email: string; turnstileToken?: string};
 
     // Verify Turnstile token
-    const turnstileSecret = getCloudflare(context).env.TURNSTILE_SECRET_KEY;
+    const turnstileSecret = env.TURNSTILE_SECRET_KEY;
     if (!turnstileSecret || !body.turnstileToken) {
       return Response.json({error: 'Verification failed.'}, {status: 403});
     }
@@ -40,7 +41,7 @@ export async function action({request, context}: Route.ActionArgs) {
       return Response.json({error: 'Valid email is required.'}, {status: 400});
     }
 
-    const apiKey = getCloudflare(context).env.MAILCHIMP_API_KEY;
+    const apiKey = env.MAILCHIMP_API_KEY;
     if (!apiKey || apiKey === 'placeholder') {
       console.error('MAILCHIMP_API_KEY not configured');
       return Response.json({error: 'Newsletter signup is temporarily unavailable.'}, {status: 503});

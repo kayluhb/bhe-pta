@@ -4,7 +4,8 @@ import {adminSubmissionContactSchema} from '~/lib/reimbursement/validation';
 import type {Route} from './+types/api.admin.reimbursement-contact';
 
 export async function action({request, params, context}: Route.ActionArgs) {
-  const auth = await requireAdmin(request, getCloudflare(context).env);
+  const env = getCloudflare(context).env;
+  const auth = await requireAdmin(request, env);
   if (auth instanceof Response) return auth;
 
   if (request.method !== 'POST') {
@@ -28,7 +29,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
   }
 
   const {requester_name, requester_email, requester_phone} = parsed.data;
-  const db = getCloudflare(context).env.REIMBURSEMENT_DB;
+  const db = env.REIMBURSEMENT_DB;
   const result = await db
     .prepare(
       `UPDATE submissions

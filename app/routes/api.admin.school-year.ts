@@ -5,7 +5,8 @@ import type {Route} from './+types/api.admin.school-year';
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 export async function action({request, params, context}: Route.ActionArgs) {
-  const auth = await requireAdmin(request, getCloudflare(context).env);
+  const env = getCloudflare(context).env;
+  const auth = await requireAdmin(request, env);
   if (auth instanceof Response) return auth;
 
   const schoolYearId = params.schoolYearId;
@@ -13,7 +14,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
     return Response.json({error: 'Missing school year id'}, {status: 400});
   }
 
-  const db = getCloudflare(context).env.REIMBURSEMENT_DB;
+  const db = env.REIMBURSEMENT_DB;
 
   if (request.method === 'PATCH') {
     const body = (await request.json()) as {

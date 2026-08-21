@@ -34,7 +34,8 @@ interface ExportRow {
 }
 
 export async function loader({request, context}: Route.LoaderArgs) {
-  const auth = await requireAdmin(request, getCloudflare(context).env);
+  const env = getCloudflare(context).env;
+  const auth = await requireAdmin(request, env);
   if (auth instanceof Response) return auth;
 
   const url = new URL(request.url);
@@ -43,7 +44,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
   const statusFilter = url.searchParams.get('status');
   const qParam = url.searchParams.get('q') ?? '';
 
-  const db = getCloudflare(context).env.REIMBURSEMENT_DB;
+  const db = env.REIMBURSEMENT_DB;
 
   let query = `
     SELECT s.id, s.submitted_at, s.requester_name, s.requester_email, s.total_amount, s.status, s.admin_notes,

@@ -72,15 +72,16 @@ async function listPrefixUntilDone(
 }
 
 export async function loader({request, context}: Route.LoaderArgs) {
-  const auth = await requireAdmin(request, getCloudflare(context).env);
+  const env = getCloudflare(context).env;
+  const auth = await requireAdmin(request, env);
   if (auth instanceof Response) return auth;
 
-  const r2 = getCloudflare(context).env.R2_BUCKET;
+  const r2 = env.R2_BUCKET;
   if (!r2) {
     return Response.json({error: 'R2 storage is not configured'}, {status: 503});
   }
 
-  const db = getCloudflare(context).env.REIMBURSEMENT_DB;
+  const db = env.REIMBURSEMENT_DB;
   const referenced = await loadReferencedKeys(db);
   const listOps = {count: 0};
   const uploadResult = await listPrefixUntilDone(r2, 'uploads/', listOps);
@@ -118,14 +119,15 @@ export async function loader({request, context}: Route.LoaderArgs) {
 }
 
 export async function action({request, context}: Route.ActionArgs) {
-  const auth = await requireAdmin(request, getCloudflare(context).env);
+  const env = getCloudflare(context).env;
+  const auth = await requireAdmin(request, env);
   if (auth instanceof Response) return auth;
 
   if (request.method !== 'POST') {
     return Response.json({error: 'Method not allowed'}, {status: 405});
   }
 
-  const r2 = getCloudflare(context).env.R2_BUCKET;
+  const r2 = env.R2_BUCKET;
   if (!r2) {
     return Response.json({error: 'R2 storage is not configured'}, {status: 503});
   }
@@ -135,7 +137,7 @@ export async function action({request, context}: Route.ActionArgs) {
     return Response.json({error: 'No keys provided'}, {status: 400});
   }
 
-  const db = getCloudflare(context).env.REIMBURSEMENT_DB;
+  const db = env.REIMBURSEMENT_DB;
   const referenced = await loadReferencedKeys(db);
   const uniqueRequested = [...new Set(body.keys)];
   const toDelete = uniqueRequested.filter((k) => isAllowedCleanupKey(k) && !referenced.has(k));

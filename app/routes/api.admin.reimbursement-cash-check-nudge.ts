@@ -5,14 +5,15 @@ import {sendCashCheckNudgeEmail} from '~/lib/reimbursement/email/resend';
 import type {Route} from './+types/api.admin.reimbursement-cash-check-nudge';
 
 export async function action({request, params, context}: Route.ActionArgs) {
-  const auth = await requireAdmin(request, getCloudflare(context).env);
+  const env = getCloudflare(context).env;
+  const auth = await requireAdmin(request, env);
   if (auth instanceof Response) return auth;
 
   if (request.method !== 'POST') {
     return new Response(null, {status: 405});
   }
 
-  const resendApiKey = getCloudflare(context).env.RESEND_API_KEY;
+  const resendApiKey = env.RESEND_API_KEY;
   if (!resendApiKey) {
     return Response.json(
       {error: 'Email is not configured (missing RESEND_API_KEY).'},
@@ -21,7 +22,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
   }
 
   const id = params.id;
-  const db = getCloudflare(context).env.REIMBURSEMENT_DB;
+  const db = env.REIMBURSEMENT_DB;
   const sub = await db
     .prepare(
       'SELECT requester_name, requester_email, status, total_amount FROM submissions WHERE id = ?',

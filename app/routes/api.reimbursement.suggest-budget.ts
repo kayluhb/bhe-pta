@@ -25,7 +25,8 @@ const validAccounts = new Set<string>(BUDGET_ACCOUNTS);
 
 export async function action({request, context}: Route.ActionArgs) {
   try {
-    const denied = await requireTurnstile(request, getCloudflare(context).env.TURNSTILE_SECRET_KEY);
+    const env = getCloudflare(context).env;
+    const denied = await requireTurnstile(request, env.TURNSTILE_SECRET_KEY);
     if (denied) {
       return denied;
     }
@@ -61,7 +62,7 @@ RULES:
 
     const userPrompt = `Suggest budget accounts for these receipts:\n${receiptDescriptions}`;
 
-    const result = await getCloudflare(context).env.AI.run('@cf/moonshotai/kimi-k2.6', {
+    const result = await env.AI.run('@cf/moonshotai/kimi-k2.6', {
       messages: [
         {role: 'system', content: systemPrompt},
         {role: 'user', content: userPrompt},

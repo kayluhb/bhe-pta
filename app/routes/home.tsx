@@ -31,11 +31,12 @@ export async function loader({context}: Route.LoaderArgs) {
   let ptaNews = mockPtaNewsletters;
 
   try {
-    const kvEvents = await getCloudflare(context).env.BHE_CALENDAR.get('events', 'json');
+    const env = getCloudflare(context).env;
+    const kvEvents = await env.BHE_CALENDAR.get('events', 'json');
     if (kvEvents) events = kvEvents as typeof events;
-    const kvSchool = await getCloudflare(context).env.BHE_NEWSLETTERS.get('latest', 'json');
+    const kvSchool = await env.BHE_NEWSLETTERS.get('latest', 'json');
     if (kvSchool) schoolNews = kvSchool as typeof schoolNews;
-    const kvPta = await getCloudflare(context).env.BHE_PTA_NEWSLETTERS.get('latest', 'json');
+    const kvPta = await env.BHE_PTA_NEWSLETTERS.get('latest', 'json');
     if (kvPta) ptaNews = kvPta as typeof ptaNews;
   } catch {
     // KV not available — use mock data
@@ -505,8 +506,8 @@ export default function Home({loaderData}: Route.ComponentProps) {
               </div>
               <h3 className="font-heading font-bold text-xl text-charcoal">Annual Fund</h3>
               <p className="mt-3 text-charcoal/70 leading-relaxed">
-                Over <span className="font-bold text-charcoal">$600 per student</span> annually goes
-                directly to programs, staff, and resources.
+                About <span className="font-bold text-charcoal">$930 per student</span> annually
+                goes directly to programs, staff, and resources.
               </p>
               <a
                 className="mt-5 inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
