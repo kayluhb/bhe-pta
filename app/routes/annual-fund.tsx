@@ -72,7 +72,7 @@ function OrganizationJsonLd({giveUrl}: {giveUrl: string}) {
     name: 'Barton Hills Elementary PTA',
     alternateName: 'PTA Texas Congress Barton Hills Elementary',
     url: `${SITE_ORIGIN}/annual-fund`,
-    logo: `${SITE_ORIGIN}/og-image.png`,
+    logo: `${SITE_ORIGIN}/og-image.jpg`,
     email: 'pta@bheeagles.com',
     address: {
       '@type': 'PostalAddress',
