@@ -1,4 +1,5 @@
 import {requireAdmin} from '~/lib/admin/auth';
+import {getCloudflare} from '~/lib/cloudflare-context';
 import {buildAdminReceiptPdfTitle} from '~/lib/reimbursement/filename';
 import {
   ACCEPTED_TYPES,
@@ -9,12 +10,12 @@ import {
 import type {Route} from './+types/api.admin.reimbursement-upload';
 
 export async function action({request, params, context}: Route.ActionArgs) {
-  const auth = await requireAdmin(request, context.cloudflare.env);
+  const env = getCloudflare(context).env;
+  const auth = await requireAdmin(request, env);
   if (auth instanceof Response) return auth;
 
   try {
     const submissionId = params.id;
-    const env = context.cloudflare.env;
     const db = env.REIMBURSEMENT_DB;
 
     // Verify submission exists and get requester name

@@ -3,6 +3,7 @@ import {
   ADMIN_SUBMISSION_STATUSES,
   isAdminSubmissionStatus,
 } from '~/lib/admin/reimbursement-submission-statuses';
+import {getCloudflare} from '~/lib/cloudflare-context';
 import {sendCheckDeliveredEmail} from '~/lib/reimbursement/email/resend';
 import type {Route} from './+types/api.admin.reimbursement-status';
 
@@ -10,7 +11,8 @@ const SUBMISSION_STATUS_APPROVED = 'approved';
 const SUBMISSION_STATUS_CHECK_DELIVERED = 'check_delivered';
 
 export async function action({request, params, context}: Route.ActionArgs) {
-  const auth = await requireAdmin(request, context.cloudflare.env);
+  const env = getCloudflare(context).env;
+  const auth = await requireAdmin(request, env);
   if (auth instanceof Response) return auth;
 
   const id = params.id;
@@ -23,7 +25,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
     );
   }
 
-  const db = context.cloudflare.env.REIMBURSEMENT_DB;
+  const db = env.REIMBURSEMENT_DB;
   const result = await db
     .prepare(
       `UPDATE submissions SET
@@ -53,7 +55,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
       await sendCheckDeliveredEmail({
         requesterName: sub.requester_name,
         requesterEmail: sub.requester_email,
-        resendApiKey: context.cloudflare.env.RESEND_API_KEY,
+        resendApiKey: env.RESEND_API_KEY,
       });
     }
   }

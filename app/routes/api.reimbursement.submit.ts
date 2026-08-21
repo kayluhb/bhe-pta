@@ -1,3 +1,4 @@
+import {getCloudflare} from '~/lib/cloudflare-context';
 import {buildPdfFilename, buildSubmissionSlug} from '~/lib/reimbursement/filename';
 import {generatePDF} from '~/lib/reimbursement/pdf/generator';
 import {resolveSchoolYearIdForNewSubmission} from '~/lib/reimbursement/school-years';
@@ -69,9 +70,10 @@ async function verifyTurnstile(
 
 export async function action({request, context}: Route.ActionArgs) {
   try {
+    const env = getCloudflare(context).env;
     const body = await request.json();
 
-    const turnstileSecret = context.cloudflare.env.TURNSTILE_SECRET_KEY;
+    const turnstileSecret = env.TURNSTILE_SECRET_KEY;
     const turnstileToken = (body as Record<string, unknown>).turnstileToken;
     if (!turnstileSecret || !turnstileToken || typeof turnstileToken !== 'string') {
       return Response.json({error: 'Verification failed'}, {status: 403});
@@ -97,7 +99,6 @@ export async function action({request, context}: Route.ActionArgs) {
     const {budget, files, receiptUploads, receipts, reimbursementDraftId, requester} =
       validationResult.data;
 
-    const env = context.cloudflare.env;
     const db = env.REIMBURSEMENT_DB;
     const r2 = env.R2_BUCKET;
 

@@ -1,6 +1,7 @@
 import {useState} from 'react';
 import {useLoaderData, useRevalidator} from 'react-router';
 import {requireAdmin, type SessionPayload} from '~/lib/admin/auth';
+import {getCloudflare} from '~/lib/cloudflare-context';
 import {mergeParentMeta} from '~/lib/meta';
 import {assertValidSchoolYearId, slugSchoolYearIdFromLabel} from '~/lib/reimbursement/school-years';
 import type {Route} from './+types/admin.school-years';
@@ -22,11 +23,12 @@ interface SchoolYearRow {
 }
 
 export async function loader({request, context}: Route.LoaderArgs) {
-  const auth = await requireAdmin(request, context.cloudflare.env);
+  const env = getCloudflare(context).env;
+  const auth = await requireAdmin(request, env);
   if (auth instanceof Response) return auth;
   const user: SessionPayload = auth;
 
-  const db = context.cloudflare.env.REIMBURSEMENT_DB;
+  const db = env.REIMBURSEMENT_DB;
   const rows = await db
     .prepare(
       `SELECT y.*,

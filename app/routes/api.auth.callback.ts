@@ -1,5 +1,6 @@
 import {buildAdminSessionSetCookie, resolveSessionSecret, signSession} from '~/lib/admin/auth';
 import {verifyGoogleIdToken} from '~/lib/admin/google-id-token';
+import {getCloudflare} from '~/lib/cloudflare-context';
 import type {Route} from './+types/api.auth.callback';
 
 const OAUTH_STATE_COOKIE = 'oauth_state';
@@ -17,6 +18,7 @@ function getCookie(request: Request, name: string): string | null {
 }
 
 export async function loader({request, context}: Route.LoaderArgs) {
+  const env = getCloudflare(context).env;
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
   const state = url.searchParams.get('state');
@@ -31,7 +33,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
   }
 
   const origin = url.origin;
-  const {GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET} = context.cloudflare.env;
+  const {GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET} = env;
 
   const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
@@ -65,7 +67,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
 
   const cookieValue = await signSession(
     {email: user.email, name: user.name, picture: user.picture},
-    resolveSessionSecret(context.cloudflare.env),
+    resolveSessionSecret(env),
   );
 
   const headers = new Headers();

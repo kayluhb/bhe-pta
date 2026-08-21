@@ -3,6 +3,7 @@ import {
   ADMIN_SUBMISSION_STATUSES,
   isAdminSubmissionStatus,
 } from '~/lib/admin/reimbursement-submission-statuses';
+import {getCloudflare} from '~/lib/cloudflare-context';
 import {sendCheckDeliveredEmail} from '~/lib/reimbursement/email/resend';
 import type {Route} from './+types/api.admin.bulk-status';
 
@@ -11,7 +12,8 @@ const SUBMISSION_STATUS_APPROVED = 'approved';
 const SUBMISSION_STATUS_CHECK_DELIVERED = 'check_delivered';
 
 export async function action({request, context}: Route.ActionArgs) {
-  const auth = await requireAdmin(request, context.cloudflare.env);
+  const env = getCloudflare(context).env;
+  const auth = await requireAdmin(request, env);
   if (auth instanceof Response) return auth;
 
   const body = (await request.json()) as {ids?: string[]; status?: string; skipEmail?: boolean};
@@ -27,7 +29,7 @@ export async function action({request, context}: Route.ActionArgs) {
     );
   }
 
-  const db = context.cloudflare.env.REIMBURSEMENT_DB;
+  const db = env.REIMBURSEMENT_DB;
   const placeholders = body.ids.map(() => '?').join(', ');
   await db
     .prepare(
@@ -64,7 +66,7 @@ export async function action({request, context}: Route.ActionArgs) {
         sendCheckDeliveredEmail({
           requesterName: sub.requester_name,
           requesterEmail: sub.requester_email,
-          resendApiKey: context.cloudflare.env.RESEND_API_KEY,
+          resendApiKey: env.RESEND_API_KEY,
         }),
       ),
     );

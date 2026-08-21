@@ -1,10 +1,12 @@
 import {requireAdmin} from '~/lib/admin/auth';
+import {getCloudflare} from '~/lib/cloudflare-context';
 import {regenerateStoredSubmissionPdf} from '~/lib/reimbursement/pdf/regenerate-stored-pdf';
 import {adminTreasurerFieldsSchema} from '~/lib/reimbursement/validation';
 import type {Route} from './+types/api.admin.reimbursement-treasurer-fields';
 
 export async function action({request, params, context}: Route.ActionArgs) {
-  const auth = await requireAdmin(request, context.cloudflare.env);
+  const env = getCloudflare(context).env;
+  const auth = await requireAdmin(request, env);
   if (auth instanceof Response) return auth;
 
   if (request.method !== 'POST') {
@@ -28,7 +30,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
   }
 
   const {check_amount, check_number, date_paid} = parsed.data;
-  const db = context.cloudflare.env.REIMBURSEMENT_DB;
+  const db = env.REIMBURSEMENT_DB;
   const result = await db
     .prepare(
       `UPDATE submissions SET
@@ -45,7 +47,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
     return Response.json({error: 'Submission not found'}, {status: 404});
   }
 
-  const pdfResult = await regenerateStoredSubmissionPdf(db, context.cloudflare.env.R2_BUCKET, id);
+  const pdfResult = await regenerateStoredSubmissionPdf(db, env.R2_BUCKET, id);
 
   if (!pdfResult.ok) {
     const warning =

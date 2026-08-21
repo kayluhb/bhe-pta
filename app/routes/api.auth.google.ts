@@ -1,7 +1,8 @@
+import {getCloudflare} from '~/lib/cloudflare-context';
 import type {Route} from './+types/api.auth.google';
 
 export async function loader({request, context}: Route.LoaderArgs) {
-  const {GOOGLE_CLIENT_ID} = context.cloudflare.env;
+  const {GOOGLE_CLIENT_ID} = getCloudflare(context).env;
   const origin = new URL(request.url).origin;
   const redirectUri = `${origin}/api/auth/callback`;
   const state = crypto.randomUUID();

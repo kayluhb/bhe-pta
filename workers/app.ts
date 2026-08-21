@@ -1,49 +1,10 @@
 import * as Sentry from '@sentry/cloudflare';
-import {createRequestHandler} from 'react-router';
+import {createRequestHandler, RouterContextProvider} from 'react-router';
 import {fetchCalendarEvents, fetchPtaCalendarEvents} from '../app/lib/calendar';
+import {cloudflareContext} from '../app/lib/cloudflare-context';
 import {fetchMailchimpCampaigns} from '../app/lib/mailchimp';
 import {processReceiptConversionJob} from '../app/lib/reimbursement/receipt-conversion-queue';
 import {scrapeSchoolNews} from '../app/lib/scraper';
-
-interface Env {
-  BHE_NEWSLETTERS: KVNamespace;
-  BHE_PTA_NEWSLETTERS: KVNamespace;
-  BHE_CALENDAR: KVNamespace;
-  MAILCHIMP_API_KEY: string;
-  REIMBURSEMENT_DB: D1Database;
-  R2_BUCKET: R2Bucket;
-  R2_ARCHIVE: R2Bucket;
-  RESEND_API_KEY: string;
-  NOTIFICATION_EMAIL: string;
-  R2_ACCESS_KEY_ID: string;
-  R2_SECRET_ACCESS_KEY: string;
-  CLOUDFLARE_ACCOUNT_ID: string;
-  TURNSTILE_SECRET_KEY: string;
-  AI: Ai;
-  GEMINI_API_KEY: string;
-  SENTRY_DSN?: string;
-  GOOGLE_CLIENT_ID: string;
-  GOOGLE_CLIENT_SECRET: string;
-  SESSION_SECRET: string;
-  /** Bearer token for POST /api/refresh (not the admin session signing secret). */
-  DATA_REFRESH_SECRET?: string;
-  /** HMAC secret for time-limited public preview URLs (GET /api/reimbursement/file). */
-  FILE_URL_SIGNING_SECRET?: string;
-  RECEIPT_CONVERSION_QUEUE: Queue;
-  /** Optional stage-only HTTP Basic Auth username. */
-  STAGE_BASIC_AUTH_USER?: string;
-  /** Optional stage-only HTTP Basic Auth password. */
-  STAGE_BASIC_AUTH_PASSWORD?: string;
-}
-
-declare module 'react-router' {
-  interface AppLoadContext {
-    cloudflare: {
-      env: Env;
-      ctx: ExecutionContext;
-    };
-  }
-}
 
 const requestHandler = createRequestHandler(
   () => import('virtual:react-router/server-build'),
@@ -178,9 +139,9 @@ const handler = {
       return Response.json({ok: true, log});
     }
 
-    const response = await requestHandler(request, {
-      cloudflare: {env, ctx},
-    });
+    const loadContext = new RouterContextProvider();
+    loadContext.set(cloudflareContext, {ctx, env});
+    const response = await requestHandler(request, loadContext);
 
     const headers = new Headers(response.headers);
     headers.set('X-Content-Type-Options', 'nosniff');

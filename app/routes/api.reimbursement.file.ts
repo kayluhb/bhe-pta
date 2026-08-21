@@ -1,3 +1,4 @@
+import {getCloudflare} from '~/lib/cloudflare-context';
 import {
   resolveFilePreviewSigningSecret,
   verifyFileAccess,
@@ -6,6 +7,7 @@ import {isValidStagingUploadKey} from '~/lib/reimbursement/r2-staging';
 import type {Route} from './+types/api.reimbursement.file';
 
 export async function loader({request, context}: Route.LoaderArgs) {
+  const env = getCloudflare(context).env;
   const url = new URL(request.url);
   const key = url.searchParams.get('key');
   const expRaw = url.searchParams.get('exp');
@@ -17,7 +19,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
     return Response.json({error: 'Invalid key'}, {status: 400});
   }
 
-  const secret = resolveFilePreviewSigningSecret(context.cloudflare.env);
+  const secret = resolveFilePreviewSigningSecret(env);
   if (!secret || !sig || !Number.isFinite(expSec)) {
     return Response.json({error: 'Missing or invalid access token'}, {status: 403});
   }
@@ -27,7 +29,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
     return Response.json({error: 'Invalid or expired access token'}, {status: 403});
   }
 
-  const r2 = context.cloudflare.env.R2_BUCKET;
+  const r2 = env.R2_BUCKET;
   if (!r2) {
     return Response.json({error: 'Storage not available'}, {status: 503});
   }

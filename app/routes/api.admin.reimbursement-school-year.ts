@@ -1,4 +1,5 @@
 import {requireAdmin} from '~/lib/admin/auth';
+import {getCloudflare} from '~/lib/cloudflare-context';
 import type {Route} from './+types/api.admin.reimbursement-school-year';
 
 export async function action({request, params, context}: Route.ActionArgs) {
@@ -6,7 +7,8 @@ export async function action({request, params, context}: Route.ActionArgs) {
     return Response.json({error: 'Method not allowed'}, {status: 405});
   }
 
-  const auth = await requireAdmin(request, context.cloudflare.env);
+  const env = getCloudflare(context).env;
+  const auth = await requireAdmin(request, env);
   if (auth instanceof Response) return auth;
 
   const id = params.id;
@@ -24,7 +26,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
   }
 
   const schoolYearId = body.school_year_id.trim();
-  const db = context.cloudflare.env.REIMBURSEMENT_DB;
+  const db = env.REIMBURSEMENT_DB;
 
   const year = await db
     .prepare('SELECT id FROM school_years WHERE id = ?')

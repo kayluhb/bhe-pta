@@ -1,3 +1,4 @@
+import {getCloudflare} from '~/lib/cloudflare-context';
 import {
   FILE_ACCESS_TTL_SEC,
   resolveFilePreviewSigningSecret,
@@ -21,7 +22,7 @@ export async function action({request, context}: Route.ActionArgs) {
   const startedAt = Date.now();
 
   try {
-    const env = context.cloudflare.env;
+    const env = getCloudflare(context).env;
     const continuationSecret = env.SESSION_SECRET || env.FILE_URL_SIGNING_SECRET;
     const continuation = request.headers.get('X-Receipt-Upload-Token');
 

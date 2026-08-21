@@ -7,6 +7,7 @@ import {
   isAdminSubmissionStatus,
 } from '~/lib/admin/reimbursement-submission-statuses';
 import {submissionSearchCondition} from '~/lib/admin/submission-search-sql';
+import {getCloudflare} from '~/lib/cloudflare-context';
 import {formatUsd} from '~/lib/format-currency';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/admin.reimbursements';
@@ -74,7 +75,8 @@ interface SnapshotRow {
 }
 
 export async function loader({request, context}: Route.LoaderArgs) {
-  const auth = await requireAdmin(request, context.cloudflare.env);
+  const env = getCloudflare(context).env;
+  const auth = await requireAdmin(request, env);
   if (auth instanceof Response) return auth;
   const user: SessionPayload = auth;
 
@@ -92,18 +94,19 @@ export async function loader({request, context}: Route.LoaderArgs) {
     : 'submitted_at';
   const validOrder = VALID_ORDERS.includes(order as (typeof VALID_ORDERS)[number]) ? order : 'desc';
 
-  const db = context.cloudflare.env.REIMBURSEMENT_DB;
+  const db = env.REIMBURSEMENT_DB;
   const offset = (page - 1) * PAGE_SIZE;
 
   const schoolYearsResult = await db
-    .prepare('SELECT id, label, is_default FROM school_years ORDER BY sort_order DESC, starts_on DESC')
+    .prepare(
+      'SELECT id, label, is_default FROM school_years ORDER BY sort_order DESC, starts_on DESC',
+    )
     .all<{id: string; is_default: number; label: string}>();
   const schoolYears = schoolYearsResult.results;
   const schoolYearIds = new Set(schoolYears.map((r) => r.id));
   // Pre-select the default (current) school year when no filter is in the URL.
   // Use the 'all' sentinel so the user can still explicitly opt out of the year filter.
-  const defaultYearId =
-    schoolYears.find((y) => y.is_default === 1)?.id ?? schoolYears[0]?.id ?? '';
+  const defaultYearId = schoolYears.find((y) => y.is_default === 1)?.id ?? schoolYears[0]?.id ?? '';
   let selectedSchoolYear: string;
   if (schoolYearParam === 'all') {
     selectedSchoolYear = 'all';
@@ -125,8 +128,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
     baseWhereParts.push(search.sql);
     baseWhereBinds.push(...search.binds);
   }
-  const baseWhereClause =
-    baseWhereParts.length > 0 ? `WHERE ${baseWhereParts.join(' AND ')}` : '';
+  const baseWhereClause = baseWhereParts.length > 0 ? `WHERE ${baseWhereParts.join(' AND ')}` : '';
 
   const whereParts = [...baseWhereParts];
   const whereBinds = [...baseWhereBinds];
@@ -176,7 +178,9 @@ export async function loader({request, context}: Route.LoaderArgs) {
      GROUP BY status`;
   const aggStmt = db.prepare(aggSql);
   const aggPromise =
-    whereBinds.length > 0 ? aggStmt.bind(...whereBinds).all<StatusAggRow>() : aggStmt.all<StatusAggRow>();
+    whereBinds.length > 0
+      ? aggStmt.bind(...whereBinds).all<StatusAggRow>()
+      : aggStmt.all<StatusAggRow>();
 
   const dropdownAggSql = `SELECT status, COUNT(*) as count, COALESCE(SUM(total_amount), 0) as sum_amount
      FROM submissions s

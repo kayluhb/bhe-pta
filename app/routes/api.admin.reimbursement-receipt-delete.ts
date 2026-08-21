@@ -1,8 +1,10 @@
 import {requireAdmin} from '~/lib/admin/auth';
+import {getCloudflare} from '~/lib/cloudflare-context';
 import type {Route} from './+types/api.admin.reimbursement-receipt-delete';
 
 export async function action({request, params, context}: Route.ActionArgs) {
-  const auth = await requireAdmin(request, context.cloudflare.env);
+  const env = getCloudflare(context).env;
+  const auth = await requireAdmin(request, env);
   if (auth instanceof Response) return auth;
 
   if (request.method !== 'DELETE') {
@@ -11,7 +13,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
 
   const submissionId = params.id;
   const receiptId = params.receiptId;
-  const db = context.cloudflare.env.REIMBURSEMENT_DB;
+  const db = env.REIMBURSEMENT_DB;
 
   const deleteResult = await db
     .prepare('DELETE FROM receipt_entries WHERE id = ? AND submission_id = ?')

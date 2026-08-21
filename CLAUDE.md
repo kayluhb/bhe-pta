@@ -17,7 +17,7 @@ No test framework is currently configured.
 
 ## Architecture
 
-**Stack**: React Router 7 (SSR) on Cloudflare Workers, Tailwind CSS v4, TypeScript
+**Stack**: React Router 8 (SSR) on Cloudflare Workers, Tailwind CSS v4, TypeScript
 
 ### Request Flow
 
@@ -28,15 +28,17 @@ No test framework is currently configured.
 
 ### Routing
 
-Routes are defined in `app/routes.ts` using React Router v7's `route()`/`index()` helpers. Each route file in `app/routes/` exports a `loader` function and a default component.
+Routes are defined in `app/routes.ts` using React Router's `route()`/`index()` helpers. Each route file in `app/routes/` exports a `loader` function and a default component.
 
 ### Data Loading Pattern
 
-Route loaders access Cloudflare bindings via `context.cloudflare.env`:
+Route loaders access Cloudflare bindings via `getCloudflare(context)` (seeded on `RouterContextProvider` in `workers/app.ts`):
 
 ```typescript
+import {getCloudflare} from '~/lib/cloudflare-context';
+
 export async function loader({ context }: Route.LoaderArgs) {
-  const data = await context.cloudflare.env.BHE_CALENDAR.get("events", "json");
+  const data = await getCloudflare(context).env.BHE_CALENDAR.get("events", "json");
   return { events: data ?? mockEvents };
 }
 ```
@@ -56,7 +58,7 @@ All loaders follow a KV-first pattern with mock data fallback (`app/lib/mock-dat
 | `RECEIPT_CONVERSION_QUEUE` | Queue | Async receipt → PDF pipeline |
 | `AI` | Workers AI | Budget account suggestions (`@cf/moonshotai/kimi-k2.6`) |
 
-Bindings are declared in `wrangler.jsonc`. The `Env` interface is in `workers/app.ts`.
+Bindings are declared in `wrangler.jsonc`. Generated binding types live in `worker-configuration.d.ts` (from `pnpm cf-typegen`); extra secrets/optional keys merge via `app/env.d.ts`.
 
 ### Cron Worker (`workers/app.ts` → `scheduled`)
 
