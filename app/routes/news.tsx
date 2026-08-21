@@ -95,7 +95,7 @@ export default function News() {
           {hasMore && (
             <div className="mt-12 text-center">
               <button
-                className="inline-flex items-center gap-2 rounded-full bg-eagle-blue px-8 py-3 font-heading font-bold text-white transition-all duration-200 hover:bg-eagle-blue/90 hover:shadow-lg"
+                className="inline-flex items-center gap-2 rounded-full bg-eagle-blue px-8 py-3 font-heading font-bold text-white border-2 border-eagle-blue hover:bg-white hover:text-eagle-blue transition-colors duration-200"
                 onClick={() => setVisibleCount((count) => count + LOAD_MORE_STEP)}
                 type="button"
               >

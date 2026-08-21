@@ -5,6 +5,10 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://bheeagles.com/annual-fund</loc>
+    <priority>0.95</priority>
+  </url>
+  <url>
     <loc>https://bheeagles.com/about</loc>
     <priority>0.8</priority>
   </url>
@@ -18,7 +22,7 @@
   </url>
   <url>
     <loc>https://bheeagles.com/get-involved</loc>
-    <priority>0.7</priority>
+    <priority>0.85</priority>
   </url>
   <url>
     <loc>https://bheeagles.com/programs</loc>
@@ -30,14 +34,26 @@
   </url>
   <url>
     <loc>https://bheeagles.com/sponsors</loc>
-    <priority>0.6</priority>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://bheeagles.com/archive</loc>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://bheeagles.com/official-name</loc>
+    <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bheeagles.com/contact</loc>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://bheeagles.com/reimbursement</loc>
-    <priority>0.5</priority>
+    <loc>https://bheeagles.com/privacy</loc>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://bheeagles.com/terms</loc>
+    <priority>0.3</priority>
   </url>
 </urlset>

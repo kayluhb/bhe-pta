@@ -6,6 +6,7 @@ export default [
   route('news', './routes/news.tsx'),
   route('events', './routes/events.tsx'),
   route('get-involved', './routes/get-involved.tsx'),
+  route('annual-fund', './routes/annual-fund.tsx'),
   route('programs', './routes/programs.tsx'),
   route('parents', './routes/parents.tsx'),
   route('sponsors', './routes/sponsors.tsx'),

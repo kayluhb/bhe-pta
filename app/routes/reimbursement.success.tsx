@@ -9,6 +9,7 @@ export function meta({matches}: Route.MetaArgs) {
       name: 'description',
       content: 'Your reimbursement request has been submitted successfully.',
     },
+    {name: 'robots', content: 'noindex, nofollow'},
   ]);
 }
 

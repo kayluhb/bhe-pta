@@ -106,7 +106,7 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
             )}
             <button
               aria-describedby={!turnstileToken ? hintId : undefined}
-              className="w-full bg-spirit-gold text-night-blue font-heading font-bold px-5 py-2.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 motion-reduce:transition-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-spirit-gold text-night-blue font-heading font-bold px-5 py-2.5 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors duration-200 motion-reduce:transition-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={status === 'submitting' || !turnstileToken}
               type="submit"
             >
@@ -184,7 +184,7 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
                 />
                 <button
                   aria-describedby={!turnstileToken ? hintId : undefined}
-                  className="bg-spirit-gold text-night-blue font-heading font-bold px-8 py-3 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 motion-reduce:transition-none hover:shadow-lg hover:shadow-spirit-gold/25 shrink-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-spirit-gold text-night-blue font-heading font-bold px-8 py-3 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors duration-200 motion-reduce:transition-none shrink-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={status === 'submitting' || !turnstileToken}
                   type="submit"
                 >

@@ -20,6 +20,19 @@ export const annualFundGiveUrl = 'https://bhe-pta-annual-fund-drive-2026-2027.ch
 export const corporateContributionsUrl =
   'https://bhe-corporate-contributions-2026-2027.cheddarup.com';
 
+/** Owned SEO/conversion landing page (payment still happens on CheddarUp). */
+export const annualFundPath = '/annual-fund';
+
+/** CheddarUp give URL with campaign UTMs for click attribution. */
+export function annualFundGiveUrlWithUtm(content = 'give-cta'): string {
+  const url = new URL(annualFundGiveUrl);
+  url.searchParams.set('utm_source', 'bheeagles');
+  url.searchParams.set('utm_medium', 'website');
+  url.searchParams.set('utm_campaign', 'annual-fund-2026-27');
+  url.searchParams.set('utm_content', content);
+  return url.toString();
+}
+
 /** Update these amounts and lastUpdated, then deploy to publish progress. */
 const onlineRaisedAmount = 118_997.99;
 /** Offline donations that have been deposited and cleared. */

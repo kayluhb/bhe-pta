@@ -4,6 +4,14 @@
 User-agent: *
 Allow: /
 
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
+Disallow: /reimbursement
+Disallow: /reimbursement/
+Disallow: /pay-me
+Disallow: /pay-me/
+
 # Please don't crawl the snack cabinet in the teacher's lounge.
 Disallow: /snack-cabinet/
 Disallow: /secret-pizza-party/

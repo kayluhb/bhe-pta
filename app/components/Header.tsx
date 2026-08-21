@@ -2,7 +2,7 @@ import {useCallback, useEffect, useRef, useState} from 'react';
 import {Link, NavLink, useLocation} from 'react-router';
 
 import {HeaderLogo} from '~/components/HeaderLogo';
-import {annualFundGiveUrl} from '~/data/annual-fund-campaign';
+import {annualFundPath} from '~/data/annual-fund-campaign';
 
 const navLinks = [
   {to: '/about', label: 'About'},
@@ -119,14 +119,12 @@ export function Header() {
 
         {/* CTA + Mobile Toggle */}
         <div className="flex items-center gap-3">
-          <a
-            className="hidden sm:inline-block bg-spirit-gold text-night-blue font-heading font-bold text-sm px-5 py-2 rounded-full hover:bg-spirit-gold/90 transition-colors"
-            href={annualFundGiveUrl}
-            rel="noopener noreferrer"
-            target="_blank"
+          <Link
+            className="hidden sm:inline-block bg-spirit-gold text-night-blue font-heading font-bold text-sm px-5 py-2 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors"
+            to={annualFundPath}
           >
-            Join PTA<span className="sr-only"> (opens in new tab)</span>
-          </a>
+            Give
+          </Link>
 
           {/* Hamburger Button */}
           <button
@@ -197,16 +195,14 @@ export function Header() {
                 {link.label}
               </NavLink>
             ))}
-            <a
-              className="mt-2 bg-spirit-gold text-night-blue font-heading font-bold text-sm px-5 py-2 rounded-full text-center hover:bg-spirit-gold/90 transition-colors block"
-              href={annualFundGiveUrl}
+            <Link
+              className="mt-2 bg-spirit-gold text-night-blue font-heading font-bold text-sm px-5 py-2 rounded-full text-center border-2 border-spirit-gold hover:bg-white transition-colors block"
               onClick={() => setMobileMenuOpen(false)}
-              rel="noopener noreferrer"
               tabIndex={mobileMenuOpen ? 0 : -1}
-              target="_blank"
+              to={annualFundPath}
             >
-              Join PTA<span className="sr-only"> (opens in new tab)</span>
-            </a>
+              Give
+            </Link>
           </div>
         </nav>
       </div>

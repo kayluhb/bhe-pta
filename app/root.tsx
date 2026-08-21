@@ -22,8 +22,8 @@ export async function loader({context}: Route.LoaderArgs) {
   return {sentryDsn: dsn && dsn.length > 0 ? dsn : null};
 }
 
-export function meta({loaderData}: Route.MetaArgs) {
-  const descriptors: Route.MetaDescriptors = [
+export function meta(_args: Route.MetaArgs) {
+  return [
     {title: 'Barton Hills Elementary PTA'},
     {
       content:
@@ -33,18 +33,16 @@ export function meta({loaderData}: Route.MetaArgs) {
     {content: 'Barton Hills Elementary PTA', property: 'og:title'},
     {content: 'Supporting our school community since 1964', property: 'og:description'},
     {content: 'website', property: 'og:type'},
+    {content: 'https://bheeagles.com/', property: 'og:url'},
     {content: 'https://bheeagles.com/og-image.png', property: 'og:image'},
     {content: '850', property: 'og:image:width'},
     {content: '850', property: 'og:image:height'},
     {content: 'Barton Hills Elementary School eagle logo', property: 'og:image:alt'},
-    {content: 'summary', name: 'twitter:card'},
+    {content: 'summary_large_image', name: 'twitter:card'},
     {content: 'https://bheeagles.com/og-image.png', name: 'twitter:image'},
     {content: 'BHE PTA', name: 'apple-mobile-web-app-title'},
-  ];
-  if (loaderData?.sentryDsn) {
-    descriptors.push({content: loaderData.sentryDsn, name: 'sentry-dsn'});
-  }
-  return descriptors;
+    {href: 'https://bheeagles.com/', rel: 'canonical', tagName: 'link'},
+  ] satisfies Route.MetaDescriptors;
 }
 
 export const links: Route.LinksFunction = () => [
@@ -99,11 +97,19 @@ function DJBeckettBadge() {
   );
 }
 
-export default function App() {
+export default function App({loaderData}: Route.ComponentProps) {
   const {isDiscoMode} = useDiscoMode();
+  const sentryDsn = loaderData.sentryDsn;
 
   return (
     <div className={`min-h-screen flex flex-col${isDiscoMode ? ' disco-active' : ''}`}>
+      {sentryDsn ? (
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.__ENV=${JSON.stringify({SENTRY_DSN: sentryDsn})};`,
+          }}
+        />
+      ) : null}
       <Header />
       <main className="flex-1" id="main-content">
         <Outlet />
@@ -420,7 +426,7 @@ export function ErrorBoundary({error}: Route.ErrorBoundaryProps) {
             This eagle has searched far and wide, but that page doesn't exist.
           </p>
           <Link
-            className="inline-block mt-8 bg-eagle-blue text-white font-heading font-bold text-sm px-6 py-3 rounded-full hover:bg-eagle-blue/90 transition-colors"
+            className="inline-block mt-8 border-2 border-eagle-blue bg-eagle-blue text-white font-heading font-bold text-sm px-6 py-3 rounded-full hover:bg-white hover:text-eagle-blue transition-colors"
             to="/"
           >
             Fly Back Home

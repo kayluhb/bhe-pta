@@ -1,13 +1,11 @@
 import {Link} from 'react-router';
-import {EventCard} from '~/components/EventCard';
 import {FundraisingProgress} from '~/components/fundraising/FundraisingProgress';
-import {NewsCard} from '~/components/NewsCard';
 import {NewsletterSignup} from '~/components/NewsletterSignup';
-import {annualFundCampaign} from '~/data/annual-fund-campaign';
+import {annualFundCampaign, annualFundPath} from '~/data/annual-fund-campaign';
 import {sanitizeCalendarEvents} from '~/lib/calendar';
 import {getCloudflare} from '~/lib/cloudflare-context';
 import {formatNewsletterDate} from '~/lib/format-newsletter-date';
-import {mergeParentMeta} from '~/lib/meta';
+import {pageSeoMeta} from '~/lib/meta';
 import {mixNewsletters} from '~/lib/mix-newsletters';
 import {mockNewsletters, mockPtaNewsletters} from '~/lib/mock-data';
 import {formatSchoolYearLong} from '~/lib/school-year';
@@ -16,14 +14,15 @@ import type {CalendarEvent} from '~/lib/types';
 import type {Route} from './+types/home';
 
 export function meta({matches}: Route.MetaArgs) {
-  return mergeParentMeta(matches, [
-    {title: 'Barton Hills Elementary PTA | Soaring Together Since 1964'},
-    {
-      name: 'description',
-      content:
-        'Barton Hills Elementary PTA - Supporting our school community through parent involvement, fundraising, and advocacy.',
-    },
-  ]);
+  return pageSeoMeta(matches, {
+    path: '/',
+    title: 'Barton Hills Elementary PTA | Soaring Together Since 1964',
+    description:
+      'Donate to the Barton Hills Elementary PTA Annual Fund and support Art, Music & PE, classroom programs, and our Austin school community. Suggested $200 per child.',
+    ogTitle: 'Barton Hills Elementary PTA | Give to the Annual Fund',
+    ogDescription:
+      'Support Art, Music & PE and every Eagle. Tax-deductible gifts to Barton Hills Elementary PTA.',
+  });
 }
 
 // ─── Loader ──────────────────────────────────────────────────────────────────
@@ -51,7 +50,7 @@ export async function loader({context}: Route.LoaderArgs) {
   const upcomingEvents = events
     .filter((e) => new Date(e.start) >= today)
     .sort((a, b) => a.start.localeCompare(b.start))
-    .slice(0, 6);
+    .slice(0, 4);
 
   const sponsorSchoolYear = getFeaturedSponsorSchoolYear();
   const sponsors = getRandomSponsors(6, sponsorSchoolYear);
@@ -71,6 +70,9 @@ function formatEventDay(dateStr: string): string {
   return date.getDate().toString();
 }
 
+function isExternalUrl(url: string): boolean {
+  return /^https?:\/\//i.test(url);
+}
 
 const programs = [
   {
@@ -243,12 +245,18 @@ export default function Home({loaderData}: Route.ComponentProps) {
             <p className="mt-6 text-lg md:text-xl text-white/80 max-w-2xl leading-relaxed">
               Supporting our school community through parent involvement, fundraising, and advocacy
             </p>
-            <div className="mt-6">
+            <div className="mt-6 flex flex-wrap gap-4">
               <Link
-                className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-base px-6 py-3 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
+                className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-base px-6 py-3 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors duration-200"
+                to={annualFundPath}
+              >
+                Give to Annual Fund
+              </Link>
+              <Link
+                className="inline-flex items-center border-2 border-white/70 text-white font-heading font-bold text-base px-6 py-3 rounded-full hover:bg-white/10 transition-colors duration-200"
                 to="/get-involved"
               >
-                Join PTA
+                Get Involved
               </Link>
             </div>
           </div>
@@ -266,111 +274,130 @@ export default function Home({loaderData}: Route.ComponentProps) {
         <div className="max-w-7xl mx-auto px-4">
           <FundraisingProgress campaign={campaign} className="mt-0" />
           <div className="mt-10">
-            <a
-              className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
-              href={campaign.giveUrl}
-              rel="noopener noreferrer"
-              target="_blank"
+            <Link
+              className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors duration-200"
+              to={annualFundPath}
             >
-              Become a Member
-              <span className="sr-only"> (opens in new tab)</span>
-            </a>
+              Give to the Annual Fund
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* ── 2. Upcoming Events Section ──────────────────────────────────── */}
-      <section className="bg-warm-white py-16 md:py-24">
+      {/* ── 2. News & Events ────────────────────────────────────────────── */}
+      <section className="bg-warm-white py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-4">
-          <SectionHeader>Upcoming Events</SectionHeader>
+          <SectionHeader>News & Events</SectionHeader>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
-            {events.map((event) => (
-              <div className="min-h-0 h-full" key={event.id}>
-                <EventCard
-                  day={formatEventDay(event.start)}
-                  description={event.description || event.category}
-                  month={formatEventMonth(event.start)}
-                  title={event.title}
-                />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 lg:gap-16">
+            {/* Events column */}
+            <div>
+              <h3 className="font-heading font-bold text-lg text-charcoal mb-4">
+                Upcoming Events
+              </h3>
+              <ul className="divide-y divide-charcoal/10">
+                {events.map((event) => (
+                  <li className="flex gap-4 py-3 first:pt-0 last:pb-0" key={event.id}>
+                    <div className="shrink-0 w-12 text-center">
+                      <span className="block text-[10px] font-heading font-bold uppercase tracking-wider text-creek-green/70">
+                        {formatEventMonth(event.start)}
+                      </span>
+                      <span className="block text-xl font-heading font-bold leading-none text-creek-green">
+                        {formatEventDay(event.start)}
+                      </span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-heading font-bold text-charcoal leading-snug">
+                        {event.title}
+                      </p>
+                      {(event.category || event.description) && (
+                        <p className="mt-0.5 text-sm text-charcoal/60 line-clamp-1">
+                          {event.category || event.description}
+                        </p>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-5">
+                <Link
+                  className="inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
+                  to="/events"
+                >
+                  View all events
+                  <svg
+                    aria-hidden="true"
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </Link>
               </div>
-            ))}
-          </div>
+            </div>
 
-          <div className="mt-10 text-right">
-            <Link
-              className="inline-flex items-center gap-1 font-heading font-bold text-eagle-blue hover:text-spirit-gold transition-colors"
-              to="/events"
-            >
-              View All Events
-              <svg
-                aria-hidden="true"
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2.5}
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Angled divider ──────────────────────────────────────────────── */}
-      <div
-        aria-hidden="true"
-        className="h-16 bg-warm-white -mb-1"
-        style={{clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 0)'}}
-      />
-
-      {/* ── 3. Latest News Section ──────────────────────────────────────── */}
-      <section className="bg-white py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4">
-          <SectionHeader>Latest News</SectionHeader>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {news.map((item) => (
-              <NewsCard
-                date={formatNewsletterDate(item.date)}
-                excerpt={
-                  item.excerpt.trim().toLowerCase() === item.title.trim().toLowerCase()
-                    ? ''
-                    : item.excerpt
-                }
-                key={item.id}
-                title={item.title}
-                to={item.url !== '#' ? item.url : '/news'}
-              />
-            ))}
-          </div>
-
-          <div className="mt-10 text-right">
-            <Link
-              className="inline-flex items-center gap-1 font-heading font-bold text-eagle-blue hover:text-spirit-gold transition-colors"
-              to="/news"
-            >
-              All News
-              <svg
-                aria-hidden="true"
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2.5}
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </Link>
+            {/* News column */}
+            <div>
+              <h3 className="font-heading font-bold text-lg text-charcoal mb-4">Latest News</h3>
+              <ul className="divide-y divide-charcoal/10">
+                {news.map((item) => {
+                  const href = item.url !== '#' ? item.url : '/news';
+                  const titleClass =
+                    'font-heading font-bold text-charcoal leading-snug hover:text-eagle-blue transition-colors';
+                  return (
+                    <li className="py-3 first:pt-0 last:pb-0" key={item.id}>
+                      <span className="font-heading text-xs font-bold tracking-wider text-spirit-gold uppercase">
+                        {formatNewsletterDate(item.date)}
+                      </span>
+                      {isExternalUrl(href) ? (
+                        <a
+                          className={`mt-1 block ${titleClass}`}
+                          href={href}
+                          rel="noopener noreferrer"
+                          target="_blank"
+                        >
+                          {item.title}
+                          <span className="sr-only"> (opens in new tab)</span>
+                        </a>
+                      ) : (
+                        <Link className={`mt-1 block ${titleClass}`} to={href}>
+                          {item.title}
+                        </Link>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+              <div className="mt-5">
+                <Link
+                  className="inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
+                  to="/news"
+                >
+                  All news
+                  <svg
+                    aria-hidden="true"
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -465,19 +492,16 @@ export default function Home({loaderData}: Route.ComponentProps) {
                   />
                 </svg>
               </div>
-              <h3 className="font-heading font-bold text-xl text-charcoal">Join PTA</h3>
+              <h3 className="font-heading font-bold text-xl text-charcoal">Join &amp; Give</h3>
               <p className="mt-3 text-charcoal/70 leading-relaxed">
-                Membership helps support students, teachers, staff, and programs that make Barton
+                Your Annual Fund gift includes PTA membership and funds programs that make Barton
                 Hills great.
               </p>
-              <a
+              <Link
                 className="mt-5 inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
-                href={campaign.giveUrl}
-                rel="noopener noreferrer"
-                target="_blank"
+                to={annualFundPath}
               >
-                Join Now
-                <span className="sr-only">(opens in new tab)</span>
+                Give to Annual Fund
                 <svg
                   aria-hidden="true"
                   className="h-4 w-4"
@@ -492,7 +516,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
                     strokeLinejoin="round"
                   />
                 </svg>
-              </a>
+              </Link>
             </div>
 
             {/* Annual Fund Card */}
@@ -518,14 +542,11 @@ export default function Home({loaderData}: Route.ComponentProps) {
                 About <span className="font-bold text-charcoal">$930 per student</span> annually
                 goes directly to programs, staff, and resources.
               </p>
-              <a
+              <Link
                 className="mt-5 inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
-                href={campaign.giveUrl}
-                rel="noopener noreferrer"
-                target="_blank"
+                to={annualFundPath}
               >
                 Give Now
-                <span className="sr-only">(opens in new tab)</span>
                 <svg
                   aria-hidden="true"
                   className="h-4 w-4"
@@ -540,7 +561,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
                     strokeLinejoin="round"
                   />
                 </svg>
-              </a>
+              </Link>
             </div>
           </div>
         </div>

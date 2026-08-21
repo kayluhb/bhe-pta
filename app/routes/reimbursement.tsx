@@ -9,6 +9,7 @@ export function meta({matches}: Route.MetaArgs) {
       name: 'description',
       content: 'Submit a PTA reimbursement or check request for Barton Hills Elementary.',
     },
+    {name: 'robots', content: 'noindex, nofollow'},
   ]);
 }
 

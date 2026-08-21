@@ -1,4 +1,6 @@
-import {annualFundGiveUrl} from '~/data/annual-fund-campaign';
+import {Link} from 'react-router';
+
+import {annualFundPath} from '~/data/annual-fund-campaign';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/about';
 
@@ -315,21 +317,20 @@ export default function About() {
           style={{clipPath: 'polygon(100% 0, 0 100%, 100% 100%)'}}
         />
         <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-heading font-bold text-white">Join Us</h2>
+          <h2 className="text-3xl md:text-4xl font-heading font-bold text-white">
+            Support Our PTA
+          </h2>
           <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
           <p className="mt-6 text-lg text-white/90 leading-relaxed">
-            Membership in the Barton Hills PTA helps support our wonderful students, teachers,
-            staff, and programs.
+            Your Annual Fund gift includes membership and helps fund programs for students,
+            teachers, and staff.
           </p>
-          <a
-            className="mt-8 inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
-            href={annualFundGiveUrl}
-            rel="noopener noreferrer"
-            target="_blank"
+          <Link
+            className="mt-8 inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors duration-200"
+            to={annualFundPath}
           >
-            Join PTA
-            <span className="sr-only">(opens in new tab)</span>
-          </a>
+            Give to the Annual Fund
+          </Link>
         </div>
       </section>
     </div>
