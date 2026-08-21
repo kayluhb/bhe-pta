@@ -4,8 +4,11 @@ import {FundraisingProgress} from '~/components/fundraising/FundraisingProgress'
 import {NewsCard} from '~/components/NewsCard';
 import {NewsletterSignup} from '~/components/NewsletterSignup';
 import {annualFundCampaign} from '~/data/annual-fund-campaign';
+import {sanitizeCalendarEvents} from '~/lib/calendar';
 import {getCloudflare} from '~/lib/cloudflare-context';
+import {formatNewsletterDate} from '~/lib/format-newsletter-date';
 import {mergeParentMeta} from '~/lib/meta';
+import {mixNewsletters} from '~/lib/mix-newsletters';
 import {mockNewsletters, mockPtaNewsletters} from '~/lib/mock-data';
 import {formatSchoolYearLong} from '~/lib/school-year';
 import {getFeaturedSponsorSchoolYear, getRandomSponsors} from '~/lib/sponsors';
@@ -33,7 +36,7 @@ export async function loader({context}: Route.LoaderArgs) {
   try {
     const env = getCloudflare(context).env;
     const kvEvents = await env.BHE_CALENDAR.get('events', 'json');
-    if (kvEvents) events = kvEvents as typeof events;
+    if (kvEvents) events = sanitizeCalendarEvents(kvEvents as typeof events);
     const kvSchool = await env.BHE_NEWSLETTERS.get('latest', 'json');
     if (kvSchool) schoolNews = kvSchool as typeof schoolNews;
     const kvPta = await env.BHE_PTA_NEWSLETTERS.get('latest', 'json');
@@ -42,9 +45,7 @@ export async function loader({context}: Route.LoaderArgs) {
     // KV not available — use mock data
   }
 
-  const allNews = [...schoolNews, ...ptaNews]
-    .sort((a, b) => b.date.localeCompare(a.date))
-    .slice(0, 3);
+  const allNews = mixNewsletters(schoolNews, ptaNews, 3);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const upcomingEvents = events
@@ -70,14 +71,6 @@ function formatEventDay(dateStr: string): string {
   return date.getDate().toString();
 }
 
-function formatNewsDate(dateStr: string): string {
-  const date = new Date(`${dateStr}T00:00:00`);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
 
 const programs = [
   {
@@ -232,20 +225,32 @@ export default function Home({loaderData}: Route.ComponentProps) {
           className="absolute -left-10 bottom-1/3 w-60 h-1.5 bg-spirit-gold/20 rotate-[135deg]"
         />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 py-12 md:py-16 lg:py-20 w-full">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white leading-tight max-w-3xl">
-            Soaring Together <span className="block text-spirit-gold">Since 1964</span>
-          </h1>
-          <p className="mt-6 text-lg md:text-xl text-white/80 max-w-2xl leading-relaxed">
-            Supporting our school community through parent involvement, fundraising, and advocacy
-          </p>
-          <div className="mt-6">
-            <Link
-              className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-base px-6 py-3 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
-              to="/get-involved"
-            >
-              Join PTA
-            </Link>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 py-12 md:py-16 lg:py-20 w-full flex flex-col md:flex-row md:items-center md:justify-between gap-10">
+          <div className="shrink-0 mx-auto md:mx-0">
+            <span className="inline-flex rounded-full bg-white p-2 shadow-lg shadow-night-blue/30">
+              <img
+                alt="Barton Hills Elementary PTA Eagle Logo"
+                className="h-40 w-auto sm:h-48 md:h-56"
+                src="/logo.svg"
+              />
+            </span>
+          </div>
+
+          <div className="max-w-3xl">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white leading-tight">
+              Soaring Together <span className="block text-spirit-gold">Since 1964</span>
+            </h1>
+            <p className="mt-6 text-lg md:text-xl text-white/80 max-w-2xl leading-relaxed">
+              Supporting our school community through parent involvement, fundraising, and advocacy
+            </p>
+            <div className="mt-6">
+              <Link
+                className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-base px-6 py-3 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
+                to="/get-involved"
+              >
+                Join PTA
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -332,8 +337,12 @@ export default function Home({loaderData}: Route.ComponentProps) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {news.map((item) => (
               <NewsCard
-                date={formatNewsDate(item.date)}
-                excerpt={item.excerpt}
+                date={formatNewsletterDate(item.date)}
+                excerpt={
+                  item.excerpt.trim().toLowerCase() === item.title.trim().toLowerCase()
+                    ? ''
+                    : item.excerpt
+                }
                 key={item.id}
                 title={item.title}
                 to={item.url !== '#' ? item.url : '/news'}
@@ -393,7 +402,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Volunteer Card */}
-            <div className="group bg-white rounded-lg shadow-lg border-b-4 border-spirit-gold p-8 transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
+            <div className="rounded-lg bg-white p-8 shadow-lg">
               <div className="h-14 w-14 rounded-full bg-eagle-blue/10 flex items-center justify-center mb-5">
                 <svg
                   aria-hidden="true"
@@ -439,7 +448,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
             </div>
 
             {/* Join PTA Card */}
-            <div className="group bg-white rounded-lg shadow-lg border-b-4 border-spirit-gold p-8 transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
+            <div className="rounded-lg bg-white p-8 shadow-lg">
               <div className="h-14 w-14 rounded-full bg-eagle-blue/10 flex items-center justify-center mb-5">
                 <svg
                   aria-hidden="true"
@@ -487,7 +496,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
             </div>
 
             {/* Annual Fund Card */}
-            <div className="group bg-white rounded-lg shadow-lg border-b-4 border-spirit-gold p-8 transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
+            <div className="rounded-lg bg-white p-8 shadow-lg">
               <div className="h-14 w-14 rounded-full bg-eagle-blue/10 flex items-center justify-center mb-5">
                 <svg
                   aria-hidden="true"
@@ -552,7 +561,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {programs.map((program) => (
               <div
-                className="group flex items-start gap-4 bg-white rounded-lg shadow-md p-6 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
+                className="flex items-start gap-4 rounded-lg bg-white p-6 shadow-md"
                 key={program.name}
               >
                 <div
@@ -561,7 +570,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
                   {program.icon}
                 </div>
                 <div>
-                  <h3 className="font-heading font-bold text-charcoal group-hover:text-eagle-blue transition-colors">
+                  <h3 className="font-heading font-bold text-charcoal">
                     {program.name}
                   </h3>
                   <p className="mt-1 text-sm text-charcoal/70 leading-relaxed">

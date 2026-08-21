@@ -370,26 +370,22 @@ export default function Programs() {
         <div className="max-w-5xl mx-auto px-4 space-y-8">
           {programs.map((program) => (
             <div
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200"
+              className="rounded-lg bg-white p-8 shadow-md md:p-10"
               key={program.name}
             >
-              {/* Color accent bar */}
-              <div className={`h-2 ${program.color}`} />
-              <div className="p-8 md:p-10">
-                <div className="flex items-start gap-5">
-                  <div
-                    className={`shrink-0 h-14 w-14 rounded-lg ${program.color} flex items-center justify-center text-white`}
-                  >
-                    {program.icon}
-                  </div>
-                  <div>
-                    <h2 className="text-2xl md:text-3xl font-heading font-bold text-charcoal">
-                      {program.name}
-                    </h2>
-                    <p className="mt-3 text-charcoal/70 text-lg leading-relaxed">
-                      {program.description}
-                    </p>
-                  </div>
+              <div className="flex items-start gap-5">
+                <div
+                  className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-lg text-white ${program.color}`}
+                >
+                  {program.icon}
+                </div>
+                <div>
+                  <h2 className="font-heading text-2xl font-bold text-charcoal md:text-3xl">
+                    {program.name}
+                  </h2>
+                  <p className="mt-3 text-lg leading-relaxed text-charcoal/70">
+                    {program.description}
+                  </p>
                 </div>
               </div>
             </div>

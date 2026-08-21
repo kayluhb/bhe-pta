@@ -1,10 +1,15 @@
-import {useRef, useState} from 'react';
+import {useState} from 'react';
 import {useLoaderData} from 'react-router';
 import {getCloudflare} from '~/lib/cloudflare-context';
+import {formatNewsletterDate} from '~/lib/format-newsletter-date';
 import {mergeParentMeta} from '~/lib/meta';
+import {mergeNewslettersByDate} from '~/lib/mix-newsletters';
 import {mockNewsletters, mockPtaNewsletters} from '~/lib/mock-data';
 import type {Newsletter} from '~/lib/types';
 import type {Route} from './+types/news';
+
+const INITIAL_VISIBLE = 8;
+const LOAD_MORE_STEP = 8;
 
 export function meta({matches}: Route.MetaArgs) {
   return mergeParentMeta(matches, [
@@ -30,66 +35,19 @@ export async function loader({context}: Route.LoaderArgs) {
     // KV not available in local dev — use mock data
   }
 
-  return {schoolNews, ptaNews};
+  return {news: mergeNewslettersByDate(schoolNews, ptaNews)};
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatDate(dateStr: string): string {
-  const date = new Date(`${dateStr}T00:00:00`);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
-
-function sortByDateDesc(items: Newsletter[]): Newsletter[] {
-  return [...items].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-}
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function News() {
-  const {schoolNews, ptaNews} = useLoaderData<typeof loader>();
-  const [activeTab, setActiveTab] = useState<'school' | 'pta'>('school');
-  const [visibleCount, setVisibleCount] = useState<Record<string, number>>({school: 5, pta: 5});
-  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({school: null, pta: null});
+  const {news} = useLoaderData<typeof loader>();
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
 
-  const tabs = [
-    {id: 'school' as const, label: 'Eagle Updates'},
-    {id: 'pta' as const, label: 'PTA News'},
-  ];
-
-  const handleTabKeyDown = (e: React.KeyboardEvent, tabId: 'school' | 'pta') => {
-    const tabIds = tabs.map((t) => t.id);
-    const currentIndex = tabIds.indexOf(tabId);
-
-    let nextIndex: number | null = null;
-    if (e.key === 'ArrowRight') {
-      nextIndex = (currentIndex + 1) % tabIds.length;
-    } else if (e.key === 'ArrowLeft') {
-      nextIndex = (currentIndex - 1 + tabIds.length) % tabIds.length;
-    }
-
-    if (nextIndex !== null) {
-      e.preventDefault();
-      const nextTab = tabIds[nextIndex];
-      setActiveTab(nextTab);
-      tabRefs.current[nextTab]?.focus();
-    }
-  };
-
-  const sortedSchoolNews = sortByDateDesc(schoolNews);
-  const sortedPtaNews = sortByDateDesc(ptaNews);
-  const allNews = activeTab === 'school' ? sortedSchoolNews : sortedPtaNews;
-  const displayedNews = allNews.slice(0, visibleCount[activeTab]);
-  const hasMore = allNews.length > visibleCount[activeTab];
+  const displayedNews = news.slice(0, visibleCount);
+  const hasMore = news.length > visibleCount;
 
   return (
     <div>
-      {/* ── Page Banner ──────────────────────────────────────────────────── */}
-      <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
+      <section className="relative overflow-hidden bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24">
         <div
           className="absolute inset-0 opacity-[0.05]"
           style={{
@@ -97,79 +55,51 @@ export default function News() {
               'repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)',
           }}
         />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 text-center">
+          <h1 className="font-heading text-4xl font-bold text-white md:text-5xl lg:text-6xl">
             News & Updates
           </h1>
-          <p className="mt-4 text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
-            Stay informed with the latest from our school and PTA
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-white/90 md:text-xl">
+            Eagle Updates and PTA newsletters, newest first
           </p>
-          <div className="mt-6 h-1 w-20 bg-spirit-gold rounded-full mx-auto" />
+          <div className="mx-auto mt-6 h-1 w-20 rounded-full bg-spirit-gold" />
         </div>
       </section>
 
-      {/* ── Tabs + Newsletter List ────────────────────────────────────────── */}
       <section className="bg-warm-white py-16 md:py-24">
-        <div className="max-w-4xl mx-auto px-4">
-          {/* Tab Switcher */}
-          <div
-            aria-label="Newsletter categories"
-            className="flex border-b-2 border-charcoal/10 mb-10"
-            role="tablist"
-          >
-            {tabs.map((tab) => (
-              <button
-                aria-controls={`tabpanel-${tab.id}`}
-                aria-selected={activeTab === tab.id}
-                className={`relative pb-3 px-5 font-heading font-bold text-lg transition-colors cursor-pointer ${
-                  activeTab === tab.id
-                    ? 'text-eagle-blue'
-                    : 'text-charcoal/70 hover:text-charcoal/80'
-                }`}
-                id={`tab-${tab.id}`}
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                onKeyDown={(e) => handleTabKeyDown(e, tab.id)}
-                ref={(el) => {
-                  tabRefs.current[tab.id] = el;
-                }}
-                role="tab"
-                tabIndex={activeTab === tab.id ? 0 : -1}
-                type="button"
-              >
-                {tab.label}
-                {activeTab === tab.id && (
-                  <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-spirit-gold rounded-full" />
-                )}
-              </button>
-            ))}
-          </div>
-
-          {/* Newsletter Cards */}
-          <div
-            aria-labelledby={`tab-${activeTab}`}
-            className="space-y-6"
-            id={`tabpanel-${activeTab}`}
-            role="tabpanel"
-          >
-            {displayedNews.map((item) => (
-              <NewsletterCard key={item.id} newsletter={item} />
-            ))}
-          </div>
+        <div className="mx-auto max-w-3xl px-4">
+          {displayedNews.length > 0 ? (
+            <ol className="relative border-l border-charcoal/15 pl-8 md:pl-10">
+              {displayedNews.map((item, index) => (
+                <li
+                  className="news-feed-item relative pb-12 last:pb-0"
+                  key={item.id}
+                  style={{animationDelay: `${Math.min(index, 7) * 45}ms`}}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`absolute top-1.5 -left-8 h-2.5 w-2.5 -translate-x-1/2 rounded-full ring-4 ring-warm-white md:-left-10 ${
+                      item.source === 'school' ? 'bg-eagle-blue' : 'bg-spirit-gold'
+                    }`}
+                  />
+                  <NewsletterEntry newsletter={item} />
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p className="py-12 text-center text-lg text-charcoal/70">
+              No newsletters available yet. Check back soon!
+            </p>
+          )}
 
           {hasMore && (
-            <div className="mt-8 text-center">
+            <div className="mt-12 text-center">
               <button
-                className="inline-flex items-center gap-2 px-8 py-3 bg-eagle-blue text-white font-heading font-bold rounded-full hover:bg-eagle-blue/90 transition-all duration-200 hover:shadow-lg cursor-pointer"
-                onClick={() =>
-                  setVisibleCount((prev) => ({
-                    ...prev,
-                    [activeTab]: prev[activeTab] + 5,
-                  }))
-                }
+                className="inline-flex items-center gap-2 rounded-full bg-eagle-blue px-8 py-3 font-heading font-bold text-white transition-all duration-200 hover:bg-eagle-blue/90 hover:shadow-lg"
+                onClick={() => setVisibleCount((count) => count + LOAD_MORE_STEP)}
                 type="button"
               >
-                Load More
+                Load more
                 <svg
                   aria-hidden="true"
                   className="h-4 w-4"
@@ -187,68 +117,64 @@ export default function News() {
               </button>
             </div>
           )}
-
-          {displayedNews.length === 0 && (
-            <p className="text-center text-charcoal/70 py-12 text-lg">
-              No newsletters available yet. Check back soon!
-            </p>
-          )}
         </div>
       </section>
     </div>
   );
 }
 
-// ─── Newsletter Card ──────────────────────────────────────────────────────────
+function NewsletterEntry({newsletter}: {newsletter: Newsletter}) {
+  const showExcerpt =
+    Boolean(newsletter.excerpt) &&
+    newsletter.excerpt.trim().toLowerCase() !== newsletter.title.trim().toLowerCase();
 
-function NewsletterCard({newsletter}: {newsletter: Newsletter}) {
   return (
-    <article className="group bg-white rounded-lg shadow-md border-t-4 border-eagle-blue overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5">
-      <div className="p-6 md:p-8">
-        <div className="flex items-center gap-3 mb-3">
-          <span className="text-xs font-heading font-bold uppercase tracking-wider text-spirit-gold">
-            {formatDate(newsletter.date)}
-          </span>
-          <span
-            className={`text-xs font-heading font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-              newsletter.source === 'school'
-                ? 'bg-eagle-blue/10 text-eagle-blue'
-                : 'bg-spirit-gold/15 text-spirit-gold'
-            }`}
-          >
-            {newsletter.source === 'school' ? 'School' : 'PTA'}
-          </span>
-        </div>
-        <h2 className="font-heading font-bold text-charcoal text-xl group-hover:text-eagle-blue transition-colors">
-          {newsletter.title}
-        </h2>
-        {newsletter.excerpt && (
-          <p className="mt-3 text-charcoal/70 leading-relaxed">{newsletter.excerpt}</p>
-        )}
-        <a
-          className="mt-4 inline-flex items-center text-sm font-semibold text-eagle-blue group-hover:text-spirit-gold transition-colors"
-          href={newsletter.url}
-          rel="noopener noreferrer"
-          target="_blank"
+    <a
+      className="group block rounded-lg bg-white p-6 shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg md:p-8"
+      href={newsletter.url}
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1">
+        <time className="font-heading text-xs font-bold tracking-wider text-spirit-gold uppercase">
+          {formatNewsletterDate(newsletter.date)}
+        </time>
+        <span
+          className={`font-heading text-xs font-semibold tracking-wider uppercase ${
+            newsletter.source === 'school' ? 'text-eagle-blue' : 'text-charcoal/55'
+          }`}
         >
-          Read more about {newsletter.title}
-          <span className="sr-only"> (opens in new tab)</span>
-          <svg
-            aria-hidden="true"
-            className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </a>
+          {newsletter.source === 'school' ? 'Eagle Update' : 'PTA News'}
+        </span>
       </div>
-    </article>
+
+      <h2 className="font-heading text-xl font-bold text-charcoal transition-colors group-hover:text-eagle-blue md:text-2xl">
+        {newsletter.title}
+        <span className="sr-only"> (opens in new tab)</span>
+      </h2>
+
+      {showExcerpt && (
+        <p className="mt-3 leading-relaxed text-charcoal/70">{newsletter.excerpt}</p>
+      )}
+
+      <span className="mt-4 inline-flex items-center text-sm font-semibold text-eagle-blue transition-colors group-hover:text-spirit-gold">
+        Read more
+        <span className="sr-only"> about {newsletter.title}</span>
+        <svg
+          aria-hidden="true"
+          className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </span>
+    </a>
   );
 }

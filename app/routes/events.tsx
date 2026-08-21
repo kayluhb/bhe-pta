@@ -1,6 +1,7 @@
 import {useCallback, useRef, useState} from 'react';
 import {useLoaderData} from 'react-router';
 import {Calendar, CategoryLegend, getEventDaysInMonth, WeekCalendar} from '~/components/Calendar';
+import {sanitizeCalendarEvents} from '~/lib/calendar';
 import {getCloudflare} from '~/lib/cloudflare-context';
 import {mergeParentMeta} from '~/lib/meta';
 import type {CalendarEvent} from '~/lib/types';
@@ -22,7 +23,7 @@ export async function loader({context}: Route.LoaderArgs) {
 
   try {
     const kvEvents = await getCloudflare(context).env.BHE_CALENDAR.get('events', 'json');
-    if (kvEvents) events = kvEvents as CalendarEvent[];
+    if (kvEvents) events = sanitizeCalendarEvents(kvEvents as CalendarEvent[]);
   } catch {
     // KV not available — show empty; all events come from school calendar ICS
   }
@@ -556,7 +557,7 @@ function EventListItem({event}: {event: CalendarEvent}) {
 
   return (
     <article
-      className="group flex items-center bg-white rounded-lg shadow-md border-l-4 border-spirit-gold overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
+      className="flex items-center overflow-hidden rounded-lg bg-white shadow-md"
       id={`event-${event.id}`}
     >
       {/* Date Badge */}
@@ -570,7 +571,7 @@ function EventListItem({event}: {event: CalendarEvent}) {
       {/* Content */}
       <div className="flex-1 px-5 py-4">
         <div className="flex flex-wrap items-center gap-2 mb-1">
-          <h3 className="font-heading font-bold text-charcoal text-base group-hover:text-eagle-blue transition-colors">
+          <h3 className="font-heading text-base font-bold text-charcoal">
             {event.title}
           </h3>
           <span

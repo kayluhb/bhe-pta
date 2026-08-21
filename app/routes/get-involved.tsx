@@ -106,7 +106,7 @@ export default function GetInvolved({loaderData}: Route.ComponentProps) {
                 </div>
                 <div className="text-center md:text-right">
                   <p className="text-5xl md:text-6xl font-heading font-bold text-spirit-gold">
-                    $600+
+                    $930+
                   </p>
                   <p className="text-white/90 text-sm mt-1">per student annually</p>
                 </div>
@@ -115,7 +115,7 @@ export default function GetInvolved({loaderData}: Route.ComponentProps) {
 
             <div className="p-8 md:p-12">
               <p className="text-charcoal/70 text-lg leading-relaxed">
-                The PTA spends over $600 per student every year on programs and resources that
+                The PTA spends about $930 per student every year on programs and resources that
                 directly benefit our children. We request a contribution of{' '}
                 <span className="font-bold text-charcoal">$200 per child</span> to help sustain
                 these vital programs.
@@ -212,7 +212,7 @@ export default function GetInvolved({loaderData}: Route.ComponentProps) {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Regular Cadence */}
-            <div className="bg-warm-white rounded-lg shadow-md p-8 border-t-4 border-eagle-blue">
+            <div className="rounded-lg bg-warm-white p-8 shadow-md">
               <div className="flex items-center gap-3 mb-6">
                 <div className="h-10 w-10 rounded-full bg-eagle-blue flex items-center justify-center">
                   <svg
@@ -243,7 +243,7 @@ export default function GetInvolved({loaderData}: Route.ComponentProps) {
             </div>
 
             {/* Intermittent */}
-            <div className="bg-warm-white rounded-lg shadow-md p-8 border-t-4 border-spirit-gold">
+            <div className="rounded-lg bg-warm-white p-8 shadow-md">
               <div className="flex items-center gap-3 mb-6">
                 <div className="h-10 w-10 rounded-full bg-spirit-gold flex items-center justify-center">
                   <svg
@@ -274,7 +274,7 @@ export default function GetInvolved({loaderData}: Route.ComponentProps) {
             </div>
 
             {/* One-Time */}
-            <div className="bg-warm-white rounded-lg shadow-md p-8 border-t-4 border-creek-green">
+            <div className="rounded-lg bg-warm-white p-8 shadow-md">
               <div className="flex items-center gap-3 mb-6">
                 <div className="h-10 w-10 rounded-full bg-creek-green flex items-center justify-center">
                   <svg
@@ -310,7 +310,7 @@ export default function GetInvolved({loaderData}: Route.ComponentProps) {
       {/* ── 4. Join PTA ──────────────────────────────────────────────────── */}
       <section className="bg-warm-white py-16 md:py-24">
         <div className="max-w-4xl mx-auto px-4">
-          <div className="bg-white rounded-lg shadow-lg p-8 md:p-12 border-l-4 border-spirit-gold">
+          <div className="rounded-lg bg-white p-8 shadow-lg md:p-12">
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">Join PTA</h2>
             <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full" />
             <p className="mt-6 text-lg text-charcoal/70 leading-relaxed">

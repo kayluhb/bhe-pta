@@ -21,6 +21,113 @@ const hours = [
   {label: 'Library', time: 'Mon-Fri 8:00 AM - 3:30 PM'},
 ];
 
+const contactCards = [
+  {
+    label: 'Phone',
+    href: 'tel:+15124142013',
+    accent: true,
+    value: '(512) 414-2013',
+    icon: (
+      <svg
+        aria-hidden="true"
+        className="h-6 w-6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.5}
+        viewBox="0 0 24 24"
+      >
+        <title>Phone</title>
+        <path
+          d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
+  {
+    label: 'Fax',
+    href: 'tel:+15128413849',
+    accent: false,
+    value: '(512) 841-3849',
+    icon: (
+      <svg
+        aria-hidden="true"
+        className="h-6 w-6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.5}
+        viewBox="0 0 24 24"
+      >
+        <title>Fax</title>
+        <path
+          d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m0 0a48.159 48.159 0 0110.5 0m-10.5 0V3.375c0-.621.504-1.125 1.125-1.125h9.75c.621 0 1.125.504 1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
+  {
+    label: 'Email',
+    href: 'mailto:bhe@austinisd.org',
+    accent: true,
+    value: 'bhe@austinisd.org',
+    icon: (
+      <svg
+        aria-hidden="true"
+        className="h-6 w-6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.5}
+        viewBox="0 0 24 24"
+      >
+        <title>Email</title>
+        <path
+          d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
+  {
+    label: 'Address',
+    href: 'https://www.google.com/maps/search/?api=1&query=2108+Barton+Hills+Dr,+Austin,+TX+78704',
+    accent: false,
+    external: true,
+    value: (
+      <>
+        2108 Barton Hills Dr
+        <br />
+        Austin, TX 78704
+      </>
+    ),
+    icon: (
+      <svg
+        aria-hidden="true"
+        className="h-6 w-6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.5}
+        viewBox="0 0 24 24"
+      >
+        <title>Address</title>
+        <path
+          d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
+];
+
 const quickLinks = [
   {
     title: 'PTA Reimbursement',
@@ -175,7 +282,7 @@ export default function Parents() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {quickLinks.map((link) => {
               const cardClass =
-                'group bg-white rounded-lg shadow-md p-6 border-l-4 border-eagle-blue hover:shadow-lg hover:-translate-y-1 transition-all duration-200';
+                'group rounded-lg bg-white p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg'
               const inner = (
                 <div className="flex items-start gap-4">
                   <div className="shrink-0 h-12 w-12 rounded-lg bg-eagle-blue/10 flex items-center justify-center text-eagle-blue group-hover:bg-eagle-blue group-hover:text-white transition-colors">
@@ -273,116 +380,33 @@ export default function Parents() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Phone */}
-            <div className="bg-white rounded-lg shadow-md p-6 text-center">
-              <div className="mx-auto h-12 w-12 rounded-full bg-eagle-blue/10 flex items-center justify-center text-eagle-blue mb-4">
-                <svg
-                  aria-hidden="true"
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                  viewBox="0 0 24 24"
-                >
-                  <title>Phone</title>
-                  <path
-                    d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-              <p className="font-heading font-bold text-charcoal text-sm">Phone</p>
+            {contactCards.map((card) => (
               <a
-                className="text-eagle-blue hover:text-spirit-gold transition-colors text-sm mt-1 inline-block"
-                href="tel:+15124142013"
+                className="group rounded-lg bg-white p-6 text-center shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                href={card.href}
+                key={card.label}
+                {...('external' in card && card.external
+                  ? {rel: 'noopener noreferrer', target: '_blank'}
+                  : {})}
               >
-                (512) 414-2013
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-eagle-blue/10 text-eagle-blue transition-colors group-hover:bg-eagle-blue group-hover:text-white">
+                  {card.icon}
+                </div>
+                <p className="font-heading text-sm font-bold text-charcoal">{card.label}</p>
+                <p
+                  className={`mt-1 text-sm transition-colors ${
+                    card.accent
+                      ? 'text-eagle-blue group-hover:text-spirit-gold'
+                      : 'text-charcoal/70 group-hover:text-eagle-blue'
+                  }`}
+                >
+                  {card.value}
+                </p>
+                {'external' in card && card.external ? (
+                  <span className="sr-only">(opens in new tab)</span>
+                ) : null}
               </a>
-            </div>
-
-            {/* Fax */}
-            <div className="bg-white rounded-lg shadow-md p-6 text-center">
-              <div className="mx-auto h-12 w-12 rounded-full bg-eagle-blue/10 flex items-center justify-center text-eagle-blue mb-4">
-                <svg
-                  aria-hidden="true"
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                  viewBox="0 0 24 24"
-                >
-                  <title>Fax</title>
-                  <path
-                    d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m0 0a48.159 48.159 0 0110.5 0m-10.5 0V3.375c0-.621.504-1.125 1.125-1.125h9.75c.621 0 1.125.504 1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-              <p className="font-heading font-bold text-charcoal text-sm">Fax</p>
-              <p className="text-charcoal/70 text-sm mt-1">(512) 841-3849</p>
-            </div>
-
-            {/* Email */}
-            <div className="bg-white rounded-lg shadow-md p-6 text-center">
-              <div className="mx-auto h-12 w-12 rounded-full bg-eagle-blue/10 flex items-center justify-center text-eagle-blue mb-4">
-                <svg
-                  aria-hidden="true"
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                  viewBox="0 0 24 24"
-                >
-                  <title>Email</title>
-                  <path
-                    d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-              <p className="font-heading font-bold text-charcoal text-sm">Email</p>
-              <a
-                className="text-eagle-blue hover:text-spirit-gold transition-colors text-sm mt-1 inline-block"
-                href="mailto:bhe@austinisd.org"
-              >
-                bhe@austinisd.org
-              </a>
-            </div>
-
-            {/* Address */}
-            <div className="bg-white rounded-lg shadow-md p-6 text-center">
-              <div className="mx-auto h-12 w-12 rounded-full bg-eagle-blue/10 flex items-center justify-center text-eagle-blue mb-4">
-                <svg
-                  aria-hidden="true"
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                  viewBox="0 0 24 24"
-                >
-                  <title>Address</title>
-                  <path
-                    d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-              <p className="font-heading font-bold text-charcoal text-sm">Address</p>
-              <p className="text-charcoal/70 text-sm mt-1">
-                2108 Barton Hills Dr
-                <br />
-                Austin, TX 78704
-              </p>
-            </div>
+            ))}
           </div>
         </div>
       </section>

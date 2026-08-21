@@ -46,6 +46,43 @@ function inferCategory(title: string): string {
   return 'Other';
 }
 
+/** Clean ICS DESCRIPTION for card/UI display (drop Body prefix, URLs, empty fluff). */
+export function sanitizeEventDescription(raw: string | undefined): string | undefined {
+  if (!raw?.trim()) return undefined;
+
+  const unescaped = raw
+    .replace(/\\n/g, '\n')
+    .replace(/\\,/g, ',')
+    .replace(/^Body\s+/i, '');
+
+  const withoutLinks = unescaped
+    .replace(/\[[^\]]*(?:https?:)?\/\/[^\]]+\]/gi, '')
+    .replace(/(?:https?:)?\/\/\S+/gi, '');
+
+  const lines = withoutLinks
+    .split(/\n+/)
+    .map((line) => line.replace(/\s+/g, ' ').trim())
+    .filter((line) => line.length > 0)
+    .filter((line) => !/^google docs$/i.test(line))
+    .filter((line) => !/(?:https?:)?\/\//i.test(line))
+    .filter((line) => !/docs\.google\.com/i.test(line))
+    .map((line) => line.replace(/\s*-\s*Google Docs\s*$/i, '').trim())
+    .filter((line) => line.length > 0);
+
+  if (lines.length === 0) return undefined;
+
+  // Prefer the first meaningful line for compact cards; avoid dumping link farms.
+  return lines[0];
+}
+
+/** Re-sanitize descriptions on events already stored in KV (handles pre-fix data). */
+export function sanitizeCalendarEvents(events: CalendarEvent[]): CalendarEvent[] {
+  return events.map((event) => ({
+    ...event,
+    description: sanitizeEventDescription(event.description),
+  }));
+}
+
 /** Parse ICS date formats: 20260201, 20260214T173000, or 20260214T233000Z */
 function parseIcsDate(d: string): string {
   const isUtc = d.endsWith('Z');
@@ -72,14 +109,11 @@ function parseIcs(
     const block = vevents[i].split('END:VEVENT')[0];
 
     const getValue = (key: string): string => {
-      // Handle properties that may have parameters (e.g., DTSTART;VALUE=DATE:20260201)
-      const regex = new RegExp(`^${key}[;:](.*)$`, 'm');
+      // KEY:value or KEY;PARAM=VALUE:value — take value after the first colon only.
+      // Using lastIndexOf(':') breaks DESCRIPTION values that contain https:// URLs.
+      const regex = new RegExp(`^${key}(;[^:]*)?:(.*)$`, 'm');
       const match = block.match(regex);
-      if (!match) return '';
-      // If there's a parameter separator, get value after the last colon
-      const val = match[1];
-      const colonIdx = val.lastIndexOf(':');
-      return colonIdx >= 0 ? val.substring(colonIdx + 1).trim() : val.trim();
+      return match?.[2]?.trim() ?? '';
     };
 
     const summary = getValue('SUMMARY');
@@ -98,11 +132,7 @@ function parseIcs(
         end: dtend ? parseIcsDate(dtend) : parseIcsDate(dtstart),
         allDay: dtstart.length === 8,
         category: categories || (opts.categoryFn ? opts.categoryFn(title) : inferCategory(title)),
-        description:
-          description
-            ?.replace(/\\n/g, '\n')
-            .replace(/\\,/g, ',')
-            .replace(/^Body\s+/i, '') || undefined,
+        description: sanitizeEventDescription(description),
         source: opts.source,
       });
     }
