@@ -99,14 +99,6 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
               type="email"
               value={email}
             />
-            <section aria-label="Security verification">
-              <div className="min-h-px" ref={containerRef} />
-            </section>
-            {!turnstileToken && (
-              <p className="text-xs text-white/80" id={hintId}>
-                Complete the security check above to enable Subscribe.
-              </p>
-            )}
             {status === 'submitting' && (
               <p className="sr-only" role="status">
                 Subscribing…
@@ -120,6 +112,14 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
             >
               {status === 'submitting' ? 'Subscribing...' : 'Subscribe'}
             </button>
+            {!turnstileToken && (
+              <p className="text-xs text-white/80" id={hintId}>
+                Complete the security check below to enable Subscribe.
+              </p>
+            )}
+            <section aria-label="Security verification">
+              <div className="min-h-px" ref={containerRef} />
+            </section>
           </form>
         )}
         {status === 'error' && (
@@ -127,7 +127,6 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
             {message}
           </p>
         )}
-        <p className="mt-3 text-xs text-white/60">Unsubscribe anytime.</p>
       </div>
     );
   }
