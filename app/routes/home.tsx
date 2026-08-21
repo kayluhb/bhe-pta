@@ -14,11 +14,11 @@ import type {CalendarEvent} from '~/lib/types';
 import type {Route} from './+types/home';
 
 export function meta({matches}: Route.MetaArgs) {
+  const ask = annualFundCampaign.suggestedAskPerChild;
   return pageSeoMeta(matches, {
     path: '/',
     title: 'Barton Hills Elementary PTA | Soaring Together Since 1964',
-    description:
-      'Donate to the Barton Hills Elementary PTA Annual Fund and support Art, Music & PE, classroom programs, and our Austin school community. Suggested $200 per child.',
+    description: `Donate to the Barton Hills Elementary PTA Annual Fund and support Art, Music & PE, classroom programs, and our Austin school community. Suggested $${ask} per child.`,
     ogTitle: 'Barton Hills Elementary PTA | Give to the Annual Fund',
     ogDescription:
       'Support Art, Music & PE and every Eagle. Tax-deductible gifts to Barton Hills Elementary PTA.',

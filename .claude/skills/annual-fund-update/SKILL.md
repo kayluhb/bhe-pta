@@ -15,11 +15,12 @@ Publish Annual Fund progress and milestone framing from `app/data/annual-fund-ca
 | `offlineRaisedAmount` | Deposited and cleared offline gifts only |
 | `raisedAmount` | Always `onlineRaisedAmount + offlineRaisedAmount` — never hardcode the sum alone |
 | `goalAmount` | Overall campaign goal (must match the final milestone `amount`) |
+| `suggestedAskPerChild` | Suggested gift per student (shown on Annual Fund, Get Involved, meta) |
 | `lastUpdated` | ISO date `YYYY-MM-DD` — bump whenever raised/goal/milestones change |
 | `milestones[].amount` | **Cumulative** threshold toward the overall goal, not the tranche size |
 | `milestones[].targetDate` | ISO `YYYY-MM-DD`; UI formats with month, day, and year |
 
-Surfaces: `app/routes/home.tsx`, `app/routes/get-involved.tsx` via `FundraisingProgress` / teaser. Helpers: `app/lib/fundraising/progress.ts`.
+Surfaces: `app/routes/home.tsx`, `app/routes/get-involved.tsx`, `app/routes/annual-fund.tsx` via `FundraisingProgress` / teaser / ask copy. Helpers: `app/lib/fundraising/progress.ts`.
 
 ## Process
 
