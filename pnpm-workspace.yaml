@@ -1,0 +1,9 @@
+# pnpm 11 settings — https://pnpm.io/blog/releases/11.0
+allowBuilds:
+  core-js: true
+  esbuild: true
+  workerd: true
+confirmModulesPurge: false
+# Opt out of the default 24h publish delay (blocks fresh installs against a
+# lockfile that already pins packages younger than that window).
+minimumReleaseAge: 0
