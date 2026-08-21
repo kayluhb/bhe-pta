@@ -166,7 +166,11 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
                   Email address
                 </label>
                 <input
-                  aria-describedby={status === 'error' ? errorId : undefined}
+                  aria-describedby={
+                    [!turnstileToken ? hintId : null, status === 'error' ? errorId : null]
+                      .filter(Boolean)
+                      .join(' ') || undefined
+                  }
                   aria-invalid={status === 'error' ? true : undefined}
                   aria-required="true"
                   className="flex-1 px-5 py-3 rounded-full border border-charcoal/20 focus:outline-none focus:border-eagle-blue focus:ring-2 focus:ring-eagle-blue/20 text-charcoal placeholder:text-charcoal/70"
@@ -179,6 +183,7 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
                   value={email}
                 />
                 <button
+                  aria-describedby={!turnstileToken ? hintId : undefined}
                   className="bg-spirit-gold text-night-blue font-heading font-bold px-8 py-3 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 motion-reduce:transition-none hover:shadow-lg hover:shadow-spirit-gold/25 shrink-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={status === 'submitting' || !turnstileToken}
                   type="submit"
@@ -186,6 +191,14 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
                   {status === 'submitting' ? 'Subscribing...' : 'Subscribe'}
                 </button>
               </div>
+              {!turnstileToken && (
+                <p className="text-xs text-charcoal/70" id={hintId}>
+                  Complete the security check below to enable Subscribe.
+                </p>
+              )}
+              <section aria-label="Security verification" className="flex justify-center">
+                <div className="min-h-px" ref={containerRef} />
+              </section>
             </form>
           )}
           {status === 'error' && (
@@ -197,11 +210,6 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
             We respect your privacy. Unsubscribe at any time.
           </p>
         </div>
-      </div>
-      <div className="flex justify-center mt-6">
-        <section aria-label="Security verification">
-          <div className="min-h-px" ref={containerRef} />
-        </section>
       </div>
     </section>
   );

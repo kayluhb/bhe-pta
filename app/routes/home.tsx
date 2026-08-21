@@ -225,7 +225,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
           className="absolute -left-10 bottom-1/3 w-60 h-1.5 bg-spirit-gold/20 rotate-[135deg]"
         />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 py-12 md:py-16 lg:py-20 w-full flex flex-col md:flex-row md:items-center md:justify-between gap-10">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 py-12 md:py-16 lg:py-20 w-full flex flex-col md:flex-row md:items-center gap-8 md:gap-10">
           <div className="shrink-0 mx-auto md:mx-0">
             <span className="inline-flex rounded-full bg-white p-2 shadow-lg shadow-night-blue/30">
               <img
