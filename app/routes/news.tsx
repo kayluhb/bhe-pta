@@ -1,6 +1,5 @@
 import {useRef, useState} from 'react';
 import {useLoaderData} from 'react-router';
-import {NewsletterSignup} from '~/components/NewsletterSignup';
 import {mergeParentMeta} from '~/lib/meta';
 import {mockNewsletters, mockPtaNewsletters} from '~/lib/mock-data';
 import type {Newsletter} from '~/lib/types';
@@ -194,9 +193,6 @@ export default function News() {
           )}
         </div>
       </section>
-
-      {/* ── Newsletter Signup ───────────────────────────────────────────── */}
-      <NewsletterSignup />
     </div>
   );
 }

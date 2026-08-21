@@ -53,7 +53,6 @@ const intermittentVolunteer = [
   'FUNraising',
   'Greenworks',
   'Parties with a Purpose',
-  'Parent Support Series',
   'Volunteer Coordinator',
   'Teacher Grant Program',
   'Reflections',

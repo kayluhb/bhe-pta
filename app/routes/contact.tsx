@@ -38,127 +38,7 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* ── 2. Newsletter Signup ─────────────────────────────────────────── */}
-      <NewsletterSignup />
-
-      {/* ── 3. Social Media ──────────────────────────────────────────────── */}
-      <section className="bg-white py-16 md:py-24">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">Follow Us</h2>
-            <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Facebook */}
-            <a
-              className="group flex items-center gap-5 bg-warm-white rounded-lg shadow-md p-6 border-b-4 border-eagle-blue hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
-              href="https://www.facebook.com/bartonhillspta/"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              <div className="shrink-0 h-14 w-14 rounded-full bg-eagle-blue flex items-center justify-center text-white">
-                <svg aria-hidden="true" className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-heading font-bold text-lg text-charcoal group-hover:text-eagle-blue transition-colors">
-                  Facebook
-                </h3>
-                <p className="text-sm text-charcoal/70">@bartonhillspta</p>
-              </div>
-              <svg
-                aria-hidden="true"
-                className="h-5 w-5 text-charcoal/30 group-hover:text-eagle-blue transition-colors ml-auto shrink-0"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <span className="sr-only">(opens in new tab)</span>
-            </a>
-
-            {/* Instagram */}
-            <a
-              className="group flex items-center gap-5 bg-warm-white rounded-lg shadow-md p-6 border-b-4 border-spirit-gold hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
-              href="https://www.instagram.com/bartonhillspta/"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              <div className="shrink-0 h-14 w-14 rounded-full bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 flex items-center justify-center text-white">
-                <svg aria-hidden="true" className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-heading font-bold text-lg text-charcoal group-hover:text-eagle-blue transition-colors">
-                  Instagram
-                </h3>
-                <p className="text-sm text-charcoal/70">@bartonhillspta (PTA)</p>
-              </div>
-              <svg
-                aria-hidden="true"
-                className="h-5 w-5 text-charcoal/30 group-hover:text-eagle-blue transition-colors ml-auto shrink-0"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <span className="sr-only">(opens in new tab)</span>
-            </a>
-
-            {/* BHE School Instagram */}
-            <a
-              className="group flex items-center gap-5 bg-warm-white rounded-lg shadow-md p-6 border-b-4 border-eagle-blue hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
-              href="https://www.instagram.com/bheeagles/"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              <div className="shrink-0 h-14 w-14 rounded-full bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 flex items-center justify-center text-white">
-                <svg aria-hidden="true" className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-heading font-bold text-lg text-charcoal group-hover:text-eagle-blue transition-colors">
-                  BHE on Instagram
-                </h3>
-                <p className="text-sm text-charcoal/70">@bheeagles (School)</p>
-              </div>
-              <svg
-                aria-hidden="true"
-                className="h-5 w-5 text-charcoal/30 group-hover:text-eagle-blue transition-colors ml-auto shrink-0"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <span className="sr-only">(opens in new tab)</span>
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 4. Contact Details ───────────────────────────────────────────── */}
+      {/* ── 2. Contact Details ───────────────────────────────────────────── */}
       <section className="bg-warm-white py-16 md:py-24">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-10">
@@ -329,6 +209,126 @@ export default function Contact() {
           </div>
         </div>
       </section>
+
+      {/* ── 3. Social Media ──────────────────────────────────────────────── */}
+      <section className="bg-white py-16 md:py-24">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">Follow Us</h2>
+            <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Facebook */}
+            <a
+              className="group flex items-center gap-5 bg-warm-white rounded-lg shadow-md p-6 border-b-4 border-eagle-blue hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+              href="https://www.facebook.com/bartonhillspta/"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <div className="shrink-0 h-14 w-14 rounded-full bg-eagle-blue flex items-center justify-center text-white">
+                <svg aria-hidden="true" className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-heading font-bold text-lg text-charcoal group-hover:text-eagle-blue transition-colors">
+                  Facebook
+                </h3>
+                <p className="text-sm text-charcoal/70">@bartonhillspta</p>
+              </div>
+              <svg
+                aria-hidden="true"
+                className="h-5 w-5 text-charcoal/30 group-hover:text-eagle-blue transition-colors ml-auto shrink-0"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <span className="sr-only">(opens in new tab)</span>
+            </a>
+
+            {/* Instagram */}
+            <a
+              className="group flex items-center gap-5 bg-warm-white rounded-lg shadow-md p-6 border-b-4 border-spirit-gold hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+              href="https://www.instagram.com/bartonhillspta/"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <div className="shrink-0 h-14 w-14 rounded-full bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 flex items-center justify-center text-white">
+                <svg aria-hidden="true" className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-heading font-bold text-lg text-charcoal group-hover:text-eagle-blue transition-colors">
+                  Instagram
+                </h3>
+                <p className="text-sm text-charcoal/70">@bartonhillspta (PTA)</p>
+              </div>
+              <svg
+                aria-hidden="true"
+                className="h-5 w-5 text-charcoal/30 group-hover:text-eagle-blue transition-colors ml-auto shrink-0"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <span className="sr-only">(opens in new tab)</span>
+            </a>
+
+            {/* BHE School Instagram */}
+            <a
+              className="group flex items-center gap-5 bg-warm-white rounded-lg shadow-md p-6 border-b-4 border-eagle-blue hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+              href="https://www.instagram.com/bheeagles/"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <div className="shrink-0 h-14 w-14 rounded-full bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 flex items-center justify-center text-white">
+                <svg aria-hidden="true" className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-heading font-bold text-lg text-charcoal group-hover:text-eagle-blue transition-colors">
+                  BHE on Instagram
+                </h3>
+                <p className="text-sm text-charcoal/70">@bheeagles (School)</p>
+              </div>
+              <svg
+                aria-hidden="true"
+                className="h-5 w-5 text-charcoal/30 group-hover:text-eagle-blue transition-colors ml-auto shrink-0"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <span className="sr-only">(opens in new tab)</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 4. Newsletter Signup ─────────────────────────────────────────── */}
+      <NewsletterSignup />
     </div>
   );
 }

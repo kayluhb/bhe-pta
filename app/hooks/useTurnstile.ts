@@ -2,7 +2,11 @@ import {useCallback, useEffect, useRef, useState} from 'react';
 
 const TURNSTILE_SITE_KEY = '0x4AAAAAACeBDkCW901l9jWe';
 
-export function useTurnstile() {
+type UseTurnstileOptions = {
+  theme?: 'light' | 'dark';
+};
+
+export function useTurnstile({theme = 'light'}: UseTurnstileOptions = {}) {
   const [token, setToken] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
@@ -16,9 +20,9 @@ export function useTurnstile() {
       callback: (t: string) => setToken(t),
       'expired-callback': () => setToken(null),
       'error-callback': () => setToken(null),
-      theme: 'light',
+      theme,
     });
-  }, []);
+  }, [theme]);
 
   useEffect(() => {
     if (window.turnstile) {
