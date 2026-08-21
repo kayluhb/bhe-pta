@@ -295,13 +295,141 @@ function buildTiers(logoPath: string): SponsorTier[] {
   ];
 }
 
-function buildEmptyTiers(logoPath: string): SponsorTier[] {
-  return buildTiers(logoPath).map((tier) => ({...tier, sponsors: []}));
+/** 2026–27 sponsors. Returning logos live under `/sponsors/2026-27`; 2025–26 stays archived. */
+function build202627Tiers(logoPath: string): SponsorTier[] {
+  return [
+    {
+      amount: '$5,000+',
+      bgLight: 'bg-eagle-blue/5',
+      borderColor: 'border-eagle-blue',
+      color: 'bg-eagle-blue',
+      name: 'Eagle Pride',
+      signage: '96" x 72" sign with logo',
+      slots: 4,
+      textColor: 'text-eagle-blue',
+      sponsors: [
+        {
+          logo: `${logoPath}/chubbies.png`,
+          name: 'Chubbies',
+          url: 'https://www.chubbiesshorts.com/',
+        },
+        {
+          logo: `${logoPath}/jhd.jpg`,
+          name: 'JH Davidson & Associates',
+          url: 'https://www.jhdavidson.com/',
+        },
+        {
+          logo: `${logoPath}/skelly-build.png`,
+          name: 'Skelly Build',
+          url: 'https://skellybuild.com/',
+        },
+        {
+          logo: `${logoPath}/st-elmo.png`,
+          name: 'St. Elmo Brewery',
+          url: 'https://www.stelmobrewing.com',
+        },
+      ],
+    },
+    {
+      amount: '$2,500 - $4,999',
+      bgLight: 'bg-charcoal/5',
+      borderColor: 'border-charcoal',
+      color: 'bg-charcoal',
+      name: 'Eagle Support',
+      signage: '80" x 60" sign with logo',
+      slots: 12,
+      textColor: 'text-charcoal',
+      sponsors: [
+        {
+          logo: `${logoPath}/allensworth.png`,
+          name: 'Allensworth Construction Lawyers',
+          url: 'https://www.allensworthlaw.com/',
+        },
+        {
+          logo: `${logoPath}/carolyn-p-interior-design.jpg`,
+          name: 'Carolyn P Interior Design',
+          url: 'https://www.carolynpritchett.com',
+        },
+        {
+          logo: `${logoPath}/harben-house.png`,
+          name: 'HarBen House',
+          url: 'https://harbenhouse.com/',
+        },
+        {logo: `${logoPath}/tre.png`, name: 'Thomas Randolph Excavation'},
+      ],
+    },
+    {
+      amount: '$1,000 - $2,499',
+      bgLight: 'bg-spirit-gold/5',
+      borderColor: 'border-spirit-gold',
+      color: 'bg-spirit-gold',
+      name: 'Eagle Love',
+      signage: '64" x 48" sign with logo',
+      slots: 18,
+      textColor: 'text-spirit-gold',
+      sponsors: [
+        {
+          logo: `${logoPath}/eco.jpg`,
+          name: 'E. Charles Osterberg, MD',
+          url: 'https://www.drcharlesosterberg.com/',
+        },
+        {
+          logo: `${logoPath}/local-building-group.png`,
+          name: 'Local Building Group',
+          url: 'https://mylocalbuild.com/',
+        },
+        {
+          logo: `${logoPath}/onion-creek-family-dental.png`,
+          name: 'Onion Creek Family Dentistry',
+          url: 'https://www.onioncreekdental.com/',
+        },
+        {
+          logo: `${logoPath}/resetatx.png`,
+          name: 'ResetATX',
+          url: 'https://www.resetatx.com/',
+        },
+      ],
+    },
+    {
+      amount: '$500 - $999',
+      bgLight: 'bg-creek-green/5',
+      borderColor: 'border-creek-green',
+      color: 'bg-creek-green',
+      name: 'Eagle Friend',
+      signage: '48" x 36" sign with name or logo',
+      slots: 24,
+      textColor: 'text-creek-green',
+      sponsors: [
+        {
+          logo: `${logoPath}/ek-logo.png`,
+          name: 'Earth Kids',
+          url: 'https://bartonhills.austinschools.org/programsandplaces/afterschool/childcare',
+        },
+      ],
+    },
+    {
+      amount: '$200 - $499',
+      bgLight: 'bg-charcoal/[0.03]',
+      borderColor: 'border-charcoal/30',
+      color: 'bg-charcoal/50',
+      name: 'Eagle Fan',
+      signage: '32" x 24" sign with name or logo',
+      slots: 6,
+      textColor: 'text-charcoal/70',
+      sponsors: [
+        {
+          logo: `${logoPath}/under-the-texan-sun.png`,
+          name: 'Under the Texan Sun',
+          url: 'http://www.underthetexansun.com/',
+        },
+      ],
+    },
+  ];
 }
 
 /** Sponsor tiers grouped by school year, newest first. */
 export const sponsorYearGroups: SponsorYearGroup[] = [
-  {schoolYear: '2026-27', tiers: buildEmptyTiers('/sponsors/2026-27')},
+  {schoolYear: '2026-27', tiers: build202627Tiers('/sponsors/2026-27')},
   {schoolYear: '2025-26', tiers: buildTiers('/sponsors/2025-26')},
 ];
 
@@ -332,7 +460,8 @@ export function getSponsorTiers(schoolYear = getFeaturedSponsorSchoolYear()): Sp
 
 function getSponsorPool(schoolYear?: string): Sponsor[] {
   const preferredYear = schoolYear ?? getFeaturedSponsorSchoolYear();
-  const preferred = getSponsorYearGroup(preferredYear)?.tiers.flatMap((tier) => tier.sponsors) ?? [];
+  const preferred =
+    getSponsorYearGroup(preferredYear)?.tiers.flatMap((tier) => tier.sponsors) ?? [];
   if (preferred.length > 0) return preferred;
 
   for (const group of sponsorYearGroups) {
