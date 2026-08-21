@@ -8,6 +8,7 @@ const quickLinks = [
   {to: '/get-involved', label: 'Get Involved'},
   {to: '/parents', label: 'Parents'},
   {to: '/archive', label: 'Archive'},
+  {to: '/contact#newsletter-signup', label: 'Newsletter Signup'},
 ];
 
 export function Footer() {

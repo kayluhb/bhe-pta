@@ -133,7 +133,7 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
   }
 
   return (
-    <section className="bg-warm-white py-16 md:py-24">
+    <section className="bg-warm-white py-16 md:py-24" id="newsletter-signup">
       <div className="max-w-2xl mx-auto px-4">
         <div className="bg-white rounded-lg shadow-lg p-8 md:p-12 text-center border-t-4 border-spirit-gold">
           <svg
