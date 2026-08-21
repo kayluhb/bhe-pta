@@ -24,7 +24,8 @@ export function formatTargetDate(isoDate: string): string {
   const [year, month, day] = isoDate.split('-').map(Number);
   return new Intl.DateTimeFormat('en-US', {
     day: 'numeric',
-    month: 'short',
+    month: 'long',
+    year: 'numeric',
   }).format(new Date(year, month - 1, day));
 }
 

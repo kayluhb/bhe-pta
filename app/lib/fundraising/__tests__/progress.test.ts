@@ -1,7 +1,12 @@
 import {describe, expect, it} from 'vitest';
 
 import type {FundraisingMilestone} from '~/data/annual-fund-campaign';
-import {formatCurrency, formatTargetDate, getMilestoneStatus, getProgressPercent} from '~/lib/fundraising/progress';
+import {
+  formatCurrency,
+  formatTargetDate,
+  getMilestoneStatus,
+  getProgressPercent,
+} from '~/lib/fundraising/progress';
 
 const milestones: FundraisingMilestone[] = [
   {id: 'a', label: 'A', description: '', amount: 85_000, targetDate: '2026-06-25'},
@@ -39,8 +44,9 @@ describe('formatCurrency', () => {
 });
 
 describe('formatTargetDate', () => {
-  it('formats ISO dates for display', () => {
-    expect(formatTargetDate('2026-06-25')).toBe('Jun 25');
-    expect(formatTargetDate('2026-11-01')).toBe('Nov 1');
+  it('formats ISO dates for display with the year', () => {
+    expect(formatTargetDate('2026-06-25')).toBe('June 25, 2026');
+    expect(formatTargetDate('2026-11-01')).toBe('November 1, 2026');
+    expect(formatTargetDate('2027-05-01')).toBe('May 1, 2027');
   });
 });

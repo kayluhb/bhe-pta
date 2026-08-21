@@ -1,54 +1,18 @@
-import {useCallback, useEffect, useRef, useState} from 'react';
+import {useState} from 'react';
+import {useTurnstile} from '~/hooks/useTurnstile';
 
-const TURNSTILE_SITE_KEY = '0x4AAAAAACeBDkCW901l9jWe';
+type NewsletterSignupProps = {
+  variant?: 'full' | 'compact';
+};
 
-export function NewsletterSignup() {
+export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  const turnstileRef = useRef<HTMLElement>(null);
-  const widgetIdRef = useRef<string | null>(null);
+  const {token: turnstileToken, containerRef, reset} = useTurnstile();
 
-  const renderWidget = useCallback(() => {
-    if (!turnstileRef.current || widgetIdRef.current !== null) return;
-    const turnstile = window.turnstile;
-    if (!turnstile) return;
-    widgetIdRef.current = turnstile.render(turnstileRef.current, {
-      sitekey: TURNSTILE_SITE_KEY,
-      callback: (token: string) => setTurnstileToken(token),
-      'expired-callback': () => setTurnstileToken(null),
-      'error-callback': () => setTurnstileToken(null),
-      theme: 'light',
-    });
-  }, []);
-
-  useEffect(() => {
-    if (window.turnstile) {
-      renderWidget();
-      return;
-    }
-
-    const existing = document.querySelector('script[src*="turnstile"]');
-    if (!existing) {
-      const script = document.createElement('script');
-      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-      script.async = true;
-      script.onload = () => renderWidget();
-      document.head.appendChild(script);
-    } else {
-      existing.addEventListener('load', renderWidget);
-    }
-
-    return () => {
-      if (widgetIdRef.current !== null) {
-        try {
-          window.turnstile?.remove(widgetIdRef.current);
-        } catch {}
-        widgetIdRef.current = null;
-      }
-    };
-  }, [renderWidget]);
+  const emailId = variant === 'compact' ? 'newsletter-email-footer' : 'newsletter-email';
+  const errorId = variant === 'compact' ? 'subscribe-error-footer' : 'subscribe-error';
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,14 +56,61 @@ export function NewsletterSignup() {
       setMessage('Something went wrong. Please try again.');
     }
 
-    // Reset Turnstile widget after submission attempt
-    if (widgetIdRef.current !== null) {
-      try {
-        window.turnstile?.reset(widgetIdRef.current);
-      } catch {}
-      setTurnstileToken(null);
-    }
+    reset();
   };
+
+  if (variant === 'compact') {
+    return (
+      <div>
+        <h3 className="text-white font-heading font-bold text-lg">Newsletter</h3>
+        <p className="mt-3 text-sm leading-relaxed text-white/80">
+          PTA events, meetings, and school updates in your inbox.
+        </p>
+        {status === 'success' ? (
+          <p className="mt-4 text-sm text-spirit-gold font-medium" role="status">
+            {message}
+          </p>
+        ) : (
+          <form className="mt-4 space-y-3" onSubmit={handleSubscribe}>
+            <label className="sr-only" htmlFor={emailId}>
+              Email address
+            </label>
+            <input
+              aria-describedby={status === 'error' ? errorId : undefined}
+              aria-invalid={status === 'error' ? true : undefined}
+              aria-required="true"
+              className="w-full px-4 py-2.5 rounded-full border border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:outline-none focus:border-spirit-gold focus:ring-2 focus:ring-spirit-gold/30"
+              disabled={status === 'submitting'}
+              id={emailId}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Your email"
+              required
+              type="email"
+              value={email}
+            />
+            <button
+              className="w-full bg-spirit-gold text-night-blue font-heading font-bold px-5 py-2.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={status === 'submitting' || !turnstileToken}
+              type="submit"
+            >
+              {status === 'submitting' ? 'Subscribing...' : 'Subscribe'}
+            </button>
+          </form>
+        )}
+        {status === 'error' && (
+          <p className="mt-2 text-sm text-red-300" id={errorId} role="alert">
+            {message}
+          </p>
+        )}
+        <div className="mt-3 flex justify-start overflow-hidden">
+          <section aria-label="Security verification">
+            <div className="min-h-px" ref={containerRef} />
+          </section>
+        </div>
+        <p className="mt-3 text-xs text-white/60">Unsubscribe anytime.</p>
+      </div>
+    );
+  }
 
   return (
     <section className="bg-warm-white py-16 md:py-24">
@@ -132,16 +143,16 @@ export function NewsletterSignup() {
           ) : (
             <form className="mt-8 space-y-4" onSubmit={handleSubscribe}>
               <div className="flex flex-col sm:flex-row gap-3">
-                <label className="sr-only" htmlFor="newsletter-email">
+                <label className="sr-only" htmlFor={emailId}>
                   Email address
                 </label>
                 <input
-                  aria-describedby={status === 'error' ? 'subscribe-error' : undefined}
+                  aria-describedby={status === 'error' ? errorId : undefined}
                   aria-invalid={status === 'error' ? true : undefined}
                   aria-required="true"
                   className="flex-1 px-5 py-3 rounded-full border border-charcoal/20 focus:outline-none focus:border-eagle-blue focus:ring-2 focus:ring-eagle-blue/20 text-charcoal placeholder:text-charcoal/70"
                   disabled={status === 'submitting'}
-                  id="newsletter-email"
+                  id={emailId}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email address"
                   required
@@ -159,7 +170,7 @@ export function NewsletterSignup() {
             </form>
           )}
           {status === 'error' && (
-            <p className="mt-3 text-sm text-red-600" id="subscribe-error" role="alert">
+            <p className="mt-3 text-sm text-red-600" id={errorId} role="alert">
               {message}
             </p>
           )}
@@ -169,7 +180,9 @@ export function NewsletterSignup() {
         </div>
       </div>
       <div className="flex justify-center mt-6">
-        <section aria-label="Security verification" className="min-h-[1px]" ref={turnstileRef} />
+        <section aria-label="Security verification">
+          <div className="min-h-px" ref={containerRef} />
+        </section>
       </div>
     </section>
   );

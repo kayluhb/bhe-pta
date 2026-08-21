@@ -2,6 +2,7 @@ import {Link} from 'react-router';
 import {EventCard} from '~/components/EventCard';
 import {FundraisingProgress} from '~/components/fundraising/FundraisingProgress';
 import {NewsCard} from '~/components/NewsCard';
+import {NewsletterSignup} from '~/components/NewsletterSignup';
 import {annualFundCampaign} from '~/data/annual-fund-campaign';
 import {mergeParentMeta} from '~/lib/meta';
 import {mockNewsletters, mockPtaNewsletters} from '~/lib/mock-data';
@@ -155,27 +156,6 @@ const programs = [
       >
         <path
           d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.62 48.62 0 0112 20.904a48.62 48.62 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.636 50.636 0 00-2.658-.813A59.906 59.906 0 0112 3.493a59.903 59.903 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: 'Parent Support Series',
-    description: 'Workshops and resources for parenting in the modern world',
-    color: 'bg-spirit-gold',
-    icon: (
-      <svg
-        aria-hidden="true"
-        className="h-8 w-8"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={1.5}
-        viewBox="0 0 24 24"
-      >
-        <path
-          d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
@@ -383,6 +363,9 @@ export default function Home({loaderData}: Route.ComponentProps) {
           </div>
         </div>
       </section>
+
+      {/* ── Newsletter Signup ───────────────────────────────────────────── */}
+      <NewsletterSignup />
 
       {/* ── Angled divider ──────────────────────────────────────────────── */}
       <div
