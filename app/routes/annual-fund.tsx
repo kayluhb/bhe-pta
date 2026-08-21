@@ -11,7 +11,6 @@ import {SITE_ORIGIN, pageSeoMeta} from '~/lib/meta';
 import type {Route} from './+types/annual-fund';
 
 const TAX_ID = '74-6086853';
-const ASK_PER_CHILD = 200;
 
 const fundedInitiatives = [
   'Library, music, art, and PE materials',
@@ -35,7 +34,7 @@ const faqs = [
   },
   {
     question: 'How much should I give?',
-    answer: `We request about $${ASK_PER_CHILD} per child to help sustain programs. Give what you can — every dollar funds Art, Music, PE, classroom resources, and community programs.`,
+    answer: `We request about $${annualFundCampaign.suggestedAskPerChild} per child to help sustain programs. Give what you can — every dollar funds Art, Music, PE, classroom resources, and community programs.`,
   },
   {
     question: 'Where does Annual Fund money go?',
@@ -54,11 +53,11 @@ export async function loader() {
 }
 
 export function meta({matches}: Route.MetaArgs) {
+  const ask = annualFundCampaign.suggestedAskPerChild;
   return pageSeoMeta(matches, {
     path: '/annual-fund',
     title: 'Donate to the Annual Fund | Barton Hills Elementary PTA',
-    description:
-      'Donate to the Barton Hills Elementary PTA Annual Fund. Your gift funds Art, Music & PE, classroom programs, and resources for every student. 501(c)(3) Tax ID 74-6086853. Suggested $200 per child.',
+    description: `Donate to the Barton Hills Elementary PTA Annual Fund. Your gift funds Art, Music & PE, classroom programs, and resources for every student. 501(c)(3) Tax ID 74-6086853. Suggested $${ask} per child.`,
     ogTitle: 'Give to the BHE PTA Annual Fund',
     ogDescription:
       'Help fund Art, Music & PE and school programs. Tax-deductible gifts to Barton Hills Elementary PTA.',
@@ -146,7 +145,7 @@ export default function AnnualFund({loaderData}: Route.ComponentProps) {
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-white/90 md:text-xl">
             Tax-deductible gifts fund Art, Music &amp; PE and the programs every Eagle relies on.
-            Suggested contribution: ${ASK_PER_CHILD} per child.
+            Suggested contribution: ${campaign.suggestedAskPerChild} per child.
           </p>
           <div className="mx-auto mt-6 h-1 w-20 rounded-full bg-spirit-gold" />
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">

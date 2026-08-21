@@ -13,6 +13,8 @@ export interface AnnualFundCampaign {
   milestones: FundraisingMilestone[];
   raisedAmount: number;
   schoolYear: string;
+  /** Suggested household gift per student for the Annual Fund. */
+  suggestedAskPerChild: number;
   title: string;
 }
 
@@ -43,6 +45,7 @@ export const annualFundCampaign: AnnualFundCampaign = {
   title: '2026-2027 Annual Fund Milestones',
   giveUrl: annualFundGiveUrl,
   goalAmount: 272_000,
+  suggestedAskPerChild: 650,
   raisedAmount: onlineRaisedAmount + offlineRaisedAmount,
   lastUpdated: '2026-08-21',
   milestones: [

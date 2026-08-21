@@ -123,8 +123,10 @@ export default function GetInvolved({loaderData}: Route.ComponentProps) {
               <p className="text-charcoal/70 text-lg leading-relaxed">
                 The PTA spends about $930 per student every year on programs and resources that
                 directly benefit our children. We request a contribution of{' '}
-                <span className="font-bold text-charcoal">$200 per child</span> to help sustain
-                these vital programs.
+                <span className="font-bold text-charcoal">
+                  ${campaign.suggestedAskPerChild} per child
+                </span>{' '}
+                to help sustain these vital programs.
               </p>
 
               <div className="mt-8">
