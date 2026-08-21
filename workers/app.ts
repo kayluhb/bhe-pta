@@ -128,6 +128,27 @@ const handler = {
       return Response.redirect(url.toString(), 301);
     }
 
+    // Legacy WordPress / fundraising URLs → owned Annual Fund landing page
+    const legacyDonatePaths = new Set([
+      '/donate',
+      '/donate/',
+      '/fundraising',
+      '/fundraising/',
+      '/fundraising/payments-and-donations',
+      '/fundraising/payments-and-donations/',
+    ]);
+    if (legacyDonatePaths.has(url.pathname)) {
+      url.pathname = '/annual-fund';
+      url.search = '';
+      return Response.redirect(url.toString(), 301);
+    }
+
+    // Soft-duplicate homepage from old WP query params
+    if (url.pathname === '/' && url.searchParams.has('page_id')) {
+      url.search = '';
+      return Response.redirect(url.toString(), 301);
+    }
+
     // Manual refresh endpoint — requires DATA_REFRESH_SECRET as bearer token
     if (url.pathname === '/api/refresh' && request.method === 'POST') {
       const auth = request.headers.get('Authorization');

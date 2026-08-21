@@ -1,6 +1,7 @@
 import {Link} from 'react-router';
 
 import type {AnnualFundCampaign} from '~/data/annual-fund-campaign';
+import {annualFundPath} from '~/data/annual-fund-campaign';
 import {formatCurrency, getProgressPercent} from '~/lib/fundraising/progress';
 
 interface FundraisingTeaserProps {
@@ -21,7 +22,9 @@ export function FundraisingTeaser({campaign}: FundraisingTeaserProps) {
                 {campaign.title}
               </p>
               <h2 className="mt-2 text-2xl md:text-3xl font-heading font-bold text-white">
-                {isEmpty ? 'Our campaign is underway' : `${formatCurrency(campaign.raisedAmount)} raised`}
+                {isEmpty
+                  ? 'Our campaign is underway'
+                  : `${formatCurrency(campaign.raisedAmount)} raised`}
               </h2>
               <p className="mt-2 text-white/80 text-sm">
                 Goal: {formatCurrency(campaign.goalAmount)} · {campaign.schoolYear} school year
@@ -45,20 +48,17 @@ export function FundraisingTeaser({campaign}: FundraisingTeaserProps) {
 
           <div className="mt-6 flex flex-wrap gap-4">
             <Link
-              className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-sm px-6 py-2.5 rounded-full hover:bg-spirit-gold/90 transition-colors"
-              to="/get-involved"
+              className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-sm px-6 py-2.5 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors"
+              to={annualFundPath}
+            >
+              Give to Annual Fund
+            </Link>
+            <Link
+              className="inline-flex items-center border-2 border-white/60 text-white font-heading font-bold text-sm px-6 py-2.5 rounded-full hover:bg-white/10 transition-colors"
+              to={annualFundPath}
             >
               See progress
             </Link>
-            <a
-              className="inline-flex items-center border-2 border-white/60 text-white font-heading font-bold text-sm px-6 py-2.5 rounded-full hover:bg-white/10 transition-colors"
-              href={campaign.giveUrl}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Give now
-              <span className="sr-only"> (opens in new tab)</span>
-            </a>
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@ import {Fragment} from 'react';
 import {Link, useLoaderData} from 'react-router';
 
 import {corporateContributionsUrl} from '~/data/annual-fund-campaign';
-import {mergeParentMeta} from '~/lib/meta';
+import {pageSeoMeta} from '~/lib/meta';
 import {formatSchoolYearLong} from '~/lib/school-year';
 import {
   getFeaturedSponsorSchoolYear,
@@ -14,14 +14,12 @@ import {
 import type {Route} from './+types/sponsors';
 
 export function meta({matches}: Route.MetaArgs) {
-  return mergeParentMeta(matches, [
-    {title: 'Local Business Sponsors | Barton Hills Elementary PTA'},
-    {
-      name: 'description',
-      content:
-        'Become a local business sponsor of Barton Hills Elementary PTA. Your sponsorship supports students, teachers, and programs.',
-    },
-  ]);
+  return pageSeoMeta(matches, {
+    path: '/sponsors',
+    title: 'Local Business Sponsors | Barton Hills Elementary PTA',
+    description:
+      'Become a local business sponsor of Barton Hills Elementary PTA. Your sponsorship supports students, teachers, and programs. Tax-deductible 501(c)(3).',
+  });
 }
 
 export async function loader({request}: Route.LoaderArgs) {
@@ -174,7 +172,7 @@ export default function Sponsors() {
           </p>
           <div className="mt-8">
             <a
-              className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
+              className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors duration-200"
               href={corporateContributionsUrl}
               rel="noopener noreferrer"
               target="_blank"
@@ -285,7 +283,7 @@ export default function Sponsors() {
           </p>
           <div className="mt-8">
             <a
-              className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
+              className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors duration-200"
               href={corporateContributionsUrl}
               rel="noopener noreferrer"
               target="_blank"

@@ -3,13 +3,18 @@ import {StrictMode, startTransition} from 'react';
 import {hydrateRoot} from 'react-dom/client';
 import {HydratedRouter} from 'react-router/dom';
 
-function readSentryDsnFromMeta(): string | undefined {
-  const el = document.querySelector('meta[name="sentry-dsn"]');
-  const content = el?.getAttribute('content')?.trim();
+declare global {
+  interface Window {
+    __ENV?: {SENTRY_DSN?: string};
+  }
+}
+
+function readSentryDsn(): string | undefined {
+  const content = window.__ENV?.SENTRY_DSN?.trim();
   return content && content.length > 0 ? content : undefined;
 }
 
-const sentryDsn = readSentryDsnFromMeta();
+const sentryDsn = readSentryDsn();
 if (sentryDsn) {
   Sentry.init({
     dsn: sentryDsn,

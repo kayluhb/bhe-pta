@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 
-import {mergeParentMeta} from '../meta';
+import {mergeParentMeta, pageSeoMeta} from '../meta';
 
 describe('mergeParentMeta', () => {
   it('merges child meta over parent for overlapping keys', () => {
@@ -44,5 +44,51 @@ describe('mergeParentMeta', () => {
       [{title: 'Child'}],
     );
     expect(out.some((m) => 'href' in m && (m as {href?: string}).href === '/x')).toBe(true);
+  });
+
+  it('replaces parent canonical when child sets one', () => {
+    const out = mergeParentMeta(
+      [{meta: [{href: 'https://example.com/old', rel: 'canonical', tagName: 'link'}]}] as Parameters<
+        typeof mergeParentMeta
+      >[0],
+      [{href: 'https://example.com/new', rel: 'canonical', tagName: 'link'}],
+    );
+    const canonicals = out.filter(
+      (m) => 'rel' in m && m.rel === 'canonical' && 'href' in m,
+    ) as {href: string}[];
+    expect(canonicals).toHaveLength(1);
+    expect(canonicals[0].href).toBe('https://example.com/new');
+  });
+});
+
+describe('pageSeoMeta', () => {
+  it('sets title, description, og, twitter, and canonical', () => {
+    const out = pageSeoMeta([], {
+      path: '/annual-fund',
+      title: 'Donate | BHE PTA',
+      description: 'Give today',
+    });
+    expect(out.some((m) => 'title' in m && m.title === 'Donate | BHE PTA')).toBe(true);
+    expect(
+      out.some(
+        (m) =>
+          'property' in m &&
+          m.property === 'og:url' &&
+          typeof m.content === 'string' &&
+          m.content.includes('/annual-fund'),
+      ),
+    ).toBe(true);
+    expect(
+      out.some((m) => 'name' in m && m.name === 'twitter:card' && m.content === 'summary_large_image'),
+    ).toBe(true);
+    expect(
+      out.some(
+        (m) =>
+          'rel' in m &&
+          m.rel === 'canonical' &&
+          'href' in m &&
+          (m as {href: string}).href === 'https://bheeagles.com/annual-fund',
+      ),
+    ).toBe(true);
   });
 });

@@ -1,6 +1,13 @@
+import {Link} from 'react-router';
+
 import {FundraisingProgress} from '~/components/fundraising/FundraisingProgress';
-import {annualFundCampaign, corporateContributionsUrl} from '~/data/annual-fund-campaign';
-import {mergeParentMeta} from '~/lib/meta';
+import {
+  annualFundCampaign,
+  annualFundGiveUrlWithUtm,
+  annualFundPath,
+  corporateContributionsUrl,
+} from '~/data/annual-fund-campaign';
+import {pageSeoMeta} from '~/lib/meta';
 import type {Route} from './+types/get-involved';
 
 export async function loader() {
@@ -8,13 +15,12 @@ export async function loader() {
 }
 
 export function meta({matches}: Route.MetaArgs) {
-  return mergeParentMeta(matches, [
-    {title: 'Get Involved | Barton Hills Elementary PTA'},
-    {
-      name: 'description',
-      content: 'Volunteer, join the PTA, and support the Annual Fund at Barton Hills Elementary.',
-    },
-  ]);
+  return pageSeoMeta(matches, {
+    path: '/get-involved',
+    title: 'Get Involved | Barton Hills Elementary PTA',
+    description:
+      'Volunteer, join the PTA, and donate to the Annual Fund at Barton Hills Elementary. Support Art, Music & PE and programs for every student.',
+  });
 }
 
 // ─── Data ────────────────────────────────────────────────────────────────────
@@ -150,16 +156,22 @@ export default function GetInvolved({loaderData}: Route.ComponentProps) {
 
               <FundraisingProgress campaign={campaign} />
 
-              <div className="mt-10">
+              <div className="mt-10 flex flex-wrap gap-4">
                 <a
-                  className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
-                  href={campaign.giveUrl}
+                  className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors duration-200"
+                  href={annualFundGiveUrlWithUtm('get-involved')}
                   rel="noopener noreferrer"
                   target="_blank"
                 >
-                  Become a Member
+                  Give to the Annual Fund
                   <span className="sr-only">(opens in new tab)</span>
                 </a>
+                <Link
+                  className="inline-flex items-center border-2 border-eagle-blue text-eagle-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-eagle-blue/5 transition-colors duration-200"
+                  to={annualFundPath}
+                >
+                  Annual Fund details
+                </Link>
               </div>
             </div>
           </div>
@@ -181,7 +193,7 @@ export default function GetInvolved({loaderData}: Route.ComponentProps) {
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               <a
-                className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
+                className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors duration-200"
                 href={corporateContributionsUrl}
                 rel="noopener noreferrer"
                 target="_blank"
@@ -320,7 +332,7 @@ export default function GetInvolved({loaderData}: Route.ComponentProps) {
             </p>
             <div className="mt-8">
               <a
-                className="inline-flex items-center bg-eagle-blue text-white font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-eagle-blue/90 transition-all duration-200 hover:shadow-lg"
+                className="inline-flex items-center bg-eagle-blue text-white font-heading font-bold text-lg px-8 py-3.5 rounded-full border-2 border-eagle-blue hover:bg-white hover:text-eagle-blue transition-colors duration-200"
                 href={campaign.giveUrl}
                 rel="noopener noreferrer"
                 target="_blank"
@@ -350,7 +362,7 @@ export default function GetInvolved({loaderData}: Route.ComponentProps) {
           </p>
           <div className="mt-8">
             <a
-              className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
+              className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors duration-200"
               href="mailto:pta@bheeagles.com"
             >
               Email PTA

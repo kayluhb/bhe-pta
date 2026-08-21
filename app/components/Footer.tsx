@@ -2,6 +2,7 @@ import {Link, useLocation} from 'react-router';
 import {NewsletterSignup} from '~/components/NewsletterSignup';
 
 const quickLinks = [
+  {to: '/annual-fund', label: 'Annual Fund'},
   {to: '/reimbursement', label: 'Reimbursement'},
   {to: '/news', label: 'News'},
   {to: '/events', label: 'Events'},
