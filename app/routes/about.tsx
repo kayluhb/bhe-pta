@@ -124,7 +124,7 @@ const initiatives = [
 ];
 
 const boardMembers = [
-  {name: 'Becky Jeanes', role: 'President'},
+  {name: 'Greg Aponte', role: 'President'},
   {name: 'Tiffany Munster', role: 'Vice President'},
   {name: 'Caleb Brown', role: 'Treasurer'},
   {name: 'Jamie Husbands', role: 'Secretary'},
@@ -188,7 +188,7 @@ export default function About() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {initiatives.map((item) => (
               <div
-                className="group bg-warm-white rounded-lg shadow-md border-b-4 border-spirit-gold p-8 transition-all duration-200 hover:shadow-lg hover:-translate-y-1"
+                className="rounded-lg bg-warm-white p-8 shadow-md"
                 key={item.title}
               >
                 <div className="h-14 w-14 rounded-full bg-eagle-blue/10 flex items-center justify-center mb-5 text-eagle-blue">
@@ -218,11 +218,10 @@ export default function About() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {boardMembers.map((member) => (
               <div
-                className="bg-white rounded-lg shadow-md p-8 text-center transition-all duration-200 hover:shadow-lg"
+                className="rounded-lg bg-white p-8 text-center shadow-md"
                 key={member.name}
               >
-                {/* Circular photo placeholder */}
-                <div className="mx-auto h-24 w-24 rounded-full bg-eagle-blue/10 border-4 border-spirit-gold/30 flex items-center justify-center mb-5">
+                <div className="mx-auto mb-5 flex h-24 w-24 items-center justify-center rounded-full bg-eagle-blue/10 text-eagle-blue">
                   <svg
                     aria-hidden="true"
                     className="h-10 w-10 text-eagle-blue/40"
@@ -238,8 +237,8 @@ export default function About() {
                     />
                   </svg>
                 </div>
-                <h3 className="font-heading font-bold text-lg text-charcoal">{member.name}</h3>
-                <p className="mt-1 text-spirit-gold font-heading font-semibold text-sm">
+                <h3 className="font-heading text-lg font-bold text-charcoal">{member.name}</h3>
+                <p className="mt-1 font-heading text-sm font-semibold text-spirit-gold">
                   {member.role}
                 </p>
               </div>

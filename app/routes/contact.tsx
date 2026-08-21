@@ -221,7 +221,7 @@ export default function Contact() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Facebook */}
             <a
-              className="group flex items-center gap-5 bg-warm-white rounded-lg shadow-md p-6 border-b-4 border-eagle-blue hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+              className="group flex items-center gap-5 rounded-lg bg-warm-white p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
               href="https://www.facebook.com/bartonhillspta/"
               rel="noopener noreferrer"
               target="_blank"
@@ -256,7 +256,7 @@ export default function Contact() {
 
             {/* Instagram */}
             <a
-              className="group flex items-center gap-5 bg-warm-white rounded-lg shadow-md p-6 border-b-4 border-spirit-gold hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+              className="group flex items-center gap-5 rounded-lg bg-warm-white p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
               href="https://www.instagram.com/bartonhillspta/"
               rel="noopener noreferrer"
               target="_blank"
@@ -291,7 +291,7 @@ export default function Contact() {
 
             {/* BHE School Instagram */}
             <a
-              className="group flex items-center gap-5 bg-warm-white rounded-lg shadow-md p-6 border-b-4 border-eagle-blue hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+              className="group flex items-center gap-5 rounded-lg bg-warm-white p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
               href="https://www.instagram.com/bheeagles/"
               rel="noopener noreferrer"
               target="_blank"

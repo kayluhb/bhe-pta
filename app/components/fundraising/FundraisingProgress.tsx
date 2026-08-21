@@ -63,7 +63,7 @@ export function FundraisingProgress({campaign, className}: FundraisingProgressPr
             <li
               className={`flex items-start gap-3 rounded-lg border p-3 ${
                 reached
-                  ? 'border-creek-green/30 border-l-4 border-l-creek-green bg-creek-green/5'
+                  ? 'border-creek-green/30 bg-creek-green/5'
                   : 'border-charcoal/10 bg-white/60'
               }`}
               key={m.id}

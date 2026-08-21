@@ -5,6 +5,7 @@ import {
   fetchCalendarEvents,
   fetchPtaCalendarEvents,
   PTA_CALENDAR_ICS,
+  sanitizeEventDescription,
 } from '../calendar';
 
 function icsForSchoolInfer() {
@@ -92,5 +93,52 @@ describe('calendar', () => {
     expect(events[0]?.source).toBe('pta');
     expect(events[0]?.category).toBe('Community Event');
     vi.unstubAllGlobals();
+  });
+
+  it('preserves DESCRIPTION URLs that contain colons', async () => {
+    const description =
+      'Body \\n\\nNational Hispanic Heritage Month\\n[https://www.hispanicheritagemonth.gov/]\\n\\n2026-2027 AISD Staff Recognition Calendar - Google Docs\\n[https://docs.google.com/document/d/1AAJzwV5Gg5XesLyaemtxMrcb0DX8sLYxTFC2Cc7JE_I/edit?tab=t.0]';
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        text: async () =>
+          [
+            'BEGIN:VCALENDAR',
+            'BEGIN:VEVENT',
+            'SUMMARY:AISD: National Hispanic Heritage Month',
+            'DTSTART;VALUE=DATE:20260901',
+            'DTEND;VALUE=DATE:20261001',
+            `DESCRIPTION:${description}`,
+            'END:VEVENT',
+            'END:VCALENDAR',
+          ].join('\r\n'),
+      }),
+    );
+    const events = await fetchCalendarEvents();
+    expect(events[0]?.description).toBe('National Hispanic Heritage Month');
+    expect(events[0]?.description).not.toContain('docs.google.com');
+    vi.unstubAllGlobals();
+  });
+});
+
+describe('sanitizeEventDescription', () => {
+  it('keeps the first meaningful line and strips URLs', () => {
+    expect(
+      sanitizeEventDescription(
+        'Body \n\nNational Hispanic Heritage Month\n[https://docs.google.com/document/d/abc]\nMore',
+      ),
+    ).toBe('National Hispanic Heritage Month');
+  });
+
+  it('returns undefined when only links remain', () => {
+    expect(sanitizeEventDescription('[https://example.com/a]')).toBeUndefined();
+  });
+
+  it('drops already-mangled protocol-relative Google Docs leftovers', () => {
+    expect(
+      sanitizeEventDescription(
+        '//docs.google.com/document/d/1AAJzwV5Gg5XesLyaemtxMrcb0DX8sLYxTFC2Cc7JE_I/edit?tab=t.0]',
+      ),
+    ).toBeUndefined();
   });
 });

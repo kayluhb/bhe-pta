@@ -1,6 +1,7 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {Link, NavLink, useLocation} from 'react-router';
 
+import {HeaderLogo} from '~/components/HeaderLogo';
 import {annualFundGiveUrl} from '~/data/annual-fund-campaign';
 
 const navLinks = [
@@ -95,18 +96,8 @@ export function Header() {
     <header className="sticky top-0 z-50 bg-eagle-blue shadow-lg">
       <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
         {/* Logo + Site Name */}
-        <Link className="flex items-center gap-3 shrink-0" to="/">
-          <img
-            alt="Barton Hills Elementary PTA Eagle Logo"
-            className="h-12 w-auto invert"
-            src="/logo.svg"
-          />
-          <div className="hidden sm:flex flex-col leading-tight">
-            <span className="text-white font-heading font-bold text-lg">
-              Barton Hills Elementary
-            </span>
-            <span className="text-spirit-gold font-heading font-semibold text-sm">PTA</span>
-          </div>
+        <Link aria-label="Barton Hills Elementary PTA home" className="flex items-center shrink-0" to="/">
+          <HeaderLogo />
         </Link>
 
         {/* Desktop Navigation */}

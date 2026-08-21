@@ -218,3 +218,25 @@ dialog[open]::backdrop {
     animation: none;
   }
 }
+
+/* News feed: staggered entry */
+@keyframes news-feed-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.news-feed-item {
+  animation: news-feed-in 0.45s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .news-feed-item {
+    animation: none;
+  }
+}

@@ -7,7 +7,7 @@ interface EventCardProps {
 
 export function EventCard({month, day, title, description}: EventCardProps) {
   return (
-    <div className="flex h-full min-h-0 bg-white rounded-lg shadow-md border-l-4 border-spirit-gold overflow-hidden">
+    <div className="flex h-full min-h-0 overflow-hidden rounded-lg bg-white shadow-md">
       {/* Date badge — stretches with row height */}
       <div className="flex flex-col items-center justify-start bg-white text-creek-green px-4 py-4 min-w-[72px] shrink-0 self-stretch">
         <span className="text-xs font-heading font-bold uppercase tracking-wider text-creek-green/70">

@@ -2,28 +2,38 @@ import {Link} from 'react-router';
 
 interface NewsCardProps {
   date: string;
-  title: string;
   excerpt: string;
+  title: string;
   to?: string;
 }
 
-export function NewsCard({date, title, excerpt, to}: NewsCardProps) {
+function isExternalUrl(url: string): boolean {
+  return /^https?:\/\//i.test(url);
+}
+
+export function NewsCard({date, excerpt, title, to}: NewsCardProps) {
   const content = (
-    <div className="group bg-white rounded-lg shadow-md border-t-4 border-eagle-blue overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 h-full flex flex-col">
-      <div className="p-6 flex flex-col flex-1">
-        <span className="text-xs font-heading font-bold uppercase tracking-wider text-spirit-gold">
+    <div
+      className={`flex h-full flex-col overflow-hidden rounded-lg bg-white shadow-md ${
+        to
+          ? 'group transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg'
+          : ''
+      }`}
+    >
+      <div className="flex flex-1 flex-col p-6">
+        <span className="font-heading text-xs font-bold tracking-wider text-spirit-gold uppercase">
           {date}
         </span>
-        <h3 className="mt-2 font-heading font-bold text-charcoal text-lg group-hover:text-eagle-blue transition-colors">
+        <h3 className="mt-2 font-heading text-lg font-bold text-charcoal transition-colors group-hover:text-eagle-blue">
           {title}
         </h3>
         {excerpt && (
-          <p className="mt-2 text-sm text-charcoal/70 leading-relaxed line-clamp-3 flex-1">
+          <p className="mt-2 flex-1 text-sm leading-relaxed text-charcoal/70 line-clamp-3">
             {excerpt}
           </p>
         )}
         {to && (
-          <span className="mt-4 inline-flex items-center text-sm font-semibold text-eagle-blue group-hover:text-spirit-gold transition-colors">
+          <span className="mt-4 inline-flex items-center text-sm font-semibold text-eagle-blue transition-colors group-hover:text-spirit-gold">
             Read more<span className="sr-only"> about {title}</span>
             <svg
               aria-hidden="true"
@@ -45,13 +55,19 @@ export function NewsCard({date, title, excerpt, to}: NewsCardProps) {
     </div>
   );
 
-  if (to) {
+  if (!to) return content;
+
+  if (isExternalUrl(to)) {
     return (
-      <Link className="block h-full" to={to}>
+      <a className="block h-full" href={to} rel="noopener noreferrer" target="_blank">
         {content}
-      </Link>
+      </a>
     );
   }
 
-  return content;
+  return (
+    <Link className="block h-full" to={to}>
+      {content}
+    </Link>
+  );
 }
