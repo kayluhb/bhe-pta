@@ -113,14 +113,18 @@ function SponsorTierSection({tier}: {tier: SponsorTier}) {
         {Array.from({
           length: Math.min(1, Math.max(0, tier.slots - tier.sponsors.length)),
         }).map(() => (
-          <div
-            className={`aspect-[3/2] rounded-lg ${tier.bgLight} border-2 border-dashed ${tier.borderColor} flex items-center justify-center transition-colors hover:border-spirit-gold/50`}
+          <a
+            aria-label="Become a sponsor (opens in new tab)"
+            className={`aspect-[3/2] rounded-lg ${tier.bgLight} border-2 border-dashed ${tier.borderColor} flex items-center justify-center transition-colors hover:border-spirit-gold/50 hover:scale-105`}
+            href={corporateContributionsUrl}
             key={`${tier.name}-empty-placeholder`}
+            rel="noopener noreferrer"
+            target="_blank"
           >
             <span className="text-xs font-medium text-charcoal/30 text-center px-3">
               Your Logo Here
             </span>
-          </div>
+          </a>
         ))}
       </div>
     </div>
