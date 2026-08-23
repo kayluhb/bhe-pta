@@ -40,7 +40,7 @@ export function meta(_args: Route.MetaArgs) {
     {content: 'Barton Hills Elementary PTA banner with school, seal, and eagle mascot', property: 'og:image:alt'},
     {content: 'summary_large_image', name: 'twitter:card'},
     {content: 'https://bheeagles.com/og-image.jpg', name: 'twitter:image'},
-    {content: 'BHE PTA', name: 'apple-mobile-web-app-title'},
+    {content: 'BHE', name: 'apple-mobile-web-app-title'},
     {href: 'https://bheeagles.com/', rel: 'canonical', tagName: 'link'},
   ] satisfies Route.MetaDescriptors;
 }
