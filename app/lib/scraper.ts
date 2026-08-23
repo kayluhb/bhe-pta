@@ -4,12 +4,26 @@ import type {Newsletter} from './types';
 
 const SCHOOL_ORIGIN = 'https://bartonhills.austinschools.org';
 
-/** Prefer nested non-empty datetime, then URL path, then loose text. */
+const SUBJECT_DATE =
+  /\b((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s+\d{4})\b/i;
+
+/** Eagle Update titles usually include the issue date; that beats Drupal's publish time. */
+function dateFromSubject(title: string): string | null {
+  const match = title.match(SUBJECT_DATE);
+  if (!match?.[1]) return null;
+  return toIsoDay(match[1]);
+}
+
+/** Prefer the subject date, then nested datetime, then URL path, then loose text. */
 function resolveNewsletterDate(
   $: cheerio.CheerioAPI,
   $el: cheerio.Cheerio<any>,
   href: string,
+  title: string,
 ): string {
+  const fromSubject = dateFromSubject(title);
+  if (fromSubject) return fromSubject;
+
   let datetime = '';
   $el.find('time').each((_, el) => {
     const value = $(el).attr('datetime')?.trim();
@@ -115,7 +129,7 @@ export async function scrapeSchoolNews(): Promise<Newsletter[]> {
       listing.push({
         id: `school-${i}`,
         title,
-        date: resolveNewsletterDate($, $el, href),
+        date: resolveNewsletterDate($, $el, href, title),
         excerpt: normalizeExcerpt(title, excerpt),
         listingUrl: absoluteUrl(href),
         source: 'school',
