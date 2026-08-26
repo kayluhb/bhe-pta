@@ -36,7 +36,7 @@ export function annualFundGiveUrlWithUtm(content = 'give-cta'): string {
 }
 
 /** Update these amounts and lastUpdated, then deploy to publish progress. */
-const onlineRaisedAmount = 118_997.99;
+const onlineRaisedAmount = 121_497.99;
 /** Offline donations that have been deposited and cleared. */
 const offlineRaisedAmount = 50_000;
 
@@ -47,7 +47,7 @@ export const annualFundCampaign: AnnualFundCampaign = {
   goalAmount: 272_000,
   suggestedAskPerChild: 650,
   raisedAmount: onlineRaisedAmount + offlineRaisedAmount,
-  lastUpdated: '2026-08-21',
+  lastUpdated: '2026-08-26',
   milestones: [
     {
       id: 'art-music-pe',
