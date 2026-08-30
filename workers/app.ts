@@ -5,6 +5,11 @@ import {cloudflareContext} from '../app/lib/cloudflare-context';
 import {fetchMailchimpCampaigns} from '../app/lib/mailchimp';
 import {processReceiptConversionJob} from '../app/lib/reimbursement/receipt-conversion-queue';
 import {scrapeSchoolNews} from '../app/lib/scraper';
+import {
+  isMissingRouteActionError,
+  methodNotAllowedForRootResponse,
+  shouldDropSentryEvent,
+} from '../app/lib/sentry';
 
 const requestHandler = createRequestHandler(
   () => import('virtual:react-router/server-build'),
@@ -119,6 +124,11 @@ const handler = {
       });
     }
 
+    // Same class of noise: POST (etc.) to `/` with no root `action` throws in React Router
+    // and would otherwise be reported to Sentry.
+    const rootMethodNotAllowed = methodNotAllowedForRootResponse(request);
+    if (rootMethodNotAllowed) return rootMethodNotAllowed;
+
     if (!hasValidStageBasicAuth(request, env)) {
       return unauthorizedStageResponse();
     }
@@ -162,7 +172,16 @@ const handler = {
 
     const loadContext = new RouterContextProvider();
     loadContext.set(cloudflareContext, {ctx, env});
-    const response = await requestHandler(request, loadContext);
+    let response: Response;
+    try {
+      response = await requestHandler(request, loadContext);
+    } catch (error) {
+      if (!isMissingRouteActionError(error)) throw error;
+      response = new Response(null, {
+        headers: {Allow: 'GET, HEAD, OPTIONS'},
+        status: 405,
+      });
+    }
 
     const headers = new Headers(response.headers);
     headers.set('X-Content-Type-Options', 'nosniff');
@@ -228,5 +247,11 @@ export default Sentry.withSentry<Env>((env: Env) => {
     // Keep sampling conservative for free-tier quota.
     tracesSampleRate: 0.1,
     sendDefaultPii: true,
+    beforeSend(event, hint) {
+      if (isMissingRouteActionError(hint.originalException) || shouldDropSentryEvent(event)) {
+        return null;
+      }
+      return event;
+    },
   };
 }, handler);

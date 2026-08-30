@@ -38,7 +38,7 @@ export function annualFundGiveUrlWithUtm(content = 'give-cta'): string {
 /** Update these amounts and lastUpdated, then deploy to publish progress. */
 const onlineRaisedAmount = 121_497.99;
 /** Offline donations that have been deposited and cleared. */
-const offlineRaisedAmount = 50_000;
+const offlineRaisedAmount = 50_151.23;
 
 export const annualFundCampaign: AnnualFundCampaign = {
   schoolYear: '2026-27',
