@@ -11,6 +11,7 @@ import {
 } from 'react-router';
 
 import {getCloudflare} from '~/lib/cloudflare-context';
+import {isMissingRouteActionError} from '~/lib/sentry';
 import type {Route} from './+types/root';
 import {Footer} from './components/Footer';
 import {Header} from './components/Header';
@@ -388,8 +389,11 @@ function EagleEyes() {
 export function ErrorBoundary({error}: Route.ErrorBoundaryProps) {
   const is404 = isRouteErrorResponse(error) && error.status === 404;
 
-  if (!is404) {
+  if (!is404 && !isMissingRouteActionError(error)) {
     Sentry.captureException(error);
+  }
+
+  if (!is404) {
     let details = 'An unexpected error occurred.';
     let stack: string | undefined;
     if (isRouteErrorResponse(error)) {

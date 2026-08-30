@@ -3,6 +3,8 @@ import {StrictMode, startTransition} from 'react';
 import {hydrateRoot} from 'react-dom/client';
 import {HydratedRouter} from 'react-router/dom';
 
+import {MISSING_ROUTE_ACTION_RE} from '~/lib/sentry';
+
 declare global {
   interface Window {
     __ENV?: {SENTRY_DSN?: string};
@@ -20,6 +22,7 @@ if (sentryDsn) {
     dsn: sentryDsn,
     sendDefaultPii: true,
     tracesSampleRate: 0.1,
+    ignoreErrors: [MISSING_ROUTE_ACTION_RE],
   });
 }
 
