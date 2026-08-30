@@ -98,9 +98,38 @@ describe('scrapeSchoolNews', () => {
     );
     const items = await scrapeSchoolNews();
     expect(items).toHaveLength(1);
-    expect(items[0]?.date).toBe('2026-07-20');
+    expect(items[0]?.date).toBe('2026-05-22');
     expect(items[0]?.excerpt).toBe('');
     expect(items[0]?.url).toBe('https://app.smore.com/n/93fap');
+    vi.unstubAllGlobals();
+  });
+
+  it('prefers the date in the subject over the Drupal publish date', async () => {
+    const html = `
+      <div class="panel panel-default clearfix">
+        <h2><a href="/news/2026/08/17/eagle-update-august-14-2026">Eagle Update - August 14, 2026</a></h2>
+        <div class="time"><time datetime=""><time datetime="2026-08-17T18:02:13-05:00">August 17, 2026</time>
+</time></div>
+        <p>Eagle Update - August 14, 2026</p>
+      </div>
+    `;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) => {
+        if (String(url).includes('eagle-update-august-14')) {
+          return {
+            ok: true,
+            text: async () =>
+              `<article class="article"><div class="content"><div class="field field--name-body field--item"><p><a href="https://app.smore.com/n/nm6ys">Eagle Update - August 14, 2026</a></p></div></div></article>`,
+          };
+        }
+        return {ok: true, text: async () => html};
+      }),
+    );
+    const items = await scrapeSchoolNews();
+    expect(items).toHaveLength(1);
+    expect(items[0]?.date).toBe('2026-08-14');
+    expect(items[0]?.title).toBe('Eagle Update - August 14, 2026');
     vi.unstubAllGlobals();
   });
 });
