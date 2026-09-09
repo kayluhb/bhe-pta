@@ -169,6 +169,28 @@ describe('buildMemberRows', () => {
     expect(childRows[0]).toMatchObject({firstName: 'Jean-Paul'});
   });
 
+  it('resolves each first name correctly across hyphen-as-delimiter, accented, and apostrophe child lines', () => {
+    const record = submission({
+      childLines: [
+        'Elizabeth-5th',
+        'Jean-Paul Smith, 3rd, Goodin',
+        'Everett Hopkins, 1st, Goodin',
+        '3 BHE alumni',
+        'José Garcia, 2nd, Smith',
+        "O'Brien Family, 1st, Jones",
+      ],
+      primary: person({
+        email: 'primary@example.com',
+        firstName: 'Pat',
+        lastName: 'Primary',
+      }),
+    });
+    const {rows, skippedChildLines} = buildMemberRows([record], STARTS_ON);
+    const childFirstNames = rows.filter((row) => row.role === 'child').map((row) => row.firstName);
+    expect(childFirstNames).toEqual(['Elizabeth', 'Jean-Paul', 'Everett', 'José', "O'Brien"]);
+    expect(skippedChildLines).toEqual([{familyName: 'Pat Primary', line: '3 BHE alumni'}]);
+  });
+
   it('uses the spouse own phone even when the spouse gave no street address', () => {
     const record = submission({
       additional: person({

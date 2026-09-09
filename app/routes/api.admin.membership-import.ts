@@ -61,9 +61,14 @@ export async function action({request, context}: Route.ActionArgs) {
   const seenThisUpload = new Set<string>();
   let alreadyTrackedCount = 0;
   let skippedDuplicateCount = 0;
+  let skippedBlankEmailCount = 0;
 
   for (const row of built.rows) {
     const emailKey = row.email.toLowerCase();
+    if (!emailKey) {
+      skippedBlankEmailCount += 1;
+      continue;
+    }
     if (alreadyTracked.has(emailKey)) {
       alreadyTrackedCount += 1;
       continue;
@@ -77,34 +82,33 @@ export async function action({request, context}: Route.ActionArgs) {
   }
 
   if (newRows.length > 0) {
+    const insertStatement = db.prepare(
+      `INSERT INTO pta_members
+        (id, school_year_id, role, email, first_name, middle_name, last_name, gender,
+         address, city, state, zip, home_phone, cell_phone, lifetime, paid_date,
+         source_document_number)
+       VALUES (?, ?, ?, ?, ?, ?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    );
     await db.batch(
       newRows.map((row) =>
-        db
-          .prepare(
-            `INSERT INTO pta_members
-              (id, school_year_id, role, email, first_name, middle_name, last_name, gender,
-               address, city, state, zip, home_phone, cell_phone, lifetime, paid_date,
-               source_document_number)
-             VALUES (?, ?, ?, ?, ?, ?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          )
-          .bind(
-            crypto.randomUUID(),
-            schoolYearId,
-            row.role,
-            row.email.toLowerCase(),
-            row.firstName,
-            row.middleName,
-            row.lastName,
-            row.address,
-            row.city,
-            row.state,
-            row.zip,
-            row.homePhone,
-            row.cellPhone,
-            row.lifetime ? 1 : 0,
-            row.paidDate,
-            row.sourceDocumentNumber,
-          ),
+        insertStatement.bind(
+          crypto.randomUUID(),
+          schoolYearId,
+          row.role,
+          row.email.toLowerCase(),
+          row.firstName,
+          row.middleName,
+          row.lastName,
+          row.address,
+          row.city,
+          row.state,
+          row.zip,
+          row.homePhone,
+          row.cellPhone,
+          row.lifetime ? 1 : 0,
+          row.paidDate,
+          row.sourceDocumentNumber,
+        ),
       ),
     );
   }
@@ -117,6 +121,8 @@ export async function action({request, context}: Route.ActionArgs) {
       'Content-Type': 'text/csv',
       'X-Already-Tracked-Count': String(alreadyTrackedCount),
       'X-New-Count': String(newRows.length),
+      'X-Skipped-Blank-Email-Count': String(skippedBlankEmailCount),
+      'X-Skipped-Child-Details': encodeURIComponent(JSON.stringify(built.skippedChildLines)),
       'X-Skipped-Child-Lines': String(built.skippedChildLines.length),
       'X-Skipped-Duplicate-Count': String(skippedDuplicateCount),
     },

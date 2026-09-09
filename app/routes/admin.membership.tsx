@@ -34,6 +34,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
 interface ImportSummary {
   alreadyTracked: number;
   newCount: number;
+  skippedChildDetails: {familyName: string; line: string}[];
   skippedChildLines: number;
   skippedDuplicates: number;
 }
@@ -65,16 +66,24 @@ export default function AdminMembership() {
         const data = (await res.json().catch(() => ({}))) as {error?: string};
         throw new Error(data.error || 'Import failed');
       }
+      if (!res.headers.has('X-New-Count')) {
+        throw new Error('Session expired or unexpected response — please reload and log in again.');
+      }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.download = `pta-import-${schoolYearId}.csv`;
       link.href = url;
+      document.body.appendChild(link);
       link.click();
-      URL.revokeObjectURL(url);
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 0);
       setSummary({
         alreadyTracked: Number(res.headers.get('X-Already-Tracked-Count') ?? 0),
         newCount: Number(res.headers.get('X-New-Count') ?? 0),
+        skippedChildDetails: JSON.parse(
+          decodeURIComponent(res.headers.get('X-Skipped-Child-Details') ?? '[]'),
+        ) as {familyName: string; line: string}[],
         skippedChildLines: Number(res.headers.get('X-Skipped-Child-Lines') ?? 0),
         skippedDuplicates: Number(res.headers.get('X-Skipped-Duplicate-Count') ?? 0),
       });
@@ -142,6 +151,15 @@ export default function AdminMembership() {
               ` ${summary.skippedChildLines} child line(s) skipped (not a name).`}
             {summary.skippedDuplicates > 0 &&
               ` ${summary.skippedDuplicates} duplicate email(s) skipped within this upload.`}
+            {summary.skippedChildLines > 0 && summary.skippedChildDetails.length > 0 && (
+              <ul className="mt-2 list-disc pl-5">
+                {summary.skippedChildDetails.map(({familyName, line}) => (
+                  <li key={`${familyName}-${line}`}>
+                    {familyName}: "{line}"
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         )}
 

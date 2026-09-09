@@ -39,7 +39,7 @@ const HEADER = csvRow([
   'Document Number',
 ]);
 
-function familyRow(firstName: string, email: string): string {
+function familyRow(firstName: string, email: string, childLine = ''): string {
   return csvRow([
     `${firstName} Example`,
     email,
@@ -53,7 +53,7 @@ function familyRow(firstName: string, email: string): string {
     '78704',
     '',
     '+15125550000',
-    '',
+    childLine,
     '',
     '',
     '',
@@ -132,6 +132,23 @@ describe('api.admin.membership-import action', () => {
     const csv = await response.text();
     expect(csv.split('\n')).toHaveLength(1);
     expect(inserted).toHaveLength(0);
+  });
+
+  it('reports skipped child line detail via the X-Skipped-Child-Details header', async () => {
+    const csvText = `${HEADER}\n${familyRow('Pat', 'pat@example.com', '3 BHE alumni')}`;
+    const {db} = createDb([]);
+
+    const response = await action({
+      request: multipartRequest(csvText),
+      context: createTestLoadContext({ctx: {} as ExecutionContext, env: {REIMBURSEMENT_DB: db}}),
+    } as never);
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('X-Skipped-Child-Lines')).toBe('1');
+    const details = JSON.parse(
+      decodeURIComponent(response.headers.get('X-Skipped-Child-Details') ?? '[]'),
+    ) as {familyName: string; line: string}[];
+    expect(details).toEqual([{familyName: 'Pat Example', line: '3 BHE alumni'}]);
   });
 
   it('returns 400 with the parser message when the export format is unrecognized', async () => {

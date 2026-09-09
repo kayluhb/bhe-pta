@@ -44,7 +44,8 @@ function plusAddress(email: string, firstName: string): string {
 function firstNameFromChildLine(line: string): string | null {
   const namePart = line.split(/,/, 1)[0] ?? '';
   const firstWord = namePart.trim().split(/\s+/)[0] ?? '';
-  return /^[A-Za-z]+(-[A-Za-z]+)*$/.test(firstWord) ? firstWord : null;
+  const match = firstWord.match(/^[A-Za-zÀ-ſ']+(?:-[A-Za-zÀ-ſ']+)*/);
+  return match ? match[0] : null;
 }
 
 function clampPaidDate(paidDate: string, floorIso: string): string {
