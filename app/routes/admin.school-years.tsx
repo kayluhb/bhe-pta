@@ -212,6 +212,12 @@ export default function AdminSchoolYears() {
             >
               Reimbursements
             </a>
+            <a
+              className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
+              href="/admin/membership"
+            >
+              Membership
+            </a>
             <span className="text-sm text-white/80 hidden sm:inline">{user.name}</span>
             <a
               className="text-sm text-white/70 hover:text-white underline underline-offset-2 transition-colors"
