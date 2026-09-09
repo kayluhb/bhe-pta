@@ -73,7 +73,8 @@ describe('clusterDuplicateSubmissions', () => {
       primary: person({email: 'unrelated@example.com', street: '999 Nowhere'}),
     });
     expect(clusterDuplicateSubmissions([older, newer])).toEqual([newer]);
-    expect(clusterDuplicateSubmissions([older, swapped])).toHaveLength(1);
+    // older (06/18/2026) is more recent than swapped (01/01/2026), so it wins the tie-break.
+    expect(clusterDuplicateSubmissions([older, swapped])).toEqual([older]);
   });
 
   it('breaks a same-day tie by keeping the more complete submission', () => {

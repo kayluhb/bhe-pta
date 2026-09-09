@@ -115,6 +115,16 @@ describe('api.admin.membership-import action', () => {
     const csv = await response.text();
     expect(csv).toContain('pat@example.com');
     expect(inserted).toHaveLength(1);
+    // Bind args in column order: id, school_year_id, role, email, first_name,
+    // middle_name, last_name, address, city, state, zip, home_phone, cell_phone,
+    // lifetime, paid_date, source_document_number.
+    const [, schoolYearId, role, email, firstName, middleName, lastName] = inserted[0];
+    expect(schoolYearId).toBe('2026-27');
+    expect(role).toBe('primary');
+    expect(email).toBe('pat@example.com');
+    expect(firstName).toBe('Pat');
+    expect(middleName).toBe('');
+    expect(lastName).toBe('Example');
   });
 
   it('excludes a member already tracked for the school year', async () => {
@@ -174,5 +184,99 @@ describe('api.admin.membership-import action', () => {
     } as never);
 
     expect(response.status).toBe(400);
+  });
+
+  it('creates a spouse row with a plus-addressed email when the additional parent has none', async () => {
+    const row = csvRow([
+      'Pat Example',
+      'pat@example.com',
+      '09/08/2026',
+      'Pat',
+      'Example',
+      'pat@example.com',
+      '1 Main St',
+      'Austin',
+      'TX',
+      '78704',
+      '',
+      '+15125550000',
+      '',
+      'Sam',
+      'Spouse',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      'DOC-Pat',
+    ]);
+    const {db} = createDb([]);
+
+    const response = await action({
+      request: multipartRequest(`${HEADER}\n${row}`),
+      context: createTestLoadContext({ctx: {} as ExecutionContext, env: {REIMBURSEMENT_DB: db}}),
+    } as never);
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('X-New-Count')).toBe('2');
+    const csv = await response.text();
+    expect(csv).toContain('pat+sam@example.com');
+  });
+
+  it('skips a within-upload duplicate email collision between a spouse and a child', async () => {
+    // The additional parent (no own email) and a child share the first name
+    // "Sam", so both resolve to the same plus-addressed email off the primary.
+    const row = csvRow([
+      'Pat Example',
+      'pat@example.com',
+      '09/08/2026',
+      'Pat',
+      'Example',
+      'pat@example.com',
+      '1 Main St',
+      'Austin',
+      'TX',
+      '78704',
+      '',
+      '+15125550000',
+      'Sam, 1st, Teacher',
+      'Sam',
+      'Spouse',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      'DOC-Pat',
+    ]);
+    const {db} = createDb([]);
+
+    const response = await action({
+      request: multipartRequest(`${HEADER}\n${row}`),
+      context: createTestLoadContext({ctx: {} as ExecutionContext, env: {REIMBURSEMENT_DB: db}}),
+    } as never);
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('X-New-Count')).toBe('2');
+    expect(response.headers.get('X-Skipped-Duplicate-Count')).toBe('1');
+  });
+
+  it('skips a row with a blank email and counts it separately', async () => {
+    const csvText = `${HEADER}\n${familyRow('Pat', '')}`;
+    const {db, inserted} = createDb([]);
+
+    const response = await action({
+      request: multipartRequest(csvText),
+      context: createTestLoadContext({ctx: {} as ExecutionContext, env: {REIMBURSEMENT_DB: db}}),
+    } as never);
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('X-New-Count')).toBe('0');
+    expect(response.headers.get('X-Skipped-Blank-Email-Count')).toBe('1');
+    expect(inserted).toHaveLength(0);
   });
 });

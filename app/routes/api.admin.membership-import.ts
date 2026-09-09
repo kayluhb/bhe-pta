@@ -13,6 +13,10 @@ interface SchoolYearRow {
   starts_on: string;
 }
 
+function badRequest(message: string): Response {
+  return Response.json({error: message}, {status: 400});
+}
+
 export async function action({request, context}: Route.ActionArgs) {
   const env = getCloudflare(context).env;
   const auth = await requireAdmin(request, env);
@@ -24,10 +28,10 @@ export async function action({request, context}: Route.ActionArgs) {
   const file = formData.get('file');
 
   if (typeof schoolYearId !== 'string' || !schoolYearId) {
-    return Response.json({error: 'schoolYearId is required'}, {status: 400});
+    return badRequest('schoolYearId is required');
   }
   if (!(file instanceof File)) {
-    return Response.json({error: 'file is required'}, {status: 400});
+    return badRequest('file is required');
   }
 
   const schoolYear = await db
@@ -35,7 +39,7 @@ export async function action({request, context}: Route.ActionArgs) {
     .bind(schoolYearId)
     .first<SchoolYearRow>();
   if (!schoolYear) {
-    return Response.json({error: 'Unknown school year'}, {status: 400});
+    return badRequest('Unknown school year');
   }
 
   let built: {rows: MemberRow[]; skippedChildLines: {familyName: string; line: string}[]};
@@ -46,7 +50,7 @@ export async function action({request, context}: Route.ActionArgs) {
     built = buildMemberRows(clustered, schoolYear.starts_on);
   } catch (error) {
     if (error instanceof MembershipImportError) {
-      return Response.json({error: error.message}, {status: 400});
+      return badRequest(error.message);
     }
     throw error;
   }
@@ -113,7 +117,15 @@ export async function action({request, context}: Route.ActionArgs) {
     );
   }
 
-  const csv = toImportCsv(newRows);
+  let csv: string;
+  try {
+    csv = toImportCsv(newRows);
+  } catch (error) {
+    if (error instanceof MembershipImportError) {
+      return badRequest(error.message);
+    }
+    throw error;
+  }
 
   return new Response(csv, {
     headers: {

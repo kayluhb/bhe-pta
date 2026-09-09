@@ -31,9 +31,21 @@ export async function loader({request, context}: Route.LoaderArgs) {
   return {schoolYears: schoolYears.results, user};
 }
 
+const HEADER_ALREADY_TRACKED = 'X-Already-Tracked-Count';
+const HEADER_NEW_COUNT = 'X-New-Count';
+const HEADER_SKIPPED_BLANK_EMAIL = 'X-Skipped-Blank-Email-Count';
+const HEADER_SKIPPED_CHILD_DETAILS = 'X-Skipped-Child-Details';
+const HEADER_SKIPPED_CHILD_LINES = 'X-Skipped-Child-Lines';
+const HEADER_SKIPPED_DUPLICATE = 'X-Skipped-Duplicate-Count';
+
+function getHeaderNumber(headers: Headers, name: string): number {
+  return Number(headers.get(name) ?? 0);
+}
+
 interface ImportSummary {
   alreadyTracked: number;
   newCount: number;
+  skippedBlankEmails: number;
   skippedChildDetails: {familyName: string; line: string}[];
   skippedChildLines: number;
   skippedDuplicates: number;
@@ -66,7 +78,7 @@ export default function AdminMembership() {
         const data = (await res.json().catch(() => ({}))) as {error?: string};
         throw new Error(data.error || 'Import failed');
       }
-      if (!res.headers.has('X-New-Count')) {
+      if (!res.headers.has(HEADER_NEW_COUNT)) {
         throw new Error('Session expired or unexpected response — please reload and log in again.');
       }
       const blob = await res.blob();
@@ -79,13 +91,14 @@ export default function AdminMembership() {
       link.remove();
       setTimeout(() => URL.revokeObjectURL(url), 0);
       setSummary({
-        alreadyTracked: Number(res.headers.get('X-Already-Tracked-Count') ?? 0),
-        newCount: Number(res.headers.get('X-New-Count') ?? 0),
+        alreadyTracked: getHeaderNumber(res.headers, HEADER_ALREADY_TRACKED),
+        newCount: getHeaderNumber(res.headers, HEADER_NEW_COUNT),
+        skippedBlankEmails: getHeaderNumber(res.headers, HEADER_SKIPPED_BLANK_EMAIL),
         skippedChildDetails: JSON.parse(
-          decodeURIComponent(res.headers.get('X-Skipped-Child-Details') ?? '[]'),
+          decodeURIComponent(res.headers.get(HEADER_SKIPPED_CHILD_DETAILS) ?? '[]'),
         ) as {familyName: string; line: string}[],
-        skippedChildLines: Number(res.headers.get('X-Skipped-Child-Lines') ?? 0),
-        skippedDuplicates: Number(res.headers.get('X-Skipped-Duplicate-Count') ?? 0),
+        skippedChildLines: getHeaderNumber(res.headers, HEADER_SKIPPED_CHILD_LINES),
+        skippedDuplicates: getHeaderNumber(res.headers, HEADER_SKIPPED_DUPLICATE),
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Import failed');
@@ -151,6 +164,8 @@ export default function AdminMembership() {
               ` ${summary.skippedChildLines} child line(s) skipped (not a name).`}
             {summary.skippedDuplicates > 0 &&
               ` ${summary.skippedDuplicates} duplicate email(s) skipped within this upload.`}
+            {summary.skippedBlankEmails > 0 &&
+              ` ${summary.skippedBlankEmails} row(s) skipped for having no email address.`}
             {summary.skippedChildLines > 0 && summary.skippedChildDetails.length > 0 && (
               <ul className="mt-2 list-disc pl-5">
                 {summary.skippedChildDetails.map(({familyName, line}) => (
@@ -171,7 +186,7 @@ export default function AdminMembership() {
             <select
               className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue"
               id="school-year"
-              onChange={(e) => setSchoolYearId(e.target.value)}
+              onChange={(event) => setSchoolYearId(event.target.value)}
               value={schoolYearId}
             >
               {schoolYears.map((year) => (
@@ -190,7 +205,7 @@ export default function AdminMembership() {
               accept=".csv,text/csv"
               className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-charcoal shadow-sm"
               id="export-file"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              onChange={(event) => setFile(event.target.files?.[0] ?? null)}
               type="file"
             />
           </div>

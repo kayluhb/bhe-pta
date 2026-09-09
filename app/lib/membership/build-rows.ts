@@ -104,16 +104,10 @@ export function buildMemberRows(
 
     if (record.additional) {
       const additional = record.additional;
+      const {city, state, street, streetLine2, zip} = record.primary;
       const household: PersonFields = record.additionalStreetGiven
         ? additional
-        : {
-            ...additional,
-            city: record.primary.city,
-            state: record.primary.state,
-            street: record.primary.street,
-            streetLine2: record.primary.streetLine2,
-            zip: record.primary.zip,
-          };
+        : {...additional, city, state, street, streetLine2, zip};
       const phone =
         household.phone.trim() || (record.additionalStreetGiven ? '' : record.primary.phone.trim());
       const email = additional.email.trim() || plusAddress(primaryEmail, additional.firstName);

@@ -72,20 +72,22 @@ export function parseCheddarUpExport(csvText: string): RawFamilySubmission[] {
     if (!primary.firstName && !primary.lastName) continue;
 
     const additionalFirstName = col(13);
+    const additionalLastName = col(14);
     const additionalStreetGiven = col(20) !== '';
-    const additional: PersonFields | null = additionalFirstName
-      ? {
-          city: col(17),
-          email: col(15),
-          firstName: additionalFirstName,
-          lastName: col(14),
-          phone: col(16),
-          state: col(18),
-          street: col(20),
-          streetLine2: col(21),
-          zip: col(19),
-        }
-      : null;
+    const additional: PersonFields | null =
+      additionalFirstName || additionalLastName
+        ? {
+            city: col(17),
+            email: col(15),
+            firstName: additionalFirstName,
+            lastName: additionalLastName,
+            phone: col(16),
+            state: col(18),
+            street: col(20),
+            streetLine2: col(21),
+            zip: col(19),
+          }
+        : null;
 
     const childLines = col(12)
       .split('\n')

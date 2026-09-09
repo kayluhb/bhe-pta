@@ -72,10 +72,16 @@ export function clusterDuplicateSubmissions(records: RawFamilySubmission[]): Raw
     return root;
   }
 
-  function union(a: number, b: number): void {
-    const rootA = find(a);
-    const rootB = find(b);
+  function union(indexA: number, indexB: number): void {
+    const rootA = find(indexA);
+    const rootB = find(indexB);
     if (rootA !== rootB) parent[rootA] = rootB;
+  }
+
+  function markSeenOrUnion(seenIndexByKey: Map<string, number>, key: string, index: number): void {
+    const seenAt = seenIndexByKey.get(key);
+    if (seenAt === undefined) seenIndexByKey.set(key, index);
+    else union(index, seenAt);
   }
 
   const firstSeenByAddress = new Map<string, number>();
@@ -83,16 +89,8 @@ export function clusterDuplicateSubmissions(records: RawFamilySubmission[]): Raw
 
   records.forEach((record, index) => {
     const {address, emails} = familyKeyFields(record);
-    if (address) {
-      const seenAt = firstSeenByAddress.get(address);
-      if (seenAt === undefined) firstSeenByAddress.set(address, index);
-      else union(index, seenAt);
-    }
-    for (const email of emails) {
-      const seenAt = firstSeenByEmail.get(email);
-      if (seenAt === undefined) firstSeenByEmail.set(email, index);
-      else union(index, seenAt);
-    }
+    if (address) markSeenOrUnion(firstSeenByAddress, address, index);
+    for (const email of emails) markSeenOrUnion(firstSeenByEmail, email, index);
   });
 
   const clusters = new Map<number, number[]>();

@@ -32,6 +32,20 @@ describe('escapeCsvValue', () => {
     expect(escapeCsvValue('She said "hi"')).toBe('"She said ""hi"""');
     expect(escapeCsvValue('line1\nline2')).toBe('"line1\nline2"');
   });
+
+  it('defuses a value that would be interpreted as a formula by Excel/Sheets', () => {
+    expect(escapeCsvValue('=HYPERLINK("http://evil","x")')).toBe(
+      '"\'=HYPERLINK(""http://evil"",""x"")"',
+    );
+    expect(escapeCsvValue('@SUM(A1,A2)')).toBe('"\'@SUM(A1,A2)"');
+    expect(escapeCsvValue("-2+cmd|'/c calc'")).toBe("'-2+cmd|'/c calc'");
+    expect(escapeCsvValue('\tsneaky')).toBe("'\tsneaky");
+  });
+
+  it('does not defuse a plain phone-number-shaped value starting with + or -', () => {
+    expect(escapeCsvValue('+15125551234')).toBe('+15125551234');
+    expect(escapeCsvValue('-42')).toBe('-42');
+  });
 });
 
 describe('deriveMemberYear', () => {
