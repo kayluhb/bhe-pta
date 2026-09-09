@@ -61,7 +61,7 @@ describe('clusterDuplicateSubmissions', () => {
       additional: person({email: '', firstName: 'Mehrang'}),
       documentNumber: 'NEW',
       paidDate: '09/05/2026',
-      primary: person({email: 'shared@example.com', street: '1 A St'}),
+      primary: person({email: 'shared@example.com', street: '2 B St'}),
     });
     // These are the same household even though the specific matching field
     // (shared@example.com) appears as the additional parent's email in one
@@ -110,5 +110,58 @@ describe('clusterDuplicateSubmissions', () => {
     const a = submission({primary: person({firstName: 'Alice'})});
     const b = submission({primary: person({firstName: 'Bob'})});
     expect(clusterDuplicateSubmissions([a, b])).toEqual([a, b]);
+  });
+
+  it('merges a 3-record cluster linked transitively across email and address', () => {
+    // a-b share an email but have different addresses; b-c share an address
+    // but have different emails; a and c share nothing directly. All three
+    // must still land in one cluster via b, and the record with the latest
+    // paidDate (a) wins the tie-break outright.
+    const a = submission({
+      documentNumber: 'A',
+      paidDate: '09/07/2026',
+      primary: person({email: 'ab@example.com', street: '1 First St'}),
+    });
+    const b = submission({
+      documentNumber: 'B',
+      paidDate: '07/01/2026',
+      primary: person({email: 'ab@example.com', street: '2 Second St'}),
+    });
+    const c = submission({
+      documentNumber: 'C',
+      paidDate: '05/01/2026',
+      primary: person({email: 'other@example.com', street: '2 Second St'}),
+    });
+    const result = clusterDuplicateSubmissions([a, b, c]);
+    expect(result).toHaveLength(1);
+    expect(result).toEqual([a]);
+  });
+
+  it('treats an unparseable paidDate as older than any valid date', () => {
+    const badDate = submission({
+      documentNumber: 'BAD',
+      paidDate: 'not-a-date',
+      primary: person({email: 'x@example.com', street: '1 X St'}),
+    });
+    const validDate = submission({
+      documentNumber: 'VALID',
+      paidDate: '06/01/2026',
+      primary: person({email: 'x@example.com', street: '1 X St'}),
+    });
+    expect(clusterDuplicateSubmissions([badDate, validDate])).toEqual([validDate]);
+  });
+
+  it('breaks a same-date tie in favor of the record with a documentNumber', () => {
+    const noDocNumber = submission({
+      documentNumber: '',
+      paidDate: '06/01/2026',
+      primary: person({email: 'y@example.com', street: '1 Y St'}),
+    });
+    const hasDocNumber = submission({
+      documentNumber: 'HASDOC',
+      paidDate: '06/01/2026',
+      primary: person({email: 'y@example.com', street: '1 Y St'}),
+    });
+    expect(clusterDuplicateSubmissions([noDocNumber, hasDocNumber])).toEqual([hasDocNumber]);
   });
 });
