@@ -2,14 +2,14 @@ import {Link} from 'react-router';
 import {FundraisingProgress} from '~/components/fundraising/FundraisingProgress';
 import {NewsletterSignup} from '~/components/NewsletterSignup';
 import {annualFundCampaign, annualFundPath} from '~/data/annual-fund-campaign';
-import {sanitizeCalendarEvents} from '~/lib/calendar';
+import {sanitizeCalendarEvents, stripHtml} from '~/lib/calendar';
 import {getCloudflare} from '~/lib/cloudflare-context';
 import {formatNewsletterDate} from '~/lib/format-newsletter-date';
 import {pageSeoMeta} from '~/lib/meta';
 import {mixNewsletters} from '~/lib/mix-newsletters';
 import {mockNewsletters, mockPtaNewsletters} from '~/lib/mock-data';
 import {formatSchoolYearLong} from '~/lib/school-year';
-import {getFeaturedSponsorSchoolYear, getRandomSponsors} from '~/lib/sponsors';
+import {getFeaturedSponsorSchoolYear, getFeaturedSponsors} from '~/lib/sponsors';
 import type {CalendarEvent} from '~/lib/types';
 import type {Route} from './+types/home';
 
@@ -53,7 +53,7 @@ export async function loader({context}: Route.LoaderArgs) {
     .slice(0, 4);
 
   const sponsorSchoolYear = getFeaturedSponsorSchoolYear();
-  const sponsors = getRandomSponsors(6, sponsorSchoolYear);
+  const sponsors = getFeaturedSponsors(6, sponsorSchoolYear);
 
   return {annualFundCampaign, events: upcomingEvents, news: allNews, sponsorSchoolYear, sponsors};
 }
@@ -312,7 +312,8 @@ export default function Home({loaderData}: Route.ComponentProps) {
                       </p>
                       {(event.category || event.description) && (
                         <p className="mt-0.5 text-sm text-charcoal/60 line-clamp-1">
-                          {event.category || event.description}
+                          {event.category ||
+                            (event.description ? stripHtml(event.description) : '')}
                         </p>
                       )}
                     </div>
@@ -631,13 +632,19 @@ export default function Home({loaderData}: Route.ComponentProps) {
       <section className="bg-white border-t border-charcoal/5 py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">
-            Our Partners
+            Some of Our Partners
           </h2>
           <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
 
           <p className="mt-6 text-charcoal/70 max-w-2xl mx-auto text-lg leading-relaxed">
-            Thank you to our generous local business sponsors who make our programs possible
-            {sponsorSchoolYear ? ` (${formatSchoolYearLong(sponsorSchoolYear)})` : ''}
+            Thank you to some of our generous local business sponsors who make our programs possible
+            {sponsorSchoolYear ? ` (${formatSchoolYearLong(sponsorSchoolYear)})` : ''}.{' '}
+            <Link
+              className="font-heading font-bold text-eagle-blue hover:text-spirit-gold transition-colors"
+              to="/sponsors#sponsor-list"
+            >
+              View all sponsors
+            </Link>
           </p>
 
           <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">

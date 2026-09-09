@@ -141,4 +141,25 @@ describe('sanitizeEventDescription', () => {
       ),
     ).toBeUndefined();
   });
+
+  it('keeps HTML formatting instead of truncating to the first line', () => {
+    expect(
+      sanitizeEventDescription(
+        '<p>Hi Presidents,</p>\n<p>Join us for a <strong>come and go</strong> training.</p>',
+      ),
+    ).toBe('<p>Hi Presidents,</p><p>Join us for a <strong>come and go</strong> training.</p>');
+  });
+
+  it('strips scripts and event handlers from HTML descriptions', () => {
+    expect(
+      sanitizeEventDescription('<p onclick="alert(1)">Hello</p><script>alert(1)</script>'),
+    ).toBe('<p>Hello</p>');
+  });
+
+  it('keeps safe http links and drops javascript urls', () => {
+    expect(sanitizeEventDescription('<p><a href="https://example.com/rsvp">RSVP</a></p>')).toBe(
+      '<p><a href="https://example.com/rsvp" rel="noopener noreferrer" target="_blank">RSVP</a></p>',
+    );
+    expect(sanitizeEventDescription('<a href="javascript:alert(1)">x</a>')).toBe('x');
+  });
 });

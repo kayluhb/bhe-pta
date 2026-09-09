@@ -1,4 +1,5 @@
 import {type MouseEvent, type ReactNode, useState} from 'react';
+import {stripHtml} from '~/lib/calendar';
 import type {CalendarEvent} from '~/lib/types';
 
 // ─── Category Colors ──────────────────────────────────────────────────────────
@@ -180,7 +181,9 @@ function computeWeekSegments(
 // ─── Shared Helpers ──────────────────────────────────────────────────────────
 
 function eventTooltip(event: CalendarEvent): string {
-  return event.description ? `${event.title}\n${event.description}` : event.title;
+  if (!event.description) return event.title;
+  const text = stripHtml(event.description);
+  return text ? `${event.title}\n${text}` : event.title;
 }
 
 function formatTime(dateStr: string): string | null {
@@ -302,7 +305,7 @@ export function Calendar({year, month, events, onEventClick}: CalendarProps) {
     const rect = e.currentTarget.getBoundingClientRect();
     setTooltip({
       title: calEvent.title,
-      description: calEvent.description,
+      description: calEvent.description ? stripHtml(calEvent.description) || undefined : undefined,
       x: rect.left + rect.width / 2,
       y: rect.bottom + 4,
     });

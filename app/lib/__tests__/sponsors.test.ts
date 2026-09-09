@@ -1,9 +1,9 @@
-import {describe, expect, it, vi} from 'vitest';
+import {describe, expect, it} from 'vitest';
 
 import {
   allSponsors,
+  getFeaturedSponsors,
   getFeaturedSponsorSchoolYear,
-  getRandomSponsors,
   getSponsorTiers,
   getSponsorYearGroup,
   listSponsorSchoolYears,
@@ -42,15 +42,19 @@ describe('sponsors', () => {
     expect(allSponsors.length).toBeGreaterThan(0);
   });
 
-  it('shuffles deterministically when Math.random is fixed', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0.3);
-    const pick = getRandomSponsors(3, '2026-27');
-    expect(pick).toHaveLength(3);
-    vi.restoreAllMocks();
+  it('features Eagle Pride sponsors first', () => {
+    const eaglePride = getSponsorTiers('2026-27')[0]?.sponsors ?? [];
+    expect(eaglePride.length).toBeGreaterThan(0);
+
+    const pick = getFeaturedSponsors(6, '2026-27');
+    expect(pick).toHaveLength(6);
+    expect(pick.slice(0, eaglePride.length).map((sponsor) => sponsor.name)).toEqual(
+      eaglePride.map((sponsor) => sponsor.name),
+    );
   });
 
   it('returns at most all sponsors when count is huge', () => {
-    const pick = getRandomSponsors(99999, '2026-27');
+    const pick = getFeaturedSponsors(99999, '2026-27');
     expect(pick.length).toBe(allSponsors.length);
   });
 });
