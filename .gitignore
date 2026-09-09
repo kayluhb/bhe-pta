@@ -17,3 +17,6 @@ worker-configuration.d.ts
 budgets/
 backups/
 dist/
+
+# Git worktrees used for isolated feature work
+/.worktrees/
