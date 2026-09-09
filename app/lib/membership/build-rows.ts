@@ -42,9 +42,9 @@ function plusAddress(email: string, firstName: string): string {
 }
 
 function firstNameFromChildLine(line: string): string | null {
-  const namePart = line.split(/[,-]/, 1)[0] ?? '';
+  const namePart = line.split(/,/, 1)[0] ?? '';
   const firstWord = namePart.trim().split(/\s+/)[0] ?? '';
-  return /^[A-Za-z]+$/.test(firstWord) ? firstWord : null;
+  return /^[A-Za-z]+(-[A-Za-z]+)*$/.test(firstWord) ? firstWord : null;
 }
 
 function clampPaidDate(paidDate: string, floorIso: string): string {

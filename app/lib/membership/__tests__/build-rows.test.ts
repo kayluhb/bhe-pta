@@ -153,6 +153,44 @@ describe('buildMemberRows', () => {
     expect(skippedChildLines).toEqual([{familyName: 'Pat Primary', line: '3 BHE alumni'}]);
   });
 
+  it('keeps a hyphenated first name intact instead of truncating at the hyphen', () => {
+    const record = submission({
+      childLines: ['Jean-Paul Smith, 3rd, Goodin'],
+      primary: person({
+        email: 'primary@example.com',
+        firstName: 'Pat',
+        lastName: 'Primary',
+      }),
+    });
+    const {rows, skippedChildLines} = buildMemberRows([record], STARTS_ON);
+    const childRows = rows.filter((row) => row.role === 'child');
+    expect(skippedChildLines).toEqual([]);
+    expect(childRows).toHaveLength(1);
+    expect(childRows[0]).toMatchObject({firstName: 'Jean-Paul'});
+  });
+
+  it('uses the spouse own phone even when the spouse gave no street address', () => {
+    const record = submission({
+      additional: person({
+        firstName: 'Sam',
+        lastName: 'Spouse',
+        phone: '+15125559999',
+      }),
+      additionalStreetGiven: false,
+      primary: person({
+        email: 'primary@example.com',
+        firstName: 'Pat',
+        lastName: 'Primary',
+        phone: '+15125550000',
+      }),
+    });
+    const {rows} = buildMemberRows([record], STARTS_ON);
+    expect(rows[1]).toMatchObject({
+      cellPhone: '+15125559999',
+      role: 'spouse',
+    });
+  });
+
   it('clamps a PaidDate before the school year start up to the start date', () => {
     const {rows} = buildMemberRows(
       [submission({paidDate: '06/19/2026', primary: person({email: 'p@example.com'})})],
