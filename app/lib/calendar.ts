@@ -46,6 +46,83 @@ function inferCategory(title: string): string {
   return 'Other';
 }
 
+const HTML_TAG_RE = /<\/?[a-z][\s\S]*>/i;
+const ALLOWED_HTML_TAGS = new Set([
+  'a',
+  'b',
+  'br',
+  'em',
+  'i',
+  'li',
+  'ol',
+  'p',
+  'strong',
+  'u',
+  'ul',
+]);
+
+function looksLikeHtml(value: string): boolean {
+  return HTML_TAG_RE.test(value);
+}
+
+/** Strip tags from a description for plain-text surfaces (tooltips, titles). */
+export function stripHtml(html: string): string {
+  return html
+    .replace(/<br\s*\/?>/gi, ' ')
+    .replace(/<\/(p|li|div|h[1-6])>/gi, ' ')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function safeHref(raw: string): string | undefined {
+  const href = raw.trim();
+  if (/^(https?:|mailto:)/i.test(href)) return href;
+  return undefined;
+}
+
+function escapeAttr(value: string): string {
+  return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+/** Allowlist-sanitize HTML from calendar DESCRIPTION fields. */
+function sanitizeHtmlFragment(html: string): string {
+  let out = html.replace(
+    /<(script|style|iframe|object|embed|form|link|meta|svg|math)[\s\S]*?<\/\1>/gi,
+    '',
+  );
+  out = out.replace(
+    /<(script|style|iframe|object|embed|form|link|meta|img|input|textarea|svg|math)[^>]*\/?>/gi,
+    '',
+  );
+
+  out = out.replace(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi, (_match, attrs: string, inner: string) => {
+    const hrefMatch = attrs.match(/href\s*=\s*("([^"]*)"|'([^']*)'|([^\s>]+))/i);
+    const rawHref = hrefMatch?.[2] ?? hrefMatch?.[3] ?? hrefMatch?.[4];
+    const href = rawHref ? safeHref(rawHref) : undefined;
+    if (!href) return inner;
+    return `<a href="${escapeAttr(href)}" rel="noopener noreferrer" target="_blank">${inner}</a>`;
+  });
+
+  out = out.replace(/<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>/g, (match, tag: string) => {
+    const name = tag.toLowerCase();
+    if (!ALLOWED_HTML_TAGS.has(name) || name === 'a') {
+      return name === 'a' ? match : '';
+    }
+    if (match.startsWith('</')) return `</${name}>`;
+    if (name === 'br') return '<br>';
+    return `<${name}>`;
+  });
+
+  return out.replace(/>\s+</g, '><').trim();
+}
+
 /** Clean ICS DESCRIPTION for card/UI display (drop Body prefix, URLs, empty fluff). */
 export function sanitizeEventDescription(raw: string | undefined): string | undefined {
   if (!raw?.trim()) return undefined;
@@ -54,6 +131,11 @@ export function sanitizeEventDescription(raw: string | undefined): string | unde
     .replace(/\\n/g, '\n')
     .replace(/\\,/g, ',')
     .replace(/^Body\s+/i, '');
+
+  if (looksLikeHtml(unescaped)) {
+    const cleaned = sanitizeHtmlFragment(unescaped);
+    return cleaned.length > 0 ? cleaned : undefined;
+  }
 
   const withoutLinks = unescaped
     .replace(/\[[^\]]*(?:https?:)?\/\/[^\]]+\]/gi, '')

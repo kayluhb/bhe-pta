@@ -1,8 +1,10 @@
 import {useCallback, useRef, useState} from 'react';
 import {useLoaderData} from 'react-router';
 import {Calendar, CategoryLegend, getEventDaysInMonth, WeekCalendar} from '~/components/Calendar';
+import {EventDescription} from '~/components/EventCard';
 import {sanitizeCalendarEvents} from '~/lib/calendar';
 import {getCloudflare} from '~/lib/cloudflare-context';
+import {eventInWeek} from '~/lib/event-in-range';
 import {mergeParentMeta} from '~/lib/meta';
 import type {CalendarEvent} from '~/lib/types';
 import type {Route} from './+types/events';
@@ -257,17 +259,29 @@ export default function Events() {
     setCurrentMonth(Number(parts.find((p) => p.type === 'month')?.value ?? '1') - 1);
   }, []);
 
+  const byStart = (a: CalendarEvent, b: CalendarEvent) =>
+    parseEventDate(a.start).getTime() - parseEventDate(b.start).getTime();
+
   const monthEvents = events
     .filter((e) => eventInMonth(e, currentYear, currentMonth))
-    .sort((a, b) => parseEventDate(a.start).getTime() - parseEventDate(b.start).getTime());
+    .sort(byStart);
 
   const monthLongEvents = monthEvents.filter((e) => isMonthLongEvent(e, currentYear, currentMonth));
   const calendarAndListEvents = monthEvents.filter(
     (e) => !isMonthLongEvent(e, currentYear, currentMonth),
   );
 
+  const weekListEvents = events.filter((e) => eventInWeek(e, weekStart)).sort(byStart);
+
   const handleEventClick = useCallback((eventId: string) => {
-    const el = document.getElementById(`event-${eventId}`);
+    const candidates = [
+      document.getElementById(`event-week-${eventId}`),
+      document.getElementById(`event-month-${eventId}`),
+      document.getElementById(`event-${eventId}`),
+    ];
+    const el =
+      candidates.find((node) => node && node.offsetParent !== null) ??
+      candidates.find((node) => node != null);
     if (el) {
       el.scrollIntoView({behavior: 'smooth', block: 'center'});
       el.classList.add('ring-2', 'ring-spirit-gold');
@@ -521,33 +535,67 @@ export default function Events() {
       {/* ── Events List ──────────────────────────────────────────────────── */}
       <section className="bg-white py-16 md:py-24" ref={eventListRef}>
         <div className="max-w-4xl mx-auto px-4">
-          <div className="mb-10">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">
-              {MONTH_NAMES[currentMonth]} Events
-            </h2>
-            <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full" />
+          <div className="md:hidden">
+            <EventList
+              emptyMessage={`No events scheduled for ${formatWeekRange(weekStart)}.`}
+              events={weekListEvents}
+              heading={`${formatWeekRange(weekStart)} Events`}
+              idPrefix="event-week-"
+            />
           </div>
-
-          {calendarAndListEvents.length === 0 && monthLongEvents.length === 0 ? (
-            <p className="text-center text-charcoal/70 py-12 text-lg">
-              No events scheduled for {MONTH_NAMES[currentMonth]} {currentYear}.
-            </p>
-          ) : (
-            <div className="space-y-5">
-              {calendarAndListEvents.map((event) => (
-                <EventListItem event={event} key={event.id} />
-              ))}
-            </div>
-          )}
+          <div className="hidden md:block">
+            <EventList
+              emptyMessage={`No events scheduled for ${MONTH_NAMES[currentMonth]} ${currentYear}.`}
+              events={calendarAndListEvents}
+              heading={`${MONTH_NAMES[currentMonth]} Events`}
+              hideEmpty={monthLongEvents.length > 0}
+              idPrefix="event-month-"
+            />
+          </div>
         </div>
       </section>
     </div>
   );
 }
 
-// ─── Event List Item ──────────────────────────────────────────────────────────
+// ─── Event List ───────────────────────────────────────────────────────────────
 
-function EventListItem({event}: {event: CalendarEvent}) {
+function EventList({
+  emptyMessage,
+  events,
+  heading,
+  hideEmpty = false,
+  idPrefix,
+}: {
+  emptyMessage: string;
+  events: CalendarEvent[];
+  heading: string;
+  hideEmpty?: boolean;
+  idPrefix: string;
+}) {
+  const showEmpty = events.length === 0 && !hideEmpty;
+  const showList = events.length > 0;
+
+  return (
+    <>
+      <div className="mb-10">
+        <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">{heading}</h2>
+        <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full" />
+      </div>
+
+      {showEmpty && <p className="text-center text-charcoal/70 py-12 text-lg">{emptyMessage}</p>}
+      {showList && (
+        <div className="space-y-5">
+          {events.map((event) => (
+            <EventListItem event={event} id={`${idPrefix}${event.id}`} key={event.id} />
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
+function EventListItem({event, id}: {event: CalendarEvent; id: string}) {
   const startDate = parseEventDate(event.start);
   const monthShort = startDate.toLocaleDateString('en-US', {month: 'short', timeZone: CT});
   const dayNum = Number(
@@ -556,10 +604,7 @@ function EventListItem({event}: {event: CalendarEvent}) {
   const style = getCategoryStyle(event.category);
 
   return (
-    <article
-      className="flex items-center overflow-hidden rounded-lg bg-white shadow-md"
-      id={`event-${event.id}`}
-    >
+    <article className="flex items-start overflow-hidden rounded-lg bg-white shadow-md" id={id}>
       {/* Date Badge */}
       <div className="flex flex-col items-center justify-center bg-white text-creek-green px-4 py-4 min-w-[72px]">
         <span className="text-xs font-heading font-bold uppercase tracking-wider text-creek-green/70">
@@ -569,11 +614,9 @@ function EventListItem({event}: {event: CalendarEvent}) {
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-5 py-4">
+      <div className="flex-1 min-w-0 px-5 py-4">
         <div className="flex flex-wrap items-center gap-2 mb-1">
-          <h3 className="font-heading text-base font-bold text-charcoal">
-            {event.title}
-          </h3>
+          <h3 className="font-heading text-base font-bold text-charcoal">{event.title}</h3>
           <span
             className={`text-[10px] font-heading font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border ${style.bg} ${style.text} ${style.border}`}
           >
@@ -583,9 +626,7 @@ function EventListItem({event}: {event: CalendarEvent}) {
 
         <p className="text-sm text-charcoal/70 font-medium">{formatEventDateRange(event)}</p>
 
-        {event.description && (
-          <p className="mt-1.5 text-sm text-charcoal/70 leading-relaxed">{event.description}</p>
-        )}
+        {event.description && <EventDescription html={event.description} />}
       </div>
     </article>
   );
