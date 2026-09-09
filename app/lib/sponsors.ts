@@ -478,12 +478,10 @@ export const tiers = getSponsorTiers();
 /** Flat list of sponsors for the current school year (falls back to the latest year with sponsors). */
 export const allSponsors: Sponsor[] = getSponsorPool();
 
-/** Pick `count` random sponsors using Fisher-Yates shuffle. */
-export function getRandomSponsors(count: number, schoolYear?: string): Sponsor[] {
-  const shuffled = [...getSponsorPool(schoolYear)];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled.slice(0, count);
+/**
+ * Homepage logos: Eagle Pride first (tiers are already ordered that way),
+ * then remaining tiers, up to `count`.
+ */
+export function getFeaturedSponsors(count: number, schoolYear?: string): Sponsor[] {
+  return getSponsorPool(schoolYear).slice(0, count);
 }

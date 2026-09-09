@@ -1,10 +1,10 @@
 import {redirect} from 'react-router';
-import {fetchCalendarEvents} from '~/lib/calendar';
+import {fetchCalendarEvents, fetchPtaCalendarEvents} from '~/lib/calendar';
 import {getCloudflare} from '~/lib/cloudflare-context';
 import type {Route} from './+types/dev.sync-calendar';
 
 /**
- * Dev-only: fetch school calendar ICS and write to KV, then redirect to /events.
+ * Dev-only: fetch school + PTA calendar ICS and write to KV, then redirect to /events.
  * Use once locally to populate events for testing. Disabled in production.
  */
 export async function loader({context}: Route.LoaderArgs) {
@@ -12,8 +12,14 @@ export async function loader({context}: Route.LoaderArgs) {
     return new Response('Not found', {status: 404});
   }
 
-  const events = await fetchCalendarEvents();
-  await getCloudflare(context).env.BHE_CALENDAR.put('events', JSON.stringify(events));
+  const [schoolEvents, ptaEvents] = await Promise.all([
+    fetchCalendarEvents(),
+    fetchPtaCalendarEvents(),
+  ]);
+  await getCloudflare(context).env.BHE_CALENDAR.put(
+    'events',
+    JSON.stringify([...schoolEvents, ...ptaEvents]),
+  );
 
   throw redirect('/events');
 }

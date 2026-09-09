@@ -1,5 +1,5 @@
-import {Fragment} from 'react';
-import {Link, useLoaderData} from 'react-router';
+import {Fragment, useEffect} from 'react';
+import {Link, useLoaderData, useLocation} from 'react-router';
 
 import {corporateContributionsUrl} from '~/data/annual-fund-campaign';
 import {pageSeoMeta} from '~/lib/meta';
@@ -133,7 +133,13 @@ function SponsorTierSection({tier}: {tier: SponsorTier}) {
 
 export default function Sponsors() {
   const {featuredSchoolYear, schoolYear, schoolYears, tiers} = useLoaderData<typeof loader>();
+  const location = useLocation();
   const showYearPicker = schoolYears.length > 1;
+
+  useEffect(() => {
+    if (location.hash !== '#sponsor-list') return;
+    document.getElementById('sponsor-list')?.scrollIntoView();
+  }, [location.hash]);
 
   return (
     <div>
@@ -218,7 +224,7 @@ export default function Sponsors() {
       </section>
 
       {/* ── 4. Sponsor Tiers ─────────────────────────────────────────────── */}
-      <section className="bg-warm-white py-16 md:py-24">
+      <section className="bg-warm-white py-16 md:py-24 scroll-mt-20" id="sponsor-list">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">
