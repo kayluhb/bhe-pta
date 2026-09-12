@@ -147,3 +147,29 @@ outcome of a re-upload.
   explicit override — not re-deriving the rule from scratch.
 - If the Cheddar Up export's column layout changes again, the route fails closed (400)
   rather than guessing — the header layout will need a code update, not just data cleanup.
+- **Cross-upload identity is email-only.** If a household re-submits the form between
+  uploads using a *different* email than their first submission (confirmed in the real
+  26-27 data: a parent's own email changed between a June and a September submission),
+  `pta_members` won't recognize them as already-tracked and they get exported a second
+  time. Within a single upload this is caught by `clusterDuplicateSubmissions` (address OR
+  email matching); across uploads there's no address-based fallback. If this causes a real
+  duplicate in MyPTEZ, the fix is either extending the cross-upload check to also match on
+  the stored `address` column, or having the operator manually remove the stale
+  `pta_members` row before re-uploading.
+- **Within-upload dedupe can drop people who only appear in the superseded submission.**
+  When two submissions from the same household cluster together, the whole older
+  submission is discarded in favor of the newer one (per the operator's own explicit
+  instruction earlier in this project: "keep only the most recent submission"). If the
+  older submission named a spouse or child that the newer one omitted, that person is
+  silently dropped rather than merged in — confirmed against the real 26-27 export (a
+  spouse and a child each appeared only in a submission that lost a later tie-break). This
+  is a known cost of the "keep newest" rule as specified, not an implementation bug; a
+  future improvement would union the additional-parent/child lists across a cluster instead
+  of picking one submission wholesale.
+- **`MemberYear` is derived from the (possibly clamped) `PaidDate`, not from the school
+  year explicitly.** A family joining in, say, February for the current school year would
+  get a `MemberYear` one calendar year ahead of what every historical reference file shows,
+  since all of those happened to be dated in the fall. Whether MyPTEZ actually needs
+  `MemberYear` to match the *school* year rather than the *calendar* year of `PaidDate` is
+  unconfirmed — flag this if the chair does a real mid-season (winter/spring) re-upload; the
+  fix would be deriving `MemberYear` from `school_years.id`/`starts_on` instead.

@@ -32,6 +32,8 @@ export default [
   route('admin/reimbursements/paper', './routes/admin.reimbursement-paper.tsx'),
   route('admin/reimbursements/:id', './routes/admin.reimbursement-detail.tsx'),
   route('admin/school-years', './routes/admin.school-years.tsx'),
+  route('admin/membership', './routes/admin.membership.tsx'),
+  route('api/admin/membership/import', './routes/api.admin.membership-import.ts'),
   route('api/admin/reimbursements/export', './routes/api.admin.reimbursements-export.ts'),
   route('api/admin/reimbursements/paper', './routes/api.admin.reimbursement-paper-create.ts'),
   route('api/admin/reimbursements/file', './routes/api.admin.reimbursement-file.ts'),
