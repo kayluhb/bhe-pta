@@ -1,11 +1,21 @@
 import {getCloudflare} from '~/lib/cloudflare-context';
 import type {Route} from './+types/api.archive.file';
 
+/** Published archive objects live under school-year prefixes like `2021-2022/...`. */
+const ARCHIVE_KEY_RE = /^\d{4}-\d{4}\/(?:thumbs\/)?[A-Za-z0-9._ -]+$/;
+
+export function isAllowedArchiveKey(key: string): boolean {
+  if (!key || key.includes('..') || key.startsWith('/') || key.includes('\\')) {
+    return false;
+  }
+  return ARCHIVE_KEY_RE.test(key);
+}
+
 export async function loader({request, context}: Route.LoaderArgs) {
   const url = new URL(request.url);
   const key = url.searchParams.get('key');
 
-  if (!key || key.includes('..')) {
+  if (!key || !isAllowedArchiveKey(key)) {
     return Response.json({error: 'Invalid key'}, {status: 400});
   }
 

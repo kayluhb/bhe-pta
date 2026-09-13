@@ -1,6 +1,6 @@
 import {requireAdmin} from '~/lib/admin/auth';
 import {getCloudflare} from '~/lib/cloudflare-context';
-import {buildAdminReceiptPdfTitle} from '~/lib/reimbursement/filename';
+import {buildAdminReceiptPdfTitle, sanitizeDownloadFilename} from '~/lib/reimbursement/filename';
 import {
   ACCEPTED_TYPES,
   extractReceiptData,
@@ -105,7 +105,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
           crypto.randomUUID(),
           submissionId,
           originalKey,
-          file.name,
+          sanitizeDownloadFilename(file.name),
           file.type,
           fileBytes.byteLength,
           nextSort + 1,
@@ -116,7 +116,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
       success: true,
       files: [
         {filename: `${sanitizedName}-converted.pdf`, size: pdfBuffer.length},
-        {filename: file.name, size: file.size},
+        {filename: sanitizeDownloadFilename(file.name), size: file.size},
       ],
     });
   } catch (error) {

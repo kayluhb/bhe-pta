@@ -1,10 +1,10 @@
 /**
  * Short-lived HMAC token so follow-up receipt uploads in the same browser session
- * do not require a fresh Turnstile (tokens are typically single-use).
+ * do not require a fresh Turnstile. Bound to a reimbursement draft id and short TTL.
  * Issued after a successful Turnstile verification on POST /api/reimbursement/convert-receipt.
  */
 
-const TTL_SEC = 15 * 60;
+const TTL_SEC = 5 * 60;
 
 function timingSafeEqualString(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
@@ -35,11 +35,18 @@ async function getHmacKey(secret: string): Promise<CryptoKey> {
   );
 }
 
-/** Payload: expUnix|nonce (UUID). Signature is base64url HMAC-SHA256 of that string. */
-export async function issueReceiptUploadContinuationToken(secret: string): Promise<string> {
+/** Payload: expUnix|nonce|draftId. Signature is base64url HMAC-SHA256 of that string. */
+export async function issueReceiptUploadContinuationToken(
+  secret: string,
+  reimbursementDraftId: string,
+): Promise<string> {
+  const draftId = reimbursementDraftId.trim();
+  if (!draftId) {
+    throw new Error('reimbursementDraftId is required for continuation tokens');
+  }
   const exp = Math.floor(Date.now() / 1000) + TTL_SEC;
   const nonce = crypto.randomUUID();
-  const payload = `${exp}|${nonce}`;
+  const payload = `${exp}|${nonce}|${draftId}`;
   const encoder = new TextEncoder();
   const hmacKey = await getHmacKey(secret);
   const sig = await crypto.subtle.sign('HMAC', hmacKey, encoder.encode(payload));
@@ -50,16 +57,21 @@ export async function issueReceiptUploadContinuationToken(secret: string): Promi
 export async function verifyReceiptUploadContinuationToken(
   token: string,
   secret: string,
+  reimbursementDraftId: string,
 ): Promise<boolean> {
+  const expectedDraft = reimbursementDraftId.trim();
+  if (!expectedDraft) return false;
+
   const parts = token.split(':');
   if (parts.length !== 2) return false;
   const [payload, sigPart] = parts;
-  const pipe = payload.indexOf('|');
-  if (pipe === -1) return false;
-  const expStr = payload.slice(0, pipe);
+  const segments = payload.split('|');
+  if (segments.length !== 3) return false;
+  const [expStr, , draftId] = segments;
   const exp = Number.parseInt(expStr, 10);
   if (!Number.isFinite(exp)) return false;
   if (Math.floor(Date.now() / 1000) > exp) return false;
+  if (draftId !== expectedDraft) return false;
 
   const encoder = new TextEncoder();
   const hmacKey = await getHmacKey(secret);

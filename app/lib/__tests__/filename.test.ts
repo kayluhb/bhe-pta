@@ -98,4 +98,9 @@ describe('receipt PDF titles', () => {
     expect(downloadFilenameForR2Object(key, friendly)).toBe(friendly);
     expect(downloadFilenameForR2Object(key)).toBe(friendly);
   });
+
+  it('downloadFilenameForR2Object strips path traversal from stored names', () => {
+    expect(downloadFilenameForR2Object('uploads/x', '../../etc/passwd')).toBe('passwd');
+    expect(downloadFilenameForR2Object('uploads/x', 'evil"name.pdf')).toBe('evil_name.pdf');
+  });
 });
