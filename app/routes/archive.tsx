@@ -299,6 +299,7 @@ function PostCard({post}: {post: ArchivePost}) {
   return (
     <article className="group rounded-lg border border-charcoal/8 bg-charcoal/[0.01] overflow-hidden transition-colors hover:border-eagle-blue/20">
       <button
+        aria-expanded={expanded}
         className="w-full text-left px-5 py-4 cursor-pointer"
         onClick={() => setExpanded(!expanded)}
         type="button"
@@ -370,6 +371,7 @@ function MediaSection({
   return (
     <div className="px-6 pb-5 pt-3">
       <button
+        aria-expanded={showMedia}
         className="flex items-center gap-2 text-sm font-heading font-semibold text-charcoal/50 hover:text-eagle-blue transition-colors cursor-pointer"
         onClick={() => setShowMedia(!showMedia)}
         type="button"

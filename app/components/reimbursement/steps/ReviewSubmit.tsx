@@ -240,6 +240,11 @@ export function ReviewSubmit({
           {isSubmitting ? 'Submitting...' : 'Submit Request'}
         </Button>
       </div>
+      {isSubmitting && (
+        <p className="sr-only" role="status">
+          Submitting reimbursement request…
+        </p>
+      )}
     </form>
   );
 }

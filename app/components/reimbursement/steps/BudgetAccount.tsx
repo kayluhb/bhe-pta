@@ -69,13 +69,14 @@ function SuggestHelper({
 
   return (
     <div className="mt-3 rounded-lg border border-charcoal/10 bg-warm-white p-4">
-      <p className="text-sm font-medium text-charcoal/80 mb-2">
+      <label className="text-sm font-medium text-charcoal/80 mb-2 block" htmlFor="budget-suggest-input">
         Describe what you purchased and we'll suggest an account
-      </p>
+      </label>
       <div className="flex gap-2">
         <input
           className="flex-1 px-3 py-2 border border-charcoal/20 rounded-lg text-sm text-charcoal placeholder:text-charcoal/70 focus:outline-none focus:ring-2 focus:ring-eagle-blue focus:border-eagle-blue"
           disabled={suggesting}
+          id="budget-suggest-input"
           onChange={(e) => setDescription(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
@@ -97,9 +98,9 @@ function SuggestHelper({
           {suggesting ? 'Suggesting...' : 'Suggest'}
         </Button>
       </div>
-      {suggested && (
-        <p className="mt-2 text-sm text-creek-green">
-          Suggested: <strong>{suggested}</strong>
+      {(suggesting || suggested) && (
+        <p className="mt-2 text-sm text-creek-green" role="status">
+          {suggesting ? 'Looking up a budget account…' : `Suggested: ${suggested}`}
         </p>
       )}
     </div>

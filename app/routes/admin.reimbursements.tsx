@@ -1,4 +1,4 @@
-import {type ReactNode, useEffect, useState} from 'react';
+import {type ReactNode, useEffect, useRef, useState} from 'react';
 import {useLoaderData, useNavigate, useRevalidator} from 'react-router';
 import {requireAdmin, type SessionPayload} from '~/lib/admin/auth';
 import {
@@ -420,8 +420,56 @@ export default function AdminReimbursements() {
   const [r2ScanLoading, setR2ScanLoading] = useState(false);
   const [r2SelectedKeys, setR2SelectedKeys] = useState<Set<string>>(new Set());
   const [r2ScanWarning, setR2ScanWarning] = useState<string | null>(null);
+  const r2DialogRef = useRef<HTMLDivElement>(null);
+  const r2CloseButtonRef = useRef<HTMLButtonElement>(null);
+  const r2PreviousFocusRef = useRef<Element | null>(null);
+  const [r2StatusMessage, setR2StatusMessage] = useState<string | null>(null);
 
   const allSelected = submissions.length > 0 && selected.size === submissions.length;
+
+  useEffect(() => {
+    if (!r2CleanupOpen) return;
+
+    r2PreviousFocusRef.current = document.activeElement;
+    r2CloseButtonRef.current?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (r2DeleteLoading || r2ScanLoading) return;
+        setR2CleanupOpen(false);
+        setR2Error(null);
+        setR2Orphans([]);
+        setR2SelectedKeys(new Set());
+        setR2ScanWarning(null);
+        setR2StatusMessage(null);
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const dialog = r2DialogRef.current;
+      if (!dialog) return;
+      const focusable = dialog.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      if (r2PreviousFocusRef.current instanceof HTMLElement) {
+        r2PreviousFocusRef.current.focus();
+      }
+    };
+  }, [r2CleanupOpen, r2DeleteLoading, r2ScanLoading]);
 
   useEffect(() => {
     if (selected.size === 0) setBulkStatusChoice('');
@@ -538,6 +586,7 @@ export default function AdminReimbursements() {
     setR2Orphans([]);
     setR2SelectedKeys(new Set());
     setR2ScanWarning(null);
+    setR2StatusMessage(null);
   };
 
   const scanR2Orphans = async () => {
@@ -545,6 +594,7 @@ export default function AdminReimbursements() {
     setR2Error(null);
     setR2ScanWarning(null);
     setR2SelectedKeys(new Set());
+    setR2StatusMessage('Scanning R2 bucket for unused objects…');
     try {
       const res = await fetch('/api/admin/reimbursements/r2-cleanup');
       const data = (await res.json()) as {
@@ -558,18 +608,26 @@ export default function AdminReimbursements() {
         setR2Error(data.error || 'Scan failed');
         setR2Orphans([]);
         setR2ScanWarning(null);
+        setR2StatusMessage('Scan failed.');
         return;
       }
-      setR2Orphans(data.orphaned ?? []);
+      const orphans = data.orphaned ?? [];
+      setR2Orphans(orphans);
       setR2ScanWarning(
         data.listIncomplete
           ? (data.listWarning ??
               'Listing stopped before every object was scanned. Some unused objects may be missing; try again after deleting found orphans, or check Worker/subrequest limits for very large buckets.')
           : null,
       );
+      setR2StatusMessage(
+        orphans.length === 0
+          ? 'Scan complete. No unused objects found.'
+          : `Scan complete. Found ${orphans.length} unused object${orphans.length === 1 ? '' : 's'}.`,
+      );
     } catch {
       setR2Error('Network error while scanning');
       setR2Orphans([]);
+      setR2StatusMessage('Scan failed.');
     } finally {
       setR2ScanLoading(false);
     }
@@ -1186,7 +1244,13 @@ export default function AdminReimbursements() {
       </main>
 
       {r2CleanupOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div
+          aria-labelledby="r2-cleanup-title"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          ref={r2DialogRef}
+          role="dialog"
+        >
           <button
             aria-label="Close dialog"
             className="absolute inset-0 bg-charcoal/40"
@@ -1194,12 +1258,7 @@ export default function AdminReimbursements() {
             onClick={closeR2Cleanup}
             type="button"
           />
-          <div
-            aria-labelledby="r2-cleanup-title"
-            aria-modal="true"
-            className="relative z-10 max-h-[85vh] w-full max-w-3xl overflow-hidden rounded-xl bg-white shadow-xl border border-gray-200 flex flex-col"
-            role="dialog"
-          >
+          <div className="relative z-10 max-h-[85vh] w-full max-w-3xl overflow-hidden rounded-xl bg-white shadow-xl border border-gray-200 flex flex-col">
             <div className="flex items-start justify-between gap-4 border-b border-gray-200 px-5 py-4">
               <div>
                 <h2
@@ -1220,6 +1279,7 @@ export default function AdminReimbursements() {
                 className="rounded-md p-1 text-gray-500 hover:bg-gray-100 hover:text-charcoal"
                 disabled={r2DeleteLoading || r2ScanLoading}
                 onClick={closeR2Cleanup}
+                ref={r2CloseButtonRef}
                 type="button"
               >
                 <span className="sr-only">Close</span>
@@ -1244,6 +1304,11 @@ export default function AdminReimbursements() {
               >
                 {r2DeleteLoading ? 'Deleting…' : `Delete selected (${r2SelectedKeys.size})`}
               </button>
+              {r2StatusMessage && (
+                <p className="sr-only" role="status">
+                  {r2StatusMessage}
+                </p>
+              )}
             </div>
 
             <div className="flex-1 overflow-auto px-5 py-3">
