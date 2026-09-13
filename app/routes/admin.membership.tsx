@@ -123,6 +123,12 @@ export default function AdminMembership() {
             </a>
             <a
               className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
+              href="/admin/budgets"
+            >
+              Budgets
+            </a>
+            <a
+              className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
               href="/admin/school-years"
             >
               School years

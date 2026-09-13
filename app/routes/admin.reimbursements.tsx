@@ -28,6 +28,7 @@ const VALID_SORT_COLUMNS = [
 const VALID_ORDERS = ['asc', 'desc'] as const;
 
 interface Submission {
+  budget_accounts: string | null;
   check_number: string | null;
   id: string;
   requester_email: string;
@@ -154,16 +155,26 @@ export async function loader({request, context}: Route.LoaderArgs) {
        SUM(CASE WHEN s.submitted_at >= datetime('now', '-30 days') THEN 1 ELSE 0 END) AS new_last_30d,
        MIN(CASE WHEN s.status = 'pending' THEN s.submitted_at END) AS oldest_pending_at
      FROM submissions s
-     ${whereClause}`;
+     ${baseWhereClause}`;
 
   const snapshotStmt = db.prepare(snapshotSql);
   const snapshotPromise =
-    whereBinds.length > 0
-      ? snapshotStmt.bind(...whereBinds).first<SnapshotRow>()
+    baseWhereBinds.length > 0
+      ? snapshotStmt.bind(...baseWhereBinds).first<SnapshotRow>()
       : snapshotStmt.first<SnapshotRow>();
 
   const listSql = `SELECT s.id, s.requester_name, s.requester_email, s.total_amount, s.status, s.submitted_at, s.updated_at,
-       s.school_year_id, y.label AS school_year_label, s.check_number
+       s.school_year_id, y.label AS school_year_label, s.check_number,
+       (
+         SELECT GROUP_CONCAT(c, ', ')
+         FROM (
+           SELECT DISTINCT TRIM(re.category) AS c
+           FROM receipt_entries re
+           WHERE re.submission_id = s.id
+             AND re.category IS NOT NULL
+             AND TRIM(re.category) != ''
+         )
+       ) AS budget_accounts
      FROM submissions s
      LEFT JOIN school_years y ON y.id = s.school_year_id
      ${whereClause}
@@ -172,27 +183,18 @@ export async function loader({request, context}: Route.LoaderArgs) {
 
   const countSql = `SELECT COUNT(*) as count FROM submissions s ${whereClause}`;
 
-  const aggSql = `SELECT status, COUNT(*) as count, COALESCE(SUM(total_amount), 0) as sum_amount
-     FROM submissions s
-     ${whereClause}
-     GROUP BY status`;
-  const aggStmt = db.prepare(aggSql);
-  const aggPromise =
-    whereBinds.length > 0
-      ? aggStmt.bind(...whereBinds).all<StatusAggRow>()
-      : aggStmt.all<StatusAggRow>();
-
-  const dropdownAggSql = `SELECT status, COUNT(*) as count, COALESCE(SUM(total_amount), 0) as sum_amount
+  // Status breakdown for Totals cards + status dropdown (school year + search only).
+  const statusAggSql = `SELECT status, COUNT(*) as count, COALESCE(SUM(total_amount), 0) as sum_amount
      FROM submissions s
      ${baseWhereClause}
      GROUP BY status`;
-  const dropdownAggStmt = db.prepare(dropdownAggSql);
-  const dropdownAggPromise =
+  const statusAggStmt = db.prepare(statusAggSql);
+  const statusAggPromise =
     baseWhereBinds.length > 0
-      ? dropdownAggStmt.bind(...baseWhereBinds).all<StatusAggRow>()
-      : dropdownAggStmt.all<StatusAggRow>();
+      ? statusAggStmt.bind(...baseWhereBinds).all<StatusAggRow>()
+      : statusAggStmt.all<StatusAggRow>();
 
-  const [listBundle, snapshotRow, aggResult, dropdownAggResult] = await Promise.all([
+  const [listBundle, snapshotRow, statusAggResult] = await Promise.all([
     Promise.all([
       db
         .prepare(listSql)
@@ -204,16 +206,15 @@ export async function loader({request, context}: Route.LoaderArgs) {
         .first<{count: number}>(),
     ]),
     snapshotPromise,
-    aggPromise,
-    dropdownAggPromise,
+    statusAggPromise,
   ]);
 
   const [result, countResult] = listBundle;
   const submissions = result.results;
   const totalCount = countResult?.count ?? 0;
 
-  const stats = buildSubmissionStatsFromAggRows(aggResult.results);
-  const dropdownStats = buildSubmissionStatsFromAggRows(dropdownAggResult.results);
+  const stats = buildSubmissionStatsFromAggRows(statusAggResult.results);
+  const dropdownStats = stats;
 
   const snap = snapshotRow ?? ({} as SnapshotRow);
   const writtenCount = Number(snap.check_written_cnt ?? 0) || 0;
@@ -645,6 +646,12 @@ export default function AdminReimbursements() {
             </a>
             <a
               className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
+              href="/admin/budgets"
+            >
+              Budgets
+            </a>
+            <a
+              className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
               href="/admin/school-years"
             >
               School years
@@ -661,7 +668,7 @@ export default function AdminReimbursements() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Dashboard snapshot KPIs (same scope as the table: school year, status, search) */}
+        {/* Dashboard snapshot KPIs (school year + search; status filters the table only) */}
         <section
           aria-labelledby="snapshot-heading"
           className="mb-6 rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
@@ -673,10 +680,8 @@ export default function AdminReimbursements() {
             Snapshot
           </h2>
           <p className="mt-1 text-xs text-gray-500 font-body max-w-3xl mb-4">
-            Volume and pipeline for the same rows as the table below:{' '}
-            <strong className="font-medium">school year</strong>,{' '}
-            <strong className="font-medium">status</strong>, and{' '}
-            <strong className="font-medium">search</strong> filters all apply.
+            Volume and pipeline for the current <strong className="font-medium">school year</strong>{' '}
+            and <strong className="font-medium">search</strong>. Status filters the table only.
           </p>
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
             <KpiTile label="Submissions" sublabel="In scope" value={snapshot.totalSubmissions} />
@@ -742,10 +747,9 @@ export default function AdminReimbursements() {
             Submissions in <strong className="font-medium">Check written</strong> or{' '}
             <strong className="font-medium">Check delivered</strong> (not yet{' '}
             <strong className="font-medium">Check deposited</strong>). Dollar total uses the
-            treasurer check amount when set, otherwise the submission total. Open items and amounts
-            use the same <strong className="font-medium">school year</strong>,{' '}
-            <strong className="font-medium">status</strong>, and{' '}
-            <strong className="font-medium">search</strong> filters as the table.
+            treasurer check amount when set, otherwise the submission total. Scoped by{' '}
+            <strong className="font-medium">school year</strong> and{' '}
+            <strong className="font-medium">search</strong>; status filters the table only.
           </p>
           <div className="mt-4 flex flex-wrap items-end gap-6 sm:gap-10">
             <div>
@@ -875,9 +879,9 @@ export default function AdminReimbursements() {
             Totals by status
           </h2>
           <p className="text-xs text-gray-500 font-body mb-3">
-            Counts and amounts match the table: school year, status, and search filters apply. Use
-            the status dropdown for counts across all statuses (still scoped by school year and
-            search).
+            Counts and amounts for the current <strong className="font-medium">school year</strong>{' '}
+            and <strong className="font-medium">search</strong>. Click a status to filter the table
+            only.
           </p>
           <div className="flex flex-wrap gap-2">
             <a
@@ -1054,6 +1058,12 @@ export default function AdminReimbursements() {
                       Amount
                     </th>
                     <th
+                      className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body hidden sm:table-cell"
+                      scope="col"
+                    >
+                      Budget
+                    </th>
+                    <th
                       className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 font-body hidden md:table-cell text-right"
                       scope="col"
                     >
@@ -1105,6 +1115,12 @@ export default function AdminReimbursements() {
                       </td>
                       <td className="px-4 py-3 text-sm text-charcoal font-body text-right tabular-nums">
                         {formatUsd(sub.total_amount)}
+                      </td>
+                      <td
+                        className="px-4 py-3 text-sm text-gray-600 font-body hidden sm:table-cell max-w-[14rem] truncate"
+                        title={sub.budget_accounts?.trim() || undefined}
+                      >
+                        {sub.budget_accounts?.trim() ? sub.budget_accounts.trim() : '—'}
                       </td>
                       <td className="px-4 py-3 text-sm text-charcoal font-body hidden md:table-cell text-right tabular-nums whitespace-nowrap">
                         {sub.check_number?.trim() ? sub.check_number.trim() : '—'}
