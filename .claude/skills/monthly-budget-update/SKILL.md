@@ -7,6 +7,8 @@ description: Use when converting a QuickBooks Profit and Loss Detail CSV into th
 
 Convert a QuickBooks "Profit and Loss Detail" CSV into the PTA budget spreadsheet format. The previous month's budget CSV is the template; update the actuals column with current P&L totals.
 
+**Preferred path:** use Admin → Budgets (`/admin/budgets`) to upload the P&L, pick a template month, and store the generated CSV. Use this skill when doing the conversion manually in chat or debugging mapping.
+
 ## Process
 
 1. Read the previous month's budget CSV and the new `Profit and Loss Detail.csv`

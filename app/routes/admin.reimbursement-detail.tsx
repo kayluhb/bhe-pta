@@ -158,12 +158,7 @@ export default function AdminReimbursementDetail() {
   const [requesterEmail, setRequesterEmail] = useState(submission.requester_email);
   const [requesterPhone, setRequesterPhone] = useState(submission.requester_phone ?? '');
   const [saving, setSaving] = useState(false);
-  const [savingContact, setSavingContact] = useState(false);
   const [feedback, setFeedback] = useState<{
-    type: 'success' | 'error';
-    message: string;
-  } | null>(null);
-  const [contactFeedback, setContactFeedback] = useState<{
     type: 'success' | 'error';
     message: string;
   } | null>(null);
@@ -189,17 +184,7 @@ export default function AdminReimbursementDetail() {
   );
   const [checkNumber, setCheckNumber] = useState(submission.check_number ?? '');
   const [datePaid, setDatePaid] = useState(() => isoDateForInput(submission.date_paid));
-  const [savingTreasurer, setSavingTreasurer] = useState(false);
-  const [treasurerFeedback, setTreasurerFeedback] = useState<{
-    type: 'success' | 'error';
-    message: string;
-  } | null>(null);
   const [schoolYearId, setSchoolYearId] = useState(submission.school_year_id);
-  const [savingSchoolYear, setSavingSchoolYear] = useState(false);
-  const [schoolYearFeedback, setSchoolYearFeedback] = useState<{
-    type: 'success' | 'error';
-    message: string;
-  } | null>(null);
 
   useEffect(() => {
     setRequesterName(submission.requester_name);
@@ -217,121 +202,179 @@ export default function AdminReimbursementDetail() {
     setSchoolYearId(submission.school_year_id);
   }, [submission.school_year_id]);
 
-  const handleSchoolYearSave = async () => {
-    setSavingSchoolYear(true);
-    setSchoolYearFeedback(null);
-    try {
-      const res = await fetch(
-        `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/school-year`,
-        {
-          body: JSON.stringify({school_year_id: schoolYearId}),
-          headers: {'Content-Type': 'application/json'},
-          method: 'POST',
-        },
-      );
-      const data = (await res.json().catch(() => ({}))) as {error?: string};
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to update school year');
-      }
-      setSchoolYearFeedback({type: 'success', message: 'School year updated.'});
-      revalidator.revalidate();
-    } catch (err) {
-      setSchoolYearFeedback({
-        type: 'error',
-        message: err instanceof Error ? err.message : 'Failed to update school year.',
-      });
-    } finally {
-      setSavingSchoolYear(false);
-    }
-  };
+  useEffect(() => {
+    setStatus(submission.status);
+    setNotes(submission.admin_notes ?? '');
+  }, [submission.status, submission.admin_notes]);
 
-  const handleContactSave = async () => {
-    setSavingContact(true);
-    setContactFeedback(null);
-    try {
-      const res = await fetch(
-        `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/contact`,
-        {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            requester_name: requesterName,
-            requester_email: requesterEmail,
-            requester_phone: requesterPhone.trim() === '' ? null : requesterPhone.trim(),
-          }),
-        },
-      );
-      if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as {error?: string};
-        throw new Error(data.error || (await res.text()) || 'Failed to save contact info');
-      }
-      setContactFeedback({type: 'success', message: 'Contact info saved.'});
-      revalidator.revalidate();
-    } catch (err) {
-      setContactFeedback({
-        type: 'error',
-        message: err instanceof Error ? err.message : 'An unknown error occurred.',
-      });
-    } finally {
-      setSavingContact(false);
-    }
-  };
+  const schoolYearDirty = schoolYearId !== submission.school_year_id;
+  const contactDirty =
+    requesterName !== submission.requester_name ||
+    requesterEmail !== submission.requester_email ||
+    (requesterPhone.trim() || '') !== (submission.requester_phone?.trim() || '');
+  const treasurerDirty =
+    checkAmountInput !== checkAmountInputFromDb(submission.check_amount) ||
+    checkNumber !== (submission.check_number ?? '') ||
+    datePaid !== isoDateForInput(submission.date_paid);
+  const statusDirty =
+    status !== submission.status || notes !== (submission.admin_notes ?? '');
+  const isDirty = schoolYearDirty || contactDirty || treasurerDirty || statusDirty;
 
-  const handleTreasurerSave = async () => {
-    setSavingTreasurer(true);
-    setTreasurerFeedback(null);
+  useEffect(() => {
+    if (isDirty) setFeedback(null);
+  }, [isDirty]);
+
+  const handleSave = async () => {
+    if (!isDirty || saving) return;
+
     let check_amount: number | null = null;
-    if (checkAmountInput.trim() !== '') {
+    if (treasurerDirty && checkAmountInput.trim() !== '') {
       const n = Number(checkAmountInput);
       if (Number.isNaN(n) || n < 0) {
-        setTreasurerFeedback({
+        setFeedback({
           type: 'error',
           message: 'Check amount must be a valid non-negative number.',
         });
-        setSavingTreasurer(false);
         return;
       }
       check_amount = n;
+    } else if (treasurerDirty) {
+      check_amount = null;
     }
-    try {
-      const res = await fetch(
-        `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/treasurer-fields`,
-        {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            check_amount,
-            check_number: checkNumber.trim() === '' ? null : checkNumber.trim(),
-            date_paid: datePaid.trim() === '' ? null : datePaid.trim(),
-          }),
-        },
-      );
-      const data = (await res.json().catch(() => ({}))) as {
-        error?: string;
-        pdfRegenerated?: boolean;
-        success?: boolean;
-        warning?: string;
-      };
-      if (!res.ok) {
-        throw new Error(data.error || (await res.text()) || 'Failed to save');
+
+    setSaving(true);
+    setFeedback(null);
+    const successes: string[] = [];
+    const failures: string[] = [];
+
+    if (schoolYearDirty) {
+      try {
+        const res = await fetch(
+          `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/school-year`,
+          {
+            body: JSON.stringify({school_year_id: schoolYearId}),
+            headers: {'Content-Type': 'application/json'},
+            method: 'POST',
+          },
+        );
+        const data = (await res.json().catch(() => ({}))) as {error?: string};
+        if (!res.ok) {
+          throw new Error(data.error || 'Failed to update school year');
+        }
+        successes.push('School year updated');
+      } catch (err) {
+        failures.push(
+          err instanceof Error ? err.message : 'Failed to update school year.',
+        );
       }
-      setTreasurerFeedback({
-        type: 'success',
-        message: data.warning
-          ? data.warning
-          : data.pdfRegenerated
-            ? 'Check details saved and the request PDF was updated.'
-            : 'Check details saved.',
-      });
-      revalidator.revalidate();
-    } catch (err) {
-      setTreasurerFeedback({
-        type: 'error',
-        message: err instanceof Error ? err.message : 'An unknown error occurred.',
-      });
-    } finally {
-      setSavingTreasurer(false);
     }
+
+    if (contactDirty) {
+      try {
+        const res = await fetch(
+          `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/contact`,
+          {
+            body: JSON.stringify({
+              requester_email: requesterEmail,
+              requester_name: requesterName,
+              requester_phone: requesterPhone.trim() === '' ? null : requesterPhone.trim(),
+            }),
+            headers: {'Content-Type': 'application/json'},
+            method: 'POST',
+          },
+        );
+        if (!res.ok) {
+          const data = (await res.json().catch(() => ({}))) as {error?: string};
+          throw new Error(data.error || (await res.text()) || 'Failed to save contact info');
+        }
+        successes.push('Contact info saved');
+      } catch (err) {
+        failures.push(
+          err instanceof Error ? err.message : 'Failed to save contact info.',
+        );
+      }
+    }
+
+    if (treasurerDirty) {
+      try {
+        const res = await fetch(
+          `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/treasurer-fields`,
+          {
+            body: JSON.stringify({
+              check_amount,
+              check_number: checkNumber.trim() === '' ? null : checkNumber.trim(),
+              date_paid: datePaid.trim() === '' ? null : datePaid.trim(),
+            }),
+            headers: {'Content-Type': 'application/json'},
+            method: 'POST',
+          },
+        );
+        const data = (await res.json().catch(() => ({}))) as {
+          error?: string;
+          pdfRegenerated?: boolean;
+          success?: boolean;
+          warning?: string;
+        };
+        if (!res.ok) {
+          throw new Error(data.error || (await res.text()) || 'Failed to save check details');
+        }
+        successes.push(
+          data.warning
+            ? data.warning.replace(/\.$/, '')
+            : data.pdfRegenerated
+              ? 'Check details saved and the request PDF was updated'
+              : 'Check details saved',
+        );
+      } catch (err) {
+        failures.push(
+          err instanceof Error ? err.message : 'Failed to save check details.',
+        );
+      }
+    }
+
+    if (statusDirty) {
+      try {
+        const res = await fetch(
+          `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/status`,
+          {
+            body: JSON.stringify({
+              notes,
+              status,
+              ...(status === 'check_delivered' && skipEmail && {skipEmail: true}),
+            }),
+            headers: {'Content-Type': 'application/json'},
+            method: 'POST',
+          },
+        );
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || 'Failed to update status');
+        }
+        successes.push('Status updated');
+      } catch (err) {
+        failures.push(err instanceof Error ? err.message : 'Failed to update status.');
+      }
+    }
+
+    if (successes.length > 0) {
+      revalidator.revalidate();
+    }
+
+    if (failures.length > 0) {
+      const prefix =
+        successes.length > 0 ? `${successes.join('. ')}. ` : '';
+      setFeedback({
+        type: 'error',
+        message: `${prefix}${failures.join(' ')}`,
+      });
+    } else {
+      setFeedback({
+        type: 'success',
+        message: `${successes.join('. ')}.`,
+      });
+    }
+
+    setSaving(false);
   };
 
   const handleRemoveLineItem = async (receiptId: string) => {
@@ -493,34 +536,6 @@ export default function AdminReimbursementDetail() {
     }
   };
 
-  const handleStatusUpdate = async () => {
-    setSaving(true);
-    setFeedback(null);
-    try {
-      const res = await fetch(
-        `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/status`,
-        {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({status, notes, ...(skipEmail && {skipEmail: true})}),
-        },
-      );
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || 'Failed to update status');
-      }
-      setFeedback({type: 'success', message: 'Status updated successfully.'});
-      setTimeout(() => window.location.reload(), 1000);
-    } catch (err) {
-      setFeedback({
-        type: 'error',
-        message: err instanceof Error ? err.message : 'An unknown error occurred.',
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const handleDelete = async () => {
     if (!window.confirm('Are you sure you want to delete this submission?')) return;
     setDeleting(true);
@@ -587,6 +602,18 @@ export default function AdminReimbursementDetail() {
           <div className="flex flex-wrap items-center gap-3 sm:gap-4">
             <a
               className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
+              href="/admin/membership"
+            >
+              Membership
+            </a>
+            <a
+              className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
+              href="/admin/budgets"
+            >
+              Budgets
+            </a>
+            <a
+              className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
               href="/admin/school-years"
             >
               School years
@@ -602,7 +629,7 @@ export default function AdminReimbursementDetail() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+      <main className="max-w-4xl mx-auto px-4 py-8 pb-28 space-y-6">
         {/* Back link + ID + Status */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-4">
@@ -628,38 +655,18 @@ export default function AdminReimbursementDetail() {
               >
                 School year
               </label>
-              <div className="flex flex-wrap items-center gap-3">
-                <select
-                  className="min-w-40 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
-                  id="school-year-select"
-                  onChange={(e) => setSchoolYearId(e.target.value)}
-                  value={schoolYearId}
-                >
-                  {schoolYears.map((y) => (
-                    <option key={y.id} value={y.id}>
-                      {y.label}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-charcoal shadow-sm hover:bg-gray-50 font-body disabled:opacity-50"
-                  disabled={savingSchoolYear || schoolYearId === submission.school_year_id}
-                  onClick={handleSchoolYearSave}
-                  type="button"
-                >
-                  {savingSchoolYear ? 'Saving…' : 'Save school year'}
-                </button>
-              </div>
-              {schoolYearFeedback && (
-                <p
-                  className={`mt-2 text-sm font-body ${
-                    schoolYearFeedback.type === 'success' ? 'text-creek-green' : 'text-red-600'
-                  }`}
-                  role="status"
-                >
-                  {schoolYearFeedback.message}
-                </p>
-              )}
+              <select
+                className="min-w-40 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
+                id="school-year-select"
+                onChange={(e) => setSchoolYearId(e.target.value)}
+                value={schoolYearId}
+              >
+                {schoolYears.map((y) => (
+                  <option key={y.id} value={y.id}>
+                    {y.label}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="sm:col-span-2">
               <label
@@ -716,28 +723,6 @@ export default function AdminReimbursementDetail() {
                 {formatUsd(submission.total_amount)}
               </p>
             </div>
-            {contactFeedback && (
-              <div
-                className={`sm:col-span-2 text-sm font-body px-3 py-2 rounded-lg ${
-                  contactFeedback.type === 'success'
-                    ? 'bg-creek-green/10 text-creek-green'
-                    : 'bg-red-50 text-red-700'
-                }`}
-                role="alert"
-              >
-                {contactFeedback.message}
-              </div>
-            )}
-            <div className="sm:col-span-2">
-              <button
-                className="inline-flex items-center gap-2 rounded-lg bg-eagle-blue px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-eagle-blue/90 transition-colors font-body disabled:opacity-50"
-                disabled={savingContact}
-                onClick={handleContactSave}
-                type="button"
-              >
-                {savingContact ? 'Saving...' : 'Save contact info'}
-              </button>
-            </div>
           </div>
         </div>
 
@@ -749,7 +734,7 @@ export default function AdminReimbursementDetail() {
             On the PDF, <strong className="font-medium text-charcoal">Date received</strong> is the
             submission date. <strong className="font-medium text-charcoal">Date approved</strong> is
             set automatically when you save status as Approved (including from the list bulk
-            action). Saving check details below updates the stored request PDF automatically.
+            action). Saving with updated check details regenerates the stored request PDF.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm font-body">
             <div>
@@ -807,28 +792,6 @@ export default function AdminReimbursementDetail() {
                 type="number"
                 value={checkAmountInput}
               />
-            </div>
-            {treasurerFeedback && (
-              <div
-                className={`sm:col-span-2 text-sm font-body px-3 py-2 rounded-lg ${
-                  treasurerFeedback.type === 'success'
-                    ? 'bg-creek-green/10 text-creek-green'
-                    : 'bg-red-50 text-red-700'
-                }`}
-                role="alert"
-              >
-                {treasurerFeedback.message}
-              </div>
-            )}
-            <div className="sm:col-span-2">
-              <button
-                className="inline-flex items-center gap-2 rounded-lg bg-eagle-blue px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-eagle-blue/90 transition-colors font-body disabled:opacity-50"
-                disabled={savingTreasurer}
-                onClick={handleTreasurerSave}
-                type="button"
-              >
-                {savingTreasurer ? 'Saving...' : 'Save check details'}
-              </button>
             </div>
           </div>
         </div>
@@ -916,26 +879,6 @@ export default function AdminReimbursementDetail() {
                 value={notes}
               />
             </div>
-            {feedback && (
-              <div
-                className={`text-sm font-body px-3 py-2 rounded-lg ${
-                  feedback.type === 'success'
-                    ? 'bg-creek-green/10 text-creek-green'
-                    : 'bg-red-50 text-red-700'
-                }`}
-                role="alert"
-              >
-                {feedback.message}
-              </div>
-            )}
-            <button
-              className="inline-flex items-center gap-2 rounded-lg bg-eagle-blue px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-eagle-blue/90 transition-colors font-body disabled:opacity-50"
-              disabled={saving}
-              onClick={handleStatusUpdate}
-              type="button"
-            >
-              {saving ? 'Saving...' : 'Save'}
-            </button>
           </div>
         </div>
 
@@ -1208,6 +1151,37 @@ export default function AdminReimbursementDetail() {
           </button>
         </div>
       </main>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white/95 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] backdrop-blur-sm">
+        <div className="mx-auto flex max-w-4xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p
+            className={`min-h-5 text-sm font-body ${
+              feedback
+                ? feedback.type === 'success'
+                  ? 'text-creek-green'
+                  : 'text-red-600'
+                : isDirty
+                  ? 'text-charcoal'
+                  : 'text-gray-500'
+            }`}
+            role={feedback ? 'alert' : 'status'}
+          >
+            {feedback
+              ? feedback.message
+              : isDirty
+                ? 'You have unsaved changes.'
+                : 'No unsaved changes.'}
+          </p>
+          <button
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-eagle-blue px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-eagle-blue/90 font-body disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={saving || !isDirty}
+            onClick={handleSave}
+            type="button"
+          >
+            {saving ? 'Saving…' : 'Save changes'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
