@@ -82,6 +82,7 @@ describe('verifyGoogleIdToken', () => {
       iss: 'accounts.google.com',
       aud: ['other', 'client-x'],
       email: 'x@bheeagles.com',
+      email_verified: true,
       exp: now + 3600,
     });
     const user = await verifyGoogleIdToken(token, 'client-x');
@@ -132,6 +133,7 @@ describe('verifyGoogleIdToken', () => {
       iss: 'https://accounts.google.com',
       aud: 'c',
       email: 'x@bheeagles.com',
+      email_verified: true,
       exp: now + 3600,
     };
 
@@ -146,6 +148,14 @@ describe('verifyGoogleIdToken', () => {
       email_verified: false,
     });
     expect(await verifyGoogleIdToken(unverified, 'c')).toBeNull();
+
+    const missingVerified = await rs256Jwt(pair.privateKey, 'test-kid', {
+      iss: 'https://accounts.google.com',
+      aud: 'c',
+      email: 'x@bheeagles.com',
+      exp: now + 3600,
+    });
+    expect(await verifyGoogleIdToken(missingVerified, 'c')).toBeNull();
 
     const badEmail = await rs256Jwt(pair.privateKey, 'test-kid', {...base, email: 'x@gmail.com'});
     expect(await verifyGoogleIdToken(badEmail, 'c')).toBeNull();
@@ -226,8 +236,30 @@ describe('verifyGoogleIdToken', () => {
       iss: 'https://accounts.google.com',
       aud: 'c',
       email: 'x@bheeagles.com',
+      email_verified: true,
       exp: now + 3600,
     });
     await expect(verifyGoogleIdToken(token, 'c')).rejects.toThrow('Google JWKS fetch failed');
+  });
+
+  it('enforces optional email allowlist when provided', async () => {
+    const {verifyGoogleIdToken} = await loadWithJwks();
+    const now = Math.floor(Date.now() / 1000);
+    const token = await rs256Jwt(pair.privateKey, 'test-kid', {
+      iss: 'https://accounts.google.com',
+      aud: 'c',
+      email: 'someone@bheeagles.com',
+      email_verified: true,
+      exp: now + 3600,
+    });
+    expect(
+      await verifyGoogleIdToken(token, 'c', {allowedEmails: ['other@bheeagles.com']}),
+    ).toBeNull();
+    expect(
+      await verifyGoogleIdToken(token, 'c', {allowedEmails: ['someone@bheeagles.com']}),
+    ).toEqual({
+      email: 'someone@bheeagles.com',
+      name: 'someone@bheeagles.com',
+    });
   });
 });
