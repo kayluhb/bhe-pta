@@ -359,10 +359,16 @@ export async function action({request, context}: Route.ActionArgs) {
     ]);
 
     // Fast path: any conversions that already finished get their converted PDFs attached now.
+    let attachFailed = false;
     for (const job of completedJobConverteds) {
       try {
-        await attachConvertedToSubmission(env, job);
+        const result = await attachConvertedToSubmission(env, job);
+        if (!result.ok) {
+          attachFailed = true;
+          console.error('[submit] attachConvertedToSubmission failed:', result.reason);
+        }
       } catch (err) {
+        attachFailed = true;
         console.error('[submit] attachConvertedToSubmission failed:', err);
       }
     }
@@ -380,19 +386,24 @@ export async function action({request, context}: Route.ActionArgs) {
 
     // If every job was already terminal (complete or error) at submit, send the email now.
     // Otherwise, the queue consumer will dispatch it once the last conversion finishes.
-    const claimed = await tryClaimEmailDispatch(db, submissionId);
-    if (claimed) {
-      try {
-        const sent = await dispatchSubmissionEmail(env, submissionId);
-        if (!sent) {
+    // Skip claiming when an attach failed — a later queue delivery can finish attach + email.
+    if (!attachFailed) {
+      const claimed = await tryClaimEmailDispatch(db, submissionId);
+      if (claimed) {
+        try {
+          const sent = await dispatchSubmissionEmail(env, submissionId);
+          if (!sent) {
+            await releaseEmailDispatchClaim(db, submissionId);
+          }
+        } catch (emailError) {
+          console.error('Email sending failed:', emailError);
           await releaseEmailDispatchClaim(db, submissionId);
         }
-      } catch (emailError) {
-        console.error('Email sending failed:', emailError);
-        await releaseEmailDispatchClaim(db, submissionId);
+      } else {
+        console.log('Email deferred until receipt conversions complete:', {id: submissionId});
       }
     } else {
-      console.log('Email deferred until receipt conversions complete:', {id: submissionId});
+      console.log('Email deferred until converted attachments are attached:', {id: submissionId});
     }
 
     return Response.json({

@@ -14,6 +14,16 @@ vi.mock('~/lib/reimbursement/receipt', async (importOriginal) => {
 
 import {processReceiptConversionJob} from '../receipt-conversion-queue';
 
+function mockDb(row: Record<string, unknown> | null, run = vi.fn().mockResolvedValue({meta: {changes: 1}})) {
+  const prepare = vi.fn().mockReturnValue({
+    bind: vi.fn().mockReturnValue({
+      first: async () => row,
+      run,
+    }),
+  });
+  return {prepare, run};
+}
+
 describe('processReceiptConversionJob', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -22,12 +32,7 @@ describe('processReceiptConversionJob', () => {
 
   it('no-ops when job row is missing', async () => {
     const log = vi.spyOn(console, 'log').mockImplementation(() => {});
-    const prepare = vi.fn().mockReturnValue({
-      bind: vi.fn().mockReturnValue({
-        first: async () => null,
-        run: vi.fn(),
-      }),
-    });
+    const {prepare} = mockDb(null);
     const env = {
       GEMINI_API_KEY: 'k',
       R2_BUCKET: {delete: vi.fn()},
@@ -39,8 +44,7 @@ describe('processReceiptConversionJob', () => {
   });
 
   it('marks error when original object is missing', async () => {
-    const run = vi.fn().mockResolvedValue({});
-    const row = {
+    const {prepare, run} = mockDb({
       id: 'j1',
       original_content_type: 'image/jpeg',
       original_filename: 'a.jpg',
@@ -49,12 +53,8 @@ describe('processReceiptConversionJob', () => {
       payable_to: 'Pat',
       receipt_number: '1',
       reimbursement_draft_id: null,
-    };
-    const prepare = vi.fn().mockReturnValue({
-      bind: vi.fn().mockReturnValue({
-        first: async () => row,
-        run,
-      }),
+      status: 'queued',
+      submission_id: null,
     });
     const get = vi.fn().mockResolvedValue(null);
     const env = {
@@ -72,8 +72,7 @@ describe('processReceiptConversionJob', () => {
       receipts: [{raw_transcript: 'x', total: '10'}],
     });
 
-    const run = vi.fn().mockResolvedValue({});
-    const row = {
+    const {prepare} = mockDb({
       id: 'j2',
       original_content_type: 'image/jpeg',
       original_filename: 'doc.pdf',
@@ -82,12 +81,8 @@ describe('processReceiptConversionJob', () => {
       payable_to: 'Pat',
       receipt_number: '2',
       reimbursement_draft_id: '1700000000000-00000000-0000-4000-8000-000000000001',
-    };
-    const prepare = vi.fn().mockReturnValue({
-      bind: vi.fn().mockReturnValue({
-        first: async () => row,
-        run,
-      }),
+      status: 'queued',
+      submission_id: null,
     });
     const get = vi.fn().mockResolvedValue({
       arrayBuffer: async () => new Uint8Array([9, 9]).buffer,
@@ -118,9 +113,8 @@ describe('processReceiptConversionJob', () => {
       receipts: [{raw_transcript: 'x', total: '10'}],
     });
 
-    const run = vi.fn().mockResolvedValue({});
     const draftId = '1778872539008-4b3ae639-cbe1-45b0-8490-f5ebb4b9ed92';
-    const row = {
+    const {prepare} = mockDb({
       id: 'j5',
       original_content_type: 'image/jpeg',
       original_filename: `stephanie-white-${draftId}-receipt-2-original.jpg`,
@@ -130,12 +124,8 @@ describe('processReceiptConversionJob', () => {
       receipt_line_index: 2,
       receipt_number: `stephanie-white-${draftId}-receipt-2`,
       reimbursement_draft_id: draftId,
-    };
-    const prepare = vi.fn().mockReturnValue({
-      bind: vi.fn().mockReturnValue({
-        first: async () => row,
-        run,
-      }),
+      status: 'queued',
+      submission_id: null,
     });
     const get = vi.fn().mockResolvedValue({
       arrayBuffer: async () => new Uint8Array([9]).buffer,
@@ -158,8 +148,7 @@ describe('processReceiptConversionJob', () => {
   it('persists extractReceiptData errors', async () => {
     extractReceiptData.mockResolvedValue({error: 'bad', status: 422});
 
-    const run = vi.fn().mockResolvedValue({});
-    const row = {
+    const {prepare, run} = mockDb({
       id: 'j3',
       original_content_type: 'image/jpeg',
       original_filename: 'a.jpg',
@@ -168,12 +157,8 @@ describe('processReceiptConversionJob', () => {
       payable_to: null,
       receipt_number: null,
       reimbursement_draft_id: null,
-    };
-    const prepare = vi.fn().mockReturnValue({
-      bind: vi.fn().mockReturnValue({
-        first: async () => row,
-        run,
-      }),
+      status: 'queued',
+      submission_id: null,
     });
     const get = vi.fn().mockResolvedValue({
       arrayBuffer: async () => new Uint8Array([1]).buffer,
@@ -189,8 +174,7 @@ describe('processReceiptConversionJob', () => {
   });
 
   it('marks error when file bytes are empty', async () => {
-    const run = vi.fn().mockResolvedValue({});
-    const row = {
+    const {prepare, run} = mockDb({
       id: 'j4',
       original_content_type: 'image/jpeg',
       original_filename: 'a.jpg',
@@ -199,12 +183,8 @@ describe('processReceiptConversionJob', () => {
       payable_to: null,
       receipt_number: null,
       reimbursement_draft_id: null,
-    };
-    const prepare = vi.fn().mockReturnValue({
-      bind: vi.fn().mockReturnValue({
-        first: async () => row,
-        run,
-      }),
+      status: 'queued',
+      submission_id: null,
     });
     const get = vi.fn().mockResolvedValue({
       arrayBuffer: async () => new Uint8Array(0).buffer,

@@ -86,6 +86,8 @@ async function finalizeForSubmission(env: QueueEnv, job: ReceiptConversionJobRow
         submissionId,
         reason: result.reason,
       });
+      // Leave email unclaimed so a queue retry can attach, then dispatch.
+      throw new Error(`attachConvertedToSubmission failed: ${result.reason}`);
     }
   }
 
@@ -137,13 +139,24 @@ export async function processReceiptConversionJob(
     return;
   }
 
-  await env.REIMBURSEMENT_DB.prepare(
+  const claim = await env.REIMBURSEMENT_DB.prepare(
     `UPDATE receipt_conversion_jobs
      SET status = 'processing', updated_at = datetime('now')
-     WHERE id = ?`,
+     WHERE id = ? AND status = 'queued'`,
   )
     .bind(jobId)
     .run();
+
+  if ((claim.meta?.changes ?? 0) !== 1) {
+    const latest = await loadLatestJobRow(env.REIMBURSEMENT_DB, jobId);
+    if (latest && (latest.status === 'complete' || latest.status === 'error')) {
+      await finalizeForSubmission(env, latest);
+      queueLog({jobId, outcome: 'already_terminal', status: latest.status});
+    } else {
+      queueLog({jobId, outcome: 'claim_skipped', status: latest?.status ?? 'missing'});
+    }
+    return;
+  }
 
   try {
     const originalObj = await env.R2_BUCKET.get(row.original_key);
@@ -218,11 +231,6 @@ export async function processReceiptConversionJob(
       extractHasTotal: result.receipts.some((r) => receiptFieldString(r.total).length > 0),
       totalMs: Date.now() - startedAt,
     });
-
-    const latest = await loadLatestJobRow(env.REIMBURSEMENT_DB, jobId);
-    if (latest?.submission_id) {
-      await finalizeForSubmission(env, latest);
-    }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     await env.REIMBURSEMENT_DB.prepare(
@@ -230,7 +238,7 @@ export async function processReceiptConversionJob(
        SET status = 'error',
            error_message = ?,
            updated_at = datetime('now')
-       WHERE id = ?`,
+       WHERE id = ? AND status = 'processing'`,
     )
       .bind(message, jobId)
       .run();
@@ -248,5 +256,11 @@ export async function processReceiptConversionJob(
 
     // Do not rethrow: terminal failures are persisted; retrying would re-bill Gemini for the same job.
     return;
+  }
+
+  // Finalize after a successful conversion — failures here must not rewrite status to `error`.
+  const latest = await loadLatestJobRow(env.REIMBURSEMENT_DB, jobId);
+  if (latest?.submission_id) {
+    await finalizeForSubmission(env, latest);
   }
 }
