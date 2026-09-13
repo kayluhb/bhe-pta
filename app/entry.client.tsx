@@ -20,7 +20,7 @@ const sentryDsn = readSentryDsn();
 if (sentryDsn) {
   Sentry.init({
     dsn: sentryDsn,
-    sendDefaultPii: true,
+    sendDefaultPii: false,
     tracesSampleRate: 0.1,
     ignoreErrors: [MISSING_ROUTE_ACTION_RE],
   });

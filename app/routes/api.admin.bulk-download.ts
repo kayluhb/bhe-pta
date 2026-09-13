@@ -1,6 +1,7 @@
 import {zipSync} from 'fflate';
 import {requireAdmin} from '~/lib/admin/auth';
 import {getCloudflare} from '~/lib/cloudflare-context';
+import {sanitizeDownloadFilename} from '~/lib/reimbursement/filename';
 import type {Route} from './+types/api.admin.bulk-download';
 
 interface FileRow {
@@ -85,17 +86,21 @@ export async function loader({request, context}: Route.LoaderArgs) {
         '',
       );
       const folder = `${requesterName} - ${file.submission_id}`;
-      let path = `${folder}/${file.original_filename}`;
+      let path = `${folder}/${sanitizeDownloadFilename(file.original_filename)}`;
 
       // Handle duplicate filenames within same folder
       const count = filenameCounts.get(path) ?? 0;
       if (count > 0) {
-        const ext = file.original_filename.lastIndexOf('.');
-        const name = ext >= 0 ? file.original_filename.slice(0, ext) : file.original_filename;
-        const suffix = ext >= 0 ? file.original_filename.slice(ext) : '';
+        const safeName = sanitizeDownloadFilename(file.original_filename);
+        const ext = safeName.lastIndexOf('.');
+        const name = ext >= 0 ? safeName.slice(0, ext) : safeName;
+        const suffix = ext >= 0 ? safeName.slice(ext) : '';
         path = `${folder}/${name} (${count})${suffix}`;
       }
-      filenameCounts.set(`${folder}/${file.original_filename}`, count + 1);
+      filenameCounts.set(
+        `${folder}/${sanitizeDownloadFilename(file.original_filename)}`,
+        count + 1,
+      );
 
       zipFiles[path] = bytes;
     }),
