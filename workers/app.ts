@@ -73,18 +73,34 @@ async function runDataRefresh(env: Env): Promise<string[]> {
     log.push(msg);
   }
 
-  // Merge school + PTA calendar events
-  const schoolEvents = calendarResult.status === 'fulfilled' ? calendarResult.value : [];
-  const ptaEvents = ptaCalendarResult.status === 'fulfilled' ? ptaCalendarResult.value : [];
-  const allCalendarEvents = [...schoolEvents, ...ptaEvents];
+  // Merge school + PTA calendar events only when both feeds succeed so a partial
+  // failure cannot wipe the other source's events from KV for the day.
+  const schoolOk = calendarResult.status === 'fulfilled';
+  const ptaOk = ptaCalendarResult.status === 'fulfilled';
+  const schoolEvents = schoolOk ? calendarResult.value : [];
+  const ptaEvents = ptaOk ? ptaCalendarResult.value : [];
 
-  if (allCalendarEvents.length > 0) {
-    await env.BHE_CALENDAR.put('events', JSON.stringify(allCalendarEvents));
-    log.push(`Stored ${schoolEvents.length} school + ${ptaEvents.length} PTA calendar events`);
+  if (schoolOk && ptaOk) {
+    const allCalendarEvents = [...schoolEvents, ...ptaEvents];
+    if (allCalendarEvents.length > 0) {
+      await env.BHE_CALENDAR.put('events', JSON.stringify(allCalendarEvents));
+      log.push(`Stored ${schoolEvents.length} school + ${ptaEvents.length} PTA calendar events`);
+    } else {
+      log.push('Calendar feeds succeeded but returned no events; keeping previous KV cache');
+    }
   } else {
     const msg =
-      'Failed to fetch calendars: ' +
-      (calendarResult.status === 'rejected' ? calendarResult.reason : 'No results');
+      'Skipped calendar KV update (keeping previous events): ' +
+      [
+        !schoolOk
+          ? `school=${calendarResult.status === 'rejected' ? calendarResult.reason : 'empty'}`
+          : null,
+        !ptaOk
+          ? `pta=${ptaCalendarResult.status === 'rejected' ? ptaCalendarResult.reason : 'empty'}`
+          : null,
+      ]
+        .filter(Boolean)
+        .join('; ');
     console.error(msg);
     log.push(msg);
   }

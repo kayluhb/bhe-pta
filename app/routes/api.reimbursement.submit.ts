@@ -282,6 +282,12 @@ export async function action({request, context}: Route.ActionArgs) {
         ),
     );
 
+    const schoolYearResolution = await resolveSchoolYearIdForNewSubmission(db);
+    if (!schoolYearResolution.ok) {
+      return schoolYearResolution.response;
+    }
+    const schoolYearId = schoolYearResolution.schoolYearId;
+
     // Atomically claim each referenced job for this submission before persisting rows.
     for (const upload of receiptUploads) {
       const claim = await db
@@ -311,12 +317,6 @@ export async function action({request, context}: Route.ActionArgs) {
         );
       }
     }
-
-    const schoolYearResolution = await resolveSchoolYearIdForNewSubmission(db);
-    if (!schoolYearResolution.ok) {
-      return schoolYearResolution.response;
-    }
-    const schoolYearId = schoolYearResolution.schoolYearId;
 
     await db.batch([
       db
