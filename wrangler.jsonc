@@ -63,15 +63,15 @@
       "kv_namespaces": [
         {
           "binding": "BHE_NEWSLETTERS",
-          "id": "4c77b6f69f774a458fa7e1c312f9115d"
+          "id": "6e65ada71bf240b79008bc3f00b27178"
         },
         {
           "binding": "BHE_PTA_NEWSLETTERS",
-          "id": "2c28fd7859d24acfacbda32a83f27015"
+          "id": "3a3798577f1541128a73d2cf3a6e7f68"
         },
         {
           "binding": "BHE_CALENDAR",
-          "id": "197ef44ed4744f0fb77d5df135137706"
+          "id": "c17a077851064270b6a627d5f1966252"
         }
       ],
       "d1_databases": [
