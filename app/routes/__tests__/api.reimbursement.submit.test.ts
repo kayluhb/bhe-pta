@@ -346,4 +346,135 @@ describe('api.reimbursement.submit action', () => {
     const payload = (await response.json()) as {error?: string};
     expect(payload.error).toContain('Database schema is out of date');
   });
+
+  it('returns 503 and does not claim jobs when no school year is configured', async () => {
+    const jobId = '11111111-1111-4111-8111-111111111111';
+    const prepare = vi.fn((sql: string) => {
+      if (sql.includes('FROM school_years')) {
+        return {first: async () => null};
+      }
+      if (sql.includes('FROM receipt_conversion_jobs WHERE id IN')) {
+        return {
+          bind: (..._args: unknown[]) => ({
+            all: async () => ({
+              results: [
+                {
+                  id: jobId,
+                  status: 'queued' as const,
+                  original_key: 'uploads/a.jpg',
+                  original_filename: 'a.jpg',
+                  original_content_type: 'image/jpeg',
+                  original_size: 10,
+                  converted_key: null,
+                  converted_filename: null,
+                  converted_size: null,
+                  submission_id: null,
+                },
+              ],
+            }),
+          }),
+        };
+      }
+      return {
+        bind: (..._args: unknown[]) => ({
+          run: async () => ({meta: {changes: 1}}),
+        }),
+      };
+    });
+    const db = {
+      prepare,
+      batch: vi.fn(async (_stmts: unknown[]) => []),
+    };
+    const r2 = {
+      head: vi.fn(async () => ({})),
+      get: vi.fn(async () => ({arrayBuffer: async () => new Uint8Array([1]).buffer})),
+      put: vi.fn(async () => {}),
+    };
+
+    const request = new Request('https://example.com/api/reimbursement/submit', {
+      body: JSON.stringify(buildBody([jobId])),
+      headers: {'Content-Type': 'application/json'},
+      method: 'POST',
+    });
+
+    const response = await action({
+      context: createTestLoadContext({
+        ctx: {} as ExecutionContext,
+        env: {
+          R2_BUCKET: r2,
+          REIMBURSEMENT_DB: db,
+          TURNSTILE_SECRET_KEY: 'secret',
+        },
+      }),
+      request,
+    } as never);
+
+    expect(response.status).toBe(503);
+    const payload = (await response.json()) as {error?: string};
+    expect(payload.error).toContain('school year');
+    expect(db.batch).not.toHaveBeenCalled();
+    expect(
+      prepare.mock.calls.some(
+        (call) =>
+          String(call[0]).includes('UPDATE receipt_conversion_jobs') &&
+          String(call[0]).includes('WHERE id = ?'),
+      ),
+    ).toBe(false);
+  });
+
+  it('releases claimed jobs when persisting the submission fails', async () => {
+    const jobId = '11111111-1111-4111-8111-111111111111';
+    const db = createDb(
+      [
+        {
+          converted_filename: null,
+          converted_key: null,
+          converted_size: null,
+          id: jobId,
+          original_content_type: 'image/jpeg',
+          original_filename: 'a.jpg',
+          original_key: 'uploads/a.jpg',
+          original_size: 10,
+          status: 'queued',
+          submission_id: null,
+        },
+      ],
+      [1],
+    );
+    db.batch = vi.fn(async () => {
+      throw new Error('D1 batch failed');
+    });
+    const r2 = {
+      head: vi.fn(async () => ({})),
+      get: vi.fn(async () => ({arrayBuffer: async () => new Uint8Array([1]).buffer})),
+      put: vi.fn(async () => {}),
+    };
+
+    const request = new Request('https://example.com/api/reimbursement/submit', {
+      body: JSON.stringify(buildBody([jobId])),
+      headers: {'Content-Type': 'application/json'},
+      method: 'POST',
+    });
+
+    const response = await action({
+      context: createTestLoadContext({
+        ctx: {} as ExecutionContext,
+        env: {
+          R2_BUCKET: r2,
+          REIMBURSEMENT_DB: db,
+          TURNSTILE_SECRET_KEY: 'secret',
+        },
+      }),
+      request,
+    } as never);
+
+    expect(response.status).toBe(500);
+    expect(
+      db.prepare.mock.calls.some(
+        (call) =>
+          String(call[0]).includes('UPDATE receipt_conversion_jobs') &&
+          String(call[0]).includes('submission_id = NULL'),
+      ),
+    ).toBe(true);
+  });
 });
