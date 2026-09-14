@@ -2,6 +2,7 @@ import {beforeEach, describe, expect, it, vi} from 'vitest';
 
 const extractReceiptData = vi.hoisted(() => vi.fn());
 const generateReceiptPDF = vi.hoisted(() => vi.fn());
+const attachConvertedToSubmission = vi.hoisted(() => vi.fn());
 
 vi.mock('~/lib/reimbursement/receipt', async (importOriginal) => {
   const actual = await importOriginal<typeof import('~/lib/reimbursement/receipt')>();
@@ -12,9 +13,19 @@ vi.mock('~/lib/reimbursement/receipt', async (importOriginal) => {
   };
 });
 
+vi.mock('~/lib/reimbursement/submission-finalize', () => ({
+  attachConvertedToSubmission,
+  dispatchSubmissionEmail: vi.fn(),
+  releaseEmailDispatchClaim: vi.fn(),
+  tryClaimEmailDispatch: vi.fn(),
+}));
+
 import {processReceiptConversionJob} from '../receipt-conversion-queue';
 
-function mockDb(row: Record<string, unknown> | null, run = vi.fn().mockResolvedValue({meta: {changes: 1}})) {
+function mockDb(
+  row: Record<string, unknown> | null,
+  run = vi.fn().mockResolvedValue({meta: {changes: 1}}),
+) {
   const prepare = vi.fn().mockReturnValue({
     bind: vi.fn().mockReturnValue({
       first: async () => row,
@@ -171,6 +182,75 @@ describe('processReceiptConversionJob', () => {
 
     await processReceiptConversionJob(env, {jobId: 'j3'});
     expect(run).toHaveBeenCalled();
+  });
+
+  it('reclaims a processing job so a crashed delivery can finish', async () => {
+    extractReceiptData.mockResolvedValue({
+      receipts: [{raw_transcript: 'x', total: '10'}],
+    });
+
+    const run = vi.fn().mockResolvedValue({meta: {changes: 0}});
+    const {prepare} = mockDb(
+      {
+        id: 'j6',
+        original_content_type: 'image/jpeg',
+        original_filename: 'a.jpg',
+        original_key: 'uploads/1-00000000-0000-4000-8000-000000000001-a.jpg',
+        original_size: 10,
+        payable_to: 'Pat',
+        receipt_number: '1',
+        reimbursement_draft_id: null,
+        status: 'processing',
+        submission_id: null,
+      },
+      run,
+    );
+    const get = vi.fn().mockResolvedValue({
+      arrayBuffer: async () => new Uint8Array([9]).buffer,
+    });
+    const put = vi.fn().mockResolvedValue(undefined);
+    const env = {
+      GEMINI_API_KEY: 'k',
+      R2_BUCKET: {delete: vi.fn(), get, put},
+      REIMBURSEMENT_DB: {prepare},
+    } as unknown as Parameters<typeof processReceiptConversionJob>[0];
+
+    await processReceiptConversionJob(env, {jobId: 'j6'});
+    expect(put).toHaveBeenCalled();
+    expect(extractReceiptData).toHaveBeenCalled();
+  });
+
+  it('does not rewrite complete when finalize throws', async () => {
+    attachConvertedToSubmission.mockRejectedValue(new Error('attach boom'));
+    const run = vi.fn().mockResolvedValue({meta: {changes: 1}});
+    const {prepare} = mockDb(
+      {
+        converted_filename: 'x.pdf',
+        converted_key: 'uploads/x.pdf',
+        converted_size: 3,
+        id: 'j7',
+        original_content_type: 'image/jpeg',
+        original_filename: 'a.jpg',
+        original_key: 'uploads/a.jpg',
+        original_size: 10,
+        payable_to: 'Pat',
+        receipt_line_index: 1,
+        receipt_number: '1',
+        reimbursement_draft_id: null,
+        status: 'complete',
+        submission_id: 'sub-1',
+        submission_slug: 'pat',
+      },
+      run,
+    );
+    const env = {
+      GEMINI_API_KEY: 'k',
+      R2_BUCKET: {delete: vi.fn(), get: vi.fn(), put: vi.fn()},
+      REIMBURSEMENT_DB: {prepare},
+    } as unknown as Parameters<typeof processReceiptConversionJob>[0];
+
+    await expect(processReceiptConversionJob(env, {jobId: 'j7'})).rejects.toThrow('attach boom');
+    expect(run).not.toHaveBeenCalled();
   });
 
   it('marks error when file bytes are empty', async () => {

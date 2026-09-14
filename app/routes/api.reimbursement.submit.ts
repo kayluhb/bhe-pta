@@ -360,15 +360,18 @@ export async function action({request, context}: Route.ActionArgs) {
 
     // Fast path: any conversions that already finished get their converted PDFs attached now.
     let attachFailed = false;
+    const failedAttachJobIds: string[] = [];
     for (const job of completedJobConverteds) {
       try {
         const result = await attachConvertedToSubmission(env, job);
         if (!result.ok) {
           attachFailed = true;
+          failedAttachJobIds.push(job.jobId);
           console.error('[submit] attachConvertedToSubmission failed:', result.reason);
         }
       } catch (err) {
         attachFailed = true;
+        failedAttachJobIds.push(job.jobId);
         console.error('[submit] attachConvertedToSubmission failed:', err);
       }
     }
@@ -386,10 +389,24 @@ export async function action({request, context}: Route.ActionArgs) {
 
     // If every job was already terminal (complete or error) at submit, send the email now.
     // Otherwise, the queue consumer will dispatch it once the last conversion finishes.
-    // Skip claiming when an attach failed — a later queue delivery can finish attach + email.
-    if (!attachFailed) {
+    // Skip claiming when an attach failed — re-enqueue so the consumer can attach, then dispatch.
+    if (attachFailed) {
+      console.log('Email deferred until converted attachments are attached:', {id: submissionId});
+      if (env.RECEIPT_CONVERSION_QUEUE) {
+        for (const jobId of failedAttachJobIds) {
+          await env.RECEIPT_CONVERSION_QUEUE.send({jobId});
+        }
+      } else {
+        console.error('[submit] cannot requeue failed attaches: RECEIPT_CONVERSION_QUEUE missing', {
+          id: submissionId,
+          failedAttachJobIds,
+        });
+      }
+    } else {
       const claimed = await tryClaimEmailDispatch(db, submissionId);
-      if (claimed) {
+      if (!claimed) {
+        console.log('Email deferred until receipt conversions complete:', {id: submissionId});
+      } else {
         try {
           const sent = await dispatchSubmissionEmail(env, submissionId);
           if (!sent) {
@@ -399,11 +416,7 @@ export async function action({request, context}: Route.ActionArgs) {
           console.error('Email sending failed:', emailError);
           await releaseEmailDispatchClaim(db, submissionId);
         }
-      } else {
-        console.log('Email deferred until receipt conversions complete:', {id: submissionId});
       }
-    } else {
-      console.log('Email deferred until converted attachments are attached:', {id: submissionId});
     }
 
     return Response.json({

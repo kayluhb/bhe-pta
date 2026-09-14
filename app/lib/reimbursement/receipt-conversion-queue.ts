@@ -149,13 +149,20 @@ export async function processReceiptConversionJob(
 
   if ((claim.meta?.changes ?? 0) !== 1) {
     const latest = await loadLatestJobRow(env.REIMBURSEMENT_DB, jobId);
-    if (latest && (latest.status === 'complete' || latest.status === 'error')) {
+    if (
+      !latest ||
+      (latest.status !== 'complete' && latest.status !== 'error' && latest.status !== 'processing')
+    ) {
+      queueLog({jobId, outcome: 'claim_skipped', status: latest?.status ?? 'missing'});
+      return;
+    }
+    if (latest.status === 'complete' || latest.status === 'error') {
       await finalizeForSubmission(env, latest);
       queueLog({jobId, outcome: 'already_terminal', status: latest.status});
-    } else {
-      queueLog({jobId, outcome: 'claim_skipped', status: latest?.status ?? 'missing'});
+      return;
     }
-    return;
+    // Previous delivery claimed the row then crashed before ack — take over instead of acking.
+    queueLog({jobId, outcome: 'claim_reclaimed', status: latest.status});
   }
 
   try {
