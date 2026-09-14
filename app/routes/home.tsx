@@ -240,7 +240,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
 
           <div className="max-w-3xl">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white leading-tight">
-              Soaring Together <span className="block text-[#f0d78c]">Since 1964</span>
+              Soaring Together <span className="block text-spirit-gold-on-dark">Since 1964</span>
             </h1>
             <p className="mt-6 text-lg md:text-xl text-white/80 max-w-2xl leading-relaxed">
               Supporting our school community through parent involvement, fundraising, and advocacy

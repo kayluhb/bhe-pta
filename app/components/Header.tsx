@@ -37,7 +37,7 @@ export function Header() {
     if (!mobileMenuOpen) return;
 
     function handleClickOutside(event: MouseEvent) {
-      if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
+      if (headerRef.current?.contains(event.target as Node) === false) {
         closeMenu();
       }
     }
@@ -57,11 +57,11 @@ export function Header() {
       }
 
       // Focus trap across hamburger + menu panel
-      if (e.key === 'Tab' && headerRef.current) {
-        const focusable = headerRef.current.querySelectorAll<HTMLElement>(
+      if (e.key === 'Tab') {
+        const focusable = headerRef.current?.querySelectorAll<HTMLElement>(
           'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
         );
-        if (focusable.length === 0) return;
+        if (!focusable || focusable.length === 0) return;
 
         const first = focusable[0];
         const last = focusable[focusable.length - 1];

@@ -1,4 +1,4 @@
-import {type ReactNode, useEffect, useRef, useState} from 'react';
+import {type ReactNode, useCallback, useEffect, useRef, useState} from 'react';
 import {useLoaderData, useNavigate, useRevalidator} from 'react-router';
 import {requireAdmin, type SessionPayload} from '~/lib/admin/auth';
 import {
@@ -423,9 +423,21 @@ export default function AdminReimbursements() {
   const r2DialogRef = useRef<HTMLDivElement>(null);
   const r2CloseButtonRef = useRef<HTMLButtonElement>(null);
   const r2PreviousFocusRef = useRef<Element | null>(null);
+  const r2BusyRef = useRef(false);
   const [r2StatusMessage, setR2StatusMessage] = useState<string | null>(null);
 
   const allSelected = submissions.length > 0 && selected.size === submissions.length;
+  r2BusyRef.current = r2DeleteLoading || r2ScanLoading;
+
+  const closeR2Cleanup = useCallback(() => {
+    if (r2BusyRef.current) return;
+    setR2CleanupOpen(false);
+    setR2Error(null);
+    setR2Orphans([]);
+    setR2SelectedKeys(new Set());
+    setR2ScanWarning(null);
+    setR2StatusMessage(null);
+  }, []);
 
   useEffect(() => {
     if (!r2CleanupOpen) return;
@@ -433,18 +445,12 @@ export default function AdminReimbursements() {
     r2PreviousFocusRef.current = document.activeElement;
     r2CloseButtonRef.current?.focus();
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        if (r2DeleteLoading || r2ScanLoading) return;
-        setR2CleanupOpen(false);
-        setR2Error(null);
-        setR2Orphans([]);
-        setR2SelectedKeys(new Set());
-        setR2ScanWarning(null);
-        setR2StatusMessage(null);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeR2Cleanup();
         return;
       }
-      if (e.key !== 'Tab') return;
+      if (event.key !== 'Tab') return;
       const dialog = r2DialogRef.current;
       if (!dialog) return;
       const focusable = dialog.querySelectorAll<HTMLElement>(
@@ -453,11 +459,11 @@ export default function AdminReimbursements() {
       if (focusable.length === 0) return;
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
         last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
         first.focus();
       }
     };
@@ -469,7 +475,7 @@ export default function AdminReimbursements() {
         r2PreviousFocusRef.current.focus();
       }
     };
-  }, [r2CleanupOpen, r2DeleteLoading, r2ScanLoading]);
+  }, [closeR2Cleanup, r2CleanupOpen]);
 
   useEffect(() => {
     if (selected.size === 0) setBulkStatusChoice('');
@@ -579,16 +585,6 @@ export default function AdminReimbursements() {
     navigate(buildSearch({page: '1', status: e.target.value}));
   };
 
-  const closeR2Cleanup = () => {
-    if (r2DeleteLoading || r2ScanLoading) return;
-    setR2CleanupOpen(false);
-    setR2Error(null);
-    setR2Orphans([]);
-    setR2SelectedKeys(new Set());
-    setR2ScanWarning(null);
-    setR2StatusMessage(null);
-  };
-
   const scanR2Orphans = async () => {
     setR2ScanLoading(true);
     setR2Error(null);
@@ -659,6 +655,7 @@ export default function AdminReimbursements() {
       return;
     setR2DeleteLoading(true);
     setR2Error(null);
+    setR2StatusMessage('Deleting selected objects…');
     try {
       const res = await fetch('/api/admin/reimbursements/r2-cleanup', {
         body: JSON.stringify({keys: Array.from(r2SelectedKeys)}),
@@ -668,12 +665,14 @@ export default function AdminReimbursements() {
       const data = (await res.json()) as {deleted?: number; error?: string; rejected?: number};
       if (!res.ok) {
         setR2Error(data.error || 'Delete failed');
+        setR2StatusMessage('Delete failed.');
         return;
       }
       setR2SelectedKeys(new Set());
       await scanR2Orphans();
     } catch {
       setR2Error('Network error while deleting');
+      setR2StatusMessage('Delete failed.');
     } finally {
       setR2DeleteLoading(false);
     }
@@ -1244,21 +1243,21 @@ export default function AdminReimbursements() {
       </main>
 
       {r2CleanupOpen && (
-        <div
-          aria-labelledby="r2-cleanup-title"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          ref={r2DialogRef}
-          role="dialog"
-        >
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <button
             aria-label="Close dialog"
             className="absolute inset-0 bg-charcoal/40"
-            disabled={r2DeleteLoading || r2ScanLoading}
             onClick={closeR2Cleanup}
+            tabIndex={-1}
             type="button"
           />
-          <div className="relative z-10 max-h-[85vh] w-full max-w-3xl overflow-hidden rounded-xl bg-white shadow-xl border border-gray-200 flex flex-col">
+          <div
+            aria-labelledby="r2-cleanup-title"
+            aria-modal="true"
+            className="relative z-10 max-h-[85vh] w-full max-w-3xl overflow-hidden rounded-xl bg-white shadow-xl border border-gray-200 flex flex-col"
+            ref={r2DialogRef}
+            role="dialog"
+          >
             <div className="flex items-start justify-between gap-4 border-b border-gray-200 px-5 py-4">
               <div>
                 <h2
@@ -1276,8 +1275,8 @@ export default function AdminReimbursements() {
                 </p>
               </div>
               <button
+                aria-disabled={r2DeleteLoading || r2ScanLoading}
                 className="rounded-md p-1 text-gray-500 hover:bg-gray-100 hover:text-charcoal"
-                disabled={r2DeleteLoading || r2ScanLoading}
                 onClick={closeR2Cleanup}
                 ref={r2CloseButtonRef}
                 type="button"

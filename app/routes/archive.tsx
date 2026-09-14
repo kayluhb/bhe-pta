@@ -278,7 +278,11 @@ function YearSection({
 
           {/* ── Media Items ── */}
           {yearData.items.length > 0 && (
-            <MediaSection items={yearData.items} onImageClick={onImageClick} />
+            <MediaSection
+              items={yearData.items}
+              onImageClick={onImageClick}
+              panelId={`year-media-${yearData.year}`}
+            />
           )}
         </section>
       )}
@@ -299,6 +303,7 @@ function PostCard({post}: {post: ArchivePost}) {
   return (
     <article className="group rounded-lg border border-charcoal/8 bg-charcoal/[0.01] overflow-hidden transition-colors hover:border-eagle-blue/20">
       <button
+        aria-controls={`archive-post-${post.id}`}
         aria-expanded={expanded}
         className="w-full text-left px-5 py-4 cursor-pointer"
         onClick={() => setExpanded(!expanded)}
@@ -339,7 +344,7 @@ function PostCard({post}: {post: ArchivePost}) {
       </button>
 
       {expanded && (
-        <div className="px-5 pb-5 border-t border-charcoal/5">
+        <div className="px-5 pb-5 border-t border-charcoal/5" id={`archive-post-${post.id}`}>
           <div
             className="prose prose-sm max-w-none pt-4
               prose-headings:font-heading prose-headings:text-charcoal
@@ -362,15 +367,18 @@ function PostCard({post}: {post: ArchivePost}) {
 function MediaSection({
   items,
   onImageClick,
+  panelId,
 }: {
   items: ArchiveItem[];
   onImageClick: (item: ArchiveItem) => void;
+  panelId: string;
 }) {
   const [showMedia, setShowMedia] = useState(false);
 
   return (
     <div className="px-6 pb-5 pt-3">
       <button
+        aria-controls={panelId}
         aria-expanded={showMedia}
         className="flex items-center gap-2 text-sm font-heading font-semibold text-charcoal/50 hover:text-eagle-blue transition-colors cursor-pointer"
         onClick={() => setShowMedia(!showMedia)}
@@ -404,7 +412,7 @@ function MediaSection({
       </button>
 
       {showMedia && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-4" id={panelId}>
           {items
             .slice()
             .sort((a, b) => new Date(b.date ?? '').getTime() - new Date(a.date ?? '').getTime())
