@@ -6,16 +6,17 @@ import {getCampaignRaisedCents} from '~/lib/donations/totals';
 
 describe('getCampaignRaisedCents', () => {
   it('sums completed donations', async () => {
+    const bind = vi.fn().mockReturnValue({
+      first: vi.fn().mockResolvedValue({total: 45_000}),
+    });
     const db = {
-      prepare: vi.fn().mockReturnValue({
-        bind: vi.fn().mockReturnValue({
-          first: vi.fn().mockResolvedValue({total: 45_000}),
-        }),
-      }),
+      prepare: vi.fn().mockReturnValue({bind}),
     } as unknown as D1Database;
 
     const total = await getCampaignRaisedCents(db, annualFundCampaign.slug);
     expect(total).toBe(45_000);
+    expect(db.prepare).toHaveBeenCalledWith(expect.stringContaining("status = 'completed'"));
+    expect(bind).toHaveBeenCalledWith(annualFundCampaign.slug);
   });
 
   it('returns 0 when query fails', async () => {

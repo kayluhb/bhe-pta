@@ -73,7 +73,7 @@ export default function GiveCampaign({loaderData}: Route.ComponentProps) {
             )}
             <DonationForm campaign={campaign} paymentsEnabled={paymentsEnabled} />
           </div>
-          <p className="mt-6 text-center text-xs text-charcoal/50">
+          <p className="mt-6 text-center text-xs text-charcoal/70">
             {nonprofit.legalName} · EIN {nonprofit.ein}
           </p>
         </div>

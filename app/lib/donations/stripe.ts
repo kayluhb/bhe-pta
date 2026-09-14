@@ -133,8 +133,8 @@ export function extractRefundedPayment(event: StripeEvent): RefundedPayment | nu
   if (event.type !== 'charge.refunded') return null;
   const charge = event.data.object;
   const paymentId = String(charge.payment_intent ?? '');
+  if (!paymentId) return null;
   const metadata = (charge.metadata ?? {}) as Record<string, string>;
-  const donationId = metadata.donation_id ?? '';
-  if (!donationId || !paymentId) return null;
+  const donationId = metadata.donation_id || null;
   return {donationId, paymentId};
 }

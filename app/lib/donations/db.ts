@@ -91,8 +91,13 @@ export async function markDonationCompleted(
   };
 }
 
-export async function markDonationRefunded(db: D1Database, donationId: string): Promise<void> {
-  await db.prepare(`UPDATE donations SET status = 'refunded' WHERE id = ?`).bind(donationId).run();
+export async function markDonationRefunded(db: D1Database, paymentId: string): Promise<void> {
+  await db
+    .prepare(
+      `UPDATE donations SET status = 'refunded' WHERE provider_payment_id = ? AND status = 'completed'`,
+    )
+    .bind(paymentId)
+    .run();
 }
 
 export async function isWebhookEventProcessed(db: D1Database, eventId: string): Promise<boolean> {
@@ -114,7 +119,9 @@ export async function recordWebhookEvent(
       .bind(eventId, provider)
       .run();
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '';
+    if (/UNIQUE/i.test(message)) return false;
+    throw error;
   }
 }

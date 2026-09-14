@@ -47,7 +47,7 @@ export default function GiveSuccess({loaderData}: Route.ComponentProps) {
           </h1>
           <p className="mt-4 text-lg text-charcoal/70 leading-relaxed">
             Your contribution to {campaign.title} makes a real difference for our school community.
-            A tax receipt has been sent to your email from {nonprofit.shortName}.
+            If your payment completed, a tax receipt will be emailed from {nonprofit.shortName}.
           </p>
           <p className="mt-3 text-sm text-charcoal/60">
             {nonprofit.legalName} · EIN {nonprofit.ein}
@@ -66,7 +66,7 @@ export default function GiveSuccess({loaderData}: Route.ComponentProps) {
               Back to home
             </Link>
           </div>
-          <p className="mt-8 text-sm text-charcoal/50">
+          <p className="mt-8 text-sm text-charcoal/70">
             <Link className="underline hover:text-charcoal" to={campaignGivePath(campaign.slug)}>
               Make another contribution
             </Link>

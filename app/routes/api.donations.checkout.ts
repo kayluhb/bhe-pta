@@ -1,8 +1,8 @@
 import {getCampaign} from '~/data/campaigns';
 import {attachCheckoutId, insertPendingDonation} from '~/lib/donations/db';
 import {createCheckoutSession, isPaymentsConfigured} from '~/lib/donations/provider';
-import {verifyTurnstile} from '~/lib/donations/turnstile';
 import {buildCheckoutSchema} from '~/lib/donations/validation';
+import {verifyTurnstile} from '~/lib/turnstile';
 import type {Route} from './+types/api.donations.checkout';
 
 export async function action({request, context}: Route.ActionArgs) {
@@ -84,8 +84,8 @@ export async function action({request, context}: Route.ActionArgs) {
     await attachCheckoutId(db, donationId, session.checkoutId);
 
     return Response.json({url: session.url});
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Checkout failed';
-    return Response.json({error: message}, {status: 500});
+  } catch (error) {
+    console.error('Donation checkout failed:', error instanceof Error ? error.message : error);
+    return Response.json({error: 'Unable to start checkout. Please try again.'}, {status: 500});
   }
 }

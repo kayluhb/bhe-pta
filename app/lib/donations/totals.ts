@@ -14,7 +14,11 @@ export async function getCampaignRaisedCents(
       .bind(campaignSlug)
       .first<{total: number}>();
     return row?.total ?? 0;
-  } catch {
+  } catch (error) {
+    console.error(
+      'Failed to load campaign raised total:',
+      error instanceof Error ? error.message : error,
+    );
     return 0;
   }
 }

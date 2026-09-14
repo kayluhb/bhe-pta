@@ -22,7 +22,9 @@ export function FundraisingTeaser({campaign}: FundraisingTeaserProps) {
                 {campaign.title}
               </p>
               <h2 className="mt-2 text-2xl md:text-3xl font-heading font-bold text-white">
-                {isEmpty ? 'Our campaign is underway' : `${formatCurrency(campaign.raisedAmount)} raised`}
+                {isEmpty
+                  ? 'Our campaign is underway'
+                  : `${formatCurrency(campaign.raisedAmount)} raised`}
               </h2>
               <p className="mt-2 text-white/80 text-sm">
                 Goal: {formatCurrency(campaign.goalAmount)} · {campaign.schoolYear} school year
@@ -31,7 +33,10 @@ export function FundraisingTeaser({campaign}: FundraisingTeaserProps) {
             <p className="text-4xl font-heading font-bold text-spirit-gold shrink-0">{percent}%</p>
           </div>
 
-          <div aria-hidden="true" className="mt-6 h-3 w-full overflow-hidden rounded-full bg-white/20">
+          <div
+            aria-hidden="true"
+            className="mt-6 h-3 w-full overflow-hidden rounded-full bg-white/20"
+          >
             <div
               className="h-3 rounded-full bg-spirit-gold transition-[width] duration-500 ease-out"
               style={{width: `${Math.max(percent, isEmpty ? 0 : 3)}%`}}

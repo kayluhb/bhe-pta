@@ -24,7 +24,7 @@ export interface CompletedPayment {
 }
 
 export interface RefundedPayment {
-  donationId: string;
+  donationId: string | null;
   paymentId: string;
 }
 

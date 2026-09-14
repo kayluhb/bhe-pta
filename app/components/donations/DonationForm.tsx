@@ -21,7 +21,7 @@ export function DonationForm({campaign, paymentsEnabled}: DonationFormProps) {
   const [donorName, setDonorName] = useState('');
   const [donorEmail, setDonorEmail] = useState('');
   const [donorFields, setDonorFields] = useState<Record<string, string>>(() =>
-    Object.fromEntries(campaign.donorFields.map((f) => [f.id, ''])),
+    Object.fromEntries(campaign.donorFields.map((field) => [field.id, ''])),
   );
   const [presetId, setPresetId] = useState<string | null>(campaign.presetAmounts[0]?.id ?? null);
   const [customAmount, setCustomAmount] = useState('');
@@ -35,12 +35,12 @@ export function DonationForm({campaign, paymentsEnabled}: DonationFormProps) {
       if (!Number.isFinite(dollars) || dollars <= 0) return null;
       return Math.round(dollars * 100);
     }
-    const preset = campaign.presetAmounts.find((p) => p.id === presetId);
+    const preset = campaign.presetAmounts.find((item) => item.id === presetId);
     return preset?.amountCents ?? null;
   })();
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
     setError(null);
 
     if (!paymentsEnabled) {
@@ -98,11 +98,18 @@ export function DonationForm({campaign, paymentsEnabled}: DonationFormProps) {
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
-      <div>
-        <p className="font-heading font-bold text-charcoal mb-3">Choose an amount</p>
+      {error && (
+        <p className="text-red-600 text-sm" role="alert">
+          {error}
+        </p>
+      )}
+
+      <fieldset>
+        <legend className="font-heading font-bold text-charcoal mb-3">Choose an amount</legend>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {campaign.presetAmounts.map((preset) => (
             <button
+              aria-pressed={!useCustom && presetId === preset.id}
               className={`rounded-xl border-2 px-4 py-3 text-left font-heading font-bold transition-colors ${
                 !useCustom && presetId === preset.id
                   ? 'border-eagle-blue bg-eagle-blue/5 text-eagle-blue'
@@ -128,18 +135,22 @@ export function DonationForm({campaign, paymentsEnabled}: DonationFormProps) {
               <input
                 checked={useCustom}
                 className="rounded border-charcoal/30 text-eagle-blue focus:ring-eagle-blue"
-                onChange={(e) => setUseCustom(e.target.checked)}
+                onChange={(event) => setUseCustom(event.target.checked)}
                 type="checkbox"
               />
               Other amount
             </label>
             {useCustom && (
               <div className="mt-2 relative max-w-xs">
+                <label className="sr-only" htmlFor="customAmount">
+                  Contribution amount in dollars
+                </label>
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-charcoal/50">$</span>
                 <input
                   className="w-full rounded-lg border border-charcoal/20 pl-7 pr-3 py-2.5 focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue"
+                  id="customAmount"
                   min={campaign.minAmountCents / 100}
-                  onChange={(e) => setCustomAmount(e.target.value)}
+                  onChange={(event) => setCustomAmount(event.target.value)}
                   placeholder="Enter amount"
                   step="1"
                   type="number"
@@ -149,7 +160,7 @@ export function DonationForm({campaign, paymentsEnabled}: DonationFormProps) {
             )}
           </div>
         )}
-      </div>
+      </fieldset>
 
       <div className="space-y-4">
         <p className="font-heading font-bold text-charcoal">Your information</p>
@@ -160,7 +171,7 @@ export function DonationForm({campaign, paymentsEnabled}: DonationFormProps) {
           <input
             className="w-full rounded-lg border border-charcoal/20 px-3 py-2.5 focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue"
             id="donorName"
-            onChange={(e) => setDonorName(e.target.value)}
+            onChange={(event) => setDonorName(event.target.value)}
             required
             type="text"
             value={donorName}
@@ -173,7 +184,7 @@ export function DonationForm({campaign, paymentsEnabled}: DonationFormProps) {
           <input
             className="w-full rounded-lg border border-charcoal/20 px-3 py-2.5 focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue"
             id="donorEmail"
-            onChange={(e) => setDonorEmail(e.target.value)}
+            onChange={(event) => setDonorEmail(event.target.value)}
             required
             type="email"
             value={donorEmail}
@@ -188,7 +199,9 @@ export function DonationForm({campaign, paymentsEnabled}: DonationFormProps) {
               className="w-full rounded-lg border border-charcoal/20 px-3 py-2.5 focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue"
               id={field.id}
               maxLength={field.maxLength ?? 200}
-              onChange={(e) => setDonorFields((prev) => ({...prev, [field.id]: e.target.value}))}
+              onChange={(event) =>
+                setDonorFields((prev) => ({...prev, [field.id]: event.target.value}))
+              }
               required={field.required}
               type={field.type === 'email' ? 'email' : 'text'}
               value={donorFields[field.id] ?? ''}
@@ -197,23 +210,20 @@ export function DonationForm({campaign, paymentsEnabled}: DonationFormProps) {
         ))}
       </div>
 
-      <div ref={containerRef} />
-
-      {error && (
-        <p className="text-red-600 text-sm" role="alert">
-          {error}
-        </p>
-      )}
+      <fieldset className="m-0 border-0 p-0">
+        <legend className="sr-only">Security check</legend>
+        <div ref={containerRef} />
+      </fieldset>
 
       <button
         className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25 disabled:opacity-50 disabled:cursor-not-allowed"
-        disabled={submitting}
+        disabled={submitting || !paymentsEnabled}
         type="submit"
       >
         {submitting ? 'Redirecting…' : 'Continue to secure payment'}
       </button>
 
-      <p className="text-xs text-charcoal/50">
+      <p className="text-xs text-charcoal/70">
         You will be redirected to our secure payment processor to complete your tax-deductible
         contribution. Barton Hills Elementary PTA (EIN 74-6086853) is a 501(c)(3) nonprofit.
       </p>

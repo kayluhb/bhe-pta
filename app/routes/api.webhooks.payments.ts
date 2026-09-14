@@ -35,11 +35,6 @@ export async function action({request, context}: Route.ActionArgs) {
     return new Response('OK', {status: 200});
   }
 
-  const recorded = await recordWebhookEvent(db, parsed.eventId, parsed.provider);
-  if (!recorded) {
-    return new Response('OK', {status: 200});
-  }
-
   if (parsed.completed) {
     const donor = await markDonationCompleted(
       db,
@@ -60,15 +55,16 @@ export async function action({request, context}: Route.ActionArgs) {
           notificationEmail: env.NOTIFICATION_EMAIL,
           resendApiKey: env.RESEND_API_KEY,
         });
-      } catch (err) {
-        console.error('Donation receipt email failed:', err);
+      } catch {
+        console.error('Donation receipt email failed');
       }
     }
   }
 
   if (parsed.refunded) {
-    await markDonationRefunded(db, parsed.refunded.donationId);
+    await markDonationRefunded(db, parsed.refunded.paymentId);
   }
 
+  await recordWebhookEvent(db, parsed.eventId, parsed.provider);
   return new Response('OK', {status: 200});
 }

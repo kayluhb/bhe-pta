@@ -23,9 +23,7 @@ export function FundraisingProgress({campaign}: FundraisingProgressProps) {
           <p className="font-heading font-bold text-lg text-charcoal">
             {formatCurrency(campaign.raisedAmount)} of {formatCurrency(campaign.goalAmount)}
           </p>
-          <p className="text-sm text-charcoal/60 mt-1">
-            Last updated {campaign.lastUpdated}
-          </p>
+          <p className="text-sm text-charcoal/60 mt-1">Last updated {campaign.lastUpdated}</p>
         </div>
         <p className="text-3xl font-heading font-bold text-eagle-blue">{percent}%</p>
       </div>
@@ -73,9 +71,17 @@ export function FundraisingProgress({campaign}: FundraisingProgressProps) {
                 />
               </svg>
               <div>
-                <p className={`font-heading font-bold ${reached ? 'text-charcoal' : 'text-charcoal/70'}`}>
+                <p
+                  className={`font-heading font-bold ${reached ? 'text-charcoal' : 'text-charcoal/70'}`}
+                >
                   {m.label}
-                  <span className="font-normal text-charcoal/60"> — {formatCurrency(m.amount)}</span>
+                  <span className="font-normal text-charcoal/60">
+                    {' '}
+                    — {formatCurrency(m.amount)}
+                  </span>
+                  <span className="ml-2 font-normal text-sm text-charcoal/70">
+                    {reached ? 'Reached' : 'Not yet'}
+                  </span>
                 </p>
                 <p className="text-sm text-charcoal/60">{m.description}</p>
               </div>

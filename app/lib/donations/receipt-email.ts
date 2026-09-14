@@ -12,6 +12,14 @@ interface DonationReceiptParams {
   resendApiKey: string;
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 function formatCurrency(cents: number): string {
   return new Intl.NumberFormat('en-US', {
     currency: 'USD',
@@ -24,6 +32,7 @@ function formatDate(iso: string): string {
   return date.toLocaleDateString('en-US', {
     day: 'numeric',
     month: 'long',
+    timeZone: 'America/Chicago',
     year: 'numeric',
   });
 }
@@ -31,6 +40,8 @@ function formatDate(iso: string): string {
 function generateReceiptHTML(params: DonationReceiptParams): string {
   const amount = formatCurrency(params.amountCents);
   const date = formatDate(params.completedAt);
+  const donorName = escapeHtml(params.donorName);
+  const campaignTitle = escapeHtml(params.campaignTitle);
   return `
     <!DOCTYPE html>
     <html>
@@ -47,8 +58,8 @@ function generateReceiptHTML(params: DonationReceiptParams): string {
         <h1 style="margin: 0; font-size: 22px;">Donation Receipt</h1>
       </div>
       <div class="content">
-        <p>Dear ${params.donorName},</p>
-        <p>Thank you for your generous contribution to ${params.campaignTitle}.</p>
+        <p>Dear ${donorName},</p>
+        <p>Thank you for your generous contribution to ${campaignTitle}.</p>
         <p><strong>Organization:</strong> ${nonprofit.legalName}<br>
         <strong>EIN:</strong> ${nonprofit.ein}<br>
         <strong>Date:</strong> ${date}<br>
@@ -69,11 +80,14 @@ export async function sendDonationReceiptEmail(params: DonationReceiptParams): P
   const resend = new Resend(params.resendApiKey);
   const html = generateReceiptHTML(params);
 
-  await resend.emails.send({
+  const result = await resend.emails.send({
     bcc: params.notificationEmail,
-    from: 'BHE PTA <donations@bheeagles.com>',
+    from: 'BHE PTA <donations@mail.bheeagles.com>',
     html,
     subject: `Thank you for your donation — ${nonprofit.shortName}`,
     to: params.donorEmail,
   });
+  if (result.error) {
+    throw new Error('Donation receipt email failed');
+  }
 }

@@ -1,7 +1,12 @@
 import {describe, expect, it} from 'vitest';
 
 import type {FundraisingMilestone} from '~/data/campaigns/types';
-import {formatCurrency, getMilestoneStatus, getProgressPercent} from '~/lib/fundraising/progress';
+import {
+  formatCurrency,
+  getMilestoneMarkerPercent,
+  getMilestoneStatus,
+  getProgressPercent,
+} from '~/lib/fundraising/progress';
 
 const milestones: FundraisingMilestone[] = [
   {id: 'a', label: 'A', description: '', amount: 20_000},
@@ -31,6 +36,24 @@ describe('getMilestoneStatus', () => {
       {id: 'b', reached: false},
       {id: 'c', reached: false},
     ]);
+  });
+
+  it('marks a milestone reached at the exact threshold', () => {
+    expect(getMilestoneStatus(50_000, milestones)).toEqual([
+      {id: 'a', reached: true},
+      {id: 'b', reached: true},
+      {id: 'c', reached: false},
+    ]);
+  });
+});
+
+describe('getMilestoneMarkerPercent', () => {
+  it('returns 0 when goal is 0', () => {
+    expect(getMilestoneMarkerPercent(20_000, 0)).toBe(0);
+  });
+
+  it('caps at 100 when amount exceeds goal', () => {
+    expect(getMilestoneMarkerPercent(90_000, 85_000)).toBe(100);
   });
 });
 
