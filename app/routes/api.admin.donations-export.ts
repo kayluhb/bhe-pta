@@ -38,7 +38,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
   const statusFilter = url.searchParams.get('status') || '';
 
   const db = context.cloudflare.env.REIMBURSEMENT_DB;
-  const validSlugs = new Set(listActiveCampaigns().map((c) => c.slug));
+  const validSlugs = new Set(listActiveCampaigns().map((campaign) => campaign.slug));
 
   const conditions: string[] = [];
   const binds: string[] = [];

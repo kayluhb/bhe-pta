@@ -9,8 +9,14 @@ import {parseWebhookPayload, verifyWebhook} from '~/lib/donations/provider';
 import {sendDonationReceiptEmail} from '~/lib/donations/receipt-email';
 import type {Route} from './+types/api.webhooks.payments';
 
+const HTTP_METHOD_POST = 'POST';
+
+function okResponse() {
+  return new Response('OK', {status: 200});
+}
+
 export async function action({request, context}: Route.ActionArgs) {
-  if (request.method !== 'POST') {
+  if (request.method !== HTTP_METHOD_POST) {
     return new Response('Method not allowed', {status: 405});
   }
 
@@ -32,7 +38,7 @@ export async function action({request, context}: Route.ActionArgs) {
   const db = env.REIMBURSEMENT_DB;
 
   if (await isWebhookEventProcessed(db, parsed.eventId)) {
-    return new Response('OK', {status: 200});
+    return okResponse();
   }
 
   if (parsed.completed) {
@@ -66,5 +72,5 @@ export async function action({request, context}: Route.ActionArgs) {
   }
 
   await recordWebhookEvent(db, parsed.eventId, parsed.provider);
-  return new Response('OK', {status: 200});
+  return okResponse();
 }

@@ -13,7 +13,9 @@ interface FundraisingProgressProps {
 export function FundraisingProgress({campaign}: FundraisingProgressProps) {
   const percent = getProgressPercent(campaign.raisedAmount, campaign.goalAmount);
   const milestoneStatus = getMilestoneStatus(campaign.raisedAmount, campaign.milestones);
-  const statusById = Object.fromEntries(milestoneStatus.map((s) => [s.id, s.reached]));
+  const statusById = Object.fromEntries(
+    milestoneStatus.map((status) => [status.id, status.reached]),
+  );
   const isEmpty = campaign.raisedAmount === 0;
 
   return (
@@ -35,12 +37,14 @@ export function FundraisingProgress({campaign}: FundraisingProgressProps) {
             style={{width: `${Math.max(percent, isEmpty ? 0 : 3)}%`}}
           />
         </div>
-        {campaign.milestones.map((m) => (
+        {campaign.milestones.map((milestone) => (
           <div
             aria-hidden="true"
             className="absolute top-0 bottom-0 w-0.5 bg-charcoal/25"
-            key={m.id}
-            style={{left: `${getMilestoneMarkerPercent(m.amount, campaign.goalAmount)}%`}}
+            key={milestone.id}
+            style={{
+              left: `${getMilestoneMarkerPercent(milestone.amount, campaign.goalAmount)}%`,
+            }}
           />
         ))}
       </div>
@@ -52,10 +56,10 @@ export function FundraisingProgress({campaign}: FundraisingProgressProps) {
       )}
 
       <ul className="mt-6 space-y-3">
-        {campaign.milestones.map((m) => {
-          const reached = statusById[m.id] ?? false;
+        {campaign.milestones.map((milestone) => {
+          const reached = statusById[milestone.id] ?? false;
           return (
-            <li className="flex items-start gap-3" key={m.id}>
+            <li className="flex items-start gap-3" key={milestone.id}>
               <svg
                 aria-hidden="true"
                 className={`h-5 w-5 shrink-0 mt-0.5 ${reached ? 'text-creek-green' : 'text-charcoal/30'}`}
@@ -74,16 +78,16 @@ export function FundraisingProgress({campaign}: FundraisingProgressProps) {
                 <p
                   className={`font-heading font-bold ${reached ? 'text-charcoal' : 'text-charcoal/70'}`}
                 >
-                  {m.label}
+                  {milestone.label}
                   <span className="font-normal text-charcoal/60">
                     {' '}
-                    — {formatCurrency(m.amount)}
+                    — {formatCurrency(milestone.amount)}
                   </span>
                   <span className="ml-2 font-normal text-sm text-charcoal/70">
                     {reached ? 'Reached' : 'Not yet'}
                   </span>
                 </p>
-                <p className="text-sm text-charcoal/60">{m.description}</p>
+                <p className="text-sm text-charcoal/60">{milestone.description}</p>
               </div>
             </li>
           );

@@ -1,5 +1,7 @@
 import type {CampaignConfig} from '~/data/campaigns/types';
 
+const COMPLETED_DONATIONS_WHERE = "campaign_slug = ? AND status = 'completed'";
+
 export async function getCampaignRaisedCents(
   db: D1Database,
   campaignSlug: string,
@@ -9,7 +11,7 @@ export async function getCampaignRaisedCents(
       .prepare(
         `SELECT COALESCE(SUM(amount_cents), 0) AS total
          FROM donations
-         WHERE campaign_slug = ? AND status = 'completed'`,
+         WHERE ${COMPLETED_DONATIONS_WHERE}`,
       )
       .bind(campaignSlug)
       .first<{total: number}>();
@@ -32,7 +34,7 @@ export async function getCampaignLastUpdated(
       .prepare(
         `SELECT MAX(completed_at) AS last_at
          FROM donations
-         WHERE campaign_slug = ? AND status = 'completed'`,
+         WHERE ${COMPLETED_DONATIONS_WHERE}`,
       )
       .bind(campaignSlug)
       .first<{last_at: string | null}>();

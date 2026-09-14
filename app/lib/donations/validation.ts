@@ -5,6 +5,18 @@ import type {CampaignConfig} from '~/data/campaigns/types';
 const donorNameSchema = z.string().trim().min(1, 'Name is required').max(100);
 const donorEmailSchema = z.string().trim().email('Valid email is required').max(200);
 
+function addCustomIssue(ctx: z.RefinementCtx, message: string, path: string) {
+  ctx.addIssue({
+    code: 'custom',
+    message,
+    path: [path],
+  });
+}
+
+function findPreset(campaign: CampaignConfig, presetId: string) {
+  return campaign.presetAmounts.find((preset) => preset.id === presetId);
+}
+
 export function buildCheckoutSchema(campaign: CampaignConfig) {
   const donorFieldsShape: Record<string, z.ZodType<string>> = {};
   for (const field of campaign.donorFields) {
@@ -26,40 +38,28 @@ export function buildCheckoutSchema(campaign: CampaignConfig) {
     })
     .superRefine((data, ctx) => {
       if (data.amountCents < campaign.minAmountCents) {
-        ctx.addIssue({
-          code: 'custom',
-          message: `Minimum contribution is $${(campaign.minAmountCents / 100).toFixed(0)}`,
-          path: ['amountCents'],
-        });
+        addCustomIssue(
+          ctx,
+          `Minimum contribution is $${(campaign.minAmountCents / 100).toFixed(0)}`,
+          'amountCents',
+        );
       }
       if (data.amountCents > campaign.maxAmountCents) {
-        ctx.addIssue({
-          code: 'custom',
-          message: 'Amount exceeds maximum allowed',
-          path: ['amountCents'],
-        });
+        addCustomIssue(ctx, 'Amount exceeds maximum allowed', 'amountCents');
       }
-      if (data.presetId) {
-        const preset = campaign.presetAmounts.find((p) => p.id === data.presetId);
-        if (!preset) {
-          ctx.addIssue({
-            code: 'custom',
-            message: 'Invalid preset amount',
-            path: ['presetId'],
-          });
-        } else if (preset.amountCents !== data.amountCents) {
-          ctx.addIssue({
-            code: 'custom',
-            message: 'Amount does not match selected preset',
-            path: ['amountCents'],
-          });
+      if (!data.presetId) {
+        if (!campaign.allowCustomAmount) {
+          addCustomIssue(ctx, 'Custom amounts are not allowed for this campaign', 'amountCents');
         }
-      } else if (!campaign.allowCustomAmount) {
-        ctx.addIssue({
-          code: 'custom',
-          message: 'Custom amounts are not allowed for this campaign',
-          path: ['amountCents'],
-        });
+        return;
+      }
+      const preset = findPreset(campaign, data.presetId);
+      if (!preset) {
+        addCustomIssue(ctx, 'Invalid preset amount', 'presetId');
+        return;
+      }
+      if (preset.amountCents !== data.amountCents) {
+        addCustomIssue(ctx, 'Amount does not match selected preset', 'amountCents');
       }
     });
 }
@@ -72,7 +72,7 @@ export function resolveAmountCents(
   customAmountCents: number | null,
 ): number | null {
   if (presetId) {
-    const preset = campaign.presetAmounts.find((p) => p.id === presetId);
+    const preset = findPreset(campaign, presetId);
     return preset?.amountCents ?? null;
   }
   if (campaign.allowCustomAmount && customAmountCents != null) {

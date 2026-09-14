@@ -18,6 +18,7 @@ export function Header() {
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const location = useLocation();
+  const annualFundGivePath = campaignGivePath(annualFundCampaign.slug);
 
   const closeMenu = useCallback(() => {
     setMobileMenuOpen(false);
@@ -130,7 +131,7 @@ export function Header() {
         <div className="flex items-center gap-3">
           <Link
             className="hidden sm:inline-block bg-spirit-gold text-night-blue font-heading font-bold text-sm px-5 py-2 rounded-full hover:bg-spirit-gold/90 transition-colors"
-            to={campaignGivePath(annualFundCampaign.slug)}
+            to={annualFundGivePath}
           >
             Join PTA
           </Link>
@@ -208,7 +209,7 @@ export function Header() {
               className="mt-2 bg-spirit-gold text-night-blue font-heading font-bold text-sm px-5 py-2 rounded-full text-center hover:bg-spirit-gold/90 transition-colors block"
               onClick={() => setMobileMenuOpen(false)}
               tabIndex={mobileMenuOpen ? 0 : -1}
-              to={campaignGivePath(annualFundCampaign.slug)}
+              to={annualFundGivePath}
             >
               Join PTA
             </Link>

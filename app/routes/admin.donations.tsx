@@ -25,6 +25,9 @@ interface DonationRow {
 }
 
 const PAGE_SIZE = 50;
+const DONATION_STATUS_COMPLETED = 'completed';
+const DONATION_STATUS_PENDING = 'pending';
+const DONATION_STATUS_REFUNDED = 'refunded';
 
 export async function loader({request, context}: Route.LoaderArgs) {
   const auth = await requireAdmin(request, context.cloudflare.env);
@@ -39,7 +42,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
 
   const db = context.cloudflare.env.REIMBURSEMENT_DB;
   const campaigns = listActiveCampaigns();
-  const validSlugs = new Set(campaigns.map((c) => c.slug));
+  const validSlugs = new Set(campaigns.map((campaign) => campaign.slug));
 
   const conditions: string[] = [];
   const binds: (string | number)[] = [];
@@ -66,7 +69,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
       .first<{cnt: number}>();
     total = countRow?.cnt ?? 0;
 
-    const completedConditions = [...conditions, "status = 'completed'"];
+    const completedConditions = [...conditions, `status = '${DONATION_STATUS_COMPLETED}'`];
     const completedWhere =
       completedConditions.length > 0 ? `WHERE ${completedConditions.join(' AND ')}` : '';
     const sumRow = await db
@@ -131,6 +134,7 @@ export default function AdminDonations() {
   const exportParams = new URLSearchParams();
   if (campaignFilter) exportParams.set('campaign', campaignFilter);
   if (statusFilter) exportParams.set('status', statusFilter);
+  const pageQuery = `campaign=${campaignFilter}&status=${statusFilter}`;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -190,9 +194,9 @@ export default function AdminDonations() {
               name="campaign"
             >
               <option value="">All campaigns</option>
-              {campaigns.map((c) => (
-                <option key={c.slug} value={c.slug}>
-                  {c.title}
+              {campaigns.map((campaign) => (
+                <option key={campaign.slug} value={campaign.slug}>
+                  {campaign.title}
                 </option>
               ))}
             </select>
@@ -208,9 +212,9 @@ export default function AdminDonations() {
               name="status"
             >
               <option value="">All statuses</option>
-              <option value="completed">Completed</option>
-              <option value="pending">Pending</option>
-              <option value="refunded">Refunded</option>
+              <option value={DONATION_STATUS_COMPLETED}>Completed</option>
+              <option value={DONATION_STATUS_PENDING}>Pending</option>
+              <option value={DONATION_STATUS_REFUNDED}>Refunded</option>
             </select>
           </div>
           <button
@@ -244,8 +248,8 @@ export default function AdminDonations() {
                 donations.map((row) => {
                   const fields = parseDonorFields(row.donor_fields);
                   const fieldSummary = Object.entries(fields)
-                    .filter(([, v]) => v)
-                    .map(([k, v]) => `${k}: ${v}`)
+                    .filter(([, value]) => value)
+                    .map(([key, value]) => `${key}: ${value}`)
                     .join('; ');
                   return (
                     <tr key={row.id}>
@@ -263,9 +267,9 @@ export default function AdminDonations() {
                       <td className="px-4 py-3">
                         <span
                           className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                            row.status === 'completed'
+                            row.status === DONATION_STATUS_COMPLETED
                               ? 'bg-green-100 text-green-800'
-                              : row.status === 'pending'
+                              : row.status === DONATION_STATUS_PENDING
                                 ? 'bg-yellow-100 text-yellow-800'
                                 : 'bg-gray-100 text-gray-800'
                           }`}
@@ -289,7 +293,7 @@ export default function AdminDonations() {
             {page > 1 && (
               <a
                 className="px-3 py-1 rounded border border-gray-300 text-sm hover:bg-gray-50"
-                href={`?page=${page - 1}&campaign=${campaignFilter}&status=${statusFilter}`}
+                href={`?page=${page - 1}&${pageQuery}`}
               >
                 Previous
               </a>
@@ -300,7 +304,7 @@ export default function AdminDonations() {
             {page < totalPages && (
               <a
                 className="px-3 py-1 rounded border border-gray-300 text-sm hover:bg-gray-50"
-                href={`?page=${page + 1}&campaign=${campaignFilter}&status=${statusFilter}`}
+                href={`?page=${page + 1}&${pageQuery}`}
               >
                 Next
               </a>

@@ -5,8 +5,10 @@ import {buildCheckoutSchema} from '~/lib/donations/validation';
 import {verifyTurnstile} from '~/lib/turnstile';
 import type {Route} from './+types/api.donations.checkout';
 
+const HTTP_METHOD_POST = 'POST';
+
 export async function action({request, context}: Route.ActionArgs) {
-  if (request.method !== 'POST') {
+  if (request.method !== HTTP_METHOD_POST) {
     return Response.json({error: 'Method not allowed'}, {status: 405});
   }
 
@@ -50,17 +52,17 @@ export async function action({request, context}: Route.ActionArgs) {
     );
   }
 
-  const data = parsed.data;
+  const {amountCents, donorEmail, donorFields, donorName, presetId} = parsed.data;
   const provider = env.PAYMENT_PROVIDER?.trim() || 'stripe';
   const db = env.REIMBURSEMENT_DB;
 
   const donationId = await insertPendingDonation(db, {
-    amountCents: data.amountCents,
+    amountCents,
     campaignSlug: campaign.slug,
-    donorEmail: data.donorEmail,
-    donorFields: data.donorFields,
-    donorName: data.donorName,
-    presetId: data.presetId,
+    donorEmail,
+    donorFields,
+    donorName,
+    presetId,
     provider,
   });
 
@@ -70,14 +72,14 @@ export async function action({request, context}: Route.ActionArgs) {
 
   try {
     const session = await createCheckoutSession(env, {
-      amountCents: data.amountCents,
+      amountCents,
       campaignSlug: campaign.slug,
       campaignTitle: campaign.title,
       cancelUrl,
       donationId,
-      donorEmail: data.donorEmail,
-      donorName: data.donorName,
-      presetId: data.presetId,
+      donorEmail,
+      donorName,
+      presetId,
       successUrl,
     });
 

@@ -231,6 +231,7 @@ function SectionHeader({
 
 export default function Home({loaderData}: Route.ComponentProps) {
   const {campaign, events, news, sponsors} = loaderData;
+  const annualFundGivePath = campaignGivePath(annualFundCampaign.slug);
   return (
     <div>
       {/* ── 1. Hero Section ─────────────────────────────────────────────── */}
@@ -468,7 +469,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
               </p>
               <Link
                 className="mt-5 inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
-                to={campaignGivePath(annualFundCampaign.slug)}
+                to={annualFundGivePath}
               >
                 Join Now
                 <svg
@@ -513,7 +514,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
               </p>
               <Link
                 className="mt-5 inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
-                to={campaignGivePath(annualFundCampaign.slug)}
+                to={annualFundGivePath}
               >
                 Give Now
                 <svg

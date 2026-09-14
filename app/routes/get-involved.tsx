@@ -82,6 +82,8 @@ const oneTimeVolunteer = ['Carnival contributions', 'Seasonal parent parties (fa
 
 export default function GetInvolved({loaderData}: Route.ComponentProps) {
   const {campaign} = loaderData;
+  const annualFundGivePath = campaignGivePath(annualFundCampaign.slug);
+  const corporateGivePath = campaignGivePath(corporateCampaign.slug);
   return (
     <div>
       {/* ── 1. Page Banner ───────────────────────────────────────────────── */}
@@ -167,7 +169,7 @@ export default function GetInvolved({loaderData}: Route.ComponentProps) {
               <div className="mt-10">
                 <Link
                   className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
-                  to={campaignGivePath(annualFundCampaign.slug)}
+                  to={annualFundGivePath}
                 >
                   Give to the Annual Fund
                 </Link>
@@ -193,7 +195,7 @@ export default function GetInvolved({loaderData}: Route.ComponentProps) {
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               <Link
                 className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-spirit-gold/90 transition-all duration-200 hover:shadow-lg hover:shadow-spirit-gold/25"
-                to={campaignGivePath(corporateCampaign.slug)}
+                to={corporateGivePath}
               >
                 Become a Local Business Sponsor
               </Link>
@@ -329,7 +331,7 @@ export default function GetInvolved({loaderData}: Route.ComponentProps) {
             <div className="mt-8">
               <Link
                 className="inline-flex items-center bg-eagle-blue text-white font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-eagle-blue/90 transition-all duration-200 hover:shadow-lg"
-                to={campaignGivePath(annualFundCampaign.slug)}
+                to={annualFundGivePath}
               >
                 Become a Member
               </Link>

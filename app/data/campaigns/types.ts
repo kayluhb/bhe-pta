@@ -47,10 +47,11 @@ export function buildCampaignProgress(
   config: CampaignConfig,
   opts: {lastUpdated: string; raisedCents: number},
 ): CampaignProgress {
-  const raisedAmount = (opts.raisedCents + config.manualAdjustmentCents) / 100;
+  const {lastUpdated, raisedCents} = opts;
+  const raisedAmount = (raisedCents + config.manualAdjustmentCents) / 100;
   return {
     ...config,
-    lastUpdated: opts.lastUpdated,
+    lastUpdated,
     raisedAmount,
   };
 }

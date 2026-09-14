@@ -7,6 +7,8 @@ import type {
 } from './types';
 
 const STRIPE_API = 'https://api.stripe.com/v1';
+const STRIPE_EVENT_CHECKOUT_COMPLETED = 'checkout.session.completed';
+const STRIPE_EVENT_CHARGE_REFUNDED = 'charge.refunded';
 
 function encodeParams(params: Record<string, string | number | undefined>): string {
   const body = new URLSearchParams();
@@ -65,8 +67,8 @@ export async function createStripeCheckoutSession(
     throw new Error(`Stripe checkout failed: ${err}`);
   }
 
-  const data = (await res.json()) as {id: string; url: string};
-  return {checkoutId: data.id, url: data.url};
+  const {id, url} = (await res.json()) as {id: string; url: string};
+  return {checkoutId: id, url};
 }
 
 export async function verifyStripeWebhookSignature(
@@ -74,9 +76,9 @@ export async function verifyStripeWebhookSignature(
   signatureHeader: string,
   secret: string,
 ): Promise<boolean> {
-  const parts = signatureHeader.split(',').map((p) => p.trim());
-  const timestamp = parts.find((p) => p.startsWith('t='))?.slice(2);
-  const signatures = parts.filter((p) => p.startsWith('v1=')).map((p) => p.slice(3));
+  const parts = signatureHeader.split(',').map((part) => part.trim());
+  const timestamp = parts.find((part) => part.startsWith('t='))?.slice(2);
+  const signatures = parts.filter((part) => part.startsWith('v1=')).map((part) => part.slice(3));
 
   if (!timestamp || signatures.length === 0) return false;
 
@@ -93,17 +95,17 @@ export async function verifyStripeWebhookSignature(
   );
   const mac = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(signedPayload));
   const expected = Array.from(new Uint8Array(mac))
-    .map((b) => b.toString(16).padStart(2, '0'))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
     .join('');
 
   return signatures.some((sig) => timingSafeEqual(sig, expected));
 }
 
-function timingSafeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
+function timingSafeEqual(left: string, right: string): boolean {
+  if (left.length !== right.length) return false;
   let result = 0;
-  for (let i = 0; i < a.length; i++) {
-    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  for (let i = 0; i < left.length; i++) {
+    result |= left.charCodeAt(i) ^ right.charCodeAt(i);
   }
   return result === 0;
 }
@@ -119,7 +121,7 @@ export function parseStripeWebhookEvent(payload: string): StripeEvent {
 }
 
 export function extractCompletedPayment(event: StripeEvent): CompletedPayment | null {
-  if (event.type !== 'checkout.session.completed') return null;
+  if (event.type !== STRIPE_EVENT_CHECKOUT_COMPLETED) return null;
   const session = event.data.object;
   const metadata = (session.metadata ?? {}) as Record<string, string>;
   const donationId = String(session.client_reference_id ?? metadata.donation_id ?? '');
@@ -130,7 +132,7 @@ export function extractCompletedPayment(event: StripeEvent): CompletedPayment | 
 }
 
 export function extractRefundedPayment(event: StripeEvent): RefundedPayment | null {
-  if (event.type !== 'charge.refunded') return null;
+  if (event.type !== STRIPE_EVENT_CHARGE_REFUNDED) return null;
   const charge = event.data.object;
   const paymentId = String(charge.payment_intent ?? '');
   if (!paymentId) return null;

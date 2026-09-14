@@ -4,7 +4,7 @@ import type {CampaignConfig} from './types';
 
 const campaigns: CampaignConfig[] = [annualFundCampaign, corporateCampaign];
 
-const bySlug = new Map(campaigns.map((c) => [c.slug, c]));
+const bySlug = new Map(campaigns.map((campaign) => [campaign.slug, campaign]));
 
 export function getCampaign(slug: string): CampaignConfig | undefined {
   return bySlug.get(slug);

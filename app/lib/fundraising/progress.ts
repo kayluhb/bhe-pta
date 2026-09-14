@@ -6,9 +6,9 @@ export function getProgressPercent(raised: number, goal: number): number {
 }
 
 export function getMilestoneStatus(raised: number, milestones: FundraisingMilestone[]) {
-  return milestones.map((m) => ({
-    id: m.id,
-    reached: raised >= m.amount,
+  return milestones.map((milestone) => ({
+    id: milestone.id,
+    reached: raised >= milestone.amount,
   }));
 }
 

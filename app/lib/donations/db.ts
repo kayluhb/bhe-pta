@@ -84,10 +84,11 @@ export async function markDonationCompleted(
     }>();
 
   if (!row) return null;
+  const {campaign_slug: campaignSlug, donor_email: donorEmail, donor_name: donorName} = row;
   return {
-    campaignSlug: row.campaign_slug,
-    donorEmail: row.donor_email,
-    donorName: row.donor_name ?? 'Donor',
+    campaignSlug,
+    donorEmail,
+    donorName: donorName ?? 'Donor',
   };
 }
 
