@@ -9,6 +9,9 @@ export type PlMappedAmount = {
   additive?: boolean;
 };
 
+const CARNIVAL_EXPENSES = 'Carnival Expenses';
+const SPRING_FLING_EXPENSES = 'Spring Fling Expenses';
+
 /** Exact leaf name → mapping (used when path-specific rules don't apply). */
 export const EXPENSE_LEAF_MAP: Record<string, string> = {
   'ACPTA Mini Equity Grants': 'ACPTA Mini-Grants & Austin Ed Grants',
@@ -146,7 +149,7 @@ export function mapPlTotal(path: string[]): PlMappedAmount | null {
   }
   const expense = EXPENSE_LEAF_MAP[leaf];
   if (expense) {
-    const additive = leaf === 'Carnival Expenses' || leaf === 'Spring Fling Expenses';
+    const additive = leaf === CARNIVAL_EXPENSES || leaf === SPRING_FLING_EXPENSES;
     return {additive: additive || undefined, budgetLine: expense};
   }
 

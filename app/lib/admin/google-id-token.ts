@@ -112,13 +112,6 @@ export async function verifyGoogleIdToken(
 
   if (payload.hd !== undefined && payload.hd !== 'bheeagles.com') return null;
 
-  const allowlist = options?.allowedEmails
-    ?.map((entry) => entry.trim().toLowerCase())
-    .filter((entry) => entry.length > 0);
-  if (allowlist && allowlist.length > 0 && !allowlist.includes(email.toLowerCase())) {
-    return null;
-  }
-
   const jwks = await getGoogleJwks();
   const jwk = jwks.find((k) => k.kid === header.kid && k.use !== 'enc');
   if (!jwk) return null;
@@ -145,6 +138,13 @@ export async function verifyGoogleIdToken(
     signedBytes,
   );
   if (!ok) return null;
+
+  const allowlist = options?.allowedEmails
+    ?.map((entry) => entry.trim().toLowerCase())
+    .filter((entry) => entry.length > 0);
+  if (allowlist?.length && !allowlist.includes(email.toLowerCase())) {
+    return null;
+  }
 
   return {
     email,

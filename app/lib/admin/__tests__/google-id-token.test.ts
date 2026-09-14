@@ -181,6 +181,7 @@ describe('verifyGoogleIdToken', () => {
       iss: 'https://accounts.google.com',
       aud: 'c',
       email: 'x@bheeagles.com',
+      email_verified: true,
       exp: now + 3600,
     });
     expect(await verifyGoogleIdToken(token, 'c')).toBeNull();
@@ -202,6 +203,7 @@ describe('verifyGoogleIdToken', () => {
       iss: 'https://accounts.google.com',
       aud: 'c',
       email: 'x@bheeagles.com',
+      email_verified: true,
       exp: now + 3600,
     });
     expect(await verifyGoogleIdToken(token, 'c')).toBeNull();
@@ -223,6 +225,7 @@ describe('verifyGoogleIdToken', () => {
       iss: 'https://accounts.google.com',
       aud: 'c',
       email: 'x@bheeagles.com',
+      email_verified: true,
       exp: now + 3600,
     });
     expect(await verifyGoogleIdToken(token, 'c')).toBeNull();
@@ -256,7 +259,7 @@ describe('verifyGoogleIdToken', () => {
       await verifyGoogleIdToken(token, 'c', {allowedEmails: ['other@bheeagles.com']}),
     ).toBeNull();
     expect(
-      await verifyGoogleIdToken(token, 'c', {allowedEmails: ['someone@bheeagles.com']}),
+      await verifyGoogleIdToken(token, 'c', {allowedEmails: ['  Someone@BheEagles.com  ']}),
     ).toEqual({
       email: 'someone@bheeagles.com',
       name: 'someone@bheeagles.com',
