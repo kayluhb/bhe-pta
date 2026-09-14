@@ -86,21 +86,18 @@ export async function loader({request, context}: Route.LoaderArgs) {
         '',
       );
       const folder = `${requesterName} - ${file.submission_id}`;
-      let path = `${folder}/${sanitizeDownloadFilename(file.original_filename)}`;
+      const safeName = sanitizeDownloadFilename(file.original_filename);
+      let path = `${folder}/${safeName}`;
 
       // Handle duplicate filenames within same folder
       const count = filenameCounts.get(path) ?? 0;
       if (count > 0) {
-        const safeName = sanitizeDownloadFilename(file.original_filename);
         const ext = safeName.lastIndexOf('.');
         const name = ext >= 0 ? safeName.slice(0, ext) : safeName;
         const suffix = ext >= 0 ? safeName.slice(ext) : '';
         path = `${folder}/${name} (${count})${suffix}`;
       }
-      filenameCounts.set(
-        `${folder}/${sanitizeDownloadFilename(file.original_filename)}`,
-        count + 1,
-      );
+      filenameCounts.set(`${folder}/${safeName}`, count + 1);
 
       zipFiles[path] = bytes;
     }),

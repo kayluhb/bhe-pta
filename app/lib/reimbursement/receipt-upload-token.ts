@@ -4,6 +4,8 @@
  * Issued after a successful Turnstile verification on POST /api/reimbursement/convert-receipt.
  */
 
+import {isValidReimbursementDraftId} from '~/lib/reimbursement/filename';
+
 const TTL_SEC = 5 * 60;
 
 function timingSafeEqualString(a: string, b: string): boolean {
@@ -41,7 +43,7 @@ export async function issueReceiptUploadContinuationToken(
   reimbursementDraftId: string,
 ): Promise<string> {
   const draftId = reimbursementDraftId.trim();
-  if (!draftId) {
+  if (!isValidReimbursementDraftId(draftId)) {
     throw new Error('reimbursementDraftId is required for continuation tokens');
   }
   const exp = Math.floor(Date.now() / 1000) + TTL_SEC;
@@ -60,22 +62,23 @@ export async function verifyReceiptUploadContinuationToken(
   reimbursementDraftId: string,
 ): Promise<boolean> {
   const expectedDraft = reimbursementDraftId.trim();
-  if (!expectedDraft) return false;
+  if (!isValidReimbursementDraftId(expectedDraft)) return false;
 
   const parts = token.split(':');
   if (parts.length !== 2) return false;
   const [payload, sigPart] = parts;
   const segments = payload.split('|');
   if (segments.length !== 3) return false;
-  const [expStr, , draftId] = segments;
-  const exp = Number.parseInt(expStr, 10);
-  if (!Number.isFinite(exp)) return false;
-  if (Math.floor(Date.now() / 1000) > exp) return false;
-  if (draftId !== expectedDraft) return false;
 
   const encoder = new TextEncoder();
   const hmacKey = await getHmacKey(secret);
   const expectedSig = await crypto.subtle.sign('HMAC', hmacKey, encoder.encode(payload));
   const expected = bufferToBase64Url(expectedSig);
-  return timingSafeEqualString(expected, sigPart);
+  if (!timingSafeEqualString(expected, sigPart)) return false;
+
+  const [expStr, , draftId] = segments;
+  const exp = Number.parseInt(expStr, 10);
+  if (!Number.isFinite(exp)) return false;
+  if (Math.floor(Date.now() / 1000) > exp) return false;
+  return draftId === expectedDraft;
 }

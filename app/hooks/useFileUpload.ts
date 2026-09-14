@@ -111,6 +111,9 @@ export function useFileUpload(turnstileToken: string | null) {
         if (draftId) formData.append('reimbursementDraftId', draftId);
 
         const headers: Record<string, string> = {};
+        if (draftId) {
+          headers['X-Reimbursement-Draft-Id'] = draftId;
+        }
         if (auth === 'continuation') {
           const token = receiptUploadContinuationRef.current;
           if (!token) {

@@ -8,6 +8,7 @@ import {
   buildSubmissionSlug,
   downloadFilenameForR2Object,
   receiptLineFromStorageBasename,
+  sanitizeDownloadFilename,
   slugifyName,
   stripEphemeralR2KeyPrefix,
   stripReimbursementDraftIdFromString,
@@ -54,9 +55,7 @@ describe('receipt PDF titles', () => {
 
   it('parses receipt line from storage basename', () => {
     expect(
-      receiptLineFromStorageBasename(
-        `stephanie-white-${draftId}-receipt-2-08a1b2c3-original`,
-      ),
+      receiptLineFromStorageBasename(`stephanie-white-${draftId}-receipt-2-08a1b2c3-original`),
     ).toBe(2);
   });
 
@@ -86,9 +85,7 @@ describe('receipt PDF titles', () => {
   it('stripEphemeralR2KeyPrefix removes leading staging timestamp-uuid', () => {
     const friendly = `stephanie-white-${draftId}-receipt-1-f8bb06a2-original-converted.pdf`;
     expect(
-      stripEphemeralR2KeyPrefix(
-        `1779735317537-aba98099-0195-4ff3-ba5f-d8c2fd9393ed-${friendly}`,
-      ),
+      stripEphemeralR2KeyPrefix(`1779735317537-aba98099-0195-4ff3-ba5f-d8c2fd9393ed-${friendly}`),
     ).toBe(friendly);
   });
 
@@ -102,5 +99,15 @@ describe('receipt PDF titles', () => {
   it('downloadFilenameForR2Object strips path traversal from stored names', () => {
     expect(downloadFilenameForR2Object('uploads/x', '../../etc/passwd')).toBe('passwd');
     expect(downloadFilenameForR2Object('uploads/x', 'evil"name.pdf')).toBe('evil_name.pdf');
+  });
+});
+
+describe('sanitizeDownloadFilename', () => {
+  it('strips Content-Disposition injection, controls, and empty names', () => {
+    expect(sanitizeDownloadFilename('a"\r\nX-Injected: 1.pdf')).toBe('a___X-Injected_ 1.pdf');
+    expect(sanitizeDownloadFilename('evil\x00name.pdf')).toBe('evil_name.pdf');
+    expect(sanitizeDownloadFilename('...')).toBe('download');
+    expect(sanitizeDownloadFilename('')).toBe('download');
+    expect(sanitizeDownloadFilename(`${'a'.repeat(200)}.pdf`)).toHaveLength(180);
   });
 });

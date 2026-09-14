@@ -25,24 +25,18 @@ export async function action({request, context}: Route.ActionArgs) {
     const env = getCloudflare(context).env;
     const continuationSecret = env.SESSION_SECRET || env.FILE_URL_SIGNING_SECRET;
     const continuation = request.headers.get('X-Receipt-Upload-Token');
-
-    const formData = await request.formData();
-    const file = formData.get('file') as File | null;
-    const payableTo = formData.get('payableTo') as string | null;
-    const receiptNumber = formData.get('receiptNumber') as string | null;
-    const reimbursementDraftIdRaw = formData.get('reimbursementDraftId') as string | null;
-    const reimbursementDraftId = reimbursementDraftIdRaw?.trim() || null;
-    if (reimbursementDraftId && !isValidReimbursementDraftId(reimbursementDraftId)) {
+    const draftIdFromHeader = request.headers.get('X-Reimbursement-Draft-Id')?.trim() || null;
+    if (draftIdFromHeader && !isValidReimbursementDraftId(draftIdFromHeader)) {
       logConvertReceipt({requestId, outcome: 'reject', reason: 'bad_reimbursement_draft_id'});
       return Response.json({error: 'Invalid reimbursement draft id.'}, {status: 400});
     }
 
     let authViaContinuation = false;
-    if (continuation && continuationSecret && reimbursementDraftId) {
+    if (continuation && continuationSecret && draftIdFromHeader) {
       authViaContinuation = await verifyReceiptUploadContinuationToken(
         continuation,
         continuationSecret,
-        reimbursementDraftId,
+        draftIdFromHeader,
       );
     }
 
@@ -54,6 +48,21 @@ export async function action({request, context}: Route.ActionArgs) {
       }
     } else {
       logConvertReceipt({requestId, outcome: 'auth_continuation_token'});
+    }
+
+    const formData = await request.formData();
+    const file = formData.get('file') as File | null;
+    const payableTo = formData.get('payableTo') as string | null;
+    const receiptNumber = formData.get('receiptNumber') as string | null;
+    const reimbursementDraftIdRaw = formData.get('reimbursementDraftId') as string | null;
+    const reimbursementDraftId = reimbursementDraftIdRaw?.trim() || draftIdFromHeader;
+    if (reimbursementDraftId && !isValidReimbursementDraftId(reimbursementDraftId)) {
+      logConvertReceipt({requestId, outcome: 'reject', reason: 'bad_reimbursement_draft_id'});
+      return Response.json({error: 'Invalid reimbursement draft id.'}, {status: 400});
+    }
+    if (draftIdFromHeader && reimbursementDraftId && draftIdFromHeader !== reimbursementDraftId) {
+      logConvertReceipt({requestId, outcome: 'reject', reason: 'draft_id_mismatch'});
+      return Response.json({error: 'Invalid reimbursement draft id.'}, {status: 400});
     }
 
     if (!file) {

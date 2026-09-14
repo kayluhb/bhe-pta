@@ -83,6 +83,8 @@ export async function action({request, params, context}: Route.ActionArgs) {
       r2.put(originalKey, fileBytes, {httpMetadata: {contentType: file.type}}),
     ]);
 
+    const originalFilename = sanitizeDownloadFilename(file.name);
+
     await db.batch([
       db
         .prepare(
@@ -105,7 +107,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
           crypto.randomUUID(),
           submissionId,
           originalKey,
-          sanitizeDownloadFilename(file.name),
+          originalFilename,
           file.type,
           fileBytes.byteLength,
           nextSort + 1,
@@ -116,7 +118,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
       success: true,
       files: [
         {filename: `${sanitizedName}-converted.pdf`, size: pdfBuffer.length},
-        {filename: sanitizeDownloadFilename(file.name), size: file.size},
+        {filename: originalFilename, size: file.size},
       ],
     });
   } catch (error) {
