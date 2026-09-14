@@ -16,6 +16,7 @@ const navLinks = [
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const location = useLocation();
@@ -36,12 +37,7 @@ export function Header() {
     if (!mobileMenuOpen) return;
 
     function handleClickOutside(event: MouseEvent) {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node) &&
-        buttonRef.current &&
-        !buttonRef.current.contains(event.target as Node)
-      ) {
+      if (headerRef.current?.contains(event.target as Node) === false) {
         closeMenu();
       }
     }
@@ -60,12 +56,12 @@ export function Header() {
         return;
       }
 
-      // Focus trap
-      if (e.key === 'Tab' && menuRef.current) {
-        const focusable = menuRef.current.querySelectorAll<HTMLElement>(
+      // Focus trap across hamburger + menu panel
+      if (e.key === 'Tab') {
+        const focusable = headerRef.current?.querySelectorAll<HTMLElement>(
           'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
         );
-        if (focusable.length === 0) return;
+        if (!focusable || focusable.length === 0) return;
 
         const first = focusable[0];
         const last = focusable[focusable.length - 1];
@@ -93,7 +89,7 @@ export function Header() {
   }, [mobileMenuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 bg-eagle-blue shadow-lg">
+    <header className="sticky top-0 z-50 bg-eagle-blue shadow-lg" ref={headerRef}>
       <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
         {/* Logo + Site Name */}
         <Link aria-label="Barton Hills Elementary PTA home" className="flex items-center shrink-0" to="/">

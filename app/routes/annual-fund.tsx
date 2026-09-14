@@ -137,7 +137,7 @@ export default function AnnualFund({loaderData}: Route.ComponentProps) {
           }}
         />
         <div className="relative z-10 mx-auto max-w-7xl px-4 text-center">
-          <p className="font-heading text-sm font-bold uppercase tracking-wider text-spirit-gold">
+          <p className="font-heading text-sm font-bold uppercase tracking-wider text-spirit-gold-on-dark">
             {campaign.schoolYear} Annual Fund
           </p>
           <h1 className="mt-3 font-heading text-4xl font-bold text-white md:text-5xl lg:text-6xl">
