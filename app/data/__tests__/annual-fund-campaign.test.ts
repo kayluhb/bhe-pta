@@ -7,7 +7,7 @@ describe('annualFundCampaign', () => {
     const {goalAmount, milestones, raisedAmount} = annualFundCampaign;
 
     expect(goalAmount).toBe(272_000);
-    expect(raisedAmount).toBeCloseTo(222_066.01);
+    expect(raisedAmount).toBeCloseTo(260_493.46);
     expect(milestones).toHaveLength(3);
     expect(milestones.at(-1)?.amount).toBe(goalAmount);
 

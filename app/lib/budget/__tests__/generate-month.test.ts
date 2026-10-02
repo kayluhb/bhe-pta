@@ -39,14 +39,14 @@ describe('extractPlBudgetActuals', () => {
     );
     const {actuals} = extractPlBudgetActuals(pl);
 
-    expect(actuals.get('Business contributions')).toBe(151);
-    expect(actuals.get('Annual Fund — Businesses')).toBe(33252);
-    expect(actuals.get('Annual Fund — Families')).toBe(188663);
+    expect(actuals.get('Business contributions')).toBe(1715);
+    expect(actuals.get('Annual Fund — Businesses')).toBe(62071);
+    expect(actuals.get('Annual Fund — Families')).toBe(196708);
     expect(actuals.get('Snacks for classrooms')).toBe(52);
     expect(actuals.get('Additional Staffing funds (Music, Art & PE)')).toBe(85000);
     expect(actuals.get('Admin - Accounting')).toBe(80);
     expect(actuals.get('Admin - PTA expenses')).toBe(138);
-    expect(actuals.get('Admin - Bank & credit card fees')).toBe(8);
+    expect(actuals.get('Admin - Bank & credit card fees')).toBe(15);
     expect(actuals.get('Admin - Google Drive')).toBe(48);
     expect(actuals.get('Admin - Liability insurance')).toBe(500);
     expect(actuals.get('Admin - Tax return preparation')).toBe(250);
@@ -60,7 +60,7 @@ describe('extractPlBudgetActuals', () => {
     expect(actuals.get('Library')).toBe(492);
     expect(actuals.get('Teacher lounge coffee & food')).toBe(37);
     expect(actuals.get('Teacher grant program for Fall')).toBe(391);
-    expect(actuals.get('Unified Champions')).toBe(200);
+    expect(actuals.get('Unified Champions')).toBe(400);
   });
 });
 
@@ -87,7 +87,7 @@ describe('generateMonthBudget', () => {
     expect(rows[0]?.[3]).toContain('Key changes from August 2026');
 
     const family = rows.find((r) => r[0]?.startsWith('Annual Fund — Families'));
-    expect(family?.[2]).toBe('$188,663');
+    expect(family?.[2]).toBe('$196,708');
 
     const carnival = rows.find((r) => r[0] === 'Fundraiser #1 (Carnival)');
     expect(carnival?.[2]).toBe('$3,385');
