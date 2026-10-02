@@ -193,9 +193,15 @@ export async function tryClaimEmailDispatch(
       `UPDATE submissions
          SET email_sent_at = datetime('now')
        WHERE id = ?
-         AND email_sent_at IS NULL`,
+         AND email_sent_at IS NULL
+         AND NOT EXISTS (
+           SELECT 1
+             FROM receipt_conversion_jobs
+            WHERE submission_id = ?
+              AND status NOT IN ('complete', 'error')
+         )`,
     )
-    .bind(submissionId)
+    .bind(submissionId, submissionId)
     .run();
 
   return (result.meta?.changes ?? 0) === 1;

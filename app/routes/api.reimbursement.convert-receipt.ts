@@ -146,6 +146,16 @@ export async function action({request, context}: Route.ActionArgs) {
       )
       .run();
 
+    if (!env.RECEIPT_CONVERSION_QUEUE) {
+      logConvertReceipt({requestId, outcome: 'reject', reason: 'no_queue', jobId});
+      return Response.json(
+        {error: 'Receipt conversion queue is not configured for this environment.'},
+        {status: 503},
+      );
+    }
+
+    await env.RECEIPT_CONVERSION_QUEUE.send({jobId});
+
     const totalMs = Date.now() - startedAt;
     logConvertReceipt({
       requestId,

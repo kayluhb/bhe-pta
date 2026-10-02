@@ -11,7 +11,10 @@ vi.mock('~/lib/reimbursement/submission-finalize', () => ({
   tryClaimEmailDispatch: vi.fn(async () => false),
 }));
 
-import {attachConvertedToSubmission} from '~/lib/reimbursement/submission-finalize';
+import {
+  attachConvertedToSubmission,
+  tryClaimEmailDispatch,
+} from '~/lib/reimbursement/submission-finalize';
 import {createTestLoadContext} from '~/lib/test-cloudflare-context';
 import {action} from '../api.reimbursement.submit';
 
@@ -246,6 +249,70 @@ describe('api.reimbursement.submit action', () => {
     );
     expect(receiptOriginalKeys).toHaveLength(0);
     expect(attachConvertedToSubmission).toHaveBeenCalled();
+  });
+
+  it('requeues conversion jobs when attaching a converted PDF fails', async () => {
+    vi.mocked(tryClaimEmailDispatch).mockClear();
+    vi.mocked(attachConvertedToSubmission).mockResolvedValueOnce({
+      ok: false,
+      reason: 'converted PDF missing in R2',
+    });
+    const queueSend = vi.fn(async () => {});
+    const job1 = '11111111-1111-4111-8111-111111111111';
+    const db = createDb(
+      [
+        {
+          converted_filename: 'a-converted.pdf',
+          converted_key: 'uploads/a-converted.pdf',
+          converted_size: 99,
+          id: job1,
+          original_content_type: 'image/jpeg',
+          original_filename: 'a.jpg',
+          original_key: 'uploads/a.jpg',
+          original_size: 10,
+          reimbursement_draft_id: null,
+          status: 'complete',
+          submission_id: null,
+        },
+      ],
+      [1],
+    );
+
+    const r2 = {
+      get: vi.fn(async (key: string) => {
+        if (key === 'uploads/a.jpg') return null;
+        return {arrayBuffer: async () => new Uint8Array([1]).buffer};
+      }),
+      head: vi.fn(async (key: string) => {
+        if (key === 'uploads/a.jpg') return null;
+        if (key === 'uploads/a-converted.pdf') return {};
+        return {};
+      }),
+      put: vi.fn(async () => {}),
+    };
+
+    const request = new Request('https://example.com/api/reimbursement/submit', {
+      body: JSON.stringify(buildBody([job1])),
+      headers: {'Content-Type': 'application/json'},
+      method: 'POST',
+    });
+
+    const response = await action({
+      context: createTestLoadContext({
+        ctx: {} as ExecutionContext,
+        env: {
+          R2_BUCKET: r2,
+          RECEIPT_CONVERSION_QUEUE: {send: queueSend},
+          REIMBURSEMENT_DB: db,
+          TURNSTILE_SECRET_KEY: 'secret',
+        },
+      }),
+      request,
+    } as never);
+
+    expect(response.status).toBe(200);
+    expect(tryClaimEmailDispatch).not.toHaveBeenCalled();
+    expect(queueSend).toHaveBeenCalledWith({jobId: job1});
   });
 
   it('fails submission when any job cannot be atomically claimed', async () => {
