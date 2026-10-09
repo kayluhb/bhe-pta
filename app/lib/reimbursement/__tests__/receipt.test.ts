@@ -8,9 +8,44 @@ import {
   extractReceiptData,
   generateReceiptPDF,
   MAX_FILE_SIZE,
+  normalizeReceiptTotals,
   parseSubmissionReceiptLineForPdf,
   receiptFieldString,
 } from '../receipt';
+
+describe('normalizeReceiptTotals', () => {
+  it('promotes subtotal when total is balance-due zero', () => {
+    const out = normalizeReceiptTotals({
+      line_items: [{description: 'Add Hired & Non-owned Auto (HNOA)', total: '5'}],
+      subtotal: '5',
+      total: '0',
+      vendor_name: 'ASSOCIATION INSURANCE MANAGEMENT INC',
+    });
+    expect(out.total).toBe('5');
+    expect(out.subtotal).toBe('5');
+  });
+
+  it('adds tax/shipping/tip onto subtotal when repairing a zero total', () => {
+    const out = normalizeReceiptTotals({
+      shipping: '2',
+      subtotal: '10',
+      tax: '0.80',
+      tip: '1',
+      total: '0.00',
+    });
+    expect(out.total).toBe('13.80');
+  });
+
+  it('leaves a real zero total alone when nothing positive is available', () => {
+    const out = normalizeReceiptTotals({subtotal: '0', total: '0'});
+    expect(out.total).toBe('0');
+  });
+
+  it('does not change a positive total', () => {
+    const out = normalizeReceiptTotals({subtotal: '5', total: '5.00'});
+    expect(out.total).toBe('5.00');
+  });
+});
 
 describe('assessReceiptExtractionQuality', () => {
   it('rejects tab-merged line item fields (multi-column collapse)', () => {
@@ -197,6 +232,28 @@ describe('generateReceiptPDF', () => {
       'Doc',
     );
     expect(pdf.byteLength).toBeGreaterThan(200);
+  });
+
+  it('grows page height enough for wrapped line-item descriptions', () => {
+    const pdf = generateReceiptPDF(
+      {
+        line_items: Array.from({length: 20}, (_, i) => ({
+          description: `Long Amazon book title ${i}: A Whimsical Mystery Adventure About Sharing Friendship and Saving Coral Reefs for Children Ages 8-12`,
+          qty: '2',
+          total: '15.98',
+          unit_price: '7.99',
+        })),
+        total: '319.60',
+        vendor_name: 'Amazon.com',
+      },
+      'Caleb Brown: Receipt 1',
+    );
+    const asText = new TextDecoder('latin1').decode(pdf);
+    const box = asText.match(/\/MediaBox\s*\[\s*0\s+0\s+[\d.]+\s+([\d.]+)\s*\]/);
+    expect(box).toBeTruthy();
+    // Under-advancing wrapped rows used to crush ~20 long titles into overlapping mush
+    // under ~900pt; correct line-height spacing needs a much taller page.
+    expect(Number(box![1])).toBeGreaterThan(1100);
   });
 
   it('extends page height for long notes and dense transcript blocks', () => {

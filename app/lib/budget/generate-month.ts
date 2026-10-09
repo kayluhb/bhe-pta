@@ -128,12 +128,12 @@ function buildKeyChanges(
     const old = oldRaw == null ? null : roundDollars(oldRaw);
     if (incomeCategories.has(line)) {
       if (old == null && newAmt !== 0) {
-        incomeLines.push(`- ${line}: (new) $${newAmt.toLocaleString('en-US')}`);
+        incomeLines.push(`  - ${line}: (new) $${newAmt.toLocaleString('en-US')}`);
       } else if (old != null && old !== newAmt) {
         const diff = newAmt - old;
         const sign = diff >= 0 ? '+' : '';
         incomeLines.push(
-          `- ${line}: $${old.toLocaleString('en-US')} -> $${newAmt.toLocaleString('en-US')} (${sign}$${diff.toLocaleString('en-US')})`,
+          `  - ${line}: $${old.toLocaleString('en-US')} -> $${newAmt.toLocaleString('en-US')} (${sign}$${diff.toLocaleString('en-US')})`,
         );
       }
       continue;

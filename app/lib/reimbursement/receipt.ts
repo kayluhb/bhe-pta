@@ -188,7 +188,9 @@ async function geminiMultimodal(
     generationConfig: {maxOutputTokens},
   });
 
-  const models = ['gemini-2.5-flash', 'gemini-2.0-flash'];
+  // 2.0 Flash shut down 2026-06-01; 2.5 Flash is restricted for many keys.
+  // Prefer current Flash GA, then prior 3.x Flash as fallback.
+  const models = ['gemini-3.8-flash', 'gemini-3.6-flash'];
   let geminiResponse: Response | null = null;
 
   for (const model of models) {
@@ -302,10 +304,12 @@ Also fill when possible on each slip (omit keys only if absent):
 - "tip" — gratuity or service tip when present
 - "total_before_tax" — when the receipt shows it (e.g. Amazon "Total before tax" after shipping)
 - "tax" — sales or estimated tax
-- "total" — grand total / amount paid for that slip
+- "total" — grand total / amount paid for that slip. Prefer "amount paid", "premium", "order total", or "grand total". Do NOT put balance due / amount remaining / $0 after a completed payment into "total" when a positive amount paid is shown.
 - "notes" — short non-dollar text (delivery instructions, return policy). Do not repeat shipping, tip, or tax amounts here if they are already in the fields above.
 
 E-commerce (Amazon, Walmart, Target, DoorDash, etc.): map the order summary faithfully — item subtotal → subtotal; shipping & handling → shipping; tips → tip; grand total → total. Structured dollar fields should reconcile to the same final total as that slip.
+
+Payment confirmations / invoices marked paid: if the document shows amount paid $X and balance due $0, set "total" to X (not 0).
 
 If there is exactly one receipt, still use "receipts": [ { ... } ] with a single element.`;
 
@@ -374,6 +378,49 @@ function unescapeJsonStringFragment(s: string): string {
     .replace(/\\\\/g, '\\');
 }
 
+/**
+ * When the model puts balance-due $0 into `total` but a positive paid amount is
+ * already in subtotal / line items / total_before_tax, promote that amount to total.
+ * Exported for unit tests.
+ */
+export function normalizeReceiptTotals(receipt: ReceiptData): ReceiptData {
+  const total = parseMoneyAmount(receiptFieldString(receipt.total));
+  // Missing total is fine (PDF may still show subtotal); only repair an explicit ~$0.
+  if (total == null || Math.abs(total) >= 0.005) return receipt;
+
+  const tax = parseMoneyAmount(receiptFieldString(receipt.tax)) ?? 0;
+  const ship = parseMoneyAmount(receiptFieldString(receipt.shipping)) ?? 0;
+  const tip = parseMoneyAmount(receiptFieldString(receipt.tip)) ?? 0;
+  const extras = tax + ship + tip;
+
+  const sub = parseMoneyAmount(receiptFieldString(receipt.subtotal));
+  if (sub != null && sub > 0.005) {
+    const repaired = sub + extras;
+    return {
+      ...receipt,
+      total: extras > 0.005 ? formatMoneyAmount(repaired) : receiptFieldString(receipt.subtotal),
+    };
+  }
+
+  const tbt = parseMoneyAmount(receiptFieldString(receipt.total_before_tax));
+  if (tbt != null && tbt > 0.005) {
+    const repaired = tbt + tax + tip; // shipping usually already in total_before_tax on e-comm
+    return {...receipt, total: formatMoneyAmount(repaired)};
+  }
+
+  const {sum, withTotal} = lineItemTotalsSum(receipt.line_items);
+  if (withTotal > 0 && sum > 0.005) {
+    return {...receipt, total: formatMoneyAmount(sum + extras)};
+  }
+
+  return receipt;
+}
+
+function formatMoneyAmount(n: number): string {
+  const rounded = Math.round(n * 100) / 100;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2);
+}
+
 function coerceReceiptData(raw: unknown): ReceiptData {
   if (!raw || typeof raw !== 'object') return {};
   const o = raw as Record<string, unknown>;
@@ -412,7 +459,7 @@ function coerceReceiptData(raw: unknown): ReceiptData {
         total: li.total != null ? String(li.total) : undefined,
       }));
   }
-  return out;
+  return normalizeReceiptTotals(out);
 }
 
 function parseExtractedReceiptsJSON(rawText: string): ReceiptData[] {
@@ -449,7 +496,7 @@ function parseLegacySingleReceiptJSON(rawText: string): ReceiptData {
       const match = cleaned.match(/\{[\s\S]*\}/);
       if (match) cleaned = match[0];
     }
-    return JSON.parse(cleaned) as ReceiptData;
+    return normalizeReceiptTotals(JSON.parse(cleaned) as ReceiptData);
   } catch {
     // Fallback: extract partial data from truncated JSON
     const extracted: ReceiptData = {};
@@ -501,7 +548,7 @@ function parseLegacySingleReceiptJSON(rawText: string): ReceiptData {
       if (items.length > 0) extracted.line_items = items;
     }
 
-    return Object.keys(extracted).length > 0 ? extracted : {};
+    return Object.keys(extracted).length > 0 ? normalizeReceiptTotals(extracted) : {};
   }
 }
 
@@ -616,11 +663,12 @@ function renderReceiptSlipOnPage(
     doc.setTextColor(0);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
+    const transcriptLineHeight = doc.getFontSize() * doc.getLineHeightFactor();
     const lines = doc.splitTextToSize(transcript, contentWidth) as string[];
     for (const line of lines) {
-      ensureSpace(5);
+      ensureSpace(transcriptLineHeight + 1);
       doc.text(line, margin, y);
-      y += 4;
+      y += transcriptLineHeight;
     }
     y += 4;
     doc.setFontSize(10);
@@ -745,21 +793,24 @@ function renderReceiptSlipOnPage(
     doc.setTextColor(0);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
+    // Must match jsPDF's array `text()` advance or wrapped descriptions overlap the next row.
+    const descLineHeight = doc.getFontSize() * doc.getLineHeightFactor();
 
     for (const item of receipt.line_items) {
-      ensureSpace(8);
-      doc.setDrawColor(230);
-      doc.line(margin, y - 4, pageWidth - margin, y - 4);
-
       const descLines = doc.splitTextToSize(
         String(item.description || ''),
         contentWidth * 0.45,
       ) as string[];
+      const rowHeight = Math.max(descLines.length * descLineHeight, descLineHeight) + 2;
+      ensureSpace(rowHeight + 4);
+      doc.setDrawColor(230);
+      doc.line(margin, y - 4, pageWidth - margin, y - 4);
+
       doc.text(descLines, colX.desc, y);
       if (item.qty) doc.text(String(item.qty), colX.qty, y, {align: 'right'});
       if (item.unit_price) doc.text(String(item.unit_price), colX.price, y, {align: 'right'});
       if (item.total) doc.text(String(item.total), colX.total, y, {align: 'right'});
-      y += Math.max(descLines.length * 5, 6) + 2;
+      y += rowHeight;
     }
 
     doc.setDrawColor(200);
@@ -824,11 +875,12 @@ function renderReceiptSlipOnPage(
     doc.setTextColor(0);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
+    const noteLineHeight = doc.getFontSize() * doc.getLineHeightFactor();
     const noteLines = doc.splitTextToSize(notesStr, contentWidth) as string[];
     for (const line of noteLines) {
-      ensureSpace(6);
+      ensureSpace(noteLineHeight + 1);
       doc.text(line, margin, y);
-      y += 5;
+      y += noteLineHeight;
     }
   }
 
