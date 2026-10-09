@@ -305,7 +305,7 @@ function build202627Tiers(logoPath: string): SponsorTier[] {
       color: 'bg-eagle-blue',
       name: 'Eagle Pride',
       signage: '96" x 72" sign with logo',
-      slots: 4,
+      slots: 6,
       textColor: 'text-eagle-blue',
       sponsors: [
         {
@@ -317,6 +317,11 @@ function build202627Tiers(logoPath: string): SponsorTier[] {
           logo: `${logoPath}/jhd.jpg`,
           name: 'JH Davidson & Associates',
           url: 'https://www.jhdavidson.com/',
+        },
+        {
+          logo: `${logoPath}/revent.png`,
+          name: 'Revent Builds',
+          url: 'https://reventbuilds.com',
         },
         {
           logo: `${logoPath}/skelly-build.png`,
@@ -351,10 +356,21 @@ function build202627Tiers(logoPath: string): SponsorTier[] {
           url: 'https://www.carolynpritchett.com',
         },
         {
+          logo: `${logoPath}/cowboy-pools.png`,
+          name: 'Cowboy Pools',
+          url: 'https://www.cowboypools.com',
+        },
+        {
           logo: `${logoPath}/harben-house.png`,
           name: 'HarBen House',
           url: 'https://harbenhouse.com/',
         },
+        {
+          logo: `${logoPath}/moontower-public-affairs.png`,
+          name: 'Moontower Public Affairs',
+          url: 'https://moontowerpa.com/',
+        },
+        {logo: `${logoPath}/lyons.png`, name: 'The Lyons Den'},
         {logo: `${logoPath}/tre.png`, name: 'Thomas Randolph Excavation'},
       ],
     },
@@ -369,14 +385,46 @@ function build202627Tiers(logoPath: string): SponsorTier[] {
       textColor: 'text-spirit-gold',
       sponsors: [
         {
+          logo: `${logoPath}/ander-corp.jpg`,
+          name: 'AnderCorp',
+          url: 'https://andercorp.com/',
+        },
+        {logo: `${logoPath}/audion.png`, name: 'Audion', url: 'https://audionllc.com/'},
+        {
+          logo: `${logoPath}/berbar-group.png`,
+          name: 'Berbas Group',
+          url: 'https://www.berbasgroup.com',
+        },
+        {logo: `${logoPath}/das-steel.svg`, name: 'DAS Steel'},
+        {
           logo: `${logoPath}/eco.jpg`,
           name: 'E. Charles Osterberg, MD',
           url: 'https://www.drcharlesosterberg.com/',
         },
         {
+          logo: `${logoPath}/highline-homes.png`,
+          name: 'Highline Homes',
+          url: 'https://highlinehomes.com/',
+        },
+        {
+          logo: `${logoPath}/holt-engineering.png`,
+          name: 'Holt Engineering',
+          url: 'https://holteng.com/',
+        },
+        {
+          logo: `${logoPath}/kevin-haines-realty-austin.jpg`,
+          name: 'Kevin Haines Realty Austin - Compass',
+          url: 'https://www.compass.com/agents/kevin-haines/',
+        },
+        {
           logo: `${logoPath}/local-building-group.png`,
           name: 'Local Building Group',
           url: 'https://mylocalbuild.com/',
+        },
+        {
+          logo: `${logoPath}/michele-roi.png`,
+          name: 'Michele Roi - Realtor',
+          url: 'https://blairfieldrealty.com/agent/michele-roi',
         },
         {
           logo: `${logoPath}/onion-creek-family-dental.png`,
@@ -387,6 +435,11 @@ function build202627Tiers(logoPath: string): SponsorTier[] {
           logo: `${logoPath}/resetatx.png`,
           name: 'ResetATX',
           url: 'https://www.resetatx.com/',
+        },
+        {
+          logo: `${logoPath}/tx-keeper-cider.png`,
+          name: 'Texas Keeper Cider',
+          url: 'https://texaskeeper.com/',
         },
       ],
     },
@@ -401,10 +454,21 @@ function build202627Tiers(logoPath: string): SponsorTier[] {
       textColor: 'text-creek-green',
       sponsors: [
         {
+          logo: `${logoPath}/bodybar-pilates.svg`,
+          name: 'BODYBAR Pilates',
+          url: 'https://bodybarpilates.com/studios/texas/south-lamar/',
+        },
+        {
           logo: `${logoPath}/ek-logo.png`,
           name: 'Earth Kids',
           url: 'https://bartonhills.austinschools.org/programsandplaces/afterschool/childcare',
         },
+        {
+          logo: `${logoPath}/karen-kelly.png`,
+          name: 'Karen Kelly',
+          url: 'https://vanheuvenproperties.com/agent/karen-kelly',
+        },
+        {logo: `${logoPath}/shivers-johnson-law.svg`, name: 'Shivers Johnson Law'},
       ],
     },
     {
@@ -417,6 +481,11 @@ function build202627Tiers(logoPath: string): SponsorTier[] {
       slots: 6,
       textColor: 'text-charcoal/70',
       sponsors: [
+        {
+          logo: `${logoPath}/house-of-noa.png`,
+          name: 'House of Noa',
+          url: 'https://www.thehouseofnoa.com/',
+        },
         {
           logo: `${logoPath}/under-the-texan-sun.png`,
           name: 'Under the Texan Sun',
