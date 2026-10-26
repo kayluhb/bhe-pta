@@ -10,6 +10,7 @@ import {submissionSearchCondition} from '~/lib/admin/submission-search-sql';
 import {getCloudflare} from '~/lib/cloudflare-context';
 import {formatUsd} from '~/lib/format-currency';
 import {mergeParentMeta} from '~/lib/meta';
+import {BUDGET_ACCOUNTS, isBudgetAccount} from '~/lib/reimbursement/validation';
 import type {Route} from './+types/admin.reimbursements';
 
 export function meta({matches}: Route.MetaArgs) {
@@ -84,6 +85,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
   const url = new URL(request.url);
   const statusFilter = url.searchParams.get('status') || '';
   const schoolYearParam = url.searchParams.get('schoolYear') || '';
+  const budgetParam = url.searchParams.get('budget') || '';
   const qRaw = url.searchParams.get('q') ?? '';
   const sort = url.searchParams.get('sort') || 'submitted_at';
   const order = url.searchParams.get('order') || 'desc';
@@ -94,6 +96,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
     ? sort
     : 'submitted_at';
   const validOrder = VALID_ORDERS.includes(order as (typeof VALID_ORDERS)[number]) ? order : 'desc';
+  const budgetFilter = isBudgetAccount(budgetParam) ? budgetParam : '';
 
   const db = env.REIMBURSEMENT_DB;
   const offset = (page - 1) * PAGE_SIZE;
@@ -129,6 +132,22 @@ export async function loader({request, context}: Route.LoaderArgs) {
     baseWhereParts.push(search.sql);
     baseWhereBinds.push(...search.binds);
   }
+  // When filtering by budget line, join summed receipt amounts for that category so
+  // KPIs/table amounts reflect spend on the line (not the full multi-line claim).
+  const budgetJoin = budgetFilter
+    ? `INNER JOIN (
+         SELECT submission_id AS sid, SUM(amount) AS budget_amount
+         FROM receipt_entries
+         WHERE TRIM(category) = ?
+         GROUP BY submission_id
+       ) bl ON bl.sid = s.id`
+    : '';
+  const budgetJoinBinds: string[] = budgetFilter ? [budgetFilter] : [];
+  const amountExpr = budgetFilter ? 'bl.budget_amount' : 's.total_amount';
+  const uncashedAmountExpr = budgetFilter
+    ? 'bl.budget_amount'
+    : 'COALESCE(s.check_amount, s.total_amount)';
+
   const baseWhereClause = baseWhereParts.length > 0 ? `WHERE ${baseWhereParts.join(' AND ')}` : '';
 
   const whereParts = [...baseWhereParts];
@@ -141,29 +160,31 @@ export async function loader({request, context}: Route.LoaderArgs) {
 
   const snapshotSql = `SELECT
        COUNT(*) AS total_submissions,
-       COALESCE(SUM(s.total_amount), 0) AS sum_total_requested,
+       COALESCE(SUM(${amountExpr}), 0) AS sum_total_requested,
        SUM(CASE WHEN s.status = 'pending' THEN 1 ELSE 0 END) AS pending_cnt,
        SUM(CASE WHEN s.status = 'approved' THEN 1 ELSE 0 END) AS approved_cnt,
        SUM(CASE WHEN s.status = 'check_written' THEN 1 ELSE 0 END) AS check_written_cnt,
        SUM(CASE WHEN s.status = 'check_delivered' THEN 1 ELSE 0 END) AS check_delivered_cnt,
        SUM(CASE WHEN s.status = 'check_deposited' THEN 1 ELSE 0 END) AS check_deposited_cnt,
        SUM(CASE WHEN s.status = 'rejected' THEN 1 ELSE 0 END) AS rejected_cnt,
-       SUM(CASE WHEN s.status IN ('check_written', 'check_delivered') THEN COALESCE(s.check_amount, s.total_amount) ELSE 0 END) AS uncashed_amount,
-       SUM(CASE WHEN s.status = 'pending' THEN s.total_amount ELSE 0 END) AS pending_amount,
-       SUM(CASE WHEN s.status IN ('approved', 'check_written', 'check_delivered') THEN s.total_amount ELSE 0 END) AS in_pipeline_amount,
+       SUM(CASE WHEN s.status IN ('check_written', 'check_delivered') THEN ${uncashedAmountExpr} ELSE 0 END) AS uncashed_amount,
+       SUM(CASE WHEN s.status = 'pending' THEN ${amountExpr} ELSE 0 END) AS pending_amount,
+       SUM(CASE WHEN s.status IN ('approved', 'check_written', 'check_delivered') THEN ${amountExpr} ELSE 0 END) AS in_pipeline_amount,
        SUM(CASE WHEN s.submitted_at >= datetime('now', '-7 days') THEN 1 ELSE 0 END) AS new_last_7d,
        SUM(CASE WHEN s.submitted_at >= datetime('now', '-30 days') THEN 1 ELSE 0 END) AS new_last_30d,
        MIN(CASE WHEN s.status = 'pending' THEN s.submitted_at END) AS oldest_pending_at
      FROM submissions s
+     ${budgetJoin}
      ${baseWhereClause}`;
 
+  const snapshotBinds = [...budgetJoinBinds, ...baseWhereBinds];
   const snapshotStmt = db.prepare(snapshotSql);
   const snapshotPromise =
-    baseWhereBinds.length > 0
-      ? snapshotStmt.bind(...baseWhereBinds).first<SnapshotRow>()
+    snapshotBinds.length > 0
+      ? snapshotStmt.bind(...snapshotBinds).first<SnapshotRow>()
       : snapshotStmt.first<SnapshotRow>();
 
-  const listSql = `SELECT s.id, s.requester_name, s.requester_email, s.total_amount, s.status, s.submitted_at, s.updated_at,
+  const listSql = `SELECT s.id, s.requester_name, s.requester_email, ${amountExpr} AS total_amount, s.status, s.submitted_at, s.updated_at,
        s.school_year_id, y.label AS school_year_label, s.check_number,
        (
          SELECT GROUP_CONCAT(c, ', ')
@@ -176,33 +197,41 @@ export async function loader({request, context}: Route.LoaderArgs) {
          )
        ) AS budget_accounts
      FROM submissions s
+     ${budgetJoin}
      LEFT JOIN school_years y ON y.id = s.school_year_id
      ${whereClause}
-     ORDER BY s.${validSort} ${validOrder}
+     ORDER BY ${
+       validSort === 'total_amount' && budgetFilter ? 'bl.budget_amount' : `s.${validSort}`
+     } ${validOrder}
      LIMIT ? OFFSET ?`;
 
-  const countSql = `SELECT COUNT(*) as count FROM submissions s ${whereClause}`;
+  const countSql = `SELECT COUNT(*) as count FROM submissions s ${budgetJoin} ${whereClause}`;
 
-  // Status breakdown for Totals cards + status dropdown (school year + search only).
-  const statusAggSql = `SELECT status, COUNT(*) as count, COALESCE(SUM(total_amount), 0) as sum_amount
+  // Status breakdown for Totals cards + status dropdown (school year + budget + search).
+  const statusAggSql = `SELECT s.status AS status, COUNT(*) as count, COALESCE(SUM(${amountExpr}), 0) as sum_amount
      FROM submissions s
+     ${budgetJoin}
      ${baseWhereClause}
-     GROUP BY status`;
+     GROUP BY s.status`;
+  const statusAggBinds = [...budgetJoinBinds, ...baseWhereBinds];
   const statusAggStmt = db.prepare(statusAggSql);
   const statusAggPromise =
-    baseWhereBinds.length > 0
-      ? statusAggStmt.bind(...baseWhereBinds).all<StatusAggRow>()
+    statusAggBinds.length > 0
+      ? statusAggStmt.bind(...statusAggBinds).all<StatusAggRow>()
       : statusAggStmt.all<StatusAggRow>();
+
+  const listBinds = [...budgetJoinBinds, ...whereBinds];
+  const countBinds = [...budgetJoinBinds, ...whereBinds];
 
   const [listBundle, snapshotRow, statusAggResult] = await Promise.all([
     Promise.all([
       db
         .prepare(listSql)
-        .bind(...whereBinds, PAGE_SIZE, offset)
+        .bind(...listBinds, PAGE_SIZE, offset)
         .all<Submission>(),
       db
         .prepare(countSql)
-        .bind(...whereBinds)
+        .bind(...countBinds)
         .first<{count: number}>(),
     ]),
     snapshotPromise,
@@ -244,6 +273,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
 
   return {
     filters: {
+      budget: budgetFilter,
       order: validOrder,
       q: qRaw.trim(),
       schoolYear: selectedSchoolYear,
@@ -505,6 +535,7 @@ export default function AdminReimbursements() {
   const buildSearch = (overrides: Record<string, string | undefined>) => {
     const params = new URLSearchParams();
     const merged = {
+      budget: filters.budget,
       order: filters.order,
       page: String(pagination.page),
       q: filters.q,
@@ -515,6 +546,7 @@ export default function AdminReimbursements() {
     };
     if (merged.status) params.set('status', merged.status);
     if (merged.schoolYear) params.set('schoolYear', merged.schoolYear);
+    if (merged.budget) params.set('budget', merged.budget);
     if (merged.sort !== 'submitted_at') params.set('sort', merged.sort);
     if (merged.order !== 'desc') params.set('order', merged.order);
     if (merged.page && merged.page !== '1') params.set('page', merged.page);
@@ -525,6 +557,10 @@ export default function AdminReimbursements() {
 
   const handleSchoolYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     navigate(buildSearch({page: '1', schoolYear: e.target.value}));
+  };
+
+  const handleBudgetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    navigate(buildSearch({budget: e.target.value || undefined, page: '1'}));
   };
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -680,14 +716,24 @@ export default function AdminReimbursements() {
             Snapshot
           </h2>
           <p className="mt-1 text-xs text-gray-500 font-body max-w-3xl mb-4">
-            Volume and pipeline for the current <strong className="font-medium">school year</strong>{' '}
-            and <strong className="font-medium">search</strong>. Status filters the table only.
+            Volume and pipeline for the current <strong className="font-medium">school year</strong>
+            {filters.budget ? (
+              <>
+                , <strong className="font-medium">budget line</strong>
+              </>
+            ) : null}
+            , and <strong className="font-medium">search</strong>
+            {filters.budget
+              ? '. Amounts are the sum of receipt lines on that budget account.'
+              : '. Status filters the table only.'}
           </p>
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
             <KpiTile label="Submissions" sublabel="In scope" value={snapshot.totalSubmissions} />
             <KpiTile
               label="Total requested"
-              sublabel="Sum of claim totals"
+              sublabel={
+                filters.budget ? 'Sum of budget line amounts' : 'Sum of claim totals'
+              }
               value={formatUsd(snapshot.sumTotalRequested)}
             />
             <KpiTile
@@ -744,12 +790,19 @@ export default function AdminReimbursements() {
             Outstanding uncashed checks
           </h2>
           <p className="mt-1 text-xs text-indigo-900/60 font-body max-w-2xl">
-            Submissions in <strong className="font-medium">Check written</strong> or{' '}
-            <strong className="font-medium">Check delivered</strong> (not yet{' '}
-            <strong className="font-medium">Check deposited</strong>). Dollar total uses the
-            treasurer check amount when set, otherwise the submission total. Scoped by{' '}
-            <strong className="font-medium">school year</strong> and{' '}
-            <strong className="font-medium">search</strong>; status filters the table only.
+            Submissions in <strong className="font-medium">Written</strong> or{' '}
+            <strong className="font-medium">Delivered</strong> (not yet{' '}
+            <strong className="font-medium">Deposited</strong>).
+            {filters.budget
+              ? ' Dollar total is the selected budget line amount on those submissions.'
+              : ' Dollar total uses the treasurer check amount when set, otherwise the submission total.'}{' '}
+            Scoped by <strong className="font-medium">school year</strong>
+            {filters.budget ? (
+              <>
+                , <strong className="font-medium">budget line</strong>
+              </>
+            ) : null}
+            , and <strong className="font-medium">search</strong>; status filters the table only.
           </p>
           <div className="mt-4 flex flex-wrap items-end gap-6 sm:gap-10">
             <div>
@@ -769,13 +822,13 @@ export default function AdminReimbursements() {
                 className="text-indigo-800 hover:text-indigo-950 underline underline-offset-2"
                 href={buildSearch({status: 'check_written', page: '1'})}
               >
-                Check written: {uncashedStats.writtenCount}
+                Written: {uncashedStats.writtenCount}
               </a>
               <a
                 className="text-purple-900 hover:text-purple-950 underline underline-offset-2"
                 href={buildSearch({status: 'check_delivered', page: '1'})}
               >
-                Check delivered (uncashed): {uncashedStats.deliveredCount}
+                Delivered (uncashed): {uncashedStats.deliveredCount}
               </a>
             </div>
           </div>
@@ -815,6 +868,22 @@ export default function AdminReimbursements() {
               {statusFilterSelectOptions(dropdownStats).map((opt) => (
                 <option key={opt.value === '' ? 'all' : opt.value} value={opt.value}>
                   {opt.label}
+                </option>
+              ))}
+            </select>
+            <label className="text-sm font-medium text-charcoal font-body" htmlFor="budget-filter">
+              Budget line:
+            </label>
+            <select
+              className="max-w-[min(100%,20rem)] rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-charcoal shadow-sm focus:border-eagle-blue focus:ring-1 focus:ring-eagle-blue font-body"
+              id="budget-filter"
+              onChange={handleBudgetChange}
+              value={filters.budget}
+            >
+              <option value="">All budget lines</option>
+              {BUDGET_ACCOUNTS.map((account) => (
+                <option key={account} value={account}>
+                  {account}
                 </option>
               ))}
             </select>
@@ -879,9 +948,16 @@ export default function AdminReimbursements() {
             Totals by status
           </h2>
           <p className="text-xs text-gray-500 font-body mb-3">
-            Counts and amounts for the current <strong className="font-medium">school year</strong>{' '}
-            and <strong className="font-medium">search</strong>. Click a status to filter the table
-            only.
+            Counts and amounts for the current <strong className="font-medium">school year</strong>
+            {filters.budget ? (
+              <>
+                , <strong className="font-medium">budget line</strong>
+              </>
+            ) : null}
+            , and <strong className="font-medium">search</strong>
+            {filters.budget
+              ? '. Amounts are receipt lines on that budget account.'
+              : '. Click a status to filter the table only.'}
           </p>
           <div className="flex flex-wrap gap-2">
             <a
@@ -1008,13 +1084,15 @@ export default function AdminReimbursements() {
           {submissions.length === 0 ? (
             <div className="px-6 py-16 text-center">
               <p className="text-gray-500 font-body text-lg">No submissions found</p>
-              {(filters.status || filters.q) && (
+              {(filters.status || filters.q || filters.budget) && (
                 <p className="text-gray-400 font-body text-sm mt-1">
-                  {filters.q && filters.status
-                    ? 'Try a different search or status filter'
-                    : filters.q
-                      ? 'Try a different search term'
-                      : 'Try changing the status filter'}
+                  {filters.budget
+                    ? 'Try a different budget line, school year, or search'
+                    : filters.q && filters.status
+                      ? 'Try a different search or status filter'
+                      : filters.q
+                        ? 'Try a different search term'
+                        : 'Try changing the status filter'}
                 </p>
               )}
             </div>

@@ -43,7 +43,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
     return Response.json(
       {
         error:
-          'Reminders can only be sent when the submission is in Check delivered status (requester was already told their check is ready).',
+          'Reminders can only be sent when the submission is in Delivered status (requester was already told their check is ready).',
       },
       {status: 400},
     );

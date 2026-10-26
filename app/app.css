@@ -213,7 +213,16 @@ dialog[open]::backdrop {
   transform-origin: bottom center;
 }
 
+.goal-celebration {
+  aspect-ratio: 640 / 180;
+  width: min(100%, 28rem);
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .goal-celebration-wrap {
+    display: none;
+  }
+
   .thermometer-eagle-pulse {
     animation: none;
   }

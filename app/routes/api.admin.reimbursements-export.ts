@@ -1,6 +1,7 @@
 import {requireAdmin} from '~/lib/admin/auth';
 import {submissionSearchCondition} from '~/lib/admin/submission-search-sql';
 import {getCloudflare} from '~/lib/cloudflare-context';
+import {isBudgetAccount} from '~/lib/reimbursement/validation';
 import type {Route} from './+types/api.admin.reimbursements-export';
 
 function escapeCsvValue(value: string | number | null | undefined): string {
@@ -42,6 +43,8 @@ export async function loader({request, context}: Route.LoaderArgs) {
   const idsParam = url.searchParams.get('ids');
   const schoolYearFilter = url.searchParams.get('schoolYear');
   const statusFilter = url.searchParams.get('status');
+  const budgetParam = url.searchParams.get('budget') || '';
+  const budgetFilter = isBudgetAccount(budgetParam) ? budgetParam : '';
   const qParam = url.searchParams.get('q') ?? '';
 
   const db = env.REIMBURSEMENT_DB;
@@ -77,6 +80,10 @@ export async function loader({request, context}: Route.LoaderArgs) {
         conditions.push('s.school_year_id = ?');
         binds.push(schoolYearFilter);
       }
+    }
+    if (budgetFilter) {
+      conditions.push('TRIM(r.category) = ?');
+      binds.push(budgetFilter);
     }
     const search = submissionSearchCondition(qParam, 's');
     if (search.sql) {
