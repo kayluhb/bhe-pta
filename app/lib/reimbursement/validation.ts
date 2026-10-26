@@ -26,6 +26,7 @@ export const BUDGET_ACCOUNTS = [
   "Counselor's fund",
   'Courtesy — Teacher/staff appreciation',
   'Cultural arts',
+  'Field trips',
   'Fundraiser #1 (Carnival)',
   'Fundraiser #2 (Spring Fling)',
   'Fundraiser #3 (Fall parent event)',
@@ -60,6 +61,10 @@ export const BUDGET_ACCOUNTS = [
 ] as const;
 
 export type BudgetAccount = (typeof BUDGET_ACCOUNTS)[number];
+
+export function isBudgetAccount(value: string): value is BudgetAccount {
+  return (BUDGET_ACCOUNTS as readonly string[]).includes(value);
+}
 
 export const requesterSchema = z.object({
   payableTo: z.string().min(1, 'Payable to is required'),
