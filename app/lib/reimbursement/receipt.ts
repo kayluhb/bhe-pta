@@ -566,6 +566,15 @@ function wrapPdfTextLines(doc: jsPDF, text: string, maxWidth: number): string[] 
   });
 }
 
+/**
+ * Line height in jsPDF user units (mm). `getLineHeight()` is in points, and
+ * `text(string[])` writes that point value as PDF leading, which the font size
+ * scales again. Draw wrapped lines one at a time and advance by this instead.
+ */
+function pdfLineHeight(doc: jsPDF): number {
+  return doc.getLineHeight() / doc.internal.scaleFactor;
+}
+
 /** Options for {@link generateReceiptPDF}. */
 export interface GenerateReceiptPdfOptions {
   /**
@@ -596,306 +605,336 @@ function renderReceiptSlipOnPage(
   slipIndex: number,
   slipTotal: number,
 ): void {
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const bottomReserve = 15;
-  let pageHeight = doc.internal.pageSize.getHeight();
-  let footerY = pageHeight - bottomReserve;
-  const margin = 20;
-  const contentWidth = pageWidth - margin * 2;
-  let y = 20;
+  // jsPDF bakes the current page height into each text y. Growing the page between
+  // rows places later rows on the same baseline, so measure once, then draw.
+  const originalText = doc.text.bind(doc);
+  const originalLine = doc.line.bind(doc);
+  let commit = false;
+  doc.text = ((...args: unknown[]) => {
+    if (!commit) return doc;
+    return (originalText as (...a: unknown[]) => jsPDF).apply(doc, args);
+  }) as typeof doc.text;
+  doc.line = ((...args: unknown[]) => {
+    if (!commit) return doc;
+    return (originalLine as (...a: unknown[]) => jsPDF).apply(doc, args);
+  }) as typeof doc.line;
 
-  /** Keep one tall page instead of splitting across pages (better for receipt continuity). */
-  const ensureSpace = (needed: number) => {
-    if (y + needed <= footerY) return;
-    const newHeight = y + needed + bottomReserve;
-    doc.internal.pageSize.height = newHeight;
-    pageHeight = newHeight;
-    footerY = pageHeight - bottomReserve;
-  };
-
-  // Title
-  doc.setFontSize(14);
-  doc.setFont('helvetica', 'bold');
-  doc.text(title, pageWidth / 2, y, {align: 'center'});
-  y += 8;
-
-  if (slipTotal > 1) {
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(60);
-    doc.text(`Slip ${slipIndex + 1} of ${slipTotal}`, pageWidth / 2, y, {align: 'center'});
-    y += 7;
+  const draw = () => {
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const bottomReserve = 15;
+    let pageHeight = doc.internal.pageSize.getHeight();
+    let footerY = pageHeight - bottomReserve;
+    const margin = 20;
+    const contentWidth = pageWidth - margin * 2;
+    let y = 20;
     doc.setTextColor(0);
-  }
 
-  doc.setDrawColor(200);
-  doc.line(margin, y, pageWidth - margin, y);
-  y += 8;
-
-  // Document type + number header (prefer form line index over OCR store receipt #)
-  const docType = receiptFieldString(receipt.document_type) || 'Receipt';
-  const submissionLine = slipIndex === 0 ? options?.submissionReceiptLine?.trim() : undefined;
-  const docNumStr = submissionLine || receiptFieldString(receipt.document_number);
-  const docNum = docNumStr ? ` #${docNumStr}` : '';
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'bold');
-  doc.text(`${docType}${docNum}`, margin, y);
-  y += 8;
-
-  const transcript = receiptFieldString(receipt.raw_transcript);
-  const sparseFinancial =
-    !(receipt.line_items && receipt.line_items.length > 0) &&
-    !receiptFieldString(receipt.subtotal) &&
-    !receiptFieldString(receipt.shipping) &&
-    !receiptFieldString(receipt.tip) &&
-    !receiptFieldString(receipt.total_before_tax) &&
-    !receiptFieldString(receipt.tax) &&
-    !receiptFieldString(receipt.total);
-
-  const appendTranscript = (heading: string) => {
-    if (!transcript) return;
-    ensureSpace(14);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(80);
-    doc.text(heading, margin, y);
-    y += 5;
-    doc.setTextColor(0);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    const transcriptLineHeight = doc.getFontSize() * doc.getLineHeightFactor();
-    const lines = doc.splitTextToSize(transcript, contentWidth) as string[];
-    for (const line of lines) {
-      ensureSpace(transcriptLineHeight + 1);
-      doc.text(line, margin, y);
-      y += transcriptLineHeight;
-    }
-    y += 4;
-    doc.setFontSize(10);
-  };
-
-  // When structured totals/lines are missing, show full text first so the PDF is still usable.
-  if (transcript && sparseFinancial) {
-    appendTranscript('DOCUMENT TEXT (from upload)');
-  }
-
-  // Vendor info block
-  const vendorName = receiptFieldString(receipt.vendor_name);
-  const vendorAddress = receiptFieldString(receipt.vendor_address);
-  const vendorPhone = receiptFieldString(receipt.vendor_phone);
-  if (vendorName || vendorAddress || vendorPhone) {
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(100);
-    doc.text('FROM', margin, y);
-    y += 5;
-    doc.setTextColor(0);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    if (vendorName) {
-      doc.setFont('helvetica', 'bold');
-      for (const line of wrapPdfTextLines(doc, vendorName, contentWidth)) {
-        ensureSpace(6);
-        doc.text(line, margin, y);
-        y += 5;
-      }
-      doc.setFont('helvetica', 'normal');
-    }
-    if (vendorAddress) {
-      for (const line of wrapPdfTextLines(doc, vendorAddress, contentWidth)) {
-        ensureSpace(6);
-        doc.text(line, margin, y);
-        y += 5;
-      }
-    }
-    if (vendorPhone) {
-      ensureSpace(6);
-      doc.text(vendorPhone, margin, y);
-      y += 5;
-    }
-    y += 3;
-  }
-
-  // Bill-to and dates side by side
-  const billTo = receiptFieldString(receipt.bill_to);
-  const dateStr = receiptFieldString(receipt.date);
-  const dueDateStr = receiptFieldString(receipt.due_date);
-  const hasLeftCol = billTo.length > 0;
-  const hasRightCol = dateStr.length > 0 || dueDateStr.length > 0;
-
-  if (hasLeftCol || hasRightCol) {
-    const colStartY = y;
-    let blockBottom = colStartY;
-
-    if (hasLeftCol) {
-      let ly = colStartY;
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(100);
-      doc.text('BILL TO', margin, ly);
-      ly += 5;
-      doc.setTextColor(0);
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      const billMaxWidth = hasRightCol ? contentWidth * 0.5 : contentWidth;
-      for (const line of wrapPdfTextLines(doc, billTo, billMaxWidth)) {
-        ensureSpace(6);
-        doc.text(line, margin, ly);
-        ly += 5;
-      }
-      blockBottom = Math.max(blockBottom, ly);
-    }
-
-    if (hasRightCol) {
-      let ry = colStartY;
-      const rightX = pageWidth - margin;
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(100);
-      doc.text('DETAILS', rightX, ry, {align: 'right'});
-      ry += 5;
-      doc.setTextColor(0);
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      if (dateStr) {
-        doc.text(`Date: ${dateStr}`, rightX, ry, {align: 'right'});
-        ry += 5;
-      }
-      if (dueDateStr) {
-        doc.text(`Due: ${dueDateStr}`, rightX, ry, {align: 'right'});
-        ry += 5;
-      }
-      blockBottom = Math.max(blockBottom, ry);
-    }
-    y = blockBottom + 5;
-  }
-
-  // Line items table
-  if (receipt.line_items && receipt.line_items.length > 0) {
-    ensureSpace(20);
-
-    const colX = {
-      desc: margin,
-      qty: margin + contentWidth * 0.5,
-      price: margin + contentWidth * 0.7,
-      total: pageWidth - margin,
+    /** Keep one tall page instead of splitting across pages (better for receipt continuity). */
+    const ensureSpace = (needed: number) => {
+      if (commit) return;
+      if (y + needed <= footerY) return;
+      const newHeight = y + needed + bottomReserve;
+      doc.internal.pageSize.height = newHeight;
+      pageHeight = newHeight;
+      footerY = pageHeight - bottomReserve;
     };
 
-    doc.setFontSize(8);
+    // Title
+    doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(80);
-    doc.text('DESCRIPTION', colX.desc, y);
-    doc.text('QTY', colX.qty, y, {align: 'right'});
-    doc.text('UNIT PRICE', colX.price, y, {align: 'right'});
-    doc.text('TOTAL', colX.total, y, {align: 'right'});
-    y += 7;
+    doc.text(title, pageWidth / 2, y, {align: 'center'});
+    y += 8;
 
-    doc.setTextColor(0);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    // Must match jsPDF's array `text()` advance or wrapped descriptions overlap the next row.
-    const descLineHeight = doc.getFontSize() * doc.getLineHeightFactor();
-
-    for (const item of receipt.line_items) {
-      const descLines = doc.splitTextToSize(
-        String(item.description || ''),
-        contentWidth * 0.45,
-      ) as string[];
-      const rowHeight = Math.max(descLines.length * descLineHeight, descLineHeight) + 2;
-      ensureSpace(rowHeight + 4);
-      doc.setDrawColor(230);
-      doc.line(margin, y - 4, pageWidth - margin, y - 4);
-
-      doc.text(descLines, colX.desc, y);
-      if (item.qty) doc.text(String(item.qty), colX.qty, y, {align: 'right'});
-      if (item.unit_price) doc.text(String(item.unit_price), colX.price, y, {align: 'right'});
-      if (item.total) doc.text(String(item.total), colX.total, y, {align: 'right'});
-      y += rowHeight;
+    if (slipTotal > 1) {
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(60);
+      doc.text(`Slip ${slipIndex + 1} of ${slipTotal}`, pageWidth / 2, y, {align: 'center'});
+      y += 7;
+      doc.setTextColor(0);
     }
 
     doc.setDrawColor(200);
-    doc.line(margin, y - 2, pageWidth - margin, y - 2);
-    y += 4;
-  }
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 8;
 
-  // Totals (order matches typical receipts: items → shipping → tip → pre-tax → tax → grand total)
-  const totalsX = pageWidth - margin;
-  const subtotalStr = receiptFieldString(receipt.subtotal);
-  const shippingStr = receiptFieldString(receipt.shipping);
-  const tipStr = receiptFieldString(receipt.tip);
-  const beforeTaxStr = receiptFieldString(receipt.total_before_tax);
-  const taxStr = receiptFieldString(receipt.tax);
-  const totalStr = receiptFieldString(receipt.total);
-  if (subtotalStr || shippingStr || tipStr || beforeTaxStr || taxStr || totalStr) {
-    ensureSpace(20);
-    doc.setFontSize(10);
-
-    if (subtotalStr) {
-      doc.setFont('helvetica', 'normal');
-      doc.text(`Subtotal:  ${subtotalStr}`, totalsX, y, {align: 'right'});
-      y += 6;
-    }
-    if (shippingStr) {
-      doc.setFont('helvetica', 'normal');
-      doc.text(`Shipping & handling:  ${shippingStr}`, totalsX, y, {align: 'right'});
-      y += 6;
-    }
-    if (tipStr) {
-      doc.setFont('helvetica', 'normal');
-      doc.text(`Tip:  ${tipStr}`, totalsX, y, {align: 'right'});
-      y += 6;
-    }
-    if (beforeTaxStr) {
-      doc.setFont('helvetica', 'normal');
-      doc.text(`Total before tax:  ${beforeTaxStr}`, totalsX, y, {align: 'right'});
-      y += 6;
-    }
-    if (taxStr) {
-      doc.setFont('helvetica', 'normal');
-      doc.text(`Tax:  ${taxStr}`, totalsX, y, {align: 'right'});
-      y += 6;
-    }
-    if (totalStr) {
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(12);
-      doc.text(`Total:  ${totalStr}`, totalsX, y, {align: 'right'});
-      y += 8;
-    }
-  }
-
-  // Notes
-  const notesStr = receiptFieldString(receipt.notes);
-  if (notesStr) {
-    ensureSpace(15);
-    doc.setFontSize(9);
+    // Document type + number header (prefer form line index over OCR store receipt #)
+    const docType = receiptFieldString(receipt.document_type) || 'Receipt';
+    const submissionLine = slipIndex === 0 ? options?.submissionReceiptLine?.trim() : undefined;
+    const docNumStr = submissionLine || receiptFieldString(receipt.document_number);
+    const docNum = docNumStr ? ` #${docNumStr}` : '';
+    doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(100);
-    doc.text('NOTES', margin, y);
-    y += 5;
-    doc.setTextColor(0);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    const noteLineHeight = doc.getFontSize() * doc.getLineHeightFactor();
-    const noteLines = doc.splitTextToSize(notesStr, contentWidth) as string[];
-    for (const line of noteLines) {
-      ensureSpace(noteLineHeight + 1);
-      doc.text(line, margin, y);
-      y += noteLineHeight;
-    }
-  }
+    doc.text(`${docType}${docNum}`, margin, y);
+    y += 8;
 
-  // Footer (leave room below last content)
-  const minPageForFooter = y + 22;
-  if (minPageForFooter > pageHeight) {
-    doc.internal.pageSize.height = minPageForFooter;
-    pageHeight = minPageForFooter;
+    const transcript = receiptFieldString(receipt.raw_transcript);
+    const sparseFinancial =
+      !(receipt.line_items && receipt.line_items.length > 0) &&
+      !receiptFieldString(receipt.subtotal) &&
+      !receiptFieldString(receipt.shipping) &&
+      !receiptFieldString(receipt.tip) &&
+      !receiptFieldString(receipt.total_before_tax) &&
+      !receiptFieldString(receipt.tax) &&
+      !receiptFieldString(receipt.total);
+
+    const appendTranscript = (heading: string) => {
+      if (!transcript) return;
+      ensureSpace(14);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(80);
+      doc.text(heading, margin, y);
+      y += 5;
+      doc.setTextColor(0);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      const transcriptLineHeight = pdfLineHeight(doc);
+      const lines = doc.splitTextToSize(transcript, contentWidth) as string[];
+      for (const line of lines) {
+        ensureSpace(transcriptLineHeight + 1);
+        doc.text(line, margin, y);
+        y += transcriptLineHeight;
+      }
+      y += 4;
+      doc.setFontSize(10);
+    };
+
+    // When structured totals/lines are missing, show full text first so the PDF is still usable.
+    if (transcript && sparseFinancial) {
+      appendTranscript('DOCUMENT TEXT (from upload)');
+    }
+
+    // Vendor info block
+    const vendorName = receiptFieldString(receipt.vendor_name);
+    const vendorAddress = receiptFieldString(receipt.vendor_address);
+    const vendorPhone = receiptFieldString(receipt.vendor_phone);
+    if (vendorName || vendorAddress || vendorPhone) {
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(100);
+      doc.text('FROM', margin, y);
+      y += 5;
+      doc.setTextColor(0);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      if (vendorName) {
+        doc.setFont('helvetica', 'bold');
+        for (const line of wrapPdfTextLines(doc, vendorName, contentWidth)) {
+          ensureSpace(6);
+          doc.text(line, margin, y);
+          y += 5;
+        }
+        doc.setFont('helvetica', 'normal');
+      }
+      if (vendorAddress) {
+        for (const line of wrapPdfTextLines(doc, vendorAddress, contentWidth)) {
+          ensureSpace(6);
+          doc.text(line, margin, y);
+          y += 5;
+        }
+      }
+      if (vendorPhone) {
+        ensureSpace(6);
+        doc.text(vendorPhone, margin, y);
+        y += 5;
+      }
+      y += 3;
+    }
+
+    // Bill-to and dates side by side
+    const billTo = receiptFieldString(receipt.bill_to);
+    const dateStr = receiptFieldString(receipt.date);
+    const dueDateStr = receiptFieldString(receipt.due_date);
+    const hasLeftCol = billTo.length > 0;
+    const hasRightCol = dateStr.length > 0 || dueDateStr.length > 0;
+
+    if (hasLeftCol || hasRightCol) {
+      const colStartY = y;
+      let blockBottom = colStartY;
+
+      if (hasLeftCol) {
+        let ly = colStartY;
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(100);
+        doc.text('BILL TO', margin, ly);
+        ly += 5;
+        doc.setTextColor(0);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        const billMaxWidth = hasRightCol ? contentWidth * 0.5 : contentWidth;
+        for (const line of wrapPdfTextLines(doc, billTo, billMaxWidth)) {
+          ensureSpace(6);
+          doc.text(line, margin, ly);
+          ly += 5;
+        }
+        blockBottom = Math.max(blockBottom, ly);
+      }
+
+      if (hasRightCol) {
+        let ry = colStartY;
+        const rightX = pageWidth - margin;
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(100);
+        doc.text('DETAILS', rightX, ry, {align: 'right'});
+        ry += 5;
+        doc.setTextColor(0);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        if (dateStr) {
+          doc.text(`Date: ${dateStr}`, rightX, ry, {align: 'right'});
+          ry += 5;
+        }
+        if (dueDateStr) {
+          doc.text(`Due: ${dueDateStr}`, rightX, ry, {align: 'right'});
+          ry += 5;
+        }
+        blockBottom = Math.max(blockBottom, ry);
+      }
+      y = blockBottom + 5;
+    }
+
+    // Line items table
+    if (receipt.line_items && receipt.line_items.length > 0) {
+      ensureSpace(20);
+
+      const colX = {
+        desc: margin,
+        qty: margin + contentWidth * 0.5,
+        price: margin + contentWidth * 0.7,
+        total: pageWidth - margin,
+      };
+
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(80);
+      doc.text('DESCRIPTION', colX.desc, y);
+      doc.text('QTY', colX.qty, y, {align: 'right'});
+      doc.text('UNIT PRICE', colX.price, y, {align: 'right'});
+      doc.text('TOTAL', colX.total, y, {align: 'right'});
+      y += 7;
+
+      doc.setTextColor(0);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      const descLineHeight = pdfLineHeight(doc);
+
+      for (const item of receipt.line_items) {
+        const descLines = doc.splitTextToSize(
+          String(item.description || ''),
+          contentWidth * 0.45,
+        ) as string[];
+        const rowHeight = Math.max(descLines.length * descLineHeight, descLineHeight) + 2;
+        ensureSpace(rowHeight + 4);
+        doc.setDrawColor(230);
+        doc.line(margin, y - 4, pageWidth - margin, y - 4);
+
+        let lineY = y;
+        for (const line of descLines) {
+          doc.text(line, colX.desc, lineY);
+          lineY += descLineHeight;
+        }
+        if (item.qty) doc.text(String(item.qty), colX.qty, y, {align: 'right'});
+        if (item.unit_price) doc.text(String(item.unit_price), colX.price, y, {align: 'right'});
+        if (item.total) doc.text(String(item.total), colX.total, y, {align: 'right'});
+        y += rowHeight;
+      }
+
+      doc.setDrawColor(200);
+      doc.line(margin, y - 2, pageWidth - margin, y - 2);
+      y += 4;
+    }
+
+    // Totals (order matches typical receipts: items → shipping → tip → pre-tax → tax → grand total)
+    const totalsX = pageWidth - margin;
+    const subtotalStr = receiptFieldString(receipt.subtotal);
+    const shippingStr = receiptFieldString(receipt.shipping);
+    const tipStr = receiptFieldString(receipt.tip);
+    const beforeTaxStr = receiptFieldString(receipt.total_before_tax);
+    const taxStr = receiptFieldString(receipt.tax);
+    const totalStr = receiptFieldString(receipt.total);
+    if (subtotalStr || shippingStr || tipStr || beforeTaxStr || taxStr || totalStr) {
+      ensureSpace(20);
+      doc.setFontSize(10);
+
+      if (subtotalStr) {
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Subtotal:  ${subtotalStr}`, totalsX, y, {align: 'right'});
+        y += 6;
+      }
+      if (shippingStr) {
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Shipping & handling:  ${shippingStr}`, totalsX, y, {align: 'right'});
+        y += 6;
+      }
+      if (tipStr) {
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Tip:  ${tipStr}`, totalsX, y, {align: 'right'});
+        y += 6;
+      }
+      if (beforeTaxStr) {
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Total before tax:  ${beforeTaxStr}`, totalsX, y, {align: 'right'});
+        y += 6;
+      }
+      if (taxStr) {
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Tax:  ${taxStr}`, totalsX, y, {align: 'right'});
+        y += 6;
+      }
+      if (totalStr) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text(`Total:  ${totalStr}`, totalsX, y, {align: 'right'});
+        y += 8;
+      }
+    }
+
+    // Notes
+    const notesStr = receiptFieldString(receipt.notes);
+    if (notesStr) {
+      ensureSpace(15);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(100);
+      doc.text('NOTES', margin, y);
+      y += 5;
+      doc.setTextColor(0);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      const noteLineHeight = pdfLineHeight(doc);
+      const noteLines = doc.splitTextToSize(notesStr, contentWidth) as string[];
+      for (const line of noteLines) {
+        ensureSpace(noteLineHeight + 1);
+        doc.text(line, margin, y);
+        y += noteLineHeight;
+      }
+    }
+
+    // Footer (leave room below last content)
+    const minPageForFooter = y + 22;
+    if (!commit && minPageForFooter > pageHeight) {
+      doc.internal.pageSize.height = minPageForFooter;
+      pageHeight = minPageForFooter;
+    }
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(128);
+    doc.text('Automatically transcribed from uploaded file.', pageWidth / 2, pageHeight - 10, {
+      align: 'center',
+    });
+  };
+
+  try {
+    draw();
+    commit = true;
+    draw();
+  } finally {
+    doc.text = originalText;
+    doc.line = originalLine;
   }
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'italic');
-  doc.setTextColor(128);
-  doc.text('Automatically transcribed from uploaded file.', pageWidth / 2, pageHeight - 10, {
-    align: 'center',
-  });
 }
 
 export function generateReceiptPDF(

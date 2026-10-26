@@ -4,6 +4,7 @@ import {getMilestoneMarkerPercent} from '~/lib/fundraising/progress';
 interface FundraisingThermometerProps {
   ariaLabel: string;
   goalAmount: number;
+  goalReached: boolean;
   isEmpty: boolean;
   milestones: FundraisingMilestone[];
   percent: number;
@@ -12,6 +13,7 @@ interface FundraisingThermometerProps {
 export function FundraisingThermometer({
   ariaLabel,
   goalAmount,
+  goalReached,
   isEmpty,
   milestones,
   percent,
@@ -53,12 +55,14 @@ export function FundraisingThermometer({
         </div>
       </div>
 
-      <img
-        alt=""
-        aria-hidden="true"
-        className={`h-12 w-auto shrink-0 -scale-x-100 sm:h-16 ${isEmpty ? 'thermometer-eagle-pulse' : ''}`}
-        src="/barton-hills-mascot.svg"
-      />
+      {goalReached ? null : (
+        <img
+          alt=""
+          aria-hidden="true"
+          className={`h-12 w-auto shrink-0 -scale-x-100 sm:h-16 ${isEmpty ? 'thermometer-eagle-pulse' : ''}`}
+          src="/barton-hills-mascot.svg"
+        />
+      )}
     </div>
   );
 }

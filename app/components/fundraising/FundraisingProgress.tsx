@@ -7,6 +7,7 @@ import {
 } from '~/lib/fundraising/progress';
 
 import {FundraisingThermometer} from './FundraisingThermometer';
+import {GoalCelebration} from './GoalCelebration';
 
 interface FundraisingProgressProps {
   campaign: AnnualFundCampaign;
@@ -18,14 +19,17 @@ export function FundraisingProgress({campaign, className}: FundraisingProgressPr
   const milestoneStatus = getMilestoneStatus(campaign.raisedAmount, campaign.milestones);
   const statusById = Object.fromEntries(milestoneStatus.map((s) => [s.id, s.reached]));
   const isEmpty = campaign.raisedAmount === 0;
+  const goalReached = campaign.goalAmount > 0 && campaign.raisedAmount >= campaign.goalAmount;
 
   return (
     <div
-      className={`rounded-xl border border-charcoal/10 bg-warm-white/50 p-6 shadow-sm md:p-8 ${className ?? 'mt-8'}`}
+      className={`rounded-xl border p-6 shadow-sm md:p-8 ${
+        goalReached
+          ? 'border-spirit-gold/50 bg-spirit-gold/10'
+          : 'border-charcoal/10 bg-warm-white/50'
+      } ${className ?? 'mt-8'}`}
     >
-      <h2 className="font-heading font-bold text-xl text-charcoal md:text-2xl">
-        {campaign.title}
-      </h2>
+      <h2 className="font-heading font-bold text-xl text-charcoal md:text-2xl">{campaign.title}</h2>
       <div aria-hidden="true" className="mt-2 h-1 w-12 rounded-full bg-spirit-gold" />
 
       <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -33,13 +37,19 @@ export function FundraisingProgress({campaign, className}: FundraisingProgressPr
           {formatCurrency(campaign.raisedAmount)} of {formatCurrency(campaign.goalAmount)}
         </p>
         <p className="font-heading font-bold text-lg text-spirit-gold">{percent}%</p>
+        {goalReached ? (
+          <p className="font-heading font-bold text-lg text-eagle-blue">Goal reached</p>
+        ) : null}
       </div>
       <p className="mt-1 text-sm text-charcoal/60">Last updated {campaign.lastUpdated}</p>
+
+      {goalReached ? <GoalCelebration /> : null}
 
       <div className="mt-4">
         <FundraisingThermometer
           ariaLabel={campaign.title}
           goalAmount={campaign.goalAmount}
+          goalReached={goalReached}
           isEmpty={isEmpty}
           milestones={campaign.milestones}
           percent={percent}
@@ -48,7 +58,8 @@ export function FundraisingProgress({campaign, className}: FundraisingProgressPr
 
       {isEmpty && (
         <p className="mt-3 text-sm text-charcoal/70">
-          Help our eagle reach the first milestone at {formatCurrency(campaign.milestones[0]?.amount ?? 0)}!
+          Help our eagle reach the first milestone at{' '}
+          {formatCurrency(campaign.milestones[0]?.amount ?? 0)}!
         </p>
       )}
 

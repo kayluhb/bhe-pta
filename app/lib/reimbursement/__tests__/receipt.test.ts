@@ -234,11 +234,14 @@ describe('generateReceiptPDF', () => {
     expect(pdf.byteLength).toBeGreaterThan(200);
   });
 
-  it('grows page height enough for wrapped line-item descriptions', () => {
+  it('keeps wrapped line items on their own rows when the page grows', () => {
     const pdf = generateReceiptPDF(
       {
         line_items: Array.from({length: 20}, (_, i) => ({
-          description: `Long Amazon book title ${i}: A Whimsical Mystery Adventure About Sharing Friendship and Saving Coral Reefs for Children Ages 8-12`,
+          description:
+            i === 0
+              ? 'ITEM00 Long Amazon book title: A Whimsical Mystery Adventure About Sharing Friendship and Saving Coral Reefs SECOND00'
+              : `ITEM${String(i).padStart(2, '0')} Long Amazon book title: A Whimsical Mystery Adventure About Sharing Friendship and Saving Coral Reefs for Children Ages 8-12`,
           qty: '2',
           total: '15.98',
           unit_price: '7.99',
@@ -249,11 +252,32 @@ describe('generateReceiptPDF', () => {
       'Caleb Brown: Receipt 1',
     );
     const asText = new TextDecoder('latin1').decode(pdf);
+    const baseline = (label: string) => {
+      const idx = asText.indexOf(label);
+      expect(idx).toBeGreaterThan(-1);
+      const tds = [...asText.slice(0, idx).matchAll(/([\d.]+) ([\d.]+) Td/g)];
+      const lastTd = tds.at(-1);
+      if (!lastTd) throw new Error(`no text position before ${label}`);
+      return Number(lastTd[2]);
+    };
+    const first = baseline('ITEM00');
+    const wrapped = baseline('SECOND00');
+    const second = baseline('ITEM01');
+    const previous = baseline('ITEM18');
+    const last = baseline('ITEM19');
     const box = asText.match(/\/MediaBox\s*\[\s*0\s+0\s+[\d.]+\s+([\d.]+)\s*\]/);
     expect(box).toBeTruthy();
-    // Under-advancing wrapped rows used to crush ~20 long titles into overlapping mush
-    // under ~900pt; correct line-height spacing needs a much taller page.
-    expect(Number(box![1])).toBeGreaterThan(1100);
+    const pageHeight = Number(box?.[1]);
+    // One copy of each row. Wrapped lines sit just under the title, later rows stay
+    // below them, and the first row stays near the top of the page.
+    expect(asText.match(/ITEM19/g)?.length).toBe(1);
+    expect(first - wrapped).toBeGreaterThan(8);
+    expect(first - wrapped).toBeLessThan(40);
+    expect(wrapped).toBeGreaterThan(second);
+    expect(previous - last).toBeGreaterThan(8);
+    expect(previous - last).toBeLessThan(90);
+    expect(last).toBeGreaterThan(20);
+    expect(pageHeight - first).toBeLessThan(250);
   });
 
   it('extends page height for long notes and dense transcript blocks', () => {

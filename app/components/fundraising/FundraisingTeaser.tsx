@@ -33,7 +33,10 @@ export function FundraisingTeaser({campaign}: FundraisingTeaserProps) {
             <p className="text-4xl font-heading font-bold text-spirit-gold shrink-0">{percent}%</p>
           </div>
 
-          <div aria-hidden="true" className="mt-6 h-3 w-full overflow-hidden rounded-full bg-white/20">
+          <div
+            aria-hidden="true"
+            className="mt-6 h-3 w-full overflow-hidden rounded-full bg-white/20"
+          >
             <div
               className="h-3 rounded-full bg-spirit-gold transition-[width] duration-500 ease-out"
               style={{width: `${Math.max(percent, isEmpty ? 0 : 3)}%`}}

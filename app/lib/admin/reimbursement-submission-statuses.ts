@@ -12,9 +12,9 @@ export type AdminSubmissionStatus = (typeof ADMIN_SUBMISSION_STATUSES)[number];
 
 export const ADMIN_SUBMISSION_STATUS_LABELS: Record<AdminSubmissionStatus, string> = {
   approved: 'Approved',
-  check_delivered: 'Check Delivered',
-  check_deposited: 'Check Deposited',
-  check_written: 'Check Written',
+  check_delivered: 'Delivered',
+  check_deposited: 'Deposited',
+  check_written: 'Written',
   pending: 'Pending',
   rejected: 'Rejected',
 };
