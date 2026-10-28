@@ -11,11 +11,13 @@ interface Env {
   GEMINI_API_KEY: string;
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
+  MAILCHIMP_API_KEY?: string;
   NOTIFICATION_EMAIL: string;
   R2_ACCESS_KEY_ID: string;
   R2_SECRET_ACCESS_KEY: string;
   RESEND_API_KEY: string;
   SENTRY_DSN?: string;
+  SESSION_SECRET: string;
   STAGE_BASIC_AUTH_PASSWORD?: string;
   STAGE_BASIC_AUTH_USER?: string;
   TURNSTILE_SECRET_KEY: string;

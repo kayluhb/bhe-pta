@@ -246,7 +246,7 @@ export default Sentry.withSentry<Env>((env: Env) => {
     dsn: env.SENTRY_DSN,
     // Keep sampling conservative for free-tier quota.
     tracesSampleRate: 0.1,
-    sendDefaultPii: true,
+    sendDefaultPii: false,
     beforeSend(event, hint) {
       if (isMissingRouteActionError(hint.originalException) || shouldDropSentryEvent(event)) {
         return null;

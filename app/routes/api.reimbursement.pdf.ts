@@ -1,4 +1,7 @@
+import {getCloudflare} from '~/lib/cloudflare-context';
+import {sanitizeDownloadFilename} from '~/lib/reimbursement/filename';
 import {generatePDF} from '~/lib/reimbursement/pdf/generator';
+import {requireTurnstile} from '~/lib/turnstile';
 import type {Route} from './+types/api.reimbursement.pdf';
 
 interface PDFRequestData {
@@ -30,16 +33,21 @@ interface PDFRequestData {
   budget: {primaryAccount: string; splitAccounts: boolean};
 }
 
-export async function action({request}: Route.ActionArgs) {
+export async function action({request, context}: Route.ActionArgs) {
   try {
-    const data = (await request.json()) as PDFRequestData;
+    const env = getCloudflare(context).env;
+    const denied = await requireTurnstile(request, env.TURNSTILE_SECRET_KEY);
+    if (denied) return denied;
 
+    const data = (await request.json()) as PDFRequestData;
     const pdfBuffer = await generatePDF(data as Parameters<typeof generatePDF>[0]);
+    const rawId = data.submission?.id || 'form';
+    const safeId = sanitizeDownloadFilename(String(rawId).replace(/[^a-zA-Z0-9_-]/g, '_'));
 
     return new Response(pdfBuffer as unknown as BodyInit, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="reimbursement-${data.submission?.id || 'form'}.pdf"`,
+        'Content-Disposition': `attachment; filename="reimbursement-${safeId}.pdf"`,
       },
     });
   } catch (error) {
