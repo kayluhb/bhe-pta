@@ -70,6 +70,7 @@ export interface VerifiedGoogleUser {
 export async function verifyGoogleIdToken(
   idToken: string,
   clientId: string,
+  options?: {allowedEmails?: string[]},
 ): Promise<VerifiedGoogleUser | null> {
   const parts = idToken.split('.');
   if (parts.length !== 3) return null;
@@ -104,7 +105,7 @@ export async function verifyGoogleIdToken(
   const audOk = Array.isArray(aud) ? aud.includes(clientId) : aud === clientId;
   if (!audOk) return null;
 
-  if (payload.email_verified === false) return null;
+  if (payload.email_verified !== true) return null;
 
   const email = payload.email;
   if (!email?.endsWith('@bheeagles.com')) return null;
@@ -137,6 +138,13 @@ export async function verifyGoogleIdToken(
     signedBytes,
   );
   if (!ok) return null;
+
+  const allowlist = options?.allowedEmails
+    ?.map((entry) => entry.trim().toLowerCase())
+    .filter((entry) => entry.length > 0);
+  if (allowlist?.length && !allowlist.includes(email.toLowerCase())) {
+    return null;
+  }
 
   return {
     email,

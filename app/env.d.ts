@@ -20,5 +20,7 @@ interface Env {
   SESSION_SECRET: string;
   STAGE_BASIC_AUTH_PASSWORD?: string;
   STAGE_BASIC_AUTH_USER?: string;
+  /** Optional comma-separated admin emails; when set, only these @bheeagles.com accounts may sign in. */
+  ADMIN_EMAIL_ALLOWLIST?: string;
   TURNSTILE_SECRET_KEY: string;
 }

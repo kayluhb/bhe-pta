@@ -60,9 +60,20 @@ export async function loader({request, context}: Route.LoaderArgs) {
     return new Response('Failed to get ID token from Google', {status: 400});
   }
 
-  const user = await verifyGoogleIdToken(idToken, GOOGLE_CLIENT_ID);
+  const allowedEmails = (env.ADMIN_EMAIL_ALLOWLIST ?? '')
+    .split(',')
+    .map((email) => email.trim())
+    .filter((email) => email.length > 0);
+  const user = await verifyGoogleIdToken(idToken, GOOGLE_CLIENT_ID, {
+    ...(allowedEmails.length > 0 ? {allowedEmails} : {}),
+  });
   if (!user) {
-    return new Response('Access denied. Only @bheeagles.com accounts are allowed.', {status: 403});
+    return new Response(
+      allowedEmails.length > 0
+        ? 'Access denied. Your account is not on the admin allowlist.'
+        : 'Access denied. Only @bheeagles.com accounts are allowed.',
+      {status: 403},
+    );
   }
 
   const cookieValue = await signSession(

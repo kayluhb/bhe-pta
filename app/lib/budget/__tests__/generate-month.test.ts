@@ -3,6 +3,7 @@ import {dirname, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {describe, expect, it} from 'vitest';
 
+import {mapPlTotal} from '../category-map';
 import {parseCsv, serializeCsv} from '../csv';
 import {formatAsOfShort, generateMonthBudget, monthLabelFromId} from '../generate-month';
 import {formatCentsAsMoney, parseBankBalanceToCents, parseMoney, roundDollars} from '../money';
@@ -31,7 +32,39 @@ describe('budget csv helpers', () => {
   });
 });
 
+describe('mapPlTotal fundraiser additive lines', () => {
+  it('marks carnival and spring fling income and expenses as additive on the same budget lines', () => {
+    expect(mapPlTotal(['Carnival Income'])).toEqual({
+      additive: true,
+      budgetLine: 'Fundraiser #1 (Carnival)',
+    });
+    expect(mapPlTotal(['Carnival Expenses'])).toEqual({
+      additive: true,
+      budgetLine: 'Fundraiser #1 (Carnival)',
+    });
+    expect(mapPlTotal(['Spring Fling'])).toEqual({
+      additive: true,
+      budgetLine: 'Fundraiser #2 (Spring Fling)',
+    });
+    expect(mapPlTotal(['Spring Fling Expenses'])).toEqual({
+      additive: true,
+      budgetLine: 'Fundraiser #2 (Spring Fling)',
+    });
+  });
+});
+
 describe('extractPlBudgetActuals', () => {
+  it('adds carnival income and expenses onto the same budget line', () => {
+    const pl = [
+      'Carnival Income,,,,,,,,,',
+      'Total for Carnival Income,,,,,,,,,1000',
+      'Carnival Expenses,,,,,,,,,',
+      'Total for Carnival Expenses,,,,,,,,,200',
+    ].join('\n');
+    const {actuals} = extractPlBudgetActuals(pl);
+    expect(actuals.get('Fundraiser #1 (Carnival)')).toBe(1200);
+  });
+
   it('maps income and expense totals from the sample P&L', () => {
     const pl = readFileSync(
       join(root, 'budgets/Barton Hills Elementary PTA_Profit and Loss Detail.csv'),
