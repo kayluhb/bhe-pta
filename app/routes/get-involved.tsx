@@ -7,11 +7,18 @@ import {
   annualFundPath,
   corporateContributionsUrl,
 } from '~/data/annual-fund-campaign';
+import {getCloudflare} from '~/lib/cloudflare-context';
+import {loadPublishedCampaign} from '~/lib/fundraising/campaign-store';
 import {pageSeoMeta} from '~/lib/meta';
 import type {Route} from './+types/get-involved';
 
-export async function loader() {
-  return {annualFundCampaign};
+export async function loader({context}: Route.LoaderArgs) {
+  try {
+    const campaign = await loadPublishedCampaign(getCloudflare(context).env.REIMBURSEMENT_DB);
+    return {annualFundCampaign: campaign};
+  } catch {
+    return {annualFundCampaign};
+  }
 }
 
 export function meta({matches}: Route.MetaArgs) {

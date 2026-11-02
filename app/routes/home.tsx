@@ -5,6 +5,7 @@ import {annualFundCampaign, annualFundPath} from '~/data/annual-fund-campaign';
 import {sanitizeCalendarEvents, stripHtml} from '~/lib/calendar';
 import {getCloudflare} from '~/lib/cloudflare-context';
 import {formatNewsletterDate} from '~/lib/format-newsletter-date';
+import {loadPublishedCampaign} from '~/lib/fundraising/campaign-store';
 import {pageSeoMeta} from '~/lib/meta';
 import {mixNewsletters} from '~/lib/mix-newsletters';
 import {mockNewsletters, mockPtaNewsletters} from '~/lib/mock-data';
@@ -13,8 +14,9 @@ import {getFeaturedSponsorSchoolYear, getFeaturedSponsors} from '~/lib/sponsors'
 import type {CalendarEvent} from '~/lib/types';
 import type {Route} from './+types/home';
 
-export function meta({matches}: Route.MetaArgs) {
-  const ask = annualFundCampaign.suggestedAskPerChild;
+export function meta({loaderData, matches}: Route.MetaArgs) {
+  const ask =
+    loaderData?.annualFundCampaign.suggestedAskPerChild ?? annualFundCampaign.suggestedAskPerChild;
   return pageSeoMeta(matches, {
     path: '/',
     title: 'Barton Hills Elementary PTA | Soaring Together Since 1964',
@@ -31,9 +33,15 @@ export async function loader({context}: Route.LoaderArgs) {
   let events: CalendarEvent[] = [];
   let schoolNews = mockNewsletters;
   let ptaNews = mockPtaNewsletters;
+  let campaign = annualFundCampaign;
 
   try {
     const env = getCloudflare(context).env;
+    try {
+      campaign = await loadPublishedCampaign(env.REIMBURSEMENT_DB);
+    } catch {
+      campaign = annualFundCampaign;
+    }
     const kvEvents = await env.BHE_CALENDAR.get('events', 'json');
     if (kvEvents) events = sanitizeCalendarEvents(kvEvents as typeof events);
     const kvSchool = await env.BHE_NEWSLETTERS.get('latest', 'json');
@@ -55,7 +63,13 @@ export async function loader({context}: Route.LoaderArgs) {
   const sponsorSchoolYear = getFeaturedSponsorSchoolYear();
   const sponsors = getFeaturedSponsors(6, sponsorSchoolYear);
 
-  return {annualFundCampaign, events: upcomingEvents, news: allNews, sponsorSchoolYear, sponsors};
+  return {
+    annualFundCampaign: campaign,
+    events: upcomingEvents,
+    news: allNews,
+    sponsorSchoolYear,
+    sponsors,
+  };
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -292,9 +306,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 lg:gap-16">
             {/* Events column */}
             <div>
-              <h3 className="font-heading font-bold text-lg text-charcoal mb-4">
-                Upcoming Events
-              </h3>
+              <h3 className="font-heading font-bold text-lg text-charcoal mb-4">Upcoming Events</h3>
               <ul className="divide-y divide-charcoal/10">
                 {events.map((event) => (
                   <li className="flex gap-4 py-3 first:pt-0 last:pb-0" key={event.id}>
@@ -592,9 +604,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
                   {program.icon}
                 </div>
                 <div>
-                  <h3 className="font-heading font-bold text-charcoal">
-                    {program.name}
-                  </h3>
+                  <h3 className="font-heading font-bold text-charcoal">{program.name}</h3>
                   <p className="mt-1 text-sm text-charcoal/70 leading-relaxed">
                     {program.description}
                   </p>

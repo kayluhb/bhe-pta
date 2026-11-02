@@ -34,6 +34,8 @@ export default [
   route('admin/school-years', './routes/admin.school-years.tsx'),
   route('admin/membership', './routes/admin.membership.tsx'),
   route('admin/budgets', './routes/admin.budgets.tsx'),
+  route('admin/annual-fund', './routes/admin.annual-fund.tsx'),
+  route('api/admin/annual-fund', './routes/api.admin.annual-fund.ts'),
   route('api/admin/membership/import', './routes/api.admin.membership-import.ts'),
   route('api/admin/budgets/seed', './routes/api.admin.budgets-seed.ts'),
   route('api/admin/budgets/generate', './routes/api.admin.budgets-generate.ts'),
