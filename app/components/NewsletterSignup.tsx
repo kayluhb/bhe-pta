@@ -191,6 +191,11 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
                   {status === 'submitting' ? 'Subscribing...' : 'Subscribe'}
                 </button>
               </div>
+              {status === 'submitting' && (
+                <p className="sr-only" role="status">
+                  Subscribing…
+                </p>
+              )}
               {!turnstileToken && (
                 <p className="text-xs text-charcoal/70" id={hintId}>
                   Complete the security check below to enable Subscribe.
