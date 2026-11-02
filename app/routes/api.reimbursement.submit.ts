@@ -282,6 +282,12 @@ export async function action({request, context}: Route.ActionArgs) {
         ),
     );
 
+    const schoolYearResolution = await resolveSchoolYearIdForNewSubmission(db);
+    if (!schoolYearResolution.ok) {
+      return schoolYearResolution.response;
+    }
+    const schoolYearId = schoolYearResolution.schoolYearId;
+
     // Atomically claim each referenced job for this submission before persisting rows.
     for (const upload of receiptUploads) {
       const claim = await db
@@ -312,51 +318,57 @@ export async function action({request, context}: Route.ActionArgs) {
       }
     }
 
-    const schoolYearResolution = await resolveSchoolYearIdForNewSubmission(db);
-    if (!schoolYearResolution.ok) {
-      return schoolYearResolution.response;
-    }
-    const schoolYearId = schoolYearResolution.schoolYearId;
-
-    await db.batch([
-      db
-        .prepare(
-          `INSERT INTO submissions
+    try {
+      await db.batch([
+        db
+          .prepare(
+            `INSERT INTO submissions
             (id, requester_name, requester_email, requester_phone, requester_address,
              date_check_needed, status, total_amount, pdf_key, submitted_at, school_year_id)
            VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?)`,
-        )
-        .bind(
-          submissionId,
-          requester.payableTo,
-          requester.email,
-          requester.phone || null,
-          requester.address || null,
-          requester.dateCheckNeeded || null,
-          totalAmount,
-          pdfKey,
-          submittedAt,
-          schoolYearId,
-        ),
-      ...receiptsWithBudget.map((receipt, i) =>
-        db
-          .prepare(
-            `INSERT INTO receipt_entries (id, submission_id, receipt_date, description, amount, category, vendor, sort_order)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
           )
           .bind(
-            crypto.randomUUID(),
             submissionId,
-            receipt.date,
-            receipt.description,
-            receipt.amount,
-            receipt.budgetAccount,
-            receipt.placeOfPurchase || null,
-            i,
+            requester.payableTo,
+            requester.email,
+            requester.phone || null,
+            requester.address || null,
+            requester.dateCheckNeeded || null,
+            totalAmount,
+            pdfKey,
+            submittedAt,
+            schoolYearId,
           ),
-      ),
-      ...fileAttachmentInserts,
-    ]);
+        ...receiptsWithBudget.map((receipt, i) =>
+          db
+            .prepare(
+              `INSERT INTO receipt_entries (id, submission_id, receipt_date, description, amount, category, vendor, sort_order)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            )
+            .bind(
+              crypto.randomUUID(),
+              submissionId,
+              receipt.date,
+              receipt.description,
+              receipt.amount,
+              receipt.budgetAccount,
+              receipt.placeOfPurchase || null,
+              i,
+            ),
+        ),
+        ...fileAttachmentInserts,
+      ]);
+    } catch (error) {
+      await db
+        .prepare(
+          `UPDATE receipt_conversion_jobs
+           SET submission_id = NULL, submission_slug = NULL, receipt_line_index = NULL, updated_at = datetime('now')
+           WHERE submission_id = ?`,
+        )
+        .bind(submissionId)
+        .run();
+      throw error;
+    }
 
     // Fast path: any conversions that already finished get their converted PDFs attached now.
     let attachFailed = false;

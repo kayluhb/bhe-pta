@@ -48,6 +48,11 @@ function hasValidStageBasicAuth(request: Request, env: Env): boolean {
   }
 }
 
+function calendarSkipDetail(result: PromiseSettledResult<unknown>, label: string): string | null {
+  if (result.status !== 'rejected') return null;
+  return `${label}=${result.reason}`;
+}
+
 async function runDataRefresh(env: Env): Promise<string[]> {
   const log: string[] = [];
 
@@ -73,20 +78,27 @@ async function runDataRefresh(env: Env): Promise<string[]> {
     log.push(msg);
   }
 
-  // Merge school + PTA calendar events
-  const schoolEvents = calendarResult.status === 'fulfilled' ? calendarResult.value : [];
-  const ptaEvents = ptaCalendarResult.status === 'fulfilled' ? ptaCalendarResult.value : [];
+  // Merge school + PTA calendar events only when both feeds succeed so a partial
+  // failure cannot wipe the other source's events from KV for the day.
+  const schoolOk = calendarResult.status === 'fulfilled';
+  const ptaOk = ptaCalendarResult.status === 'fulfilled';
+  const schoolEvents = schoolOk ? calendarResult.value : [];
+  const ptaEvents = ptaOk ? ptaCalendarResult.value : [];
   const allCalendarEvents = [...schoolEvents, ...ptaEvents];
 
-  if (allCalendarEvents.length > 0) {
-    await env.BHE_CALENDAR.put('events', JSON.stringify(allCalendarEvents));
-    log.push(`Stored ${schoolEvents.length} school + ${ptaEvents.length} PTA calendar events`);
-  } else {
+  if (!schoolOk || !ptaOk) {
     const msg =
-      'Failed to fetch calendars: ' +
-      (calendarResult.status === 'rejected' ? calendarResult.reason : 'No results');
+      'Skipped calendar KV update (keeping previous events): ' +
+      [calendarSkipDetail(calendarResult, 'school'), calendarSkipDetail(ptaCalendarResult, 'pta')]
+        .filter(Boolean)
+        .join('; ');
     console.error(msg);
     log.push(msg);
+  } else if (allCalendarEvents.length === 0) {
+    log.push('Calendar feeds succeeded but returned no events; keeping previous KV cache');
+  } else {
+    await env.BHE_CALENDAR.put('events', JSON.stringify(allCalendarEvents));
+    log.push(`Stored ${schoolEvents.length} school + ${ptaEvents.length} PTA calendar events`);
   }
 
   if (ptaCalendarResult.status === 'rejected') {
