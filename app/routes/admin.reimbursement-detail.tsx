@@ -1,5 +1,6 @@
 import {useEffect, useState} from 'react';
 import {useLoaderData, useRevalidator} from 'react-router';
+import {SearchableBudgetAccountSelect} from '~/components/reimbursement/SearchableBudgetAccountSelect';
 import {requireAdmin, type SessionPayload} from '~/lib/admin/auth';
 import {
   ADMIN_SUBMISSION_STATUS_LABELS,
@@ -10,7 +11,6 @@ import {blurNumberInputOnWheel} from '~/lib/blur-number-input-on-wheel';
 import {getCloudflare} from '~/lib/cloudflare-context';
 import {formatUsd} from '~/lib/format-currency';
 import {mergeParentMeta} from '~/lib/meta';
-import {BUDGET_ACCOUNTS} from '~/lib/reimbursement/validation';
 import type {Route} from './+types/admin.reimbursement-detail';
 
 export function meta({matches}: Route.MetaArgs) {
@@ -938,11 +938,11 @@ export default function AdminReimbursementDetail() {
 
         {/* Receipt Entries Table */}
         {receipts.length > 0 && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
             <div className="px-6 pt-6 pb-3">
               <h2 className="text-lg font-heading font-semibold text-charcoal">Receipt Entries</h2>
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto overflow-y-visible">
               <table className="w-full text-left">
                 <caption className="sr-only">Receipt entries</caption>
                 <thead>
@@ -995,35 +995,20 @@ export default function AdminReimbursementDetail() {
                       <td className="px-4 py-3 text-sm text-charcoal font-body">
                         {r.vendor ?? '—'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-charcoal font-body min-w-[14rem]">
-                        <label className="sr-only" htmlFor={`budget-account-${r.id}`}>
-                          Budget account for {r.description}
-                        </label>
-                        <select
-                          className="w-full max-w-xs rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm text-charcoal font-body focus:border-eagle-blue focus:outline-none focus:ring-2 focus:ring-eagle-blue/30"
+                      <td className="px-4 py-3 text-sm text-charcoal font-body min-w-[16rem]">
+                        <SearchableBudgetAccountSelect
                           disabled={saving || removingLineId !== null}
+                          hideLabel
                           id={`budget-account-${r.id}`}
-                          onChange={(e) =>
+                          label={`Budget account for ${r.description}`}
+                          onChange={(value) =>
                             setReceiptCategories((prev) => ({
                               ...prev,
-                              [r.id]: e.target.value,
+                              [r.id]: value,
                             }))
                           }
                           value={receiptCategories[r.id] ?? r.category ?? ''}
-                        >
-                          {!(BUDGET_ACCOUNTS as readonly string[]).includes(
-                            receiptCategories[r.id] ?? r.category ?? '',
-                          ) && (
-                            <option value={receiptCategories[r.id] ?? r.category ?? ''}>
-                              {receiptCategories[r.id] || r.category || 'Select account…'}
-                            </option>
-                          )}
-                          {BUDGET_ACCOUNTS.map((account) => (
-                            <option key={account} value={account}>
-                              {account}
-                            </option>
-                          ))}
-                        </select>
+                        />
                       </td>
                       <td className="px-4 py-3 text-sm text-charcoal font-body text-right tabular-nums">
                         {formatUsd(r.amount)}
