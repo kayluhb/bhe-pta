@@ -10,6 +10,7 @@ import {blurNumberInputOnWheel} from '~/lib/blur-number-input-on-wheel';
 import {getCloudflare} from '~/lib/cloudflare-context';
 import {formatUsd} from '~/lib/format-currency';
 import {mergeParentMeta} from '~/lib/meta';
+import {BUDGET_ACCOUNTS} from '~/lib/reimbursement/validation';
 import type {Route} from './+types/admin.reimbursement-detail';
 
 export function meta({matches}: Route.MetaArgs) {
@@ -185,6 +186,9 @@ export default function AdminReimbursementDetail() {
   const [checkNumber, setCheckNumber] = useState(submission.check_number ?? '');
   const [datePaid, setDatePaid] = useState(() => isoDateForInput(submission.date_paid));
   const [schoolYearId, setSchoolYearId] = useState(submission.school_year_id);
+  const [receiptCategories, setReceiptCategories] = useState<Record<string, string>>(() =>
+    Object.fromEntries(receipts.map((r) => [r.id, r.category ?? ''])),
+  );
 
   useEffect(() => {
     setRequesterName(submission.requester_name);
@@ -207,6 +211,10 @@ export default function AdminReimbursementDetail() {
     setNotes(submission.admin_notes ?? '');
   }, [submission.status, submission.admin_notes]);
 
+  useEffect(() => {
+    setReceiptCategories(Object.fromEntries(receipts.map((r) => [r.id, r.category ?? ''])));
+  }, [receipts]);
+
   const schoolYearDirty = schoolYearId !== submission.school_year_id;
   const contactDirty =
     requesterName !== submission.requester_name ||
@@ -216,9 +224,13 @@ export default function AdminReimbursementDetail() {
     checkAmountInput !== checkAmountInputFromDb(submission.check_amount) ||
     checkNumber !== (submission.check_number ?? '') ||
     datePaid !== isoDateForInput(submission.date_paid);
-  const statusDirty =
-    status !== submission.status || notes !== (submission.admin_notes ?? '');
-  const isDirty = schoolYearDirty || contactDirty || treasurerDirty || statusDirty;
+  const statusDirty = status !== submission.status || notes !== (submission.admin_notes ?? '');
+  const dirtyReceiptCategories = receipts.filter(
+    (r) => (receiptCategories[r.id] ?? '') !== (r.category ?? ''),
+  );
+  const receiptsDirty = dirtyReceiptCategories.length > 0;
+  const isDirty =
+    schoolYearDirty || contactDirty || treasurerDirty || statusDirty || receiptsDirty;
 
   useEffect(() => {
     if (isDirty) setFeedback(null);
@@ -263,9 +275,7 @@ export default function AdminReimbursementDetail() {
         }
         successes.push('School year updated');
       } catch (err) {
-        failures.push(
-          err instanceof Error ? err.message : 'Failed to update school year.',
-        );
+        failures.push(err instanceof Error ? err.message : 'Failed to update school year.');
       }
     }
 
@@ -289,9 +299,7 @@ export default function AdminReimbursementDetail() {
         }
         successes.push('Contact info saved');
       } catch (err) {
-        failures.push(
-          err instanceof Error ? err.message : 'Failed to save contact info.',
-        );
+        failures.push(err instanceof Error ? err.message : 'Failed to save contact info.');
       }
     }
 
@@ -326,9 +334,7 @@ export default function AdminReimbursementDetail() {
               : 'Check details saved',
         );
       } catch (err) {
-        failures.push(
-          err instanceof Error ? err.message : 'Failed to save check details.',
-        );
+        failures.push(err instanceof Error ? err.message : 'Failed to save check details.');
       }
     }
 
@@ -356,13 +362,58 @@ export default function AdminReimbursementDetail() {
       }
     }
 
+    if (receiptsDirty) {
+      let pdfWarning: string | undefined;
+      let pdfRegenerated = false;
+      let savedCount = 0;
+      for (const receipt of dirtyReceiptCategories) {
+        try {
+          const res = await fetch(
+            `/api/admin/reimbursements/${encodeURIComponent(submission.id)}/receipts/${encodeURIComponent(receipt.id)}`,
+            {
+              body: JSON.stringify({category: receiptCategories[receipt.id]}),
+              headers: {'Content-Type': 'application/json'},
+              method: 'POST',
+            },
+          );
+          const data = (await res.json().catch(() => ({}))) as {
+            error?: string;
+            pdfRegenerated?: boolean;
+            warning?: string;
+          };
+          if (!res.ok) {
+            throw new Error(data.error || 'Failed to update budget account');
+          }
+          savedCount += 1;
+          if (data.warning) pdfWarning = data.warning;
+          if (data.pdfRegenerated) pdfRegenerated = true;
+        } catch (err) {
+          failures.push(
+            err instanceof Error ? err.message : 'Failed to update budget account.',
+          );
+        }
+      }
+      if (savedCount > 0) {
+        successes.push(
+          pdfWarning
+            ? pdfWarning.replace(/\.$/, '')
+            : pdfRegenerated
+              ? savedCount === 1
+                ? 'Budget account saved and the request PDF was updated'
+                : 'Budget accounts saved and the request PDF was updated'
+              : savedCount === 1
+                ? 'Budget account saved'
+                : 'Budget accounts saved',
+        );
+      }
+    }
+
     if (successes.length > 0) {
       revalidator.revalidate();
     }
 
     if (failures.length > 0) {
-      const prefix =
-        successes.length > 0 ? `${successes.join('. ')}. ` : '';
+      const prefix = successes.length > 0 ? `${successes.join('. ')}. ` : '';
       setFeedback({
         type: 'error',
         message: `${prefix}${failures.join(' ')}`,
@@ -941,8 +992,35 @@ export default function AdminReimbursementDetail() {
                       <td className="px-4 py-3 text-sm text-charcoal font-body">
                         {r.vendor ?? '—'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-charcoal font-body">
-                        {r.category ?? '—'}
+                      <td className="px-4 py-3 text-sm text-charcoal font-body min-w-[14rem]">
+                        <label className="sr-only" htmlFor={`budget-account-${r.id}`}>
+                          Budget account for {r.description}
+                        </label>
+                        <select
+                          className="w-full max-w-xs rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm text-charcoal font-body focus:border-eagle-blue focus:outline-none focus:ring-2 focus:ring-eagle-blue/30"
+                          disabled={saving || removingLineId !== null}
+                          id={`budget-account-${r.id}`}
+                          onChange={(e) =>
+                            setReceiptCategories((prev) => ({
+                              ...prev,
+                              [r.id]: e.target.value,
+                            }))
+                          }
+                          value={receiptCategories[r.id] ?? r.category ?? ''}
+                        >
+                          {!(BUDGET_ACCOUNTS as readonly string[]).includes(
+                            receiptCategories[r.id] ?? r.category ?? '',
+                          ) && (
+                            <option value={receiptCategories[r.id] ?? r.category ?? ''}>
+                              {receiptCategories[r.id] || r.category || 'Select account…'}
+                            </option>
+                          )}
+                          {BUDGET_ACCOUNTS.map((account) => (
+                            <option key={account} value={account}>
+                              {account}
+                            </option>
+                          ))}
+                        </select>
                       </td>
                       <td className="px-4 py-3 text-sm text-charcoal font-body text-right tabular-nums">
                         {formatUsd(r.amount)}

@@ -129,6 +129,19 @@ export const adminTreasurerFieldsSchema = z.object({
 
 export type AdminTreasurerFields = z.infer<typeof adminTreasurerFieldsSchema>;
 
+/** Admin-only: correct budget account on a receipt line (`receipt_entries.category`). */
+export const adminReceiptCategorySchema = z.object({
+  category: z
+    .string()
+    .min(1, 'Budget account is required')
+    .refine(
+      (v): v is BudgetAccount => (BUDGET_ACCOUNTS as readonly string[]).includes(v),
+      'Invalid budget account',
+    ),
+});
+
+export type AdminReceiptCategory = z.infer<typeof adminReceiptCategorySchema>;
+
 /** Maximum reimbursement line items (receipt rows) per submission. */
 export const MAX_RECEIPT_LINES = 10;
 
