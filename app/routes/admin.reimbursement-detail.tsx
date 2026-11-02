@@ -229,8 +229,7 @@ export default function AdminReimbursementDetail() {
     (r) => (receiptCategories[r.id] ?? '') !== (r.category ?? ''),
   );
   const receiptsDirty = dirtyReceiptCategories.length > 0;
-  const isDirty =
-    schoolYearDirty || contactDirty || treasurerDirty || statusDirty || receiptsDirty;
+  const isDirty = schoolYearDirty || contactDirty || treasurerDirty || statusDirty || receiptsDirty;
 
   useEffect(() => {
     if (isDirty) setFeedback(null);
@@ -388,9 +387,7 @@ export default function AdminReimbursementDetail() {
           if (data.warning) pdfWarning = data.warning;
           if (data.pdfRegenerated) pdfRegenerated = true;
         } catch (err) {
-          failures.push(
-            err instanceof Error ? err.message : 'Failed to update budget account.',
-          );
+          failures.push(err instanceof Error ? err.message : 'Failed to update budget account.');
         }
       }
       if (savedCount > 0) {
@@ -662,6 +659,12 @@ export default function AdminReimbursementDetail() {
               href="/admin/budgets"
             >
               Budgets
+            </a>
+            <a
+              className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
+              href="/admin/annual-fund"
+            >
+              Annual Fund
             </a>
             <a
               className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"

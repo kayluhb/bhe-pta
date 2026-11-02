@@ -35,20 +35,13 @@ export function annualFundGiveUrlWithUtm(content = 'give-cta'): string {
   return url.toString();
 }
 
-/** Update these amounts and lastUpdated, then deploy to publish progress. */
-const onlineRaisedAmount = 215_350.88;
-/** Offline donations that have been deposited and cleared. */
-const offlineRaisedAmount = 59_000;
-
-export const annualFundCampaign: AnnualFundCampaign = {
-  schoolYear: '2026-27',
-  title: '2026-2027 Annual Fund Milestones',
-  giveUrl: annualFundGiveUrl,
+/**
+ * Amounts shipped in code. Admin can publish a newer campaign without a deploy;
+ * these values are the fallback until that first save.
+ */
+export const annualFundCodeDefaults = {
   goalAmount: 272_000,
-  suggestedAskPerChild: 650,
-  raisedAmount: onlineRaisedAmount + offlineRaisedAmount,
   lastUpdated: '2026-10-16',
-
   milestones: [
     {
       id: 'art-music-pe',
@@ -72,5 +65,24 @@ export const annualFundCampaign: AnnualFundCampaign = {
       amount: 272_000,
       targetDate: '2027-05-01',
     },
-  ],
+  ] satisfies FundraisingMilestone[],
+  /** Offline donations that have been deposited and cleared. */
+  offlineRaisedAmount: 59_000,
+  /** Cheddar Up (or other online) total. Keep cents when the export has them. */
+  onlineRaisedAmount: 215_350.88,
+  schoolYear: '2026-27',
+  suggestedAskPerChild: 650,
+  title: '2026-2027 Annual Fund Milestones',
+};
+
+export const annualFundCampaign: AnnualFundCampaign = {
+  giveUrl: annualFundGiveUrl,
+  goalAmount: annualFundCodeDefaults.goalAmount,
+  lastUpdated: annualFundCodeDefaults.lastUpdated,
+  milestones: annualFundCodeDefaults.milestones,
+  raisedAmount:
+    annualFundCodeDefaults.onlineRaisedAmount + annualFundCodeDefaults.offlineRaisedAmount,
+  schoolYear: annualFundCodeDefaults.schoolYear,
+  suggestedAskPerChild: annualFundCodeDefaults.suggestedAskPerChild,
+  title: annualFundCodeDefaults.title,
 };

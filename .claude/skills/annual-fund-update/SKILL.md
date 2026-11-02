@@ -1,11 +1,13 @@
 ---
 name: annual-fund-update
-description: Use when updating BHE PTA Annual Fund progress, goals, or milestones on the website (raised amounts, offline donations, goal total, Art/Music/PE framing), or when the user asks to refresh fundraising numbers before deploy.
+description: Use when updating BHE PTA Annual Fund progress, goals, or milestones on the website (raised amounts, offline donations, goal total, Art/Music/PE framing). Publish from Admin → Annual Fund; do not edit the code fallback unless admin storage is unavailable.
 ---
 
 # Annual Fund Update
 
-Publish Annual Fund progress and milestone framing from `app/data/annual-fund-campaign.ts`. Homepage and Get Involved load that object; there is no admin UI or KV cache for these numbers.
+Publish Annual Fund progress from **Admin → Annual Fund** (`/admin/annual-fund`). Saving writes one D1 row and the Annual Fund page, Get Involved page, and homepage suggested-ask copy read it on the next request. No deploy.
+
+`app/data/annual-fund-campaign.ts` is the fallback until the first admin save, and again if that row is missing or invalid. After a save, deploys do not overwrite the published numbers. The Cheddar Up give URL stays in code.
 
 ## Source of truth
 
@@ -24,24 +26,22 @@ Surfaces: `app/routes/home.tsx`, `app/routes/get-involved.tsx`, `app/routes/annu
 
 ## Process
 
-1. Read `app/data/annual-fund-campaign.ts` and confirm current online, offline, goal, and milestones.
+1. Open `/admin/annual-fund` (or read the published D1 row `annual_fund_campaign` id `current`). If that row does not exist yet, the form shows `annualFundCodeDefaults` in `app/data/annual-fund-campaign.ts`.
 2. Clarify with the user anything missing:
    - New online total and/or offline total (offline = deposited & cleared only)
    - Goal or milestone label/amount/due-date changes
    - Whether this is numbers-only or also reframes copy (e.g. multi-year Art, Music & PE)
-3. Edit campaign data:
-   - Update `onlineRaisedAmount` / `offlineRaisedAmount` separately
-   - Set `raisedAmount: onlineRaisedAmount + offlineRaisedAmount`
-   - Set `goalAmount` and ensure the **last** milestone `amount` equals `goalAmount`
-   - Keep intermediate milestone amounts cumulative and increasing
-   - Set `lastUpdated` to today (or the user’s as-of date)
+3. Publish from the admin form. The save handler:
+   - Keeps online and offline separate and sets raised to their sum
+   - Requires the last milestone amount to equal the goal, with earlier amounts cumulative and increasing
+   - Sets `lastUpdated` to today's date in America/Chicago
 4. Sanity-check math before finishing:
    - Online + offline = raised (watch for $10 rounding mistakes when the user quotes a rounded online figure)
    - Displayed tranche for milestone *i* = `amount[i] - amount[i-1]` (first tranche = first `amount`)
    - Sum of displayed tranches = `goalAmount`
 5. If due dates span more than one calendar year, keep year in `formatTargetDate` (already includes year).
-6. Run `pnpm exec vitest run app/lib/fundraising/__tests__/progress.test.ts` if date/progress helpers changed; otherwise data-only edits need no test change.
-7. Do **not** deploy unless the user asks. Remind them progress goes live on deploy.
+6. Run `pnpm exec vitest run app/lib/fundraising/__tests__/campaign.test.ts app/lib/fundraising/__tests__/progress.test.ts` if validation or date helpers changed.
+7. Do **not** deploy for a numbers change. Progress is live after save. Apply migration `0012_annual_fund_campaign.sql` once (`pnpm dev:migrate` locally, `pnpm prod:migrate` in production) before the first save. Edit the code fallback only when admin storage is unavailable, and say that a deploy is then required.
 
 ## Milestone framing (current campaign)
 

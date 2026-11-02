@@ -6,8 +6,10 @@ import {
   annualFundGiveUrlWithUtm,
   corporateContributionsUrl,
 } from '~/data/annual-fund-campaign';
+import {getCloudflare} from '~/lib/cloudflare-context';
+import {loadPublishedCampaign} from '~/lib/fundraising/campaign-store';
 import {formatCurrency} from '~/lib/fundraising/progress';
-import {SITE_ORIGIN, pageSeoMeta} from '~/lib/meta';
+import {pageSeoMeta, SITE_ORIGIN} from '~/lib/meta';
 import type {Route} from './+types/annual-fund';
 
 const TAX_ID = '74-6086853';
@@ -26,34 +28,42 @@ const fundedInitiatives = [
   'School gardens',
 ];
 
-const faqs = [
-  {
-    question: 'Is my donation tax-deductible?',
-    answer:
-      'Yes. Barton Hills Elementary PTA is a 501(c)(3) nonprofit (Tax ID 74-6086853). Your contribution is tax-deductible to the extent allowed by law.',
-  },
-  {
-    question: 'How much should I give?',
-    answer: `We request about $${annualFundCampaign.suggestedAskPerChild} per child to help sustain programs. Give what you can — every dollar funds Art, Music, PE, classroom resources, and community programs.`,
-  },
-  {
-    question: 'Where does Annual Fund money go?',
-    answer:
-      'Gifts fund the final third of Music, Art, and PE roles, plus grants, enrichment, hospitality, cultural arts, and campus needs that AISD does not fully cover.',
-  },
-  {
-    question: 'Is membership the same as donating?',
-    answer:
-      'Your Annual Fund gift includes PTA membership for the school year. One contribution supports both membership and the programs that serve every Eagle.',
-  },
-];
-
-export async function loader() {
-  return {annualFundCampaign};
+function annualFundFaqs(ask: number) {
+  return [
+    {
+      question: 'Is my donation tax-deductible?',
+      answer:
+        'Yes. Barton Hills Elementary PTA is a 501(c)(3) nonprofit (Tax ID 74-6086853). Your contribution is tax-deductible to the extent allowed by law.',
+    },
+    {
+      question: 'How much should I give?',
+      answer: `We request about $${ask} per child to help sustain programs. Give what you can — every dollar funds Art, Music, PE, classroom resources, and community programs.`,
+    },
+    {
+      question: 'Where does Annual Fund money go?',
+      answer:
+        'Gifts fund the final third of Music, Art, and PE roles, plus grants, enrichment, hospitality, cultural arts, and campus needs that AISD does not fully cover.',
+    },
+    {
+      question: 'Is membership the same as donating?',
+      answer:
+        'Your Annual Fund gift includes PTA membership for the school year. One contribution supports both membership and the programs that serve every Eagle.',
+    },
+  ];
 }
 
-export function meta({matches}: Route.MetaArgs) {
-  const ask = annualFundCampaign.suggestedAskPerChild;
+export async function loader({context}: Route.LoaderArgs) {
+  try {
+    const campaign = await loadPublishedCampaign(getCloudflare(context).env.REIMBURSEMENT_DB);
+    return {annualFundCampaign: campaign};
+  } catch {
+    return {annualFundCampaign};
+  }
+}
+
+export function meta({loaderData, matches}: Route.MetaArgs) {
+  const ask =
+    loaderData?.annualFundCampaign.suggestedAskPerChild ?? annualFundCampaign.suggestedAskPerChild;
   return pageSeoMeta(matches, {
     path: '/annual-fund',
     title: 'Donate to the Annual Fund | Barton Hills Elementary PTA',
@@ -64,7 +74,13 @@ export function meta({matches}: Route.MetaArgs) {
   });
 }
 
-function OrganizationJsonLd({giveUrl}: {giveUrl: string}) {
+function OrganizationJsonLd({
+  faqs,
+  giveUrl,
+}: {
+  faqs: {answer: string; question: string}[];
+  giveUrl: string;
+}) {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'NGO',
@@ -108,10 +124,12 @@ function OrganizationJsonLd({giveUrl}: {giveUrl: string}) {
   return (
     <>
       <script
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD built from our own campaign fields.
         dangerouslySetInnerHTML={{__html: JSON.stringify(schema)}}
         type="application/ld+json"
       />
       <script
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD built from our own campaign fields.
         dangerouslySetInnerHTML={{__html: JSON.stringify(faqSchema)}}
         type="application/ld+json"
       />
@@ -121,11 +139,12 @@ function OrganizationJsonLd({giveUrl}: {giveUrl: string}) {
 
 export default function AnnualFund({loaderData}: Route.ComponentProps) {
   const {annualFundCampaign: campaign} = loaderData;
+  const faqs = annualFundFaqs(campaign.suggestedAskPerChild);
   const giveUrl = annualFundGiveUrlWithUtm('annual-fund-page');
 
   return (
     <div>
-      <OrganizationJsonLd giveUrl={giveUrl} />
+      <OrganizationJsonLd faqs={faqs} giveUrl={giveUrl} />
 
       <section className="relative overflow-hidden bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24">
         <div
@@ -187,7 +206,9 @@ export default function AnnualFund({loaderData}: Route.ComponentProps) {
               </p>
             </div>
             <div className="rounded-2xl bg-white p-8 shadow-lg">
-              <h3 className="font-heading text-lg font-bold text-charcoal">Your contributions fund</h3>
+              <h3 className="font-heading text-lg font-bold text-charcoal">
+                Your contributions fund
+              </h3>
               <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {fundedInitiatives.map((item) => (
                   <li className="flex items-start gap-2 text-charcoal/70" key={item}>
@@ -247,7 +268,10 @@ export default function AnnualFund({loaderData}: Route.ComponentProps) {
           </dl>
           <p className="mt-8 text-center text-sm text-charcoal/60">
             Official organization details:{' '}
-            <Link className="font-medium text-eagle-blue hover:text-spirit-gold" to="/official-name">
+            <Link
+              className="font-medium text-eagle-blue hover:text-spirit-gold"
+              to="/official-name"
+            >
               name, mission, and Tax ID
             </Link>
           </p>

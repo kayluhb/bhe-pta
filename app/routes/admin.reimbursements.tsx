@@ -202,7 +202,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
      ${whereClause}
      ORDER BY ${
        validSort === 'total_amount' && budgetFilter ? 'bl.budget_amount' : `s.${validSort}`
-     } ${validOrder}
+} ${validOrder}
      LIMIT ? OFFSET ?`;
 
   const countSql = `SELECT COUNT(*) as count FROM submissions s ${budgetJoin} ${whereClause}`;
@@ -688,6 +688,12 @@ export default function AdminReimbursements() {
             </a>
             <a
               className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
+              href="/admin/annual-fund"
+            >
+              Annual Fund
+            </a>
+            <a
+              className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
               href="/admin/school-years"
             >
               School years
@@ -731,9 +737,7 @@ export default function AdminReimbursements() {
             <KpiTile label="Submissions" sublabel="In scope" value={snapshot.totalSubmissions} />
             <KpiTile
               label="Total requested"
-              sublabel={
-                filters.budget ? 'Sum of budget line amounts' : 'Sum of claim totals'
-              }
+              sublabel={filters.budget ? 'Sum of budget line amounts' : 'Sum of claim totals'}
               value={formatUsd(snapshot.sumTotalRequested)}
             />
             <KpiTile

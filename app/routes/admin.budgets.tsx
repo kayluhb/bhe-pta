@@ -166,6 +166,12 @@ export default function AdminBudgets() {
             </a>
             <a
               className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
+              href="/admin/annual-fund"
+            >
+              Annual Fund
+            </a>
+            <a
+              className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
               href="/admin/school-years"
             >
               School years
