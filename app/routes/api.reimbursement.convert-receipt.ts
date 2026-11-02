@@ -25,12 +25,18 @@ export async function action({request, context}: Route.ActionArgs) {
     const env = getCloudflare(context).env;
     const continuationSecret = env.SESSION_SECRET || env.FILE_URL_SIGNING_SECRET;
     const continuation = request.headers.get('X-Receipt-Upload-Token');
+    const draftIdFromHeader = request.headers.get('X-Reimbursement-Draft-Id')?.trim() || null;
+    if (draftIdFromHeader && !isValidReimbursementDraftId(draftIdFromHeader)) {
+      logConvertReceipt({requestId, outcome: 'reject', reason: 'bad_reimbursement_draft_id'});
+      return Response.json({error: 'Invalid reimbursement draft id.'}, {status: 400});
+    }
 
     let authViaContinuation = false;
-    if (continuation && continuationSecret) {
+    if (continuation && continuationSecret && draftIdFromHeader) {
       authViaContinuation = await verifyReceiptUploadContinuationToken(
         continuation,
         continuationSecret,
+        draftIdFromHeader,
       );
     }
 
@@ -46,6 +52,18 @@ export async function action({request, context}: Route.ActionArgs) {
 
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
+    const payableTo = formData.get('payableTo') as string | null;
+    const receiptNumber = formData.get('receiptNumber') as string | null;
+    const reimbursementDraftIdRaw = formData.get('reimbursementDraftId') as string | null;
+    const reimbursementDraftId = reimbursementDraftIdRaw?.trim() || draftIdFromHeader;
+    if (reimbursementDraftId && !isValidReimbursementDraftId(reimbursementDraftId)) {
+      logConvertReceipt({requestId, outcome: 'reject', reason: 'bad_reimbursement_draft_id'});
+      return Response.json({error: 'Invalid reimbursement draft id.'}, {status: 400});
+    }
+    if (draftIdFromHeader && reimbursementDraftId && draftIdFromHeader !== reimbursementDraftId) {
+      logConvertReceipt({requestId, outcome: 'reject', reason: 'draft_id_mismatch'});
+      return Response.json({error: 'Invalid reimbursement draft id.'}, {status: 400});
+    }
 
     if (!file) {
       logConvertReceipt({requestId, outcome: 'reject', reason: 'no_file'});
@@ -77,15 +95,6 @@ export async function action({request, context}: Route.ActionArgs) {
         filename: file.name,
       });
       return Response.json({error: 'File too large. Maximum 10MB.'}, {status: 400});
-    }
-
-    const payableTo = formData.get('payableTo') as string | null;
-    const receiptNumber = formData.get('receiptNumber') as string | null;
-    const reimbursementDraftIdRaw = formData.get('reimbursementDraftId') as string | null;
-    const reimbursementDraftId = reimbursementDraftIdRaw?.trim() || null;
-    if (reimbursementDraftId && !isValidReimbursementDraftId(reimbursementDraftId)) {
-      logConvertReceipt({requestId, outcome: 'reject', reason: 'bad_reimbursement_draft_id'});
-      return Response.json({error: 'Invalid reimbursement draft id.'}, {status: 400});
     }
 
     // Read once: Workers may not allow a second file.arrayBuffer().
@@ -167,8 +176,11 @@ export async function action({request, context}: Route.ActionArgs) {
     });
 
     let receiptUploadToken: string | undefined;
-    if (continuationSecret) {
-      receiptUploadToken = await issueReceiptUploadContinuationToken(continuationSecret);
+    if (continuationSecret && reimbursementDraftId) {
+      receiptUploadToken = await issueReceiptUploadContinuationToken(
+        continuationSecret,
+        reimbursementDraftId,
+      );
     }
 
     const signingSecret = resolveFilePreviewSigningSecret(env);

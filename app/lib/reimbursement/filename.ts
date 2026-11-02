@@ -140,9 +140,16 @@ export function downloadFilenameForR2Object(
   storedOriginalFilename?: string | null,
 ): string {
   const fromDb = storedOriginalFilename?.trim();
-  if (fromDb) return fromDb;
+  if (fromDb) return sanitizeDownloadFilename(fromDb);
   const basename = r2Key.split('/').pop() || 'download';
-  return stripEphemeralR2KeyPrefix(basename);
+  return sanitizeDownloadFilename(stripEphemeralR2KeyPrefix(basename));
+}
+
+/** Strip path segments and unsafe characters for Content-Disposition / ZIP entry names. */
+export function sanitizeDownloadFilename(name: string): string {
+  const base = name.replace(/\\/g, '/').split('/').pop()?.trim() || 'download';
+  const cleaned = base.replace(/[\x00-\x1f\x7f"<>|:*?]/g, '_').replace(/^\.+/, '');
+  return cleaned.slice(0, 180) || 'download';
 }
 
 export function buildAdminReceiptPdfTitle(requesterName: string, storageBasename: string): string {
