@@ -284,21 +284,21 @@ export default function Home({loaderData}: Route.ComponentProps) {
         />
       </section>
 
-      <section className="bg-white py-16 md:py-20 border-y border-charcoal/5">
-        <div className="max-w-7xl mx-auto px-4">
-          {campaign.thermometerVisible ? (
+      {campaign.thermometerVisible ? (
+        <section className="bg-white py-16 md:py-20 border-y border-charcoal/5">
+          <div className="max-w-7xl mx-auto px-4">
             <FundraisingProgress campaign={campaign} className="mt-0" />
-          ) : null}
-          <div className={campaign.thermometerVisible ? 'mt-10' : undefined}>
-            <Link
-              className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors duration-200"
-              to={annualFundPath}
-            >
-              Give to the Annual Fund
-            </Link>
+            <div className="mt-10">
+              <Link
+                className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors duration-200"
+                to={annualFundPath}
+              >
+                Give to the Annual Fund
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       {/* ── 2. News & Events ────────────────────────────────────────────── */}
       <section className="bg-warm-white py-16 md:py-20">

@@ -18,7 +18,7 @@ Publish Annual Fund progress from **Admin → Annual Fund** (`/admin/annual-fund
 | `raisedAmount` | Always `onlineRaisedAmount + offlineRaisedAmount` — never hardcode the sum alone |
 | `goalAmount` | Overall campaign goal (must match the final milestone `amount`) |
 | `suggestedAskPerChild` | Suggested gift per student (shown on Annual Fund, Get Involved, meta) |
-| `thermometerVisible` | When false, omit `FundraisingProgress` on Annual Fund, Get Involved, and home (give CTAs stay; admin preview still shows) |
+| `thermometerVisible` | When false, omit the thermometer on Annual Fund and Get Involved, and omit the whole homepage thermometer+give section so News follows the hero (admin preview still shows) |
 | `lastUpdated` | ISO date `YYYY-MM-DD` — bump whenever raised/goal/milestones change |
 | `milestones[].amount` | **Cumulative** threshold toward the overall goal, not the tranche size |
 | `milestones[].targetDate` | ISO `YYYY-MM-DD`; UI formats with month, day, and year |

@@ -40,6 +40,19 @@ function milestonesToForm(milestones: FundraisingMilestone[]): MilestoneForm[] {
   }));
 }
 
+function formSnapshot(fields: {
+  ask: string;
+  goal: string;
+  milestones: MilestoneForm[];
+  offline: string;
+  online: string;
+  schoolYear: string;
+  thermometerVisible: boolean;
+  title: string;
+}): string {
+  return JSON.stringify(fields);
+}
+
 function nextMilestoneId(existing: MilestoneForm[]): string {
   let n = existing.length + 1;
   const ids = new Set(existing.map((milestone) => milestone.id));
@@ -72,6 +85,18 @@ export default function AdminAnnualFund() {
   const [milestones, setMilestones] = useState<MilestoneForm[]>(() =>
     milestonesToForm(draft.milestones),
   );
+  const [baseline, setBaseline] = useState(() =>
+    formSnapshot({
+      ask: String(draft.suggestedAskPerChild),
+      goal: moneyInput(draft.goalAmount),
+      milestones: milestonesToForm(draft.milestones),
+      offline: moneyInput(draft.offlineRaisedAmount),
+      online: moneyInput(draft.onlineRaisedAmount),
+      schoolYear: draft.schoolYear,
+      thermometerVisible: draft.thermometerVisible,
+      title: draft.title,
+    }),
+  );
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -99,6 +124,17 @@ export default function AdminAnnualFund() {
   const offlineAmount = parseMoney(offline);
   const raisedPreview =
     onlineAmount != null && offlineAmount != null ? onlineAmount + offlineAmount : null;
+  const currentSnapshot = formSnapshot({
+    ask,
+    goal,
+    milestones,
+    offline,
+    online,
+    schoolYear,
+    thermometerVisible,
+    title,
+  });
+  const isDirty = currentSnapshot !== baseline;
 
   const updateMilestone = (index: number, patch: Partial<MilestoneForm>) => {
     setMilestones((current) =>
@@ -133,6 +169,7 @@ export default function AdminAnnualFund() {
       });
       const data = (await res.json().catch(() => ({}))) as {error?: string};
       if (!res.ok) throw new Error(data.error || 'Save failed');
+      setBaseline(currentSnapshot);
       setPublished(true);
       setSaved(true);
     } catch (saveError) {
@@ -183,7 +220,7 @@ export default function AdminAnnualFund() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-8 space-y-8">
+      <main className="max-w-5xl mx-auto px-4 py-8 pb-28 space-y-8">
         <p className="text-sm text-gray-600 font-body max-w-2xl">
           Publish the thermometer without a deploy. Enter the Cheddar Up total and offline gifts
           that have been deposited and cleared. Raised is always those two added together. Milestone
@@ -196,25 +233,6 @@ export default function AdminAnnualFund() {
             The site is still using the amounts shipped in code. The first save publishes this
             campaign from admin. Later deploys will not overwrite it.
           </p>
-        )}
-
-        {error && (
-          <div
-            className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 font-body"
-            role="alert"
-          >
-            {error}
-          </div>
-        )}
-
-        {saved && (
-          <div
-            className="rounded-lg border border-creek-green/30 bg-creek-green/10 px-4 py-3 text-sm text-charcoal font-body"
-            role="status"
-          >
-            Published. The Annual Fund page and Get Involved page use these numbers now. The
-            suggested ask also updates the homepage description.
-          </div>
         )}
 
         <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
@@ -499,14 +517,6 @@ export default function AdminAnnualFund() {
               {parsed.error}
             </p>
           )}
-          <button
-            className="inline-flex items-center rounded-lg bg-eagle-blue px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-eagle-blue/90 disabled:opacity-50 font-body"
-            disabled={!parsed.ok || saving}
-            onClick={handleSave}
-            type="button"
-          >
-            {saving ? 'Publishing…' : 'Publish thermometer'}
-          </button>
           <p className="text-sm text-gray-500 font-body">
             The Cheddar Up give link stays in code. Suggested ask also updates the page description.
           </p>
@@ -519,6 +529,41 @@ export default function AdminAnnualFund() {
           </section>
         )}
       </main>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white/95 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] backdrop-blur-sm">
+        <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p
+            className={`min-h-5 text-sm font-body ${
+              error
+                ? 'text-red-600'
+                : saved && !isDirty
+                  ? 'text-creek-green'
+                  : isDirty
+                    ? 'text-charcoal'
+                    : 'text-gray-500'
+            }`}
+            role={error ? 'alert' : 'status'}
+          >
+            {error
+              ? error
+              : saved && !isDirty
+                ? 'Published. Public pages use these numbers now.'
+                : isDirty
+                  ? parsed.ok
+                    ? 'You have unsaved changes.'
+                    : parsed.error
+                  : 'No unsaved changes.'}
+          </p>
+          <button
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-eagle-blue px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-eagle-blue/90 font-body disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={saving || !isDirty || !parsed.ok}
+            onClick={handleSave}
+            type="button"
+          >
+            {saving ? 'Publishing…' : 'Publish thermometer'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
