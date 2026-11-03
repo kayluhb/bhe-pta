@@ -163,7 +163,7 @@ export default function GetInvolved({loaderData}: Route.ComponentProps) {
                 </div>
               </div>
 
-              <FundraisingProgress campaign={campaign} />
+              {campaign.thermometerVisible ? <FundraisingProgress campaign={campaign} /> : null}
 
               <div className="mt-10 flex flex-wrap gap-4">
                 <a

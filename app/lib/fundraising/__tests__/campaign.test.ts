@@ -61,4 +61,23 @@ describe('annual fund draft', () => {
   it('dates the publish day in Central time', () => {
     expect(annualFundAsOfDate(new Date('2026-11-02T05:30:00Z'))).toBe('2026-11-01');
   });
+
+  it('defaults the thermometer to visible and can publish it hidden', () => {
+    expect(campaignFromDraft(draftFromCode()).thermometerVisible).toBe(true);
+
+    const result = parseAnnualFundSubmission({
+      goalAmount: annualFundCodeDefaults.goalAmount,
+      milestones: annualFundCodeDefaults.milestones,
+      offlineRaisedAmount: annualFundCodeDefaults.offlineRaisedAmount,
+      onlineRaisedAmount: annualFundCodeDefaults.onlineRaisedAmount,
+      schoolYear: annualFundCodeDefaults.schoolYear,
+      suggestedAskPerChild: annualFundCodeDefaults.suggestedAskPerChild,
+      thermometerVisible: false,
+      title: annualFundCodeDefaults.title,
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.draft.thermometerVisible).toBe(false);
+    expect(campaignFromDraft(result.draft).thermometerVisible).toBe(false);
+  });
 });

@@ -18,6 +18,7 @@ Publish Annual Fund progress from **Admin → Annual Fund** (`/admin/annual-fund
 | `raisedAmount` | Always `onlineRaisedAmount + offlineRaisedAmount` — never hardcode the sum alone |
 | `goalAmount` | Overall campaign goal (must match the final milestone `amount`) |
 | `suggestedAskPerChild` | Suggested gift per student (shown on Annual Fund, Get Involved, meta) |
+| `thermometerVisible` | When false, omit `FundraisingProgress` on Annual Fund, Get Involved, and home (give CTAs stay; admin preview still shows) |
 | `lastUpdated` | ISO date `YYYY-MM-DD` — bump whenever raised/goal/milestones change |
 | `milestones[].amount` | **Cumulative** threshold toward the overall goal, not the tranche size |
 | `milestones[].targetDate` | ISO `YYYY-MM-DD`; UI formats with month, day, and year |
@@ -41,7 +42,7 @@ Surfaces: `app/routes/home.tsx`, `app/routes/get-involved.tsx`, `app/routes/annu
    - Sum of displayed tranches = `goalAmount`
 5. If due dates span more than one calendar year, keep year in `formatTargetDate` (already includes year).
 6. Run `pnpm exec vitest run app/lib/fundraising/__tests__/campaign.test.ts app/lib/fundraising/__tests__/progress.test.ts` if validation or date helpers changed.
-7. Do **not** deploy for a numbers change. Progress is live after save. Apply migration `0012_annual_fund_campaign.sql` once (`pnpm dev:migrate` locally, `pnpm prod:migrate` in production) before the first save. Edit the code fallback only when admin storage is unavailable, and say that a deploy is then required.
+7. Do **not** deploy for a numbers change. Progress is live after save. Apply migrations through `0014_annual_fund_thermometer_visible.sql` once (`pnpm dev:migrate` locally, `pnpm prod:migrate` in production) before the first save or visibility toggle. Edit the code fallback only when admin storage is unavailable, and say that a deploy is then required.
 
 ## Milestone framing (current campaign)
 

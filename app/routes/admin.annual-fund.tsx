@@ -68,6 +68,7 @@ export default function AdminAnnualFund() {
   const [offline, setOffline] = useState(moneyInput(draft.offlineRaisedAmount));
   const [goal, setGoal] = useState(moneyInput(draft.goalAmount));
   const [ask, setAsk] = useState(String(draft.suggestedAskPerChild));
+  const [thermometerVisible, setThermometerVisible] = useState(draft.thermometerVisible);
   const [milestones, setMilestones] = useState<MilestoneForm[]>(() =>
     milestonesToForm(draft.milestones),
   );
@@ -89,6 +90,7 @@ export default function AdminAnnualFund() {
     onlineRaisedAmount: online,
     schoolYear,
     suggestedAskPerChild: ask,
+    thermometerVisible,
     title,
   };
   const parsed = parseAnnualFundSubmission(submission);
@@ -283,6 +285,27 @@ export default function AdminAnnualFund() {
                 type="text"
                 value={ask}
               />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="flex items-start gap-3 text-sm font-body text-charcoal" htmlFor="thermometer-visible">
+                <input
+                  checked={thermometerVisible}
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-eagle-blue focus:ring-eagle-blue"
+                  id="thermometer-visible"
+                  onChange={(event) => {
+                    setThermometerVisible(event.target.checked);
+                    setSaved(false);
+                  }}
+                  type="checkbox"
+                />
+                <span>
+                  <span className="font-medium">Show thermometer on the site</span>
+                  <span className="mt-1 block text-gray-500">
+                    When unchecked, the progress block is hidden on the Annual Fund page, Get
+                    Involved, and the homepage. Give links stay. This admin preview always shows.
+                  </span>
+                </span>
+              </label>
             </div>
             <div>
               <p className="font-medium text-charcoal mb-1">Raised</p>

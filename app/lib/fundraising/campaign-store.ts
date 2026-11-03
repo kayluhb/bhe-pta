@@ -19,6 +19,7 @@ interface CampaignRow {
   online_raised_amount: number;
   school_year: string;
   suggested_ask_per_child: number;
+  thermometer_visible: number | null;
   title: string;
 }
 
@@ -48,6 +49,7 @@ function draftFromRow(row: CampaignRow): AnnualFundDraft | null {
     onlineRaisedAmount: roundMoney(row.online_raised_amount),
     schoolYear: row.school_year,
     suggestedAskPerChild: row.suggested_ask_per_child,
+    thermometerVisible: row.thermometer_visible !== 0,
     title: row.title,
   };
 }
@@ -62,7 +64,8 @@ export async function loadAnnualFundDraft(db: D1Database): Promise<LoadedAnnualF
     const row = await db
       .prepare(
         `SELECT goal_amount, last_updated, milestones_json, offline_raised_amount,
-                online_raised_amount, school_year, suggested_ask_per_child, title
+                online_raised_amount, school_year, suggested_ask_per_child,
+                thermometer_visible, title
          FROM annual_fund_campaign
          WHERE id = ?`,
       )
@@ -89,8 +92,9 @@ export async function saveAnnualFundDraft(db: D1Database, draft: AnnualFundDraft
     .prepare(
       `INSERT INTO annual_fund_campaign (
          id, online_raised_amount, offline_raised_amount, goal_amount,
-         suggested_ask_per_child, last_updated, school_year, title, milestones_json, updated_at
-       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+         suggested_ask_per_child, last_updated, school_year, title, milestones_json,
+         thermometer_visible, updated_at
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
        ON CONFLICT(id) DO UPDATE SET
          online_raised_amount = excluded.online_raised_amount,
          offline_raised_amount = excluded.offline_raised_amount,
@@ -100,6 +104,7 @@ export async function saveAnnualFundDraft(db: D1Database, draft: AnnualFundDraft
          school_year = excluded.school_year,
          title = excluded.title,
          milestones_json = excluded.milestones_json,
+         thermometer_visible = excluded.thermometer_visible,
          updated_at = datetime('now')`,
     )
     .bind(
@@ -112,6 +117,7 @@ export async function saveAnnualFundDraft(db: D1Database, draft: AnnualFundDraft
       draft.schoolYear,
       draft.title,
       JSON.stringify(draft.milestones),
+      draft.thermometerVisible ? 1 : 0,
     )
     .run();
 }

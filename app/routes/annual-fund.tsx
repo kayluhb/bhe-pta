@@ -177,12 +177,14 @@ export default function AnnualFund({loaderData}: Route.ComponentProps) {
               Give now
               <span className="sr-only"> (opens in new tab)</span>
             </a>
-            <a
-              className="inline-flex items-center rounded-full border-2 border-white/70 px-8 py-3.5 font-heading text-lg font-bold text-white transition-colors hover:bg-white/10"
-              href="#progress"
-            >
-              See progress
-            </a>
+            {campaign.thermometerVisible ? (
+              <a
+                className="inline-flex items-center rounded-full border-2 border-white/70 px-8 py-3.5 font-heading text-lg font-bold text-white transition-colors hover:bg-white/10"
+                href="#progress"
+              >
+                See progress
+              </a>
+            ) : null}
           </div>
           <p className="mt-6 text-sm text-white/70">
             501(c)(3) nonprofit · Tax ID {TAX_ID} · Goal {formatCurrency(campaign.goalAmount)}
@@ -237,8 +239,10 @@ export default function AnnualFund({loaderData}: Route.ComponentProps) {
 
       <section className="border-y border-charcoal/5 bg-white py-16 md:py-20" id="progress">
         <div className="mx-auto max-w-7xl px-4">
-          <FundraisingProgress campaign={campaign} className="mt-0" />
-          <div className="mt-10">
+          {campaign.thermometerVisible ? (
+            <FundraisingProgress campaign={campaign} className="mt-0" />
+          ) : null}
+          <div className={campaign.thermometerVisible ? 'mt-10' : undefined}>
             <a
               className="inline-flex items-center rounded-full border-2 border-spirit-gold bg-spirit-gold px-8 py-3.5 font-heading text-lg font-bold text-night-blue transition-colors hover:bg-white"
               href={giveUrl}

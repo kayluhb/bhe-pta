@@ -15,6 +15,8 @@ export interface AnnualFundCampaign {
   schoolYear: string;
   /** Suggested household gift per student for the Annual Fund. */
   suggestedAskPerChild: number;
+  /** When false, public pages omit the FundraisingProgress block. */
+  thermometerVisible: boolean;
   title: string;
 }
 
@@ -72,6 +74,7 @@ export const annualFundCodeDefaults = {
   onlineRaisedAmount: 215_350.88,
   schoolYear: '2026-27',
   suggestedAskPerChild: 650,
+  thermometerVisible: true,
   title: '2026-2027 Annual Fund Milestones',
 };
 
@@ -84,5 +87,6 @@ export const annualFundCampaign: AnnualFundCampaign = {
     annualFundCodeDefaults.onlineRaisedAmount + annualFundCodeDefaults.offlineRaisedAmount,
   schoolYear: annualFundCodeDefaults.schoolYear,
   suggestedAskPerChild: annualFundCodeDefaults.suggestedAskPerChild,
+  thermometerVisible: annualFundCodeDefaults.thermometerVisible,
   title: annualFundCodeDefaults.title,
 };

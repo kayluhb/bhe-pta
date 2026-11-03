@@ -14,6 +14,7 @@ export interface AnnualFundDraft {
   onlineRaisedAmount: number;
   schoolYear: string;
   suggestedAskPerChild: number;
+  thermometerVisible: boolean;
   title: string;
 }
 
@@ -46,6 +47,7 @@ export function draftFromCode(): AnnualFundDraft {
     onlineRaisedAmount: annualFundCodeDefaults.onlineRaisedAmount,
     schoolYear: annualFundCodeDefaults.schoolYear,
     suggestedAskPerChild: annualFundCodeDefaults.suggestedAskPerChild,
+    thermometerVisible: annualFundCodeDefaults.thermometerVisible,
     title: annualFundCodeDefaults.title,
   };
 }
@@ -59,6 +61,7 @@ export function campaignFromDraft(draft: AnnualFundDraft): AnnualFundCampaign {
     raisedAmount: roundMoney(draft.onlineRaisedAmount + draft.offlineRaisedAmount),
     schoolYear: draft.schoolYear,
     suggestedAskPerChild: draft.suggestedAskPerChild,
+    thermometerVisible: draft.thermometerVisible,
     title: draft.title,
   };
 }
@@ -172,6 +175,12 @@ export function parseAnnualFundSubmission(
   if (typeof body.title !== 'string' || typeof body.schoolYear !== 'string') {
     return {error: 'Title and school year are required.', ok: false};
   }
+  if (
+    body.thermometerVisible !== undefined &&
+    typeof body.thermometerVisible !== 'boolean'
+  ) {
+    return {error: 'Thermometer visibility must be true or false.', ok: false};
+  }
   if (!Array.isArray(body.milestones)) {
     return {error: 'Milestones are required.', ok: false};
   }
@@ -209,6 +218,7 @@ export function parseAnnualFundSubmission(
     onlineRaisedAmount,
     schoolYear: body.schoolYear.trim(),
     suggestedAskPerChild,
+    thermometerVisible: body.thermometerVisible !== false,
     title: body.title.trim(),
   };
   const error = validateAnnualFundDraft(draft);
