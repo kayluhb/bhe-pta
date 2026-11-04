@@ -20,8 +20,8 @@ const programs = [
     name: 'Cultural Arts Program',
     description:
       'Presentations throughout the year by musicians, writers, and actors from around the world. These enriching performances expose students to diverse art forms and cultural traditions, sparking creativity and broadening their understanding of the world.',
-    color: 'bg-eagle-blue',
-    borderColor: 'border-eagle-blue',
+    color: 'bg-bhe-green',
+    borderColor: 'border-bhe-green',
     icon: (
       <svg
         aria-hidden="true"
@@ -43,8 +43,8 @@ const programs = [
     name: 'PTA Reflections',
     description:
       'A nationwide arts recognition program for students, encouraging artistic expression in literature, visual arts, music composition, photography, film, and dance choreography. Students explore a theme and create original works that are judged at school, council, district, and national levels.',
-    color: 'bg-spirit-gold',
-    borderColor: 'border-spirit-gold',
+    color: 'bg-bhe-gold',
+    borderColor: 'border-bhe-gold',
     icon: (
       <svg
         aria-hidden="true"
@@ -66,7 +66,7 @@ const programs = [
     name: 'Greenworks / Environment',
     description:
       'Organic garden and composting programs teaching environmental stewardship. Students learn about sustainable agriculture, the life cycle of plants, and the importance of caring for our planet through hands-on activities in our school garden.',
-    color: 'bg-creek-green',
+    color: 'bg-bhe-green-2',
     borderColor: 'border-creek-green',
     icon: (
       <svg
@@ -89,8 +89,8 @@ const programs = [
     name: 'Nick Akery Scholarship',
     description:
       'Supporting Barton Hills Elementary alumni with college scholarships. This scholarship honors the memory of Nick Akery and helps graduates as they continue their educational journey beyond elementary school.',
-    color: 'bg-eagle-blue',
-    borderColor: 'border-eagle-blue',
+    color: 'bg-bhe-green',
+    borderColor: 'border-bhe-green',
     icon: (
       <svg
         aria-hidden="true"
@@ -112,7 +112,7 @@ const programs = [
     name: 'Social-Emotional Learning',
     description:
       'Programs supporting the emotional and social development of our students. Through structured activities and curriculum, students build resilience, empathy, self-awareness, and healthy relationship skills that serve them throughout their lives.',
-    color: 'bg-creek-green',
+    color: 'bg-bhe-green-2',
     borderColor: 'border-creek-green',
     icon: (
       <svg
@@ -135,8 +135,8 @@ const programs = [
     name: 'Academic Enrichment',
     description:
       'Funding for supplemental academic programs, classroom materials, and enrichment opportunities that go beyond the standard curriculum. This is one of our largest investments, ensuring every Eagle has access to high-quality learning experiences.',
-    color: 'bg-eagle-blue',
-    borderColor: 'border-eagle-blue',
+    color: 'bg-bhe-green',
+    borderColor: 'border-bhe-green',
     icon: (
       <svg
         aria-hidden="true"
@@ -158,8 +158,8 @@ const programs = [
     name: 'Teacher Grant Program',
     description:
       'Grants awarded to teachers for innovative classroom projects, supplies, and learning tools. Teachers submit proposals for materials and experiences that enhance student learning, and the PTA funds approved projects throughout the school year.',
-    color: 'bg-spirit-gold',
-    borderColor: 'border-spirit-gold',
+    color: 'bg-bhe-gold',
+    borderColor: 'border-bhe-gold',
     icon: (
       <svg
         aria-hidden="true"
@@ -181,7 +181,7 @@ const programs = [
     name: 'Community Events',
     description:
       'Family-friendly events throughout the year that bring our school community together. From movie nights and potlucks to seasonal celebrations, these gatherings strengthen the bonds between families, teachers, and staff.',
-    color: 'bg-creek-green',
+    color: 'bg-bhe-green-2',
     borderColor: 'border-creek-green',
     icon: (
       <svg
@@ -204,8 +204,8 @@ const programs = [
     name: 'Class Gardens',
     description:
       'Hands-on gardening projects where students cultivate and maintain their own class garden plots. Students learn about plant science, nutrition, and teamwork while growing flowers, herbs, and vegetables right on our school grounds.',
-    color: 'bg-eagle-blue',
-    borderColor: 'border-eagle-blue',
+    color: 'bg-bhe-green',
+    borderColor: 'border-bhe-green',
     icon: (
       <svg
         aria-hidden="true"
@@ -227,8 +227,8 @@ const programs = [
     name: 'Library Support',
     description:
       'Funding for new books, reading materials, and library resources that keep our school library stocked with engaging, diverse, and age-appropriate literature for all students.',
-    color: 'bg-spirit-gold',
-    borderColor: 'border-spirit-gold',
+    color: 'bg-bhe-gold',
+    borderColor: 'border-bhe-gold',
     icon: (
       <svg
         aria-hidden="true"
@@ -250,7 +250,7 @@ const programs = [
     name: 'Teacher Appreciation',
     description:
       'Recognizing and celebrating the dedication of our teachers and staff throughout the year. From end-of-semester gifts and teacher lounge refreshments to retirement celebrations, we ensure our educators feel valued and supported.',
-    color: 'bg-creek-green',
+    color: 'bg-bhe-green-2',
     borderColor: 'border-creek-green',
     icon: (
       <svg
@@ -273,8 +273,8 @@ const programs = [
     name: 'Unified Champions',
     description:
       'A Special Olympics program that promotes inclusion by bringing together students with and without intellectual disabilities through sports and other activities. Building friendships, teamwork, and understanding across our school community.',
-    color: 'bg-eagle-blue',
-    borderColor: 'border-eagle-blue',
+    color: 'bg-bhe-green',
+    borderColor: 'border-bhe-green',
     icon: (
       <svg
         aria-hidden="true"
@@ -296,8 +296,8 @@ const programs = [
     name: 'P.E. Fund',
     description:
       'Supporting our physical education program with equipment, supplies, and resources that keep students active and healthy. From new sports equipment to fitness activities, this fund helps ensure every student has the tools for an engaging P.E. experience.',
-    color: 'bg-spirit-gold',
-    borderColor: 'border-spirit-gold',
+    color: 'bg-bhe-gold',
+    borderColor: 'border-bhe-gold',
     icon: (
       <svg
         aria-hidden="true"
@@ -319,7 +319,7 @@ const programs = [
     name: 'School Improvements',
     description:
       'Capital investments in our school facilities and campus to create a better learning environment. From playground upgrades to classroom improvements, these projects benefit students and staff for years to come.',
-    color: 'bg-creek-green',
+    color: 'bg-bhe-green-2',
     borderColor: 'border-creek-green',
     icon: (
       <svg
@@ -346,27 +346,15 @@ export default function Programs() {
   return (
     <div>
       {/* ── 1. Page Banner ───────────────────────────────────────────────── */}
-      <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-[0.05]"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)',
-          }}
-        />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white">
-            Our Programs
-          </h1>
-          <p className="mt-4 text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
-            Enriching the educational experience for every Eagle
-          </p>
-          <div className="mt-6 h-1 w-20 bg-spirit-gold rounded-full mx-auto" />
+      <section className="border-b border-bhe-border bg-bhe-paper py-12 md:py-16">
+        <div className="mx-auto max-w-container px-4 md:px-6">
+          <h1 className="font-display text-[36px] font-extrabold tracking-[-0.03em] text-bhe-ink md:text-[48px]">Our Programs</h1>
+          <p className="mt-4 max-w-2xl text-[17px] text-bhe-body">Enriching the educational experience for every Eagle</p>
         </div>
       </section>
 
       {/* ── 2. Program Cards ─────────────────────────────────────────────── */}
-      <section className="bg-warm-white py-16 md:py-24">
+      <section className="bg-bhe-paper py-16 md:py-24">
         <div className="max-w-5xl mx-auto px-4 space-y-8">
           {programs.map((program) => (
             <div
@@ -380,10 +368,10 @@ export default function Programs() {
                   {program.icon}
                 </div>
                 <div>
-                  <h2 className="font-heading text-2xl font-bold text-charcoal md:text-3xl">
+                  <h2 className="font-display text-2xl font-bold text-bhe-ink md:text-3xl">
                     {program.name}
                   </h2>
-                  <p className="mt-3 text-lg leading-relaxed text-charcoal/70">
+                  <p className="mt-3 text-lg leading-relaxed text-bhe-ink/70">
                     {program.description}
                   </p>
                 </div>
@@ -394,26 +382,9 @@ export default function Programs() {
       </section>
 
       {/* ── 3. Get Involved CTA ──────────────────────────────────────────── */}
-      <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
-        <div
-          className="absolute top-0 right-0 w-1/2 h-full bg-spirit-gold/5"
-          style={{clipPath: 'polygon(100% 0, 0 100%, 100% 100%)'}}
-        />
-        <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-heading font-bold text-white">
-            Support Our Programs
-          </h2>
-          <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
-          <p className="mt-6 text-lg text-white/90 leading-relaxed">
-            Our programs are made possible by the generous support of parents, families, and
-            community members. Get involved and help us continue to make a difference.
-          </p>
-          <Link
-            className="mt-8 inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors duration-200"
-            to="/get-involved"
-          >
-            Get Involved
-          </Link>
+      <section className="border-b border-bhe-border bg-bhe-paper py-12 md:py-16">
+        <div className="mx-auto max-w-container px-4 md:px-6">
+          <h1 className="font-display text-[36px] font-extrabold tracking-[-0.03em] text-bhe-ink md:text-[48px]">Page</h1>
         </div>
       </section>
     </div>
