@@ -2,10 +2,10 @@ import {requireAdmin} from '~/lib/admin/auth';
 import {getCloudflare} from '~/lib/cloudflare-context';
 import {buildAdminReceiptPdfTitle, sanitizeDownloadFilename} from '~/lib/reimbursement/filename';
 import {
-  checkSubmittedAmountAgainstReceipts,
+  checkClaimedAmountsAgainstReceipts,
   mergeAmountAlertsIntoAdminNotes,
-  resolveSubmittedAmountForCheck,
   type ReceiptAmountAlert,
+  stripReceiptConversionNotes,
 } from '~/lib/reimbursement/receipt-amount-check';
 import {
   ACCEPTED_TYPES,
@@ -101,15 +101,16 @@ export async function action({request, params, context}: Route.ActionArgs) {
       .bind(submissionId)
       .all<{amount: number}>();
     const receiptLineAmounts = (receiptAmountRows.results ?? []).map((r) => Number(r.amount));
-    const submittedAmount = resolveSubmittedAmountForCheck({
-      receiptLineAmounts,
-      submissionTotal: Number(submission.total_amount),
+    const claimedAmounts =
+      receiptLineAmounts.length > 0
+        ? receiptLineAmounts
+        : [Number(submission.total_amount)].filter((n) => Number.isFinite(n) && n > 0);
+    const amountAlerts: ReceiptAmountAlert[] = checkClaimedAmountsAgainstReceipts({
+      claimedAmounts,
+      receipts,
     });
-    const amountAlerts: ReceiptAmountAlert[] =
-      submittedAmount != null
-        ? checkSubmittedAmountAgainstReceipts(submittedAmount, receipts)
-        : [];
-    const mergedNotes = mergeAmountAlertsIntoAdminNotes(submission.admin_notes, amountAlerts);
+    const notesBase = stripReceiptConversionNotes(submission.admin_notes);
+    const mergedNotes = mergeAmountAlertsIntoAdminNotes(notesBase, amountAlerts);
 
     const statements = [
       db
@@ -139,7 +140,8 @@ export async function action({request, params, context}: Route.ActionArgs) {
           nextSort + 1,
         ),
     ];
-    if (amountAlerts.length > 0 && mergedNotes !== (submission.admin_notes ?? '').trim()) {
+    if ((mergedNotes ?? null) !== (submission.admin_notes ?? null) &&
+      (mergedNotes ?? '') !== (submission.admin_notes ?? '').trim()) {
       statements.push(
         db
           .prepare(

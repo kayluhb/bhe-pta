@@ -1,8 +1,9 @@
 import {buildReceiptPdfTitle} from '~/lib/reimbursement/filename';
 import {
-  checkSubmittedAmountAgainstReceipts,
+  checkClaimedAmountsAgainstReceipts,
   mergeAmountAlertsIntoAdminNotes,
   resolveSubmittedAmountForCheck,
+  stripReceiptConversionNotes,
 } from '~/lib/reimbursement/receipt-amount-check';
 import {
   extractReceiptData,
@@ -85,18 +86,31 @@ async function maybeRecordAmountAlerts(
       ? lines.find((r) => r.sort_order === receiptLineIndex - 1 || r.sort_order === receiptLineIndex)
           ?.amount
       : null;
-  const submittedAmount = resolveSubmittedAmountForCheck({
+  const receiptLineAmounts = lines.map((r) => Number(r.amount));
+  const preferred = resolveSubmittedAmountForCheck({
     receiptLineAmount: lineAmount != null ? Number(lineAmount) : null,
-    receiptLineAmounts: lines.map((r) => Number(r.amount)),
+    receiptLineAmounts,
     submissionTotal: Number(submission.total_amount),
   });
-  if (submittedAmount == null) return;
+  const claimedAmounts =
+    receiptLineAmounts.length > 0
+      ? receiptLineAmounts
+      : preferred != null
+        ? [preferred]
+        : [];
+  if (claimedAmounts.length === 0) return;
 
-  const alerts = checkSubmittedAmountAgainstReceipts(submittedAmount, receipts);
-  if (alerts.length === 0) return;
-
-  const merged = mergeAmountAlertsIntoAdminNotes(submission.admin_notes, alerts);
-  if (merged === (submission.admin_notes ?? '').trim()) return;
+  const alerts = checkClaimedAmountsAgainstReceipts({
+    claimedAmounts,
+    preferredClaimedAmount: preferred,
+    receipts,
+  });
+  const notesBase = stripReceiptConversionNotes(submission.admin_notes);
+  const merged = mergeAmountAlertsIntoAdminNotes(notesBase, alerts);
+  if ((merged ?? null) === (submission.admin_notes ?? null) ||
+    (merged ?? '') === (submission.admin_notes ?? '').trim()) {
+    return;
+  }
 
   await env.REIMBURSEMENT_DB.prepare(
     `UPDATE submissions SET admin_notes = ?, updated_at = datetime('now') WHERE id = ?`,
