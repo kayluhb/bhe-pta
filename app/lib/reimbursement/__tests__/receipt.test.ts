@@ -5,12 +5,15 @@ import {MAX_RECEIPT_LINES} from '~/lib/reimbursement/validation';
 import {
   ACCEPTED_TYPES,
   assessReceiptExtractionQuality,
+  enrichReceiptMoneyFields,
   extractReceiptData,
   generateReceiptPDF,
   MAX_FILE_SIZE,
+  mergeReceiptMoneyFields,
   normalizeReceiptTotals,
   parseSubmissionReceiptLineForPdf,
   receiptFieldString,
+  receiptHasUsableMoney,
 } from '../receipt';
 
 describe('normalizeReceiptTotals', () => {
@@ -36,6 +39,14 @@ describe('normalizeReceiptTotals', () => {
     expect(out.total).toBe('13.80');
   });
 
+  it('fills a missing total from subtotal + tip (thermal catering slips)', () => {
+    const out = normalizeReceiptTotals({
+      subtotal: '445.50',
+      tip: '89.10',
+    });
+    expect(out.total).toBe('534.60');
+  });
+
   it('leaves a real zero total alone when nothing positive is available', () => {
     const out = normalizeReceiptTotals({subtotal: '0', total: '0'});
     expect(out.total).toBe('0');
@@ -44,6 +55,48 @@ describe('normalizeReceiptTotals', () => {
   it('does not change a positive total', () => {
     const out = normalizeReceiptTotals({subtotal: '5', total: '5.00'});
     expect(out.total).toBe('5.00');
+  });
+});
+
+describe('enrichReceiptMoneyFields', () => {
+  it('fills line totals from qty × unit_price and rolls up subtotal/total', () => {
+    const out = enrichReceiptMoneyFields({
+      line_items: [
+        {description: 'Box Lunch', qty: '46', unit_price: '3.25'},
+        {description: 'California Club', qty: '13', unit_price: '7'},
+      ],
+      tip: '89.10',
+    });
+    expect(out.line_items?.[0]?.total).toBe('149.50');
+    expect(out.line_items?.[1]?.total).toBe('91');
+    expect(out.subtotal).toBe('240.50');
+    expect(out.total).toBe('329.60');
+  });
+});
+
+describe('mergeReceiptMoneyFields', () => {
+  it('overlays priced lines and grand total onto an unpriced primary extract', () => {
+    const out = mergeReceiptMoneyFields(
+      {
+        line_items: [
+          {description: 'Paper Mate Flair'},
+          {description: 'Nature Made B12'},
+        ],
+        vendor_name: 'Amazon.com',
+      },
+      {
+        line_items: [
+          {description: 'Paper Mate Flair', total: '9.79'},
+          {description: 'Nature Made B12', total: '9.36'},
+        ],
+        subtotal: '73.09',
+        tax: '2.21',
+        total: '72.04',
+      },
+    );
+    expect(out.line_items?.[0]?.total).toBe('9.79');
+    expect(out.total).toBe('72.04');
+    expect(receiptHasUsableMoney(out)).toBe(true);
   });
 });
 
@@ -136,6 +189,19 @@ describe('assessReceiptExtractionQuality', () => {
       subtotal: '5',
     });
     expect(r.ok).toBe(true);
+  });
+
+  it('rejects unpriced multi-item extracts with no totals (ThunderCloud / Amazon failure mode)', () => {
+    const r = assessReceiptExtractionQuality({
+      line_items: [
+        {description: 'Box Lunch'},
+        {description: 'California Club'},
+        {description: 'American Classic'},
+        {description: 'Chicken Salad'},
+      ],
+      vendor_name: 'ThunderCloud',
+    });
+    expect(r.ok).toBe(false);
   });
 });
 
@@ -383,6 +449,52 @@ describe('extractReceiptData', () => {
     expect(out.receipts[1]?.vendor_name).toBe('Shop B');
   });
 
+  it('runs a money repair pass when the primary extract omits line and grand totals', async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    const unpriced = JSON.stringify({
+      receipts: [
+        {
+          line_items: [
+            {description: 'Box Lunch'},
+            {description: 'California Club'},
+            {description: 'American Classic'},
+            {description: 'Chicken Salad'},
+          ],
+          vendor_name: 'ThunderCloud',
+        },
+      ],
+    });
+    const priced = JSON.stringify({
+      receipts: [
+        {
+          line_items: [
+            {description: 'Box Lunch', qty: '46', total: '149.50'},
+            {description: 'California Club', qty: '13', total: '91.00'},
+            {description: 'American Classic', qty: '2', total: '10.00'},
+            {description: 'Chicken Salad', qty: '5', total: '28.75'},
+          ],
+          subtotal: '445.50',
+          tip: '89.10',
+          total: '534.60',
+          vendor_name: 'ThunderCloud',
+        },
+      ],
+    });
+    fetchMock
+      .mockResolvedValueOnce({...geminiResponse(unpriced), text: async () => ''})
+      .mockResolvedValueOnce({...geminiResponse(priced), text: async () => ''});
+
+    const out = await extractReceiptData(new Uint8Array(100), 'image/jpeg', 'api-key');
+    if (!('receipts' in out)) {
+      expect.fail('expected money repair to succeed');
+    }
+    expect(out.receipts[0]?.total).toBe('534.60');
+    expect(out.receipts[0]?.line_items?.[0]?.total).toBe('149.50');
+    expect(out.receipts[0]?.tip).toBe('89.10');
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
   it('runs plain transcript fallback for large files with thin JSON', async () => {
     vi.useFakeTimers();
     const fetchMock = vi.fn();
@@ -458,7 +570,7 @@ describe('extractReceiptData', () => {
   });
 
   it('parses fenced JSON and tolerates truncated JSON via regex fallback', async () => {
-    const raw = '{ "vendor_name": "Partial", "raw_transcript": "broken';
+    const raw = '{ "vendor_name": "Partial", "total": "12.00", "raw_transcript": "broken';
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({
@@ -468,6 +580,7 @@ describe('extractReceiptData', () => {
     );
     const out = await extractReceiptData(new Uint8Array(20), 'image/jpeg', 'k');
     expect('receipts' in out && out.receipts[0]?.vendor_name).toBe('Partial');
+    expect('receipts' in out && out.receipts[0]?.total).toBe('12.00');
   });
 });
 

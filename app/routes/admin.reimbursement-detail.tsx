@@ -150,6 +150,19 @@ function checkAmountInputFromDb(value: number | null): string {
   return String(value);
 }
 
+const RECEIPT_CONVERSION_NOTE_PREFIX = '[Receipt conversion] ';
+
+/** Lines written by convert/upload amount checks (tax included, wrong total, etc.). */
+function receiptConversionAlertsFromNotes(notes: string | null | undefined): string[] {
+  if (!notes) return [];
+  return notes
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith(RECEIPT_CONVERSION_NOTE_PREFIX))
+    .map((line) => line.slice(RECEIPT_CONVERSION_NOTE_PREFIX.length).trim())
+    .filter(Boolean);
+}
+
 export default function AdminReimbursementDetail() {
   const {files, receipts, schoolYears, submission, user} = useLoaderData<typeof loader>();
   const revalidator = useRevalidator();
@@ -172,9 +185,12 @@ export default function AdminReimbursementDetail() {
   const [uploading, setUploading] = useState(false);
   const [convertingAttachmentId, setConvertingAttachmentId] = useState<string | null>(null);
   const [uploadFeedback, setUploadFeedback] = useState<{
-    type: 'success' | 'error';
+    type: 'success' | 'error' | 'warning';
     message: string;
   } | null>(null);
+  const [amountAlertMessages, setAmountAlertMessages] = useState<string[]>(() =>
+    receiptConversionAlertsFromNotes(submission.admin_notes),
+  );
   const [nudgeFeedback, setNudgeFeedback] = useState<{
     type: 'success' | 'error';
     message: string;
@@ -209,6 +225,7 @@ export default function AdminReimbursementDetail() {
   useEffect(() => {
     setStatus(submission.status);
     setNotes(submission.admin_notes ?? '');
+    setAmountAlertMessages(receiptConversionAlertsFromNotes(submission.admin_notes));
   }, [submission.status, submission.admin_notes]);
 
   useEffect(() => {
@@ -492,6 +509,7 @@ export default function AdminReimbursementDetail() {
         {method: 'POST'},
       );
       const data = (await res.json().catch(() => ({}))) as {
+        amountAlerts?: Array<{message: string}>;
         error?: string;
         existingFilename?: string;
         skipped?: boolean;
@@ -499,12 +517,24 @@ export default function AdminReimbursementDetail() {
       if (!res.ok) {
         throw new Error(data.error || 'Failed to convert attachment');
       }
-      setUploadFeedback({
-        type: 'success',
-        message: data.skipped
-          ? `A converted PDF already exists (${data.existingFilename ?? 'existing file'}).`
-          : `Converted ${filename} to an AI PDF and added it to attachments.`,
-      });
+      if (data.skipped) {
+        setUploadFeedback({
+          type: 'success',
+          message: `A converted PDF already exists (${data.existingFilename ?? 'existing file'}).`,
+        });
+      } else if (data.amountAlerts && data.amountAlerts.length > 0) {
+        const messages = data.amountAlerts.map((a) => a.message).filter(Boolean);
+        setAmountAlertMessages(messages);
+        setUploadFeedback({
+          type: 'warning',
+          message: `Converted ${filename}. See amount alert above Check & treasurer.`,
+        });
+      } else {
+        setUploadFeedback({
+          type: 'success',
+          message: `Converted ${filename} to an AI PDF and added it to attachments.`,
+        });
+      }
       revalidator.revalidate();
     } catch (err) {
       setUploadFeedback({
@@ -620,12 +650,24 @@ export default function AdminReimbursementDetail() {
           body: formData,
         },
       );
+      const data = (await res.json().catch(() => ({}))) as {
+        amountAlerts?: Array<{message: string}>;
+        error?: string;
+      };
       if (!res.ok) {
-        const data = (await res.json()) as {error?: string};
         throw new Error(data.error || 'Upload failed');
       }
-      setUploadFeedback({type: 'success', message: `Uploaded ${file.name} successfully.`});
-      setTimeout(() => window.location.reload(), 1000);
+      if (data.amountAlerts && data.amountAlerts.length > 0) {
+        setAmountAlertMessages(data.amountAlerts.map((a) => a.message).filter(Boolean));
+        setUploadFeedback({
+          type: 'warning',
+          message: `Uploaded ${file.name}. See amount alert above Check & treasurer.`,
+        });
+        setTimeout(() => window.location.reload(), 2500);
+      } else {
+        setUploadFeedback({type: 'success', message: `Uploaded ${file.name} successfully.`});
+        setTimeout(() => window.location.reload(), 1000);
+      }
     } catch (err) {
       setUploadFeedback({
         type: 'error',
@@ -779,6 +821,22 @@ export default function AdminReimbursementDetail() {
             </div>
           </div>
         </div>
+
+        {amountAlertMessages.length > 0 && (
+          <div
+            className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-4 shadow-sm"
+            role="alert"
+          >
+            <h2 className="text-base font-heading font-semibold text-amber-950 mb-2">
+              Receipt amount check
+            </h2>
+            <ul className="space-y-2 text-sm font-body text-amber-950">
+              {amountAlertMessages.map((message) => (
+                <li key={message}>{message}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-heading font-semibold text-charcoal mb-4">
@@ -1190,7 +1248,9 @@ export default function AdminReimbursementDetail() {
                 className={`mt-3 text-sm font-body px-3 py-2 rounded-lg ${
                   uploadFeedback.type === 'success'
                     ? 'bg-creek-green/10 text-creek-green'
-                    : 'bg-red-50 text-red-700'
+                    : uploadFeedback.type === 'warning'
+                      ? 'bg-amber-50 text-amber-950 border border-amber-200'
+                      : 'bg-red-50 text-red-700'
                 }`}
                 role="alert"
               >

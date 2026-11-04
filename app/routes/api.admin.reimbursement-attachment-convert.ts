@@ -1,12 +1,20 @@
 import {requireAdmin} from '~/lib/admin/auth';
 import {getCloudflare} from '~/lib/cloudflare-context';
 import {buildAdminReceiptPdfTitle} from '~/lib/reimbursement/filename';
+import {
+  checkSubmittedAmountAgainstReceipts,
+  mergeAmountAlertsIntoAdminNotes,
+  resolveSubmittedAmountForCheck,
+  type ReceiptAmountAlert,
+} from '~/lib/reimbursement/receipt-amount-check';
 import {extractReceiptData, generateReceiptPDF} from '~/lib/reimbursement/receipt';
 import type {Route} from './+types/api.admin.reimbursement-attachment-convert';
 
 interface SubmissionRow {
+  admin_notes: string | null;
   id: string;
   requester_name: string;
+  total_amount: number;
 }
 
 interface AttachmentRow {
@@ -36,7 +44,7 @@ export async function action({request, params, context}: Route.ActionArgs) {
     const r2 = env.R2_BUCKET;
 
     const submission = await db
-      .prepare('SELECT id, requester_name FROM submissions WHERE id = ?')
+      .prepare('SELECT id, requester_name, total_amount, admin_notes FROM submissions WHERE id = ?')
       .bind(submissionId)
       .first<SubmissionRow>();
     if (!submission) {
@@ -119,23 +127,50 @@ export async function action({request, params, context}: Route.ActionArgs) {
       .first<{max_sort: number | null}>();
     const nextSort = (maxSort?.max_sort ?? -1) + 1;
 
-    await db
-      .prepare(
-        `INSERT INTO file_attachments (id, submission_id, r2_key, original_filename, content_type, file_size, sort_order)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      )
-      .bind(
-        crypto.randomUUID(),
-        submissionId,
-        pdfKey,
-        pdfFilename,
-        PDF_CONTENT_TYPE,
-        pdfBuffer.length,
-        nextSort,
-      )
-      .run();
+    const receiptAmountRows = await db
+      .prepare('SELECT amount FROM receipt_entries WHERE submission_id = ? ORDER BY sort_order')
+      .bind(submissionId)
+      .all<{amount: number}>();
+    const receiptLineAmounts = (receiptAmountRows.results ?? []).map((r) => Number(r.amount));
+    const submittedAmount = resolveSubmittedAmountForCheck({
+      receiptLineAmounts,
+      submissionTotal: Number(submission.total_amount),
+    });
+    const amountAlerts: ReceiptAmountAlert[] =
+      submittedAmount != null
+        ? checkSubmittedAmountAgainstReceipts(submittedAmount, result.receipts)
+        : [];
+    const mergedNotes = mergeAmountAlertsIntoAdminNotes(submission.admin_notes, amountAlerts);
+
+    const statements = [
+      db
+        .prepare(
+          `INSERT INTO file_attachments (id, submission_id, r2_key, original_filename, content_type, file_size, sort_order)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        )
+        .bind(
+          crypto.randomUUID(),
+          submissionId,
+          pdfKey,
+          pdfFilename,
+          PDF_CONTENT_TYPE,
+          pdfBuffer.length,
+          nextSort,
+        ),
+    ];
+    if (amountAlerts.length > 0 && mergedNotes !== (submission.admin_notes ?? '').trim()) {
+      statements.push(
+        db
+          .prepare(
+            `UPDATE submissions SET admin_notes = ?, updated_at = datetime('now') WHERE id = ?`,
+          )
+          .bind(mergedNotes, submissionId),
+      );
+    }
+    await db.batch(statements);
 
     return Response.json({
+      amountAlerts,
       file: {content_type: PDF_CONTENT_TYPE, filename: pdfFilename, size: pdfBuffer.length},
       success: true,
     });

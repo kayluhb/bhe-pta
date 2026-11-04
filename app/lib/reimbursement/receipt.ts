@@ -53,7 +53,8 @@ export function receiptFieldString(value: unknown): string {
 export const RECEIPT_EXTRACTION_QUALITY_ERROR =
   'Automatic transcription does not match this receipt reliably (merged columns or mismatched line totals). For long or multi-page receipts, try the full PDF from the store if you have it; otherwise a clearer photo helps. You can also keep the original without conversion.';
 
-function parseMoneyAmount(raw: string): number | null {
+/** Parse a currency-like string to a finite number, or null. Exported for amount checks. */
+export function parseMoneyAmount(raw: string): number | null {
   const t = receiptFieldString(raw).replace(/\$/g, '').replace(/,/g, '').trim();
   if (!t) return null;
   const n = Number.parseFloat(t);
@@ -80,6 +81,107 @@ function lineItemTotalsSum(items: ReceiptData['line_items']): {sum: number; with
     }
   }
   return {sum, withTotal};
+}
+
+function formatMoneyAmount(n: number): string {
+  const rounded = Math.round(n * 100) / 100;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2);
+}
+
+/** True when the slip has a usable grand total, subtotal, or at least one priced line. */
+export function receiptHasUsableMoney(receipt: ReceiptData): boolean {
+  for (const key of ['total', 'subtotal', 'total_before_tax'] as const) {
+    const n = parseMoneyAmount(receiptFieldString(receipt[key]));
+    if (n != null && Math.abs(n) >= 0.005) return true;
+  }
+  const {sum, withTotal} = lineItemTotalsSum(receipt.line_items);
+  return withTotal > 0 && Math.abs(sum) >= 0.005;
+}
+
+/**
+ * Fill missing line totals (qty × unit_price), subtotal (sum of lines), and grand total
+ * from the other money fields. Exported for unit tests.
+ */
+export function enrichReceiptMoneyFields(receipt: ReceiptData): ReceiptData {
+  const items = (receipt.line_items ?? []).map((li) => {
+    if (parseMoneyAmount(receiptFieldString(li.total)) != null) return li;
+    const unit = parseMoneyAmount(receiptFieldString(li.unit_price));
+    if (unit == null) return li;
+    const qtyRaw = receiptFieldString(li.qty);
+    const qty = qtyRaw ? (parseMoneyAmount(qtyRaw) ?? 1) : 1;
+    return {...li, total: formatMoneyAmount(qty * unit)};
+  });
+
+  let out: ReceiptData = {
+    ...receipt,
+    line_items: items.length > 0 ? items : receipt.line_items,
+  };
+
+  if (parseMoneyAmount(receiptFieldString(out.subtotal)) == null) {
+    const {sum, withTotal} = lineItemTotalsSum(out.line_items);
+    if (withTotal > 0 && Math.abs(sum) >= 0.005) {
+      out = {...out, subtotal: formatMoneyAmount(sum)};
+    }
+  }
+
+  return normalizeReceiptTotals(out);
+}
+
+/**
+ * Overlay money fields / priced line items from a money-focused model pass onto the
+ * primary extraction when the primary pass omitted dollars.
+ */
+export function mergeReceiptMoneyFields(base: ReceiptData, money: ReceiptData): ReceiptData {
+  const out: ReceiptData = {...base};
+  for (const key of [
+    'subtotal',
+    'shipping',
+    'tip',
+    'total_before_tax',
+    'tax',
+    'total',
+  ] as const) {
+    const have = parseMoneyAmount(receiptFieldString(out[key]));
+    const add = parseMoneyAmount(receiptFieldString(money[key]));
+    if ((have == null || Math.abs(have) < 0.005) && add != null && Math.abs(add) >= 0.005) {
+      out[key] = receiptFieldString(money[key]);
+    }
+  }
+
+  const moneyItems = money.line_items ?? [];
+  const baseItems = out.line_items ?? [];
+  if (moneyItems.length > 0) {
+    const basePriced = lineItemTotalsSum(baseItems).withTotal;
+    if (baseItems.length === 0 || basePriced === 0) {
+      out.line_items = moneyItems;
+    } else {
+      out.line_items = baseItems.map((li, i) => {
+        if (parseMoneyAmount(receiptFieldString(li.total)) != null) return li;
+        const m =
+          moneyItems[i] ??
+          moneyItems.find(
+            (mi) =>
+              receiptFieldString(mi.description).length > 0 &&
+              receiptFieldString(li.description)
+                .toLowerCase()
+                .includes(receiptFieldString(mi.description).toLowerCase().slice(0, 24)),
+          );
+        if (!m || parseMoneyAmount(receiptFieldString(m.total)) == null) return li;
+        return {
+          ...li,
+          qty: receiptFieldString(li.qty) || m.qty,
+          total: m.total,
+          unit_price: receiptFieldString(li.unit_price) || m.unit_price,
+        };
+      });
+    }
+  }
+
+  if (!receiptFieldString(out.raw_transcript) && receiptFieldString(money.raw_transcript)) {
+    out.raw_transcript = money.raw_transcript;
+  }
+
+  return enrichReceiptMoneyFields(out);
 }
 
 /**
@@ -138,6 +240,27 @@ export function assessReceiptExtractionQuality(
   ]) {
     if (block && maxTabsPerLine(block) >= 4) {
       return {ok: false, message: RECEIPT_EXTRACTION_QUALITY_ERROR};
+    }
+  }
+
+  if (items.length >= 2) {
+    const {withTotal} = lineItemTotalsSum(items);
+    const needPriced = Math.ceil(items.length * 0.5);
+    // Names without dollars (common on thermal / Amazon print failures) are useless to treasurers.
+    if (withTotal < needPriced && !receiptHasUsableMoney(receipt)) {
+      return {ok: false, message: RECEIPT_EXTRACTION_QUALITY_ERROR};
+    }
+  } else if (items.length === 0) {
+    const hasVendorOrDoc =
+      receiptFieldString(receipt.vendor_name).length > 0 ||
+      receiptFieldString(receipt.document_number).length > 0 ||
+      receiptFieldString(receipt.raw_transcript).length >= 80;
+    if (hasVendorOrDoc && !receiptHasUsableMoney(receipt)) {
+      // Allow sparse transcript-only slips when the transcript itself contains dollar amounts.
+      const transcript = receiptFieldString(receipt.raw_transcript);
+      if (!/\$\s*\d/.test(transcript) && !/\d+\.\d{2}/.test(transcript)) {
+        return {ok: false, message: RECEIPT_EXTRACTION_QUALITY_ERROR};
+      }
     }
   }
 
@@ -265,6 +388,25 @@ function needsPlainTranscriptFallback(receipt: ReceiptData, fileBytes: Uint8Arra
   return !hasItems || !hasTotal || rawLen < 400;
 }
 
+/** Primary pass listed products but omitted line/grand totals — ask again focusing on money. */
+function needsMoneyRepairPass(receipts: ReceiptData[]): boolean {
+  return receipts.some((r) => {
+    const enriched = enrichReceiptMoneyFields(r);
+    const q = assessReceiptExtractionQuality(enriched);
+    return !q.ok || !receiptHasUsableMoney(enriched);
+  });
+}
+
+const MONEY_REPAIR_PROMPT_SUFFIX = `
+CRITICAL — dollar amounts are required:
+- Every product/service row MUST include "total" (line price). Include "qty" and "unit_price" when printed (thermal: "Item × N" and "($X.XX each)").
+- Do NOT emit unpriced modifier-only rows (size/flavor lines). Fold them into the parent item description.
+- Always fill "subtotal", "tax", "tip" (when shown), "shipping" (when shown), and "total" / grand total / amount paid.
+- Tall register tapes: read to the bottom for Subtotal / Tip / Total.
+- Multi-page or landscape PDFs (Amazon print summaries): read EVERY page. One Amazon order = one "receipts" element. Copy the Order Summary sidebar (Item(s) Subtotal, Shipping, tax, Grand Total) and each item price.
+- Ignore handwritten circles/marks; still read the digits underneath.
+`;
+
 /**
  * Calls Gemini to extract structured receipt data from an image or PDF.
  * Retries on 503/429 with exponential backoff.
@@ -281,7 +423,7 @@ export async function extractReceiptData(
   const base64Data = bytesToBase64(fileBytes);
   const isPDF = mimeType === 'application/pdf';
 
-  const structuredPrompt = `Extract data from this ${isPDF ? 'PDF document (read every page, in order)' : 'image'}.
+  const structuredPrompt = `Extract data from this ${isPDF ? 'PDF document (read every page, in order; landscape pages are OK — read them as printed)' : 'image'}.
 
 Return a single JSON object. No markdown code fences. Escape quotes inside strings.
 
@@ -298,27 +440,29 @@ Each element of "receipts" must include when possible:
 Also fill when possible on each slip (omit keys only if absent):
 - "vendor_name", "vendor_address", "vendor_phone"
 - "document_type", "document_number", "date", "due_date", "bill_to"
-- "line_items": [{"description","qty","unit_price","total"}] — one entry per distinct product/service row on that slip
+- "line_items": [{"description","qty","unit_price","total"}] — one entry per distinct product/service row on that slip. "total" is required whenever a line price is visible (right column on thermal slips; price under each Amazon item).
 - "subtotal" — sum of line items only (e-commerce: "Item(s) subtotal" / merchandise subtotal), NOT shipping or tax
 - "shipping" — shipping, handling, and/or delivery fees as one amount when shown together (e.g. "Shipping & Handling: $6.54"); include delivery/service fees here if not a separate line item
-- "tip" — gratuity or service tip when present
+- "tip" — gratuity or service tip when present (restaurant/catering slips often show Tip above Total)
 - "total_before_tax" — when the receipt shows it (e.g. Amazon "Total before tax" after shipping)
 - "tax" — sales or estimated tax
 - "total" — grand total / amount paid for that slip. Prefer "amount paid", "premium", "order total", or "grand total". Do NOT put balance due / amount remaining / $0 after a completed payment into "total" when a positive amount paid is shown.
 - "notes" — short non-dollar text (delivery instructions, return policy). Do not repeat shipping, tip, or tax amounts here if they are already in the fields above.
 
-E-commerce (Amazon, Walmart, Target, DoorDash, etc.): map the order summary faithfully — item subtotal → subtotal; shipping & handling → shipping; tips → tip; grand total → total. Structured dollar fields should reconcile to the same final total as that slip.
+E-commerce (Amazon, Walmart, Target, DoorDash, etc.): map the order summary faithfully — item subtotal → subtotal; shipping & handling → shipping; tips → tip; grand total → total. Structured dollar fields should reconcile to the same final total as that slip. Multi-order PDFs: separate "receipts" element per order with that order's Grand Total.
+
+Thermal / POS slips: prices are usually right-aligned on the same row as the item name ("Box Lunch × 46 …… $149.50"); unit price may appear on the next line as "($3.25 each)". Capture qty, unit_price, and total. Never list size-only follow-on lines as separate $0 items.
 
 Payment confirmations / invoices marked paid: if the document shows amount paid $X and balance due $0, set "total" to X (not 0).
 
-If there is exactly one receipt, still use "receipts": [ { ... } ] with a single element.`;
+If there is exactly one receipt, still use "receipts": [ { ... } ] with a single element.${MONEY_REPAIR_PROMPT_SUFFIX}`;
 
   const structured = await geminiMultimodal(apiKey, mimeType, base64Data, structuredPrompt, 16_384);
   if (!structured.ok) {
     return {error: structured.error, status: structured.status};
   }
 
-  let receipts = parseExtractedReceiptsJSON(structured.text);
+  let receipts = parseExtractedReceiptsJSON(structured.text).map(enrichReceiptMoneyFields);
   if (receipts.length === 0) {
     receipts = [{}];
   }
@@ -337,7 +481,7 @@ Transcribe every visible word in natural reading order (top to bottom). Include:
 - Store or seller name, addresses if shown
 - Order / invoice / confirmation numbers
 - Every product or service line with quantities and prices
-- Shipping, tax, discounts, gift cards, and the final amount paid
+- Shipping, tax, tips, discounts, gift cards, and the final amount paid
 
 Use blank lines between sections. If text is in columns or a table, read row by row so a treasurer can follow it.`;
 
@@ -346,7 +490,7 @@ Use blank lines between sections. If text is in columns or a table, read row by 
       const cleaned = stripMarkdownCodeFence(plain.text);
       const prevLen = receiptFieldString(onlyReceipt.raw_transcript).length;
       if (cleaned.length > prevLen) {
-        receipts = [{...onlyReceipt, raw_transcript: cleaned}];
+        receipts = [enrichReceiptMoneyFields({...onlyReceipt, raw_transcript: cleaned})];
         console.log(
           `[extractReceiptData] ${JSON.stringify({
             event: 'plain_transcript_fallback',
@@ -357,6 +501,45 @@ Use blank lines between sections. If text is in columns or a table, read row by 
       }
     }
   }
+
+  if (needsMoneyRepairPass(receipts)) {
+    const moneyPrompt = `Extract ONLY money and priced line items from this ${isPDF ? 'PDF (every page, including landscape)' : 'image'}.
+
+Return a single JSON object. No markdown. Shape:
+{"receipts":[{"vendor_name":"","document_number":"","line_items":[{"description":"","qty":"","unit_price":"","total":""}],"subtotal":"","shipping":"","tip":"","total_before_tax":"","tax":"","total":"","raw_transcript":""}]}
+
+One object per distinct order/slip. Every visible product row needs a "total". Always include subtotal/tip/tax/grand total when printed.${MONEY_REPAIR_PROMPT_SUFFIX}`;
+
+    const money = await geminiMultimodal(apiKey, mimeType, base64Data, moneyPrompt, 16_384);
+    if (money.ok) {
+      const moneyReceipts = parseExtractedReceiptsJSON(money.text).map(enrichReceiptMoneyFields);
+      if (moneyReceipts.length === receipts.length) {
+        receipts = receipts.map((r, i) =>
+          mergeReceiptMoneyFields(r, moneyReceipts[i] ?? {}),
+        );
+      } else if (moneyReceipts.length > receipts.length) {
+        // Primary collapsed multiple orders; prefer the money pass's slip breakdown.
+        receipts = moneyReceipts.map((m, i) =>
+          mergeReceiptMoneyFields(receipts[i] ?? receipts[0] ?? {}, m),
+        );
+      } else if (moneyReceipts.length === 1 && receipts.length === 1) {
+        receipts = [mergeReceiptMoneyFields(receipts[0] ?? {}, moneyReceipts[0] ?? {})];
+      } else {
+        receipts = receipts.map((r, i) =>
+          mergeReceiptMoneyFields(r, moneyReceipts[i] ?? moneyReceipts[0] ?? {}),
+        );
+      }
+      console.log(
+        `[extractReceiptData] ${JSON.stringify({
+          event: 'money_repair_pass',
+          primarySlips: receipts.length,
+          moneySlips: moneyReceipts.length,
+        })}`,
+      );
+    }
+  }
+
+  receipts = receipts.map(enrichReceiptMoneyFields);
 
   for (const r of receipts) {
     const q = assessReceiptExtractionQuality(r);
@@ -379,14 +562,14 @@ function unescapeJsonStringFragment(s: string): string {
 }
 
 /**
- * When the model puts balance-due $0 into `total` but a positive paid amount is
- * already in subtotal / line items / total_before_tax, promote that amount to total.
+ * When `total` is missing or balance-due ~$0, promote a paid amount from subtotal /
+ * line items / total_before_tax (+ tax/shipping/tip as appropriate).
  * Exported for unit tests.
  */
 export function normalizeReceiptTotals(receipt: ReceiptData): ReceiptData {
   const total = parseMoneyAmount(receiptFieldString(receipt.total));
-  // Missing total is fine (PDF may still show subtotal); only repair an explicit ~$0.
-  if (total == null || Math.abs(total) >= 0.005) return receipt;
+  // Keep a real positive total; repair missing or explicit ~$0.
+  if (total != null && Math.abs(total) >= 0.005) return receipt;
 
   const tax = parseMoneyAmount(receiptFieldString(receipt.tax)) ?? 0;
   const ship = parseMoneyAmount(receiptFieldString(receipt.shipping)) ?? 0;
@@ -414,11 +597,6 @@ export function normalizeReceiptTotals(receipt: ReceiptData): ReceiptData {
   }
 
   return receipt;
-}
-
-function formatMoneyAmount(n: number): string {
-  const rounded = Math.round(n * 100) / 100;
-  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2);
 }
 
 function coerceReceiptData(raw: unknown): ReceiptData {
@@ -459,7 +637,7 @@ function coerceReceiptData(raw: unknown): ReceiptData {
         total: li.total != null ? String(li.total) : undefined,
       }));
   }
-  return normalizeReceiptTotals(out);
+  return enrichReceiptMoneyFields(out);
 }
 
 function parseExtractedReceiptsJSON(rawText: string): ReceiptData[] {
@@ -496,7 +674,7 @@ function parseLegacySingleReceiptJSON(rawText: string): ReceiptData {
       const match = cleaned.match(/\{[\s\S]*\}/);
       if (match) cleaned = match[0];
     }
-    return normalizeReceiptTotals(JSON.parse(cleaned) as ReceiptData);
+    return enrichReceiptMoneyFields(JSON.parse(cleaned) as ReceiptData);
   } catch {
     // Fallback: extract partial data from truncated JSON
     const extracted: ReceiptData = {};
@@ -548,7 +726,7 @@ function parseLegacySingleReceiptJSON(rawText: string): ReceiptData {
       if (items.length > 0) extracted.line_items = items;
     }
 
-    return Object.keys(extracted).length > 0 ? normalizeReceiptTotals(extracted) : {};
+    return Object.keys(extracted).length > 0 ? enrichReceiptMoneyFields(extracted) : {};
   }
 }
 

@@ -1,9 +1,15 @@
 import {buildReceiptPdfTitle} from '~/lib/reimbursement/filename';
 import {
+  checkSubmittedAmountAgainstReceipts,
+  mergeAmountAlertsIntoAdminNotes,
+  resolveSubmittedAmountForCheck,
+} from '~/lib/reimbursement/receipt-amount-check';
+import {
   extractReceiptData,
   generateReceiptPDF,
   parseSubmissionReceiptLineForPdf,
   receiptFieldString,
+  type ReceiptData,
 } from '~/lib/reimbursement/receipt';
 import {
   buildConvertedStagingPdfBasename,
@@ -49,6 +55,60 @@ interface ReceiptConversionJobRow {
 
 function queueLog(payload: Record<string, unknown>) {
   console.log(`[receipt-conversion-queue] ${JSON.stringify(payload)}`);
+}
+
+/**
+ * When conversion finishes after the submission exists, compare extracted totals to the
+ * claimed line/submission amount and append treasurer-facing notes on mismatch / tax-included.
+ */
+async function maybeRecordAmountAlerts(
+  env: QueueEnv,
+  submissionId: string,
+  receiptLineIndex: number | null,
+  receipts: ReceiptData[],
+): Promise<void> {
+  const submission = await env.REIMBURSEMENT_DB.prepare(
+    `SELECT total_amount, admin_notes FROM submissions WHERE id = ?`,
+  )
+    .bind(submissionId)
+    .first<{admin_notes: string | null; total_amount: number}>();
+  if (!submission) return;
+
+  const amountRows = await env.REIMBURSEMENT_DB.prepare(
+    `SELECT amount, sort_order FROM receipt_entries WHERE submission_id = ? ORDER BY sort_order`,
+  )
+    .bind(submissionId)
+    .all<{amount: number; sort_order: number}>();
+  const lines = amountRows.results ?? [];
+  const lineAmount =
+    receiptLineIndex != null
+      ? lines.find((r) => r.sort_order === receiptLineIndex - 1 || r.sort_order === receiptLineIndex)
+          ?.amount
+      : null;
+  const submittedAmount = resolveSubmittedAmountForCheck({
+    receiptLineAmount: lineAmount != null ? Number(lineAmount) : null,
+    receiptLineAmounts: lines.map((r) => Number(r.amount)),
+    submissionTotal: Number(submission.total_amount),
+  });
+  if (submittedAmount == null) return;
+
+  const alerts = checkSubmittedAmountAgainstReceipts(submittedAmount, receipts);
+  if (alerts.length === 0) return;
+
+  const merged = mergeAmountAlertsIntoAdminNotes(submission.admin_notes, alerts);
+  if (merged === (submission.admin_notes ?? '').trim()) return;
+
+  await env.REIMBURSEMENT_DB.prepare(
+    `UPDATE submissions SET admin_notes = ?, updated_at = datetime('now') WHERE id = ?`,
+  )
+    .bind(merged, submissionId)
+    .run();
+
+  queueLog({
+    submissionId,
+    outcome: 'amount_alerts',
+    kinds: alerts.map((a) => a.kind),
+  });
 }
 
 /**
@@ -224,6 +284,10 @@ export async function processReceiptConversionJob(
     )
       .bind(convertedKey, convertedFilename, pdfBuffer.length, jobId)
       .run();
+
+    if (row.submission_id) {
+      await maybeRecordAmountAlerts(env, row.submission_id, row.receipt_line_index, result.receipts);
+    }
 
     // If a submission has not claimed this job yet, the original upload must stay in R2
     // because `api.reimbursement.submit` copies it into `submissions/...` at submit time.

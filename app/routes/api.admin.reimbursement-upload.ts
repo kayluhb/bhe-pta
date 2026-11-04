@@ -2,6 +2,12 @@ import {requireAdmin} from '~/lib/admin/auth';
 import {getCloudflare} from '~/lib/cloudflare-context';
 import {buildAdminReceiptPdfTitle, sanitizeDownloadFilename} from '~/lib/reimbursement/filename';
 import {
+  checkSubmittedAmountAgainstReceipts,
+  mergeAmountAlertsIntoAdminNotes,
+  resolveSubmittedAmountForCheck,
+  type ReceiptAmountAlert,
+} from '~/lib/reimbursement/receipt-amount-check';
+import {
   ACCEPTED_TYPES,
   extractReceiptData,
   generateReceiptPDF,
@@ -20,9 +26,14 @@ export async function action({request, params, context}: Route.ActionArgs) {
 
     // Verify submission exists and get requester name
     const submission = await db
-      .prepare('SELECT id, requester_name FROM submissions WHERE id = ?')
+      .prepare('SELECT id, requester_name, total_amount, admin_notes FROM submissions WHERE id = ?')
       .bind(submissionId)
-      .first<{id: string; requester_name: string}>();
+      .first<{
+        admin_notes: string | null;
+        id: string;
+        requester_name: string;
+        total_amount: number;
+      }>();
 
     if (!submission) {
       return Response.json({error: 'Submission not found'}, {status: 404});
@@ -85,7 +96,22 @@ export async function action({request, params, context}: Route.ActionArgs) {
 
     const originalFilename = sanitizeDownloadFilename(file.name);
 
-    await db.batch([
+    const receiptAmountRows = await db
+      .prepare('SELECT amount FROM receipt_entries WHERE submission_id = ? ORDER BY sort_order')
+      .bind(submissionId)
+      .all<{amount: number}>();
+    const receiptLineAmounts = (receiptAmountRows.results ?? []).map((r) => Number(r.amount));
+    const submittedAmount = resolveSubmittedAmountForCheck({
+      receiptLineAmounts,
+      submissionTotal: Number(submission.total_amount),
+    });
+    const amountAlerts: ReceiptAmountAlert[] =
+      submittedAmount != null
+        ? checkSubmittedAmountAgainstReceipts(submittedAmount, receipts)
+        : [];
+    const mergedNotes = mergeAmountAlertsIntoAdminNotes(submission.admin_notes, amountAlerts);
+
+    const statements = [
       db
         .prepare(
           'INSERT INTO file_attachments (id, submission_id, r2_key, original_filename, content_type, file_size, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)',
@@ -112,9 +138,20 @@ export async function action({request, params, context}: Route.ActionArgs) {
           fileBytes.byteLength,
           nextSort + 1,
         ),
-    ]);
+    ];
+    if (amountAlerts.length > 0 && mergedNotes !== (submission.admin_notes ?? '').trim()) {
+      statements.push(
+        db
+          .prepare(
+            `UPDATE submissions SET admin_notes = ?, updated_at = datetime('now') WHERE id = ?`,
+          )
+          .bind(mergedNotes, submissionId),
+      );
+    }
+    await db.batch(statements);
 
     return Response.json({
+      amountAlerts,
       success: true,
       files: [
         {filename: `${sanitizedName}-converted.pdf`, size: pdfBuffer.length},
