@@ -1,9 +1,11 @@
 import {Link} from 'react-router';
 
-import {FundraisingProgress} from '~/components/fundraising/FundraisingProgress';
+import {Button} from '~/components/ui/Button';
+import {Container} from '~/components/ui/Container';
+import {GreenBand} from '~/components/ui/GreenBand';
+import {TagPill} from '~/components/ui/TagPill';
 import {
   annualFundCampaign,
-  annualFundGiveUrlWithUtm,
   annualFundPath,
   corporateContributionsUrl,
 } from '~/data/annual-fund-campaign';
@@ -29,8 +31,6 @@ export function meta({matches}: Route.MetaArgs) {
       'Volunteer, join the PTA, and donate to the Annual Fund at Barton Hills Elementary. Support Art, Music & PE and programs for every student.',
   });
 }
-
-// ─── Data ────────────────────────────────────────────────────────────────────
 
 const fundedInitiatives = [
   'Library, music, art, and PE materials',
@@ -75,309 +75,215 @@ const intermittentVolunteer = [
   'Yearbook',
 ];
 
-const oneTimeVolunteer = ['Carnival contributions', 'Seasonal parent parties (fall and spring)'];
+const oneTimeVolunteer = ['Carnival', 'Fall parent parties', 'Spring parent parties'];
 
-// ─── Component ───────────────────────────────────────────────────────────────
+const jumpCards = [
+  {
+    title: 'Volunteer',
+    sub: '25+ ways to help',
+    href: '#volunteer',
+    primary: true,
+  },
+  {
+    title: 'Annual Fund',
+    sub: '$650 per child suggested',
+    href: '#fund',
+    primary: false,
+  },
+  {
+    title: 'Sponsor',
+    sub: 'For local businesses',
+    href: '#sponsor',
+    primary: false,
+  },
+  {
+    title: 'Join the PTA',
+    sub: 'Become a member',
+    href: '#join',
+    primary: false,
+  },
+];
 
 export default function GetInvolved({loaderData}: Route.ComponentProps) {
   const {annualFundCampaign: campaign} = loaderData;
+  const ask = campaign.suggestedAskPerChild;
+
   return (
     <div>
-      {/* ── 1. Page Banner ───────────────────────────────────────────────── */}
-      <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-[0.05]"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)',
-          }}
-        />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white">
-            Get Involved
+      <section className="py-12 md:py-[64px]">
+        <Container>
+          <h1 className="font-display text-[42px] font-extrabold tracking-[-0.035em] text-bhe-ink md:text-[clamp(48px,5vw,72px)]">
+            Find your flock.
           </h1>
-          <p className="mt-4 text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
-            We cannot do what we do without your help and participation!
+          <p className="mt-4 max-w-2xl text-[17px] leading-relaxed text-bhe-body md:text-[20px]">
+            The PTA runs on community help. Give an hour or a semester, a gift or a sponsorship —
+            every bit keeps BHE soaring.
           </p>
-          <div className="mt-6 h-1 w-20 bg-spirit-gold rounded-full mx-auto" />
-        </div>
+          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {jumpCards.map((card) => (
+              <a
+                className={[
+                  'rounded-card border-2 p-5 transition-colors',
+                  card.primary
+                    ? 'border-bhe-green bg-bhe-green text-bhe-on-green'
+                    : 'border-bhe-border bg-bhe-card text-bhe-ink hover:border-bhe-green',
+                ].join(' ')}
+                href={card.href}
+                key={card.title}
+              >
+                <h2 className="font-display text-xl font-bold">{card.title}</h2>
+                <p
+                  className={`mt-1 text-sm ${card.primary ? 'text-bhe-on-green-muted' : 'text-bhe-muted'}`}
+                >
+                  {card.title === 'Annual Fund' ? `$${ask} per child suggested` : card.sub}
+                </p>
+              </a>
+            ))}
+          </div>
+        </Container>
       </section>
 
-      {/* ── 2. Annual Fund Hero ──────────────────────────────────────────── */}
-      <section className="bg-warm-white py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div className="bg-gradient-to-r from-eagle-blue to-night-blue p-8 md:p-12">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                <div>
-                  <p className="text-spirit-gold font-heading font-bold text-sm uppercase tracking-wider">
-                    The BHE Annual Fund
-                  </p>
-                  <h2 className="mt-2 text-3xl md:text-4xl font-heading font-bold text-white">
-                    Every Dollar Counts
-                  </h2>
-                </div>
-                <div className="text-center md:text-right">
-                  <p className="text-5xl md:text-6xl font-heading font-bold text-spirit-gold">
-                    $930+
-                  </p>
-                  <p className="text-white/90 text-sm mt-1">per student annually</p>
-                </div>
-              </div>
-            </div>
+      <section className="py-12 md:py-[64px]" id="volunteer">
+        <Container>
+          <h2 className="font-display text-[30px] font-extrabold text-bhe-ink md:text-[44px]">
+            Volunteer opportunities
+          </h2>
+          <p className="mt-3 max-w-2xl text-bhe-body">
+            Pick a cadence that fits your life — regular, intermittent, or one-time.
+          </p>
+          <a
+            className="mt-6 inline-flex min-h-12 items-center justify-center rounded-full bg-bhe-green px-7 py-3.5 text-lg font-bold text-bhe-on-green hover:bg-bhe-green-2"
+            href="mailto:pta@bheeagles.com?subject=Volunteer%20signup"
+          >
+            Email the PTA to sign up
+          </a>
 
-            <div className="p-8 md:p-12">
-              <p className="text-charcoal/70 text-lg leading-relaxed">
-                The PTA spends about $930 per student every year on programs and resources that
-                directly benefit our children. We request a contribution of{' '}
-                <span className="font-bold text-charcoal">
-                  ${campaign.suggestedAskPerChild} per child
-                </span>{' '}
-                to help sustain these vital programs.
-              </p>
-
-              <div className="mt-8">
-                <h3 className="font-heading font-bold text-lg text-charcoal mb-4">
-                  Your contributions fund:
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {fundedInitiatives.map((item) => (
-                    <div className="flex items-start gap-3" key={item}>
-                      <svg
-                        aria-hidden="true"
-                        className="h-5 w-5 text-creek-green shrink-0 mt-0.5"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                      <span className="text-charcoal/70">{item}</span>
-                    </div>
+          <div className="mt-10 grid gap-6 lg:grid-cols-3">
+            {[
+              {
+                title: 'Regular cadence',
+                sub: 'Ongoing roles with a steady rhythm',
+                tint: 'green' as const,
+                roles: regularVolunteer,
+              },
+              {
+                title: 'Intermittent',
+                sub: 'Project-based help throughout the year',
+                tint: 'gold' as const,
+                roles: intermittentVolunteer,
+              },
+              {
+                title: 'One-time',
+                sub: 'Pitch in for a single event',
+                tint: 'blue' as const,
+                roles: oneTimeVolunteer,
+              },
+            ].map((group) => (
+              <article
+                className="rounded-card border border-bhe-border bg-bhe-card p-6"
+                key={group.title}
+              >
+                <h3 className="font-display text-xl font-bold text-bhe-ink">{group.title}</h3>
+                <p className="mt-1 text-sm text-bhe-muted">{group.sub}</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {group.roles.map((role) => (
+                    <TagPill key={role} tint={group.tint}>
+                      {role}
+                    </TagPill>
                   ))}
                 </div>
-              </div>
-
-              {campaign.thermometerVisible ? <FundraisingProgress campaign={campaign} /> : null}
-
-              <div className="mt-10 flex flex-wrap gap-4">
-                <a
-                  className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors duration-200"
-                  href={annualFundGiveUrlWithUtm('get-involved')}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  Give to the Annual Fund
-                  <span className="sr-only">(opens in new tab)</span>
-                </a>
-                <Link
-                  className="inline-flex items-center border-2 border-eagle-blue text-eagle-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-eagle-blue/5 transition-colors duration-200"
-                  to={annualFundPath}
-                >
-                  Annual Fund details
-                </Link>
-              </div>
-            </div>
+              </article>
+            ))}
           </div>
-        </div>
+        </Container>
       </section>
 
-      {/* ── Local Business Sponsors ─────────────────────────────────── */}
-      <section className="bg-white py-16 md:py-24">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="bg-gradient-to-r from-eagle-blue to-night-blue rounded-2xl p-8 md:p-12 text-center">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-white">
-              Local Business Sponsorships
+      <GreenBand className="py-14 md:py-[72px]" id="fund">
+        <Container className="flex flex-col gap-10 lg:flex-row lg:items-center">
+          <div className="flex-1">
+            <h2 className="font-display text-[clamp(32px,4vw,52px)] font-extrabold leading-[1.05] tracking-[-0.03em] text-bhe-on-green">
+              $930 per student, every year.
             </h2>
-            <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
-            <p className="mt-6 text-lg text-white/90 leading-relaxed max-w-2xl mx-auto">
-              Is your business interested in supporting Barton Hills Elementary? Local business
-              contributions help fund enrichment programs, classroom resources, and community events
-              for every student.
+            <p className="mt-4 max-w-xl text-[17px] leading-relaxed text-bhe-on-green-muted">
+              We ask about ${ask} per child to help sustain programs AISD does not fully fund. Give
+              what you can — membership is included.
             </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button size="lg" to={annualFundPath} variant="accent">
+                Give to the Annual Fund
+              </Button>
+              <Button size="lg" to={annualFundPath} variant="on-dark">
+                Annual Fund details
+              </Button>
+            </div>
+          </div>
+          <ul className="grid flex-1 gap-2 sm:grid-cols-2">
+            {fundedInitiatives.map((item) => (
+              <li
+                className="rounded-full border border-bhe-green-line px-4 py-2.5 text-sm text-bhe-on-green"
+                key={item}
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
+        </Container>
+      </GreenBand>
+
+      <section className="py-12 md:py-[64px]">
+        <Container className="grid gap-5 md:grid-cols-2">
+          <div className="rounded-panel border border-bhe-border bg-bhe-card p-8" id="sponsor">
+            <h2 className="font-display text-2xl font-extrabold text-bhe-ink">Become a sponsor</h2>
+            <p className="mt-3 text-bhe-muted">
+              Local businesses power programs and events that serve every student.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
               <a
-                className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors duration-200"
+                className="inline-flex min-h-11 items-center rounded-full bg-bhe-green px-6 py-3 font-bold text-bhe-on-green"
                 href={corporateContributionsUrl}
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                Become a Local Business Sponsor
-                <span className="sr-only">(opens in new tab)</span>
+                Become a sponsor
+                <span className="sr-only"> (opens in new tab)</span>
               </a>
-              <a
-                className="inline-flex items-center border-2 border-white text-white font-heading font-bold text-lg px-8 py-3.5 rounded-full hover:bg-white/10 transition-all duration-200"
-                href="/sponsors"
-              >
-                View Sponsor Tiers
-              </a>
+              <Button to="/sponsors" variant="secondary">
+                View sponsor tiers
+              </Button>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ── 3. Volunteer Opportunities ───────────────────────────────────── */}
-      <section className="bg-white py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="mb-10">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">
-              Volunteer Opportunities
-            </h2>
-            <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full" />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Regular Cadence */}
-            <div className="rounded-lg bg-warm-white p-8 shadow-md">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-10 w-10 rounded-full bg-eagle-blue flex items-center justify-center">
-                  <svg
-                    aria-hidden="true"
-                    className="h-5 w-5 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-                <h3 className="font-heading font-bold text-xl text-charcoal">Regular Cadence</h3>
-              </div>
-              <ul className="space-y-3">
-                {regularVolunteer.map((item) => (
-                  <li className="flex items-center gap-2 text-charcoal/70" key={item}>
-                    <div className="h-1.5 w-1.5 rounded-full bg-eagle-blue shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Intermittent */}
-            <div className="rounded-lg bg-warm-white p-8 shadow-md">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-10 w-10 rounded-full bg-spirit-gold flex items-center justify-center">
-                  <svg
-                    aria-hidden="true"
-                    className="h-5 w-5 text-night-blue"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-                <h3 className="font-heading font-bold text-xl text-charcoal">Intermittent</h3>
-              </div>
-              <ul className="space-y-3">
-                {intermittentVolunteer.map((item) => (
-                  <li className="flex items-center gap-2 text-charcoal/70" key={item}>
-                    <div className="h-1.5 w-1.5 rounded-full bg-spirit-gold shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* One-Time */}
-            <div className="rounded-lg bg-warm-white p-8 shadow-md">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-10 w-10 rounded-full bg-creek-green flex items-center justify-center">
-                  <svg
-                    aria-hidden="true"
-                    className="h-5 w-5 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-                <h3 className="font-heading font-bold text-xl text-charcoal">One-Time</h3>
-              </div>
-              <ul className="space-y-3">
-                {oneTimeVolunteer.map((item) => (
-                  <li className="flex items-center gap-2 text-charcoal/70" key={item}>
-                    <div className="h-1.5 w-1.5 rounded-full bg-creek-green shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 4. Join PTA ──────────────────────────────────────────────────── */}
-      <section className="bg-warm-white py-16 md:py-24">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="rounded-lg bg-white p-8 shadow-lg md:p-12">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">Join PTA</h2>
-            <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full" />
-            <p className="mt-6 text-lg text-charcoal/70 leading-relaxed">
-              Please consider joining and contributing if you can. Your membership and support
-              directly impacts every student at Barton Hills Elementary. Together, we can continue
-              to provide the programs, resources, and community that make our school exceptional.
+          <div className="rounded-panel bg-bhe-gold p-8 text-bhe-green" id="join">
+            <h2 className="font-display text-2xl font-extrabold">Join the PTA</h2>
+            <p className="mt-3 text-bhe-green/80">
+              Membership is included with your Annual Fund gift. Belong to the flock.
             </p>
-            <div className="mt-8">
-              <a
-                className="inline-flex items-center bg-eagle-blue text-white font-heading font-bold text-lg px-8 py-3.5 rounded-full border-2 border-eagle-blue hover:bg-white hover:text-eagle-blue transition-colors duration-200"
-                href={campaign.giveUrl}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                Become a Member
-                <span className="sr-only">(opens in new tab)</span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 5. Sign Up CTA ───────────────────────────────────────────────── */}
-      <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
-        <div
-          className="absolute top-0 right-0 w-1/2 h-full bg-spirit-gold/5"
-          style={{clipPath: 'polygon(100% 0, 0 100%, 100% 100%)'}}
-        />
-        <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-heading font-bold text-white">
-            Ready to Make a Difference?
-          </h2>
-          <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
-          <p className="mt-6 text-lg text-white/90 leading-relaxed">
-            Whether you have an hour or an entire semester, there is a place for you in our PTA
-            community.
-          </p>
-          <div className="mt-8">
             <a
-              className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors duration-200"
-              href="mailto:pta@bheeagles.com"
+              className="mt-6 inline-flex min-h-11 items-center rounded-full bg-bhe-green px-6 py-3 font-bold text-bhe-on-green"
+              href={campaign.giveUrl}
+              rel="noopener noreferrer"
+              target="_blank"
             >
-              Email PTA
+              Become a member
+              <span className="sr-only"> (opens in new tab)</span>
             </a>
           </div>
-        </div>
+        </Container>
+      </section>
+
+      <section className="pb-16">
+        <Container>
+          <div className="rounded-panel border-2 border-bhe-green px-6 py-10 text-center md:px-12">
+            <h2 className="font-display text-[28px] font-extrabold text-bhe-ink md:text-[36px]">
+              Ready to make a difference?
+            </h2>
+            <a
+              className="mt-6 inline-flex min-h-12 items-center rounded-full bg-bhe-green px-8 py-3.5 text-lg font-bold text-bhe-on-green"
+              href="mailto:pta@bheeagles.com"
+            >
+              Email pta@bheeagles.com
+            </a>
+          </div>
+        </Container>
       </section>
     </div>
   );
