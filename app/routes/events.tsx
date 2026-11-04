@@ -16,6 +16,7 @@ import {
   tintForFilter,
   type EventFilterId,
 } from '~/lib/event-categories';
+import {eventPrimaryCta} from '~/lib/event-cta';
 import {mergeParentMeta} from '~/lib/meta';
 import type {CalendarEvent} from '~/lib/types';
 import type {Route} from './+types/events';
@@ -82,10 +83,6 @@ function timeLocationLine(event: CalendarEvent): string {
     if (plain) parts.push(plain.slice(0, 80) + (plain.length > 80 ? '…' : ''));
   }
   return parts.join(' · ') || '[TIME · LOCATION]';
-}
-
-function isRsvpEvent(event: CalendarEvent): boolean {
-  return eventMatchesFilter(event, 'prospective');
 }
 
 export default function EventsPage() {
@@ -187,13 +184,18 @@ export default function EventsPage() {
                           </h3>
                           <p className="mt-1 text-sm text-bhe-muted">{timeLocationLine(event)}</p>
                         </div>
-                        <Button
-                          className="shrink-0"
-                          to="/contact"
-                          variant={isRsvpEvent(event) ? 'primary' : 'secondary'}
-                        >
-                          {isRsvpEvent(event) ? 'RSVP' : 'Details'}
-                        </Button>
+                        {(() => {
+                          const cta = eventPrimaryCta(event);
+                          if (!cta) return null;
+                          return (
+                            <a
+                              className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-bhe-green px-6 py-3 font-bold text-bhe-on-green hover:bg-bhe-green-2"
+                              href={cta.href}
+                            >
+                              {cta.label}
+                            </a>
+                          );
+                        })()}
                       </li>
                     );
                   })}
