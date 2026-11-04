@@ -5,15 +5,18 @@ import {MAX_RECEIPT_LINES} from '~/lib/reimbursement/validation';
 import {
   ACCEPTED_TYPES,
   assessReceiptExtractionQuality,
+  countPdfPages,
   enrichReceiptMoneyFields,
   extractReceiptData,
   generateReceiptPDF,
+  keepCircledLineItems,
   MAX_FILE_SIZE,
   mergeReceiptMoneyFields,
   normalizeReceiptTotals,
   parseSubmissionReceiptLineForPdf,
   receiptFieldString,
   receiptHasUsableMoney,
+  salvageLongDocumentReceipt,
 } from '../receipt';
 
 describe('normalizeReceiptTotals', () => {
@@ -71,6 +74,67 @@ describe('enrichReceiptMoneyFields', () => {
     expect(out.line_items?.[1]?.total).toBe('91');
     expect(out.subtotal).toBe('240.50');
     expect(out.total).toBe('329.60');
+  });
+});
+
+describe('keepCircledLineItems', () => {
+  it('keeps circled lines and replaces the order grand total with their sum', () => {
+    const out = keepCircledLineItems({
+      line_items: [
+        {claimed: false, description: 'Dog treat', total: '9.98'},
+        {claimed: true, description: 'Ping pong balls', total: '6.89'},
+        {claimed: false, description: 'Ribs', total: '17.97'},
+      ],
+      subtotal: '34.84',
+      tax: '2.29',
+      total: '37.13',
+      vendor_name: 'Amazon.com',
+    });
+    expect(out.line_items?.map((li) => li.description)).toEqual(['Ping pong balls']);
+    expect(out.subtotal).toBe('6.89');
+    expect(out.total).toBe('6.89');
+    expect(out.tax).toBeUndefined();
+    expect(out.notes).toMatch(/circled/i);
+  });
+
+  it('leaves a slip unchanged when no line is marked claimed', () => {
+    const receipt = {
+      line_items: [
+        {description: 'A', total: '5'},
+        {description: 'B', total: '4'},
+      ],
+      total: '9',
+    };
+    expect(keepCircledLineItems(receipt)).toEqual(receipt);
+  });
+
+  it('keeps the printed total when every line is circled and it already matches', () => {
+    const receipt = {
+      line_items: [
+        {claimed: true, description: 'Bulletin board', total: '9.99'},
+        {claimed: true, description: 'Fidgets', total: '9.99'},
+      ],
+      tax: '1.60',
+      total: '19.98',
+    };
+    const out = keepCircledLineItems(receipt);
+    expect(out.line_items).toHaveLength(2);
+    expect(out.total).toBe('19.98');
+    expect(out.tax).toBe('1.60');
+  });
+
+  it('drops a larger order total when the returned lines are all marked claimed', () => {
+    const out = keepCircledLineItems({
+      line_items: [
+        {claimed: true, description: 'Bulletin board', total: '9.99'},
+        {claimed: 'yes' as unknown as boolean, description: 'Fidgets', total: '9.99'},
+      ],
+      tax: '4.00',
+      total: '72.04',
+    });
+    expect(out.total).toBe('19.98');
+    expect(out.tax).toBeUndefined();
+    expect(out.line_items).toHaveLength(2);
   });
 });
 
@@ -191,6 +255,53 @@ describe('assessReceiptExtractionQuality', () => {
     expect(r.ok).toBe(true);
   });
 
+  it('keeps grand totals on long scans when line columns do not reconcile', () => {
+    const items = Array.from({length: 8}, (_, i) => ({
+      description: `Item ${i}`,
+      qty: '1',
+      total: '10',
+    }));
+    const salvaged = salvageLongDocumentReceipt({
+      line_items: items,
+      raw_transcript: 'Teachers Pay Teachers\nTotal $131.89',
+      subtotal: '121.74',
+      tax: '10.15',
+      total: '131.89',
+      vendor_name: 'Teachers Pay Teachers',
+    });
+    expect(salvaged?.total).toBe('131.89');
+    expect(salvaged?.subtotal).toBe('121.74');
+    expect(salvaged?.line_items ?? []).toHaveLength(0);
+    expect(salvaged && assessReceiptExtractionQuality(salvaged).ok).toBe(true);
+  });
+
+  it('strips tab-dumped transcripts on long scans and keeps priced lines that already add up', () => {
+    const salvaged = salvageLongDocumentReceipt({
+      line_items: [
+        {description: 'Pens', qty: '1', total: '9.79'},
+        {description: 'Vitamins', qty: '1', total: '9.36'},
+      ],
+      raw_transcript: 'Pens\t9.79\tVitamins\t9.36\tTotal',
+      subtotal: '19.15',
+      total: '19.15',
+      vendor_name: 'Amazon.com',
+    });
+    expect(salvaged?.line_items).toHaveLength(2);
+    expect(salvaged?.raw_transcript).not.toContain('\t');
+    expect(salvaged?.total).toBe('19.15');
+  });
+
+  it('drops a long-scan slip that has no usable dollars', () => {
+    const salvaged = salvageLongDocumentReceipt({
+      line_items: [
+        {description: 'A\tB\tC\tD'},
+        {description: 'E\tF\tG\tH'},
+      ],
+      vendor_name: 'Unknown',
+    });
+    expect(salvaged).toBeNull();
+  });
+
   it('rejects unpriced multi-item extracts with no totals (ThunderCloud / Amazon failure mode)', () => {
     const r = assessReceiptExtractionQuality({
       line_items: [
@@ -233,6 +344,18 @@ describe('parseSubmissionReceiptLineForPdf', () => {
 });
 
 describe('generateReceiptPDF', () => {
+  it('prints the transcript when totals exist but line items were dropped', () => {
+    const pdf = generateReceiptPDF(
+      {
+        raw_transcript: 'UNIQUE_TRANSCRIPT_MARKER Grand Total 72.04',
+        total: '72.04',
+        vendor_name: 'Amazon.com',
+      },
+      'Title',
+    );
+    expect(new TextDecoder().decode(pdf)).toContain('UNIQUE_TRANSCRIPT_MARKER');
+  });
+
   it('renders sparse transcript-first layout', () => {
     const pdf = generateReceiptPDF(
       {
@@ -366,6 +489,19 @@ describe('generateReceiptPDF', () => {
   });
 });
 
+describe('countPdfPages', () => {
+  it('counts page objects and ignores the pages tree', () => {
+    const body = `%PDF-1.4
+1 0 obj << /Type /Pages /Count 3 /Kids [2 0 R 3 0 R 4 0 R] >> endobj
+2 0 obj << /Type /Page >> endobj
+3 0 obj << /Type /Page >> endobj
+4 0 obj << /Type /Page >> endobj
+`;
+    expect(countPdfPages(new TextEncoder().encode(body))).toBe(3);
+    expect(countPdfPages(new Uint8Array([1, 2, 3, 4]))).toBeNull();
+  });
+});
+
 describe('extractReceiptData', () => {
   beforeEach(() => {
     vi.useRealTimers();
@@ -384,6 +520,42 @@ describe('extractReceiptData', () => {
       status: 200,
     };
   }
+
+  it('salvages a multi-page PDF when line totals do not match', async () => {
+    const body = JSON.stringify({
+      receipts: [
+        {
+          line_items: Array.from({length: 6}, (_, i) => ({
+            description: `Row ${i}`,
+            qty: '1',
+            total: '10',
+          })),
+          raw_transcript: 'Order summary Grand Total $72.04',
+          subtotal: '72.04',
+          total: '72.04',
+          vendor_name: 'Amazon.com',
+        },
+      ],
+    });
+    const fetchMock = vi.fn().mockResolvedValue({
+      ...geminiResponse(body),
+      text: async () => '',
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    const pdf = new TextEncoder().encode(
+      '%PDF-1.4\n1 0 obj << /Type /Pages /Count 2 >> endobj\n2 0 obj << /Type /Page >> endobj\n3 0 obj << /Type /Page >> endobj\n',
+    );
+    const out = await extractReceiptData(pdf, 'application/pdf', 'api-key');
+    if (!('receipts' in out)) {
+      expect.fail('expected salvaged receipts');
+    }
+    expect(out.receipts[0]?.total).toBe('72.04');
+    expect(out.receipts[0]?.line_items ?? []).toHaveLength(0);
+    const request = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body)) as {
+      generationConfig: {maxOutputTokens: number};
+    };
+    expect(request.generationConfig.maxOutputTokens).toBeGreaterThan(16_384);
+  });
 
   it('returns 422 when extraction quality checks fail', async () => {
     const body = JSON.stringify({

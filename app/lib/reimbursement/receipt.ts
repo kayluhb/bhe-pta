@@ -19,6 +19,11 @@ export interface ReceiptData {
     qty?: string;
     unit_price?: string;
     total?: string;
+    /**
+     * Handwritten circle or loop around this row. False when the row is visible but not circled
+     * (or is crossed out). Omit when the slip has no circles.
+     */
+    claimed?: boolean;
   }>;
   /** Sum of product/service lines only — exclude shipping, tax, tips. */
   subtotal?: string;
@@ -124,7 +129,60 @@ export function enrichReceiptMoneyFields(receipt: ReceiptData): ReceiptData {
     }
   }
 
-  return normalizeReceiptTotals(out);
+  return keepCircledLineItems(normalizeReceiptTotals(out));
+}
+
+function claimedFlag(value: unknown): boolean | undefined {
+  if (value === true || value === false) return value;
+  if (typeof value === 'number') {
+    if (value === 1) return true;
+    if (value === 0) return false;
+  }
+  if (typeof value === 'string') {
+    const t = value.trim().toLowerCase();
+    if (t === 'true' || t === 'yes' || t === 'y' || t === '1') return true;
+    if (t === 'false' || t === 'no' || t === 'n' || t === '0') return false;
+  }
+  return undefined;
+}
+
+const CIRCLED_TOTAL_NOTE = 'Total is the circled item prices only.';
+
+/**
+ * When a shopper circles some rows on a multi-item order, those rows are the reimbursement.
+ * The printed grand total still includes everything else, so replace it with the circled sum.
+ */
+export function keepCircledLineItems(receipt: ReceiptData): ReceiptData {
+  const items = receipt.line_items ?? [];
+  const flags = items.map((li) => claimedFlag((li as {claimed?: unknown}).claimed));
+  if (!flags.some((flag) => flag === true)) return receipt;
+
+  const claimedItems = items.filter((_, index) => flags[index] === true);
+  const {sum, withTotal} = lineItemTotalsSum(claimedItems);
+  if (withTotal === 0 || Math.abs(sum) < 0.005) return receipt;
+
+  const printedTotal = parseMoneyAmount(receiptFieldString(receipt.total));
+  const tolerance = Math.max(0.05, Math.abs(printedTotal ?? sum) * 0.02);
+  const linesMatchPrinted = printedTotal != null && Math.abs(sum - printedTotal) <= tolerance;
+  const someUnclaimed = flags.some((flag) => flag !== true);
+  if (!someUnclaimed && linesMatchPrinted) return receipt;
+
+  const notes = receiptFieldString(receipt.notes);
+  return {
+    ...receipt,
+    line_items: claimedItems,
+    notes: notes.toLowerCase().includes('circled')
+      ? notes
+      : notes
+        ? `${notes} ${CIRCLED_TOTAL_NOTE}`
+        : CIRCLED_TOTAL_NOTE,
+    shipping: undefined,
+    subtotal: formatMoneyAmount(sum),
+    tax: undefined,
+    tip: undefined,
+    total: formatMoneyAmount(sum),
+    total_before_tax: undefined,
+  };
 }
 
 /**
@@ -153,7 +211,11 @@ export function mergeReceiptMoneyFields(base: ReceiptData, money: ReceiptData): 
   if (moneyItems.length > 0) {
     const basePriced = lineItemTotalsSum(baseItems).withTotal;
     if (baseItems.length === 0 || basePriced === 0) {
-      out.line_items = moneyItems;
+      out.line_items = moneyItems.map((mi, i) => {
+        const baseClaimed = claimedFlag((baseItems[i] as {claimed?: unknown} | undefined)?.claimed);
+        if (baseClaimed == null || claimedFlag((mi as {claimed?: unknown}).claimed) != null) return mi;
+        return {...mi, claimed: baseClaimed};
+      });
     } else {
       out.line_items = baseItems.map((li, i) => {
         if (parseMoneyAmount(receiptFieldString(li.total)) != null) return li;
@@ -281,6 +343,82 @@ export function assessReceiptExtractionQuality(
   return {ok: true};
 }
 
+/** Page objects in a PDF. `/Pages` (the tree) is not a page. Null when the bytes are not a PDF. */
+export function countPdfPages(fileBytes: Uint8Array): number | null {
+  if (
+    fileBytes.byteLength < 5 ||
+    fileBytes[0] !== 0x25 ||
+    fileBytes[1] !== 0x50 ||
+    fileBytes[2] !== 0x44 ||
+    fileBytes[3] !== 0x46
+  ) {
+    return null;
+  }
+  const latin = new TextDecoder('latin1').decode(fileBytes);
+  return latin.match(/\/Type\s*\/Page(?!s)/g)?.length ?? 0;
+}
+
+function transcriptHasDollars(receipt: ReceiptData): boolean {
+  const transcript = receiptFieldString(receipt.raw_transcript);
+  return /\$\s*\d/.test(transcript) || /\d+\.\d{2}/.test(transcript);
+}
+
+function stripTabRuns(value: string): string {
+  return value.replace(/\t+/g, ' ').replace(/ {2,}/g, ' ').trim();
+}
+
+function stripTabsFromReceipt(receipt: ReceiptData): ReceiptData {
+  const scalarKeys = [
+    'vendor_name',
+    'vendor_address',
+    'vendor_phone',
+    'document_type',
+    'document_number',
+    'date',
+    'due_date',
+    'bill_to',
+    'subtotal',
+    'shipping',
+    'tip',
+    'total_before_tax',
+    'tax',
+    'total',
+    'notes',
+    'raw_transcript',
+  ] as const;
+  const out: ReceiptData = {...receipt};
+  for (const key of scalarKeys) {
+    const value = receiptFieldString(receipt[key]);
+    if (value.includes('\t')) {
+      (out as Record<string, unknown>)[key] = stripTabRuns(value);
+    }
+  }
+  if (receipt.line_items) {
+    out.line_items = receipt.line_items.map((li) => ({
+      description: li.description?.includes('\t') ? stripTabRuns(li.description) : li.description,
+      qty: li.qty?.includes('\t') ? stripTabRuns(li.qty) : li.qty,
+      unit_price: li.unit_price?.includes('\t') ? stripTabRuns(li.unit_price) : li.unit_price,
+      total: li.total?.includes('\t') ? stripTabRuns(li.total) : li.total,
+    }));
+  }
+  return out;
+}
+
+/**
+ * Multi-page scans often mix several orders plus a wide table. A bad line-item grid
+ * should not discard grand totals the model did read. Returns null when nothing priced remains.
+ */
+export function salvageLongDocumentReceipt(receipt: ReceiptData): ReceiptData | null {
+  const stripped = stripTabsFromReceipt(receipt);
+  const usable = (candidate: ReceiptData) =>
+    receiptHasUsableMoney(candidate) || transcriptHasDollars(candidate);
+  if (assessReceiptExtractionQuality(stripped).ok && usable(stripped)) return stripped;
+
+  const withoutLines: ReceiptData = {...stripped, line_items: undefined};
+  if (assessReceiptExtractionQuality(withoutLines).ok && usable(withoutLines)) return withoutLines;
+  return null;
+}
+
 function bytesToBase64(fileBytes: Uint8Array): string {
   let binary = '';
   for (let i = 0; i < fileBytes.length; i++) {
@@ -404,7 +542,9 @@ CRITICAL — dollar amounts are required:
 - Always fill "subtotal", "tax", "tip" (when shown), "shipping" (when shown), and "total" / grand total / amount paid.
 - Tall register tapes: read to the bottom for Subtotal / Tip / Total.
 - Multi-page or landscape PDFs (Amazon print summaries): read EVERY page. One Amazon order = one "receipts" element. Copy the Order Summary sidebar (Item(s) Subtotal, Shipping, tax, Grand Total) and each item price.
-- Ignore handwritten circles/marks; still read the digits underneath.
+- Handwritten circles: a circle or loop around a price or row means that item is being reimbursed. Set "claimed": true on each circled row. A loop around a block of rows marks every row inside it, except rows that are crossed out ("claimed": false). Rows with no circle are "claimed": false. Still list unclaimed rows. Read the digits inside the circle; a circle is not a scratch-out.
+- When at least one row is circled, "subtotal" and "total" MUST be the sum of claimed line totals only. Do not copy the printed Grand Total, tax, or shipping when those include uncircled items.
+- When nothing on the slip is circled, omit "claimed" and use the printed grand total.
 `;
 
 /**
@@ -422,6 +562,9 @@ export async function extractReceiptData(
 ): Promise<{receipts: ReceiptData[]} | {error: string; status: number}> {
   const base64Data = bytesToBase64(fileBytes);
   const isPDF = mimeType === 'application/pdf';
+  const longDocument = isPDF && (countPdfPages(fileBytes) ?? 0) >= 2;
+  // Long packets (several orders on one scan) truncate at 16k and then fail the line-total check.
+  const maxOutputTokens = longDocument ? 32_768 : 16_384;
 
   const structuredPrompt = `Extract data from this ${isPDF ? 'PDF document (read every page, in order; landscape pages are OK — read them as printed)' : 'image'}.
 
@@ -440,7 +583,7 @@ Each element of "receipts" must include when possible:
 Also fill when possible on each slip (omit keys only if absent):
 - "vendor_name", "vendor_address", "vendor_phone"
 - "document_type", "document_number", "date", "due_date", "bill_to"
-- "line_items": [{"description","qty","unit_price","total"}] — one entry per distinct product/service row on that slip. "total" is required whenever a line price is visible (right column on thermal slips; price under each Amazon item).
+- "line_items": [{"description","qty","unit_price","total","claimed"}] — one entry per distinct product/service row on that slip. "total" is required whenever a line price is visible (right column on thermal slips; price under each Amazon item). "claimed" is true only for rows inside a handwritten circle or loop.
 - "subtotal" — sum of line items only (e-commerce: "Item(s) subtotal" / merchandise subtotal), NOT shipping or tax
 - "shipping" — shipping, handling, and/or delivery fees as one amount when shown together (e.g. "Shipping & Handling: $6.54"); include delivery/service fees here if not a separate line item
 - "tip" — gratuity or service tip when present (restaurant/catering slips often show Tip above Total)
@@ -457,7 +600,13 @@ Payment confirmations / invoices marked paid: if the document shows amount paid 
 
 If there is exactly one receipt, still use "receipts": [ { ... } ] with a single element.${MONEY_REPAIR_PROMPT_SUFFIX}`;
 
-  const structured = await geminiMultimodal(apiKey, mimeType, base64Data, structuredPrompt, 16_384);
+  const structured = await geminiMultimodal(
+    apiKey,
+    mimeType,
+    base64Data,
+    structuredPrompt,
+    maxOutputTokens,
+  );
   if (!structured.ok) {
     return {error: structured.error, status: structured.status};
   }
@@ -485,7 +634,7 @@ Transcribe every visible word in natural reading order (top to bottom). Include:
 
 Use blank lines between sections. If text is in columns or a table, read row by row so a treasurer can follow it.`;
 
-    const plain = await geminiMultimodal(apiKey, mimeType, base64Data, plainPrompt, 16_384);
+    const plain = await geminiMultimodal(apiKey, mimeType, base64Data, plainPrompt, maxOutputTokens);
     if (plain.ok) {
       const cleaned = stripMarkdownCodeFence(plain.text);
       const prevLen = receiptFieldString(onlyReceipt.raw_transcript).length;
@@ -506,11 +655,11 @@ Use blank lines between sections. If text is in columns or a table, read row by 
     const moneyPrompt = `Extract ONLY money and priced line items from this ${isPDF ? 'PDF (every page, including landscape)' : 'image'}.
 
 Return a single JSON object. No markdown. Shape:
-{"receipts":[{"vendor_name":"","document_number":"","line_items":[{"description":"","qty":"","unit_price":"","total":""}],"subtotal":"","shipping":"","tip":"","total_before_tax":"","tax":"","total":"","raw_transcript":""}]}
+{"receipts":[{"vendor_name":"","document_number":"","line_items":[{"description":"","qty":"","unit_price":"","total":"","claimed":true}],"subtotal":"","shipping":"","tip":"","total_before_tax":"","tax":"","total":"","raw_transcript":""}]}
 
 One object per distinct order/slip. Every visible product row needs a "total". Always include subtotal/tip/tax/grand total when printed.${MONEY_REPAIR_PROMPT_SUFFIX}`;
 
-    const money = await geminiMultimodal(apiKey, mimeType, base64Data, moneyPrompt, 16_384);
+    const money = await geminiMultimodal(apiKey, mimeType, base64Data, moneyPrompt, maxOutputTokens);
     if (money.ok) {
       const moneyReceipts = parseExtractedReceiptsJSON(money.text).map(enrichReceiptMoneyFields);
       if (moneyReceipts.length === receipts.length) {
@@ -540,6 +689,33 @@ One object per distinct order/slip. Every visible product row needs a "total". A
   }
 
   receipts = receipts.map(enrichReceiptMoneyFields);
+
+  if (longDocument) {
+    const kept = receipts.flatMap((receipt) => {
+      const salvaged = salvageLongDocumentReceipt(receipt);
+      return salvaged ? [salvaged] : [];
+    });
+    if (kept.length === 0) {
+      return {error: RECEIPT_EXTRACTION_QUALITY_ERROR, status: 422};
+    }
+    const droppedLineItems = receipts.some((receipt, index) => {
+      const before = receipt.line_items?.length ?? 0;
+      const after = kept[index]?.line_items?.length ?? 0;
+      return before > 0 && after === 0;
+    });
+    if (droppedLineItems || kept.length !== receipts.length) {
+      console.log(
+        `[extractReceiptData] ${JSON.stringify({
+          event: 'long_document_salvage',
+          keptSlips: kept.length,
+          droppedSlips: receipts.length - kept.length,
+          droppedLineItems,
+          pdfPages: countPdfPages(fileBytes),
+        })}`,
+      );
+    }
+    return {receipts: kept};
+  }
 
   for (const r of receipts) {
     const q = assessReceiptExtractionQuality(r);
@@ -631,10 +807,11 @@ function coerceReceiptData(raw: unknown): ReceiptData {
     out.line_items = o.line_items
       .filter((li): li is Record<string, unknown> => li != null && typeof li === 'object')
       .map((li) => ({
+        claimed: claimedFlag(li.claimed),
         description: li.description != null ? String(li.description) : undefined,
         qty: li.qty != null ? String(li.qty) : undefined,
-        unit_price: li.unit_price != null ? String(li.unit_price) : undefined,
         total: li.total != null ? String(li.total) : undefined,
+        unit_price: li.unit_price != null ? String(li.unit_price) : undefined,
       }));
   }
   return enrichReceiptMoneyFields(out);
@@ -847,8 +1024,9 @@ function renderReceiptSlipOnPage(
     y += 8;
 
     const transcript = receiptFieldString(receipt.raw_transcript);
+    const hasLineItems = (receipt.line_items?.length ?? 0) > 0;
     const sparseFinancial =
-      !(receipt.line_items && receipt.line_items.length > 0) &&
+      !hasLineItems &&
       !receiptFieldString(receipt.subtotal) &&
       !receiptFieldString(receipt.shipping) &&
       !receiptFieldString(receipt.tip) &&
@@ -878,9 +1056,10 @@ function renderReceiptSlipOnPage(
       doc.setFontSize(10);
     };
 
-    // When structured totals/lines are missing, show full text first so the PDF is still usable.
-    if (transcript && sparseFinancial) {
-      appendTranscript('DOCUMENT TEXT (from upload)');
+    // Full text when the line grid is missing: either there are no dollar fields, or a long
+    // scan kept the grand total and dropped an unreliable item table.
+    if (transcript && (sparseFinancial || !hasLineItems)) {
+      appendTranscript(sparseFinancial ? 'DOCUMENT TEXT (from upload)' : 'DOCUMENT TEXT');
     }
 
     // Vendor info block
