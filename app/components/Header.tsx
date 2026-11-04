@@ -92,8 +92,20 @@ export function Header() {
     };
   }, [mobileMenuOpen]);
 
+  const isHome = location.pathname === '/';
+
   return (
     <header className="sticky top-0 z-50 border-b border-bhe-border bg-bhe-paper" ref={headerRef}>
+      {isHome ? (
+        <div className="bg-bhe-green text-bhe-on-green">
+          <Container className="flex flex-col items-center justify-between gap-2 py-2.5 text-sm md:flex-row md:text-[14px]">
+            <p className="text-center md:text-left">
+              Barton Hills Elementary · Austin ISD · School day 7:40 a.m.–3:10 p.m.
+            </p>
+            {/* Tour CTA: hide until a prospective-families event is wired from home loader */}
+          </Container>
+        </div>
+      ) : null}
       <Container className="flex items-center justify-between py-[18px]">
         <Link aria-label="Barton Hills Elementary PTA home" className="shrink-0" to="/">
           <span className="hidden md:inline">
