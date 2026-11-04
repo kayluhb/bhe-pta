@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Barton Hills Elementary PTA — Reimbursement (phone)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;family=Figtree:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F1E7}
+a{color:#173D2E}a:hover{color:#2E6B4F}
+</style>
+</helmet>
+<div style="width: 390px; min-height: 2700px; box-sizing: border-box; font-family: 'Figtree', system-ui, sans-serif; color: #173D2E; background: #F6F1E7; font-size: 16px; line-height: 1.5; display: flex; flex-direction: column">
+
+<!-- Header -->
+<header style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #E3DACB">
+<a href="Mobile.dc.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #173D2E">
+<img src="../assets/bhe-eagle-green.svg" alt="" style="height: 36px; width: auto; display: block; flex-shrink: 0">
+<span style="display: flex; flex-direction: column; line-height: 1.1">
+<span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 17px">Barton Hills</span>
+<span style="font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #4B5563">Elementary PTA</span>
+</span>
+</a>
+<div style="display: flex; align-items: center; gap: 6px">
+<a href="GivePhone.dc.html" style="padding: 12px 18px; border-radius: 999px; background: {{accent}}; color: #173D2E; font-weight: 700; font-size: 15px; text-decoration: none">Give</a>
+<button type="button" aria-label="Open menu" style="width: 44px; height: 44px; border: 0; background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#173D2E" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+</button>
+</div>
+</header>
+
+<!-- Title -->
+<section style="padding: 28px 16px 16px; display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #2E6B4F">For volunteers &amp; staff</span>
+<h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 38px; line-height: 1; letter-spacing: -0.035em">Reimbursement request</h1>
+<p style="margin: 0; font-size: 16px; color: #374151">Submit a check request for PTA-approved expenses.</p>
+<details style="margin-top: 6px; background: #FFFFFF; border: 1px solid #E3DACB; border-radius: 16px; padding: 14px 16px">
+<summary style="font-weight: 700; font-size: 16px; cursor: pointer; min-height: 24px">Before you start</summary>
+<ul style="margin: 10px 0 0; padding-left: 20px; font-size: 15px; color: #374151; display: flex; flex-direction: column; gap: 6px">
+<li>Photos or PDFs of your receipts (up to 10 files)</li>
+<li>Amounts before sales tax — tax can’t be reimbursed</li>
+<li>The PTA budget account for the purchase</li>
+<li>Only PTA-approved expenses qualify</li>
+</ul>
+</details>
+</section>
+
+<section style="padding: 8px 16px 48px; display: flex; flex-direction: column; gap: 18px; flex: 1">
+
+<!-- Stepper -->
+<sc-if value="{{showStepper}}" hint-placeholder-val="{{ true }}">
+<div style="position: relative">
+<div style="position: absolute; left: 12.5%; right: 12.5%; top: 19px; height: 3px; background: #E3DACB; border-radius: 3px">
+<div style="height: 3px; width: {{pct}}%; background: #173D2E; border-radius: 3px"></div>
+</div>
+<ol aria-label="Progress" style="position: relative; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr))">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="4">
+<li style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+<button type="button" onClick="{{s.go}}" aria-label="Step {{s.n}}: {{s.label}}" style="width: 44px; height: 44px; border-radius: 50%; border: 2px solid {{s.bd}}; background: {{s.bg}}; color: {{s.fg}}; font: inherit; font-weight: 800; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0">
+<sc-if value="{{s.done}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F6F1E7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></sc-if>
+<sc-if value="{{s.notDone}}" hint-placeholder-val="{{ true }}">{{s.n}}</sc-if>
+</button>
+<span style="font-size: 13px; font-weight: {{s.weight}}; color: {{s.labelColor}}; text-align: center">{{s.label}}</span>
+</li>
+</sc-for>
+</ol>
+</div>
+</sc-if>
+
+<!-- STEP 1 -->
+<sc-if value="{{isStep1}}" hint-placeholder-val="{{ true }}">
+<div style="background: #FFFFFF; border: 1px solid #E3DACB; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 24px; letter-spacing: -0.02em">Who should we pay?</h2>
+<p style="margin: 0; font-size: 14px; color: #4B5563">Fields marked <span style="color: #B42318; font-weight: 700">*</span> are required.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="rp-payable" style="font-weight: 700; font-size: 14px">Payable to <span style="color: #B42318">*</span></label>
+<input id="rp-payable" type="text" autocomplete="name" value="{{fv.payable}}" onChange="{{set.payable}}" style="min-height: 50px; padding: 0 14px; border-radius: 12px; border: 1.5px solid #CFC5B3; background: #FFFFFF; font: inherit; font-size: 16px; color: #173D2E; box-sizing: border-box; width: 100%">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="rp-email" style="font-weight: 700; font-size: 14px">Email <span style="color: #B42318">*</span></label>
+<input id="rp-email" type="email" autocomplete="email" value="{{fv.email}}" onChange="{{set.email}}" style="min-height: 50px; padding: 0 14px; border-radius: 12px; border: 1.5px solid #CFC5B3; background: #FFFFFF; font: inherit; font-size: 16px; color: #173D2E; box-sizing: border-box; width: 100%">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="rp-phone" style="font-weight: 700; font-size: 14px">Phone <span style="font-weight: 500; color: #4B5563">— optional</span></label>
+<input id="rp-phone" type="tel" autocomplete="tel" placeholder="(555) 123-4567" value="{{fv.phone}}" onChange="{{set.phone}}" style="min-height: 50px; padding: 0 14px; border-radius: 12px; border: 1.5px solid #CFC5B3; background: #FFFFFF; font: inherit; font-size: 16px; color: #173D2E; box-sizing: border-box; width: 100%">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="rp-address" style="font-weight: 700; font-size: 14px">Mailing address <span style="color: #B42318">*</span></label>
+<input id="rp-address" type="text" autocomplete="street-address" value="{{fv.address}}" onChange="{{set.address}}" style="min-height: 50px; padding: 0 14px; border-radius: 12px; border: 1.5px solid #CFC5B3; background: #FFFFFF; font: inherit; font-size: 16px; color: #173D2E; box-sizing: border-box; width: 100%">
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="rp-today" style="font-weight: 700; font-size: 14px">Requested</label>
+<input id="rp-today" type="text" value="{{today}}" disabled style="min-height: 50px; padding: 0 12px; border-radius: 12px; border: 1.5px solid #E3DACB; background: #F1EADC; font: inherit; font-size: 16px; color: #4B5563; box-sizing: border-box; width: 100%">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="rp-needed" style="font-weight: 700; font-size: 14px">Needed by <span style="color: #B42318">*</span></label>
+<input id="rp-needed" type="date" value="{{fv.needed}}" onChange="{{set.needed}}" style="min-height: 50px; padding: 0 12px; border-radius: 12px; border: 1.5px solid #CFC5B3; background: #FFFFFF; font: inherit; font-size: 16px; color: #173D2E; box-sizing: border-box; width: 100%">
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="rp-invoice" style="font-weight: 700; font-size: 14px">Invoice number <span style="font-weight: 500; color: #4B5563">— if any</span></label>
+<input id="rp-invoice" type="text" value="{{fv.invoice}}" onChange="{{set.invoice}}" style="min-height: 50px; padding: 0 14px; border-radius: 12px; border: 1.5px solid #CFC5B3; background: #FFFFFF; font: inherit; font-size: 16px; color: #173D2E; box-sizing: border-box; width: 100%">
+</div>
+</div>
+</sc-if>
+
+<!-- STEP 2 -->
+<sc-if value="{{isStep2}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="background: #173D2E; color: #F6F1E7; border-radius: 18px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center">
+<div style="display: flex; flex-direction: column"><span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 22px">What did you buy?</span><span style="font-size: 13px; color: #D3E0D8">{{countLabel}}</span></div>
+<span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 26px; color: {{accent}}">{{totalFmt}}</span>
+</div>
+<sc-for list="{{rItems}}" as="r" hint-placeholder-count="1">
+<div style="background: #FFFFFF; border: 1px solid #E3DACB; border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<h3 style="margin: 0; font-size: 17px; font-weight: 700">Receipt {{r.n}}</h3>
+<sc-if value="{{r.canRemove}}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{r.remove}}" style="min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1.5px solid #CFC5B3; background: transparent; color: #173D2E; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">Remove</button>
+</sc-if>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="rp-d-{{r.n}}" style="font-weight: 700; font-size: 14px">Date <span style="color: #B42318">*</span></label>
+<input id="rp-d-{{r.n}}" type="date" value="{{r.date}}" onChange="{{r.onDate}}" style="min-height: 50px; padding: 0 10px; border-radius: 12px; border: 1.5px solid #CFC5B3; background: #FFFFFF; font: inherit; font-size: 16px; color: #173D2E; box-sizing: border-box; width: 100%">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="rp-a-{{r.n}}" style="font-weight: 700; font-size: 14px">Amount <span style="color: #B42318">*</span></label>
+<input id="rp-a-{{r.n}}" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" value="{{r.amount}}" onChange="{{r.onAmount}}" style="min-height: 50px; padding: 0 12px; border-radius: 12px; border: 1.5px solid #CFC5B3; background: #FFFFFF; font: inherit; font-size: 16px; color: #173D2E; box-sizing: border-box; width: 100%">
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="rp-x-{{r.n}}" style="font-weight: 700; font-size: 14px">What was purchased? <span style="color: #B42318">*</span></label>
+<input id="rp-x-{{r.n}}" type="text" placeholder="e.g. Art supplies for 2nd grade" value="{{r.desc}}" onChange="{{r.onDesc}}" style="min-height: 50px; padding: 0 14px; border-radius: 12px; border: 1.5px solid #CFC5B3; background: #FFFFFF; font: inherit; font-size: 16px; color: #173D2E; box-sizing: border-box; width: 100%">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="rp-p-{{r.n}}" style="font-weight: 700; font-size: 14px">Store or website</label>
+<input id="rp-p-{{r.n}}" type="text" value="{{r.place}}" onChange="{{r.onPlace}}" style="min-height: 50px; padding: 0 14px; border-radius: 12px; border: 1.5px solid #CFC5B3; background: #FFFFFF; font: inherit; font-size: 16px; color: #173D2E; box-sizing: border-box; width: 100%">
+</div>
+<label style="display: flex; align-items: center; gap: 14px; padding: 14px; border: 2px dashed #CFC5B3; border-radius: 14px; background: #FBF8F2; cursor: pointer">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2E6B4F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1h-3Z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>
+<span style="display: flex; flex-direction: column"><span style="font-weight: 700; font-size: 15px">Snap or attach receipt</span><span style="font-size: 12px; color: #4B5563">PNG, JPG, WebP or PDF · 10MB max</span></span>
+<input type="file" accept="image/png,image/jpeg,image/webp,application/pdf" capture="environment" multiple style="position: absolute; width: 1px; height: 1px; opacity: 0">
+</label>
+</div>
+</sc-for>
+<button type="button" onClick="{{addReceipt}}" style="min-height: 52px; border-radius: 16px; border: 2px dashed #173D2E; background: transparent; color: #173D2E; font: inherit; font-weight: 700; font-size: 15px; cursor: pointer">+ Add another receipt</button>
+<label style="display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 14px; background: #FCEBC7; font-size: 14px">
+<input type="checkbox" style="width: 22px; height: 22px; margin: 0; accent-color: #173D2E; flex-shrink: 0">
+<span>My amounts <strong>do not include sales tax</strong>. Sales tax can’t be reimbursed.</span>
+</label>
+</div>
+</sc-if>
+
+<!-- STEP 3 -->
+<sc-if value="{{isStep3}}" hint-placeholder-val="{{ false }}">
+<div style="background: #FFFFFF; border: 1px solid #E3DACB; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 24px; letter-spacing: -0.02em">Which budget?</h2>
+<p style="margin: 0; font-size: 14px; color: #4B5563">Pick the PTA budget account your committee spends from. Not sure? Ask your committee chair.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="rp-budget" style="font-weight: 700; font-size: 14px">Budget account <span style="color: #B42318">*</span></label>
+<select id="rp-budget" value="{{fv.budget}}" onChange="{{set.budget}}" style="min-height: 50px; padding: 0 12px; border-radius: 12px; border: 1.5px solid #CFC5B3; background: #FFFFFF; font: inherit; font-size: 16px; color: #173D2E; box-sizing: border-box; width: 100%">
+<option value="">Choose an account…</option>
+<option value="[BUDGET ACCOUNT 1]">[BUDGET ACCOUNT 1]</option>
+<option value="[BUDGET ACCOUNT 2]">[BUDGET ACCOUNT 2]</option>
+<option value="[BUDGET ACCOUNT 3]">[BUDGET ACCOUNT 3]</option>
+</select>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="rp-notes" style="font-weight: 700; font-size: 14px">Notes for the treasurer <span style="font-weight: 500; color: #4B5563">— optional</span></label>
+<textarea id="rp-notes" rows="4" value="{{fv.notes}}" onChange="{{set.notes}}" style="padding: 12px 14px; border-radius: 12px; border: 1.5px solid #CFC5B3; background: #FFFFFF; font: inherit; font-size: 16px; color: #173D2E; box-sizing: border-box; width: 100%; resize: vertical"></textarea>
+</div>
+</div>
+</sc-if>
+
+<!-- STEP 4 -->
+<sc-if value="{{isStep4}}" hint-placeholder-val="{{ false }}">
+<div style="background: #FFFFFF; border: 1px solid #E3DACB; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 24px; letter-spacing: -0.02em">Review your request</h2>
+<div style="display: flex; flex-direction: column; gap: 8px; font-size: 15px">
+<div style="display: flex; justify-content: space-between; align-items: center"><h3 style="margin: 0; font-size: 16px; font-weight: 700">Payment details</h3><button type="button" onClick="{{goStep1}}" style="min-height: 44px; padding: 0 8px; border: 0; background: transparent; color: #2E6B4F; font: inherit; font-weight: 700; cursor: pointer; text-decoration: underline">Edit</button></div>
+<div><span style="color: #4B5563">Payable to · </span><strong>{{rv.payable}}</strong></div>
+<div><span style="color: #4B5563">Email · </span><strong>{{rv.email}}</strong></div>
+<div><span style="color: #4B5563">Address · </span><strong>{{rv.address}}</strong></div>
+<div><span style="color: #4B5563">Needed by · </span><strong>{{rv.needed}}</strong></div>
+</div>
+<div style="height: 1px; background: #E3DACB"></div>
+<div style="display: flex; flex-direction: column; gap: 4px; font-size: 15px">
+<div style="display: flex; justify-content: space-between; align-items: center"><h3 style="margin: 0; font-size: 16px; font-weight: 700">Receipts</h3><button type="button" onClick="{{goStep2}}" style="min-height: 44px; padding: 0 8px; border: 0; background: transparent; color: #2E6B4F; font: inherit; font-weight: 700; cursor: pointer; text-decoration: underline">Edit</button></div>
+<sc-for list="{{rItems}}" as="r" hint-placeholder-count="1">
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #F1EADC"><span>{{r.descShow}}</span><span style="font-weight: 700">{{r.amountFmt}}</span></div>
+</sc-for>
+<div style="display: flex; justify-content: space-between; padding-top: 6px; font-weight: 800; font-size: 17px"><span>Total</span><span>{{totalFmt}}</span></div>
+</div>
+<div style="height: 1px; background: #E3DACB"></div>
+<div style="display: flex; justify-content: space-between; align-items: center; font-size: 15px">
+<div><span style="color: #4B5563">Budget · </span><strong>{{rv.budget}}</strong></div>
+<button type="button" onClick="{{goStep3}}" style="min-height: 44px; padding: 0 8px; border: 0; background: transparent; color: #2E6B4F; font: inherit; font-weight: 700; cursor: pointer; text-decoration: underline">Edit</button>
+</div>
+<div style="padding: 14px; border: 1.5px dashed #CFC5B3; border-radius: 12px; text-align: center; font-size: 13px; color: #4B5563">[Security check]</div>
+</div>
+</sc-if>
+
+<!-- DONE -->
+<sc-if value="{{isDone}}" hint-placeholder-val="{{ false }}">
+<div style="background: #FFFFFF; border: 1px solid #E3DACB; border-radius: 20px; padding: 36px 20px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px">
+<span style="width: 64px; height: 64px; border-radius: 50%; background: #173D2E; display: flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span>
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 28px">Request submitted</h2>
+<p style="margin: 0; font-size: 15px; color: #4B5563">We’ve emailed a copy to {{rv.email}}. The treasurer will follow up if anything is missing.</p>
+<div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 28px">{{totalFmt}}</div>
+<button type="button" onClick="{{reset}}" style="min-height: 50px; padding: 0 24px; border-radius: 999px; border: 2px solid #173D2E; background: transparent; color: #173D2E; font: inherit; font-weight: 700; cursor: pointer">Submit another request</button>
+</div>
+</sc-if>
+
+<!-- Nav -->
+<sc-if value="{{showNav}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<button type="button" onClick="{{next}}" style="min-height: 54px; border-radius: 999px; border: 0; background: {{nextBg}}; color: {{nextFg}}; font: inherit; font-weight: 800; font-size: 16px; cursor: pointer">{{nextLabel}}</button>
+<sc-if value="{{showBack}}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{back}}" style="min-height: 50px; border-radius: 999px; border: 2px solid #173D2E; background: transparent; color: #173D2E; font: inherit; font-weight: 700; font-size: 16px; cursor: pointer">Back</button>
+</sc-if>
+</div>
+</sc-if>
+<p style="margin: 0; text-align: center; font-size: 14px; color: #4B5563">Questions? <a href="mailto:pta@bheeagles.com" style="font-weight: 700">pta@bheeagles.com</a></p>
+</section>
+
+<!-- Footer -->
+<footer style="background: #173D2E; color: #D3E0D8; padding: 40px 16px 32px; font-size: 15px; display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<img src="../assets/bhe-eagle-cream.svg" alt="" style="height: 48px; width: auto; display: block; align-self: flex-start; margin-bottom: 4px">
+<span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 22px; color: #F6F1E7">Barton Hills Elementary PTA</span>
+<span>Supporting students, teachers and families to build a thriving school community for every Eagle.</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: {{accent}}">Quick links</span>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px">
+<a href="GivePhone.dc.html" style="color: #F6F1E7; padding: 10px 0">Annual Fund</a>
+<a href="ReimbursementPhone.dc.html" style="color: #F6F1E7; padding: 10px 0">Reimbursement</a>
+<a href="#" style="color: #F6F1E7; padding: 10px 0">News</a>
+<a href="EventsPhone.dc.html" style="color: #F6F1E7; padding: 10px 0">Events</a>
+<a href="GetInvolvedPhone.dc.html" style="color: #F6F1E7; padding: 10px 0">Get Involved</a>
+<a href="#" style="color: #F6F1E7; padding: 10px 0">Parents</a>
+<a href="#" style="color: #F6F1E7; padding: 10px 0">Archive</a>
+<a href="#" style="color: #F6F1E7; padding: 10px 0">Newsletter Signup</a>
+</div>
+</div>
+<div style="padding-top: 18px; border-top: 1px solid #2C5243; font-size: 13px">© 2026 PTA Texas Congress Barton Hills Elementary · <a href="#" style="color: #D3E0D8">Privacy Policy</a> · <a href="#" style="color: #D3E0D8">Terms of Use</a></div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#F3B23C","options":["#F3B23C","#F28C38","#7FC8A9","#9CC3F0"]},"$preview":{"width":390,"height":2700}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? '#F3B23C';
+    const st = this.state || {};
+    const step = st.step ?? 1;
+    const f = st.f ?? {};
+    const blank = { date: '', amount: '', desc: '', place: '' };
+    const receipts = st.receipts ?? [blank];
+    const go = (n) => () => this.setState({ step: n });
+    const keys = ['payable', 'email', 'phone', 'address', 'needed', 'invoice', 'budget', 'notes'];
+    const fv = {};
+    const set = {};
+    keys.forEach((k) => {
+      fv[k] = f[k] ?? '';
+      set[k] = (e) => { const v = e.target.value; this.setState((s) => ({ f: { ...(s.f || {}), [k]: v } })); };
+    });
+    const setR = (i, k) => (e) => {
+      const v = e.target.value;
+      this.setState((s) => ({ receipts: (s.receipts || [blank]).map((r, j) => (j === i ? { ...r, [k]: v } : r)) }));
+    };
+    const fmt = (n) => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const total = receipts.reduce((a, r) => a + (parseFloat(r.amount) || 0), 0);
+    const rItems = receipts.map((r, i) => ({
+      ...r,
+      n: i + 1,
+      amountFmt: fmt(parseFloat(r.amount) || 0),
+      descShow: r.desc || 'Receipt ' + (i + 1),
+      onDate: setR(i, 'date'),
+      onAmount: setR(i, 'amount'),
+      onDesc: setR(i, 'desc'),
+      onPlace: setR(i, 'place'),
+      canRemove: receipts.length > 1,
+      remove: () => this.setState((s) => ({ receipts: (s.receipts || [blank]).filter((_, j) => j !== i) })),
+    }));
+    const labels = ['Info', 'Receipts', 'Budget', 'Review'];
+    const steps = labels.map((label, i) => {
+      const n = i + 1;
+      const done = step > n;
+      const cur = step === n;
+      return {
+        n, label, done, notDone: !done, go: go(n),
+        bg: done ? '#173D2E' : '#FFFFFF',
+        fg: done ? '#F6F1E7' : cur ? '#173D2E' : '#4B5563',
+        bd: done || cur ? '#173D2E' : '#CFC5B3',
+        labelColor: done || cur ? '#173D2E' : '#4B5563',
+        weight: cur ? '800' : '600',
+      };
+    });
+    const nextLabels = { 1: 'Next: Add receipts', 2: 'Next: Budget account', 3: 'Next: Review', 4: 'Submit request' };
+    const today = new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+    const dash = (v) => (v && String(v).trim()) || '—';
+    return {
+      accent, step, fv, set, rItems, steps, today,
+      pct: (Math.min(step, 4) - 1) / 3 * 100,
+      totalFmt: fmt(total),
+      countLabel: receipts.length + (receipts.length === 1 ? ' receipt' : ' receipts'),
+      isStep1: step === 1, isStep2: step === 2, isStep3: step === 3, isStep4: step === 4, isDone: step >= 5,
+      showStepper: step <= 4, showNav: step <= 4, showBack: step > 1 && step <= 4,
+      nextLabel: nextLabels[step] || '',
+      nextBg: step === 4 ? accent : '#173D2E',
+      nextFg: step === 4 ? '#173D2E' : '#F6F1E7',
+      next: go(step + 1), back: go(step - 1),
+      goStep1: go(1), goStep2: go(2), goStep3: go(3),
+      addReceipt: () => this.setState((s) => ({ receipts: [...(s.receipts || [blank]), { ...blank }] })),
+      reset: () => this.setState({ step: 1, f: {}, receipts: [{ ...blank }] }),
+      rv: {
+        payable: dash(f.payable), email: dash(f.email), address: dash(f.address),
+        needed: dash(f.needed), budget: dash(f.budget),
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>
