@@ -1,4 +1,5 @@
 import {FormWizard} from '~/components/reimbursement/FormWizard';
+import {Container} from '~/components/ui/Container';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/reimbursement';
 
@@ -15,33 +16,32 @@ export function meta({matches}: Route.MetaArgs) {
 
 export default function Reimbursement() {
   return (
-    <div>
-      {/* Page Banner */}
-      <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-[0.05]"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)',
-          }}
-        />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white">
-            Reimbursement Request
-          </h1>
-          <p className="mt-4 text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
-            Submit a check request for PTA-approved expenses
-          </p>
-          <div className="mt-6 h-1 w-20 bg-spirit-gold rounded-full mx-auto" />
-        </div>
-      </section>
+    <div className="py-10 md:py-14">
+      <Container>
+        <p className="text-[13px] font-bold uppercase tracking-[0.12em] text-bhe-green-2">
+          For volunteers & staff
+        </p>
+        <h1 className="mt-3 font-display text-[36px] font-extrabold tracking-[-0.03em] text-bhe-ink md:text-[48px]">
+          Reimbursement request
+        </h1>
+        <p className="mt-3 max-w-2xl text-[17px] text-bhe-body">
+          Submit a check request for PTA-approved expenses. Photos or PDFs of receipts welcome.
+        </p>
 
-      {/* Form Section */}
-      <section className="bg-warm-white py-12 md:py-16">
-        <div className="max-w-7xl mx-auto px-4">
+        <details className="mt-6 rounded-card border border-bhe-border bg-bhe-card p-4 md:hidden">
+          <summary className="cursor-pointer font-bold text-bhe-ink">Before you start</summary>
+          <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-bhe-muted">
+            <li>Photos or PDFs of receipts (up to 10 files)</li>
+            <li>Amounts before sales tax — sales tax can&apos;t be reimbursed</li>
+            <li>The PTA budget account</li>
+            <li>Only PTA-approved expenses qualify</li>
+          </ul>
+        </details>
+
+        <div className="mt-10">
           <FormWizard />
         </div>
-      </section>
+      </Container>
     </div>
   );
 }

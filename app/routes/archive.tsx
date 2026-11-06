@@ -26,29 +26,17 @@ export default function Archive({loaderData}: Route.ComponentProps) {
   return (
     <div>
       {/* ── 1. Page Banner ───────────────────────────────────────────────── */}
-      <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-[0.05]"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)',
-          }}
-        />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white">
-            Our History
-          </h1>
-          <p className="mt-4 text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
-            A look back at the Barton Hills Elementary PTA community through the years — blog posts,
-            photos, newsletters, and memories from our Eagle family.
-          </p>
-          <div className="mt-6 h-1 w-20 bg-spirit-gold rounded-full mx-auto" />
+      <section className="border-b border-bhe-border bg-bhe-paper py-12 md:py-16">
+        <div className="mx-auto max-w-container px-4 md:px-6">
+          <h1 className="font-display text-[36px] font-extrabold tracking-[-0.03em] text-bhe-ink md:text-[48px]">Our History</h1>
+          <p className="mt-4 max-w-2xl text-[17px] text-bhe-body">A look back at the Barton Hills Elementary PTA community through the years — blog posts,
+            photos, newsletters, and memories from our Eagle family.</p>
         </div>
       </section>
 
       {/* ── 2. Timeline ──────────────────────────────────────────────────── */}
       {years.length > 0 ? (
-        <section className="bg-warm-white py-16 md:py-24">
+        <section className="bg-bhe-paper py-16 md:py-24">
           <div className="max-w-5xl mx-auto px-4">
             <div className="space-y-8">
               {years.map((yearData, index) => (
@@ -63,12 +51,12 @@ export default function Archive({loaderData}: Route.ComponentProps) {
           </div>
         </section>
       ) : (
-        <section className="bg-warm-white py-16 md:py-24">
+        <section className="bg-bhe-paper py-16 md:py-24">
           <div className="max-w-3xl mx-auto px-4 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-eagle-blue/10 mb-6">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-bhe-green/10 mb-6">
               <svg
                 aria-hidden="true"
-                className="h-8 w-8 text-eagle-blue"
+                className="h-8 w-8 text-bhe-green"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth={1.5}
@@ -81,10 +69,10 @@ export default function Archive({loaderData}: Route.ComponentProps) {
                 />
               </svg>
             </div>
-            <h2 className="text-2xl md:text-3xl font-heading font-bold text-charcoal">
+            <h2 className="text-2xl md:text-3xl font-display font-bold text-bhe-ink">
               Archive Coming Soon
             </h2>
-            <p className="mt-4 text-charcoal/70 max-w-md mx-auto">
+            <p className="mt-4 text-bhe-ink/70 max-w-md mx-auto">
               We're curating photos, newsletters, and memories from years of BHE PTA history. Check
               back soon!
             </p>
@@ -163,7 +151,7 @@ function Lightbox({item, onClose}: {item: ArchiveItem; onClose: () => void}) {
       <div className="relative z-10 max-w-4xl w-full max-h-[90vh]">
         <button
           aria-label="Close"
-          className="absolute -top-10 right-0 text-white/80 hover:text-white transition-colors cursor-pointer"
+          className="absolute -top-10 right-0 text-bhe-on-green-muted hover:text-white transition-colors cursor-pointer"
           onClick={onClose}
           ref={closeButtonRef}
           type="button"
@@ -184,7 +172,7 @@ function Lightbox({item, onClose}: {item: ArchiveItem; onClose: () => void}) {
           className="w-full h-auto max-h-[85vh] object-contain rounded-lg"
           src={`https://archive.bheeagles.com/${item.r2Key}`}
         />
-        <p className="mt-3 text-center text-white font-heading font-semibold" id="lightbox-title">
+        <p className="mt-3 text-center text-white font-display font-semibold" id="lightbox-title">
           {item.title}
         </p>
       </div>
@@ -208,7 +196,7 @@ function YearSection({
   const itemCount = yearData.items.length;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-charcoal/5 overflow-hidden">
+    <div className="bg-white rounded-xl shadow-sm border border-bhe-border/5 overflow-hidden">
       <button
         aria-controls={`year-panel-${yearData.year}`}
         aria-expanded={open}
@@ -217,23 +205,23 @@ function YearSection({
         type="button"
       >
         <div className="flex items-center gap-4">
-          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-eagle-blue text-white font-heading font-bold text-sm shrink-0">
+          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-bhe-green text-white font-display font-bold text-sm shrink-0">
             {yearData.year.slice(2, 4)}
           </div>
           <div>
             <h2
-              className="text-xl md:text-2xl font-heading font-bold text-charcoal"
+              className="text-xl md:text-2xl font-display font-bold text-bhe-ink"
               id={`year-heading-${yearData.year}`}
             >
               {yearData.year}
             </h2>
             {yearData.description && (
-              <p className="text-sm text-charcoal/60 mt-0.5">{yearData.description}</p>
+              <p className="text-sm text-bhe-ink/60 mt-0.5">{yearData.description}</p>
             )}
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-xs font-medium text-charcoal/40">
+          <span className="text-xs font-medium text-bhe-ink/40">
             {postCount > 0 && (
               <>
                 {postCount} {postCount === 1 ? 'post' : 'posts'}
@@ -248,7 +236,7 @@ function YearSection({
           </span>
           <svg
             aria-hidden="true"
-            className={`h-5 w-5 text-charcoal/40 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+            className={`h-5 w-5 text-bhe-ink/40 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
             fill="none"
             stroke="currentColor"
             strokeWidth={2}
@@ -262,7 +250,7 @@ function YearSection({
       {open && (
         <section
           aria-labelledby={`year-heading-${yearData.year}`}
-          className="border-t border-charcoal/5"
+          className="border-t border-bhe-border/5"
           id={`year-panel-${yearData.year}`}
         >
           {/* ── Posts ── */}
@@ -301,7 +289,7 @@ function PostCard({post}: {post: ArchivePost}) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <article className="group rounded-lg border border-charcoal/8 bg-charcoal/[0.01] overflow-hidden transition-colors hover:border-eagle-blue/20">
+    <article className="group rounded-lg border border-bhe-border/8 bg-charcoal/[0.01] overflow-hidden transition-colors hover:border-bhe-green/20">
       <button
         aria-controls={`archive-post-${post.id}`}
         aria-expanded={expanded}
@@ -312,27 +300,27 @@ function PostCard({post}: {post: ArchivePost}) {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 mb-1">
-              <time className="text-xs font-medium text-charcoal/50" dateTime={post.date}>
+              <time className="text-xs font-medium text-bhe-ink/50" dateTime={post.date}>
                 {formatPostDate(post.date)}
               </time>
               {post.category && post.category !== 'News' && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-spirit-gold/15 text-spirit-gold">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-bhe-gold/15 text-bhe-gold">
                   {post.category}
                 </span>
               )}
             </div>
-            <h3 className="text-base font-heading font-semibold text-charcoal group-hover:text-eagle-blue transition-colors leading-snug">
+            <h3 className="text-base font-display font-semibold text-bhe-ink group-hover:text-bhe-green transition-colors leading-snug">
               {post.title}
             </h3>
             {!expanded && post.excerpt && (
-              <p className="mt-1.5 text-sm text-charcoal/60 line-clamp-2 leading-relaxed">
+              <p className="mt-1.5 text-sm text-bhe-ink/60 line-clamp-2 leading-relaxed">
                 {post.excerpt}
               </p>
             )}
           </div>
           <svg
             aria-hidden="true"
-            className={`h-4 w-4 text-charcoal/30 shrink-0 mt-1.5 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+            className={`h-4 w-4 text-bhe-ink/30 shrink-0 mt-1.5 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
             fill="none"
             stroke="currentColor"
             strokeWidth={2}
@@ -344,12 +332,12 @@ function PostCard({post}: {post: ArchivePost}) {
       </button>
 
       {expanded && (
-        <div className="px-5 pb-5 border-t border-charcoal/5" id={`archive-post-${post.id}`}>
+        <div className="px-5 pb-5 border-t border-bhe-border/5" id={`archive-post-${post.id}`}>
           <div
             className="prose prose-sm max-w-none pt-4
-              prose-headings:font-heading prose-headings:text-charcoal
-              prose-p:text-charcoal/80 prose-p:leading-relaxed
-              prose-a:text-eagle-blue prose-a:no-underline hover:prose-a:underline
+              prose-headings:font-display prose-headings:text-bhe-ink
+              prose-p:text-bhe-ink/80 prose-p:leading-relaxed
+              prose-a:text-bhe-green prose-a:no-underline hover:prose-a:underline
               prose-img:rounded-lg prose-img:max-h-96 prose-img:w-auto
               prose-table:text-sm
               [&_img]:my-3 [&_table]:my-3"
@@ -380,7 +368,7 @@ function MediaSection({
       <button
         aria-controls={panelId}
         aria-expanded={showMedia}
-        className="flex items-center gap-2 text-sm font-heading font-semibold text-charcoal/50 hover:text-eagle-blue transition-colors cursor-pointer"
+        className="flex items-center gap-2 text-sm font-display font-semibold text-bhe-ink/50 hover:text-bhe-green transition-colors cursor-pointer"
         onClick={() => setShowMedia(!showMedia)}
         type="button"
       >
@@ -458,8 +446,8 @@ function ItemCard({
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
         <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-200">
-          <p className="text-white text-sm font-heading font-semibold">{item.title}</p>
-          {item.description && <p className="text-white/80 text-xs mt-0.5">{item.description}</p>}
+          <p className="text-white text-sm font-display font-semibold">{item.title}</p>
+          {item.description && <p className="text-bhe-on-green-muted text-xs mt-0.5">{item.description}</p>}
         </div>
       </button>
     );
@@ -468,12 +456,12 @@ function ItemCard({
   // PDF / Document card
   return (
     <a
-      className="group flex items-start gap-4 p-4 rounded-lg bg-charcoal/[0.02] border border-charcoal/10 hover:border-eagle-blue/30 hover:bg-eagle-blue/[0.03] transition-all duration-200"
+      className="group flex items-start gap-4 p-4 rounded-lg bg-charcoal/[0.02] border border-bhe-border/10 hover:border-bhe-green/30 hover:bg-bhe-green/[0.03] transition-all duration-200"
       href={fileUrl}
       rel="noopener noreferrer"
       target="_blank"
     >
-      <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-eagle-blue/10 text-eagle-blue shrink-0 group-hover:bg-eagle-blue group-hover:text-white transition-colors duration-200">
+      <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-bhe-green/10 text-bhe-green shrink-0 group-hover:bg-bhe-green group-hover:text-white transition-colors duration-200">
         {item.type === 'pdf' ? (
           <svg
             aria-hidden="true"
@@ -507,11 +495,11 @@ function ItemCard({
         )}
       </div>
       <div className="min-w-0">
-        <p className="text-sm font-heading font-semibold text-charcoal group-hover:text-eagle-blue transition-colors">
+        <p className="text-sm font-display font-semibold text-bhe-ink group-hover:text-bhe-green transition-colors">
           {item.title}
         </p>
-        {item.description && <p className="text-xs text-charcoal/60 mt-0.5">{item.description}</p>}
-        <p className="text-xs text-charcoal/40 mt-1 uppercase tracking-wide">
+        {item.description && <p className="text-xs text-bhe-ink/60 mt-0.5">{item.description}</p>}
+        <p className="text-xs text-bhe-ink/40 mt-1 uppercase tracking-wide">
           {item.type === 'pdf' ? 'PDF' : 'Document'}
         </p>
       </div>

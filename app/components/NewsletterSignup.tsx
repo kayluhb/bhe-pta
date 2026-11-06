@@ -1,8 +1,10 @@
 import {useState} from 'react';
+
+import {Container} from '~/components/ui/Container';
 import {useTurnstile} from '~/hooks/useTurnstile';
 
 type NewsletterSignupProps = {
-  variant?: 'full' | 'compact';
+  variant?: 'full' | 'compact' | 'sidebar';
 };
 
 export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
@@ -14,12 +16,27 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
     containerRef,
     reset,
   } = useTurnstile({
-    theme: variant === 'compact' ? 'dark' : 'light',
+    theme: variant === 'compact' || variant === 'sidebar' ? 'dark' : 'light',
   });
 
-  const emailId = variant === 'compact' ? 'newsletter-email-footer' : 'newsletter-email';
-  const errorId = variant === 'compact' ? 'subscribe-error-footer' : 'subscribe-error';
-  const hintId = variant === 'compact' ? 'newsletter-hint-footer' : 'newsletter-hint';
+  const emailId =
+    variant === 'compact'
+      ? 'newsletter-email-footer'
+      : variant === 'sidebar'
+        ? 'newsletter-email-sidebar'
+        : 'newsletter-email';
+  const errorId =
+    variant === 'compact'
+      ? 'subscribe-error-footer'
+      : variant === 'sidebar'
+        ? 'subscribe-error-sidebar'
+        : 'subscribe-error';
+  const hintId =
+    variant === 'compact'
+      ? 'newsletter-hint-footer'
+      : variant === 'sidebar'
+        ? 'newsletter-hint-sidebar'
+        : 'newsletter-hint';
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,19 +83,30 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
     reset();
   };
 
-  if (variant === 'compact') {
+  if (variant === 'compact' || variant === 'sidebar') {
+    const onGreen = variant === 'sidebar' || variant === 'compact';
     const describedBy = [!turnstileToken ? hintId : null, status === 'error' ? errorId : null]
       .filter(Boolean)
       .join(' ');
 
-    return (
-      <div>
-        <h3 className="text-white font-heading font-bold text-lg">Newsletter</h3>
-        <p className="mt-3 text-sm leading-relaxed text-white/80">
-          PTA events, meetings, and school updates in your inbox.
+    const inner = (
+      <>
+        <h3
+          className={
+            variant === 'sidebar'
+              ? 'font-display text-2xl font-extrabold text-bhe-on-green'
+              : 'text-[13px] font-bold uppercase tracking-[0.12em] text-bhe-gold'
+          }
+        >
+          {variant === 'sidebar' ? 'Never miss an event' : 'Newsletter'}
+        </h3>
+        <p className="mt-3 text-sm leading-relaxed text-bhe-on-green-muted">
+          {variant === 'sidebar'
+            ? 'PTA events, meetings, and school updates in your inbox.'
+            : 'PTA events, meetings, and school updates in your inbox.'}
         </p>
         {status === 'success' ? (
-          <p className="mt-4 text-sm text-spirit-gold font-medium" role="status">
+          <p className="mt-4 text-sm font-medium text-bhe-gold" role="status">
             {message}
           </p>
         ) : (
@@ -90,7 +118,7 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
               aria-describedby={describedBy || undefined}
               aria-invalid={status === 'error' ? true : undefined}
               aria-required="true"
-              className="w-full px-4 py-2.5 rounded-full border border-white/50 bg-white/20 text-white placeholder:text-white/70 focus:outline-none focus:border-spirit-gold focus:ring-2 focus:ring-spirit-gold"
+              className="w-full rounded-full border-2 border-bhe-on-green/40 bg-white/10 px-4 py-2.5 text-bhe-on-green placeholder:text-bhe-on-green-muted focus:border-bhe-gold focus:outline-none focus:ring-2 focus:ring-bhe-gold"
               disabled={status === 'submitting'}
               id={emailId}
               onChange={(e) => setEmail(e.target.value)}
@@ -106,14 +134,14 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
             )}
             <button
               aria-describedby={!turnstileToken ? hintId : undefined}
-              className="w-full bg-spirit-gold text-night-blue font-heading font-bold px-5 py-2.5 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors duration-200 motion-reduce:transition-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full min-h-11 rounded-full bg-bhe-gold px-5 py-2.5 font-bold text-bhe-green transition-colors hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50"
               disabled={status === 'submitting' || !turnstileToken}
               type="submit"
             >
               {status === 'submitting' ? 'Subscribing...' : 'Subscribe'}
             </button>
             {!turnstileToken && (
-              <p className="text-xs text-white/80" id={hintId}>
+              <p className="text-xs text-bhe-on-green-muted" id={hintId}>
                 Complete the security check below to enable Subscribe.
               </p>
             )}
@@ -123,99 +151,93 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
           </form>
         )}
         {status === 'error' && (
-          <p className="mt-2 text-sm text-red-300" id={errorId} role="alert">
+          <p className="mt-2 text-sm text-red-200" id={errorId} role="alert">
             {message}
           </p>
         )}
-      </div>
+      </>
     );
+
+    if (variant === 'sidebar') {
+      return <div className="rounded-panel bg-bhe-green p-6 text-bhe-on-green">{inner}</div>;
+    }
+
+    return <div className={onGreen ? '' : ''}>{inner}</div>;
   }
 
   return (
-    <section className="bg-warm-white py-16 md:py-24" id="newsletter-signup">
-      <div className="max-w-2xl mx-auto px-4">
-        <div className="rounded-lg bg-white p-8 text-center shadow-lg md:p-12">
-          <svg
-            aria-hidden="true"
-            className="mx-auto h-12 w-12 text-spirit-gold"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.5}
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <h2 className="mt-4 text-2xl md:text-3xl font-heading font-bold text-charcoal">
-            Newsletter Signup
-          </h2>
-          <p className="mt-3 text-charcoal/70 leading-relaxed">
-            Stay up to date with PTA events, meetings, and important school information.
-          </p>
-          {status === 'success' ? (
-            <div className="mt-8 p-4 bg-creek-green/10 rounded-lg" role="status">
-              <p className="text-creek-green font-medium">{message}</p>
-            </div>
-          ) : (
-            <form className="mt-8 space-y-4" onSubmit={handleSubscribe}>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <label className="sr-only" htmlFor={emailId}>
-                  Email address
-                </label>
-                <input
-                  aria-describedby={
-                    [!turnstileToken ? hintId : null, status === 'error' ? errorId : null]
-                      .filter(Boolean)
-                      .join(' ') || undefined
-                  }
-                  aria-invalid={status === 'error' ? true : undefined}
-                  aria-required="true"
-                  className="flex-1 px-5 py-3 rounded-full border border-charcoal/20 focus:outline-none focus:border-eagle-blue focus:ring-2 focus:ring-eagle-blue/20 text-charcoal placeholder:text-charcoal/70"
-                  disabled={status === 'submitting'}
-                  id={emailId}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email address"
-                  required
-                  type="email"
-                  value={email}
-                />
-                <button
-                  aria-describedby={!turnstileToken ? hintId : undefined}
-                  className="bg-spirit-gold text-night-blue font-heading font-bold px-8 py-3 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors duration-200 motion-reduce:transition-none shrink-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={status === 'submitting' || !turnstileToken}
-                  type="submit"
-                >
-                  {status === 'submitting' ? 'Subscribing...' : 'Subscribe'}
-                </button>
-              </div>
-              {status === 'submitting' && (
-                <p className="sr-only" role="status">
-                  Subscribing…
-                </p>
-              )}
-              {!turnstileToken && (
-                <p className="text-xs text-charcoal/70" id={hintId}>
-                  Complete the security check below to enable Subscribe.
-                </p>
-              )}
-              <section aria-label="Security verification" className="flex justify-center">
-                <div className="min-h-px" ref={containerRef} />
-              </section>
-            </form>
-          )}
-          {status === 'error' && (
-            <p className="mt-3 text-sm text-red-600" id={errorId} role="alert">
-              {message}
+    <section className="py-12 md:py-[88px]" id="newsletter-signup">
+      <Container>
+        <div className="rounded-panel bg-bhe-gold px-6 py-10 text-bhe-green md:px-12 md:py-12">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="font-display text-[30px] font-extrabold leading-tight tracking-[-0.02em] md:text-[44px]">
+              Get the Eagle Update
+            </h2>
+            <p className="mt-3 text-base leading-relaxed text-bhe-green/80 md:text-[17px]">
+              Stay up to date with PTA events, meetings, and important school information.
             </p>
-          )}
-          <p className="mt-4 text-xs text-charcoal/70">
-            We respect your privacy. Unsubscribe at any time.
-          </p>
+            {status === 'success' ? (
+              <div className="mt-8 rounded-card bg-bhe-paper/60 p-4" role="status">
+                <p className="font-medium">{message}</p>
+              </div>
+            ) : (
+              <form className="mt-8 space-y-4" onSubmit={handleSubscribe}>
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <label className="sr-only" htmlFor={emailId}>
+                    Email address
+                  </label>
+                  <input
+                    aria-describedby={
+                      [!turnstileToken ? hintId : null, status === 'error' ? errorId : null]
+                        .filter(Boolean)
+                        .join(' ') || undefined
+                    }
+                    aria-invalid={status === 'error' ? true : undefined}
+                    aria-required="true"
+                    className="min-h-11 flex-1 rounded-full border-2 border-bhe-green bg-white px-5 py-3 text-bhe-ink placeholder:text-bhe-muted focus:outline-none focus:ring-2 focus:ring-bhe-green/30"
+                    disabled={status === 'submitting'}
+                    id={emailId}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email address"
+                    required
+                    type="email"
+                    value={email}
+                  />
+                  <button
+                    aria-describedby={!turnstileToken ? hintId : undefined}
+                    className="min-h-11 shrink-0 rounded-full bg-bhe-green px-8 py-3 font-bold text-bhe-on-green transition-colors hover:bg-bhe-green-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={status === 'submitting' || !turnstileToken}
+                    type="submit"
+                  >
+                    {status === 'submitting' ? 'Subscribing...' : 'Subscribe'}
+                  </button>
+                </div>
+                {status === 'submitting' && (
+                  <p className="sr-only" role="status">
+                    Subscribing…
+                  </p>
+                )}
+                {!turnstileToken && (
+                  <p className="text-xs text-bhe-green/80" id={hintId}>
+                    Complete the security check below to enable Subscribe.
+                  </p>
+                )}
+                <section aria-label="Security verification" className="flex justify-center">
+                  <div className="min-h-px" ref={containerRef} />
+                </section>
+              </form>
+            )}
+            {status === 'error' && (
+              <p className="mt-3 text-sm text-bhe-error" id={errorId} role="alert">
+                {message}
+              </p>
+            )}
+            <p className="mt-4 text-xs text-bhe-green/70">
+              We respect your privacy. Unsubscribe at any time.
+            </p>
+          </div>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

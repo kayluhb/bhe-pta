@@ -60,7 +60,7 @@ export const links: Route.LinksFunction = () => [
   },
   {
     rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:wght@400;500;600;700&display=swap',
+    href: 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap',
   },
 ];
 
@@ -73,9 +73,9 @@ export function Layout({children}: {children: React.ReactNode}) {
         <Meta />
         <Links />
       </head>
-      <body className="font-body bg-warm-white text-charcoal">
+      <body className="bg-bhe-paper font-body text-bhe-ink">
         <a
-          className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-[100] focus:bg-spirit-gold focus:text-night-blue focus:px-4 focus:py-2 focus:font-bold"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-[100] focus:bg-bhe-gold focus:px-4 focus:py-2 focus:font-bold focus:text-bhe-green"
           href="#main-content"
         >
           Skip to main content

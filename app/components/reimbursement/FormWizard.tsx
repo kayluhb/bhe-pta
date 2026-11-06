@@ -8,7 +8,8 @@ import {ReceiptEntries} from './steps/ReceiptEntries';
 import {RequesterInfo} from './steps/RequesterInfo';
 import {ReviewSubmit} from './steps/ReviewSubmit';
 
-const STEPS = ['Request Info', 'Receipts', 'Budget', 'Review'];
+const STEPS = ['Request info', 'Receipts', 'Budget', 'Review'];
+const PHONE_STEPS = ['Info', 'Receipts', 'Budget', 'Review'];
 const HELP_SEEN_KEY = 'bhe-reimbursement-info-seen';
 
 export function FormWizard() {
@@ -28,6 +29,7 @@ export function FormWizard() {
     updateBudget,
     nextStep,
     prevStep,
+    goToStep,
     getReceiptBudgetAccount,
     fileError,
   } = useFormState();
@@ -104,12 +106,11 @@ export function FormWizard() {
   }, [closeHelp]);
 
   return (
-    <div className="max-w-2xl mx-auto">
-      {/* Help dialog */}
+    <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
       <dialog
         aria-describedby="help-dialog-desc"
         aria-labelledby="help-dialog-title"
-        className="max-w-lg w-full m-auto rounded-lg border border-charcoal/10 bg-white p-0 shadow-xl backdrop:bg-black/40 backdrop:backdrop-blur-sm"
+        className="m-auto w-full max-w-lg rounded-panel border border-bhe-border bg-bhe-card p-0 shadow-form backdrop:bg-black/40 backdrop:backdrop-blur-sm"
         onClick={(e) => {
           if (e.target === e.currentTarget) closeHelp();
         }}
@@ -122,12 +123,15 @@ export function FormWizard() {
       >
         <div className="p-6" role="document">
           <div className="flex items-start justify-between">
-            <h2 className="font-heading text-lg font-semibold text-charcoal" id="help-dialog-title">
+            <h2
+              className="font-display text-lg font-bold text-bhe-ink"
+              id="help-dialog-title"
+            >
               Check Request / Reimbursement
             </h2>
             <button
               aria-label="Close dialog"
-              className="ml-4 shrink-0 rounded-full p-1 text-charcoal/50 hover:bg-charcoal/5 hover:text-charcoal transition-colors"
+              className="ml-4 shrink-0 rounded-full p-1 text-bhe-muted hover:bg-bhe-paper-2 hover:text-bhe-ink"
               onClick={closeHelp}
               ref={closeButtonRef}
               type="button"
@@ -145,26 +149,21 @@ export function FormWizard() {
             </button>
           </div>
           <div id="help-dialog-desc">
-            <p className="mt-3 text-charcoal/80">
+            <p className="mt-3 text-bhe-body">
               Use this form to request reimbursement for PTA-related purchases. Submit everything
-              online—no need to print or drop anything off. You'll get a confirmation email after
+              online—no need to print or drop anything off. You&apos;ll get a confirmation email after
               submitting.
             </p>
-            <ul className="mt-4 list-inside list-disc space-y-1 text-sm text-charcoal/80">
+            <ul className="mt-4 list-inside list-disc space-y-1 text-sm text-bhe-muted">
               <li>
                 <strong>Sales tax is not reimbursed</strong>—do not include it in your amounts.
               </li>
-              <li>
-                You may include up to four items per request. Submit another request for more.
-              </li>
-              <li>
-                On the Receipts step, use the upload under each line to attach a photo or scan
-                (optional per line). Each upload is added to the list for that line.
-              </li>
+              <li>Attach photos or PDFs of receipts (up to 10 files).</li>
+              <li>Only PTA-approved expenses qualify.</li>
             </ul>
           </div>
           <button
-            className="mt-6 w-full rounded-lg bg-eagle-blue px-4 py-2.5 font-heading font-semibold text-white hover:bg-eagle-blue/90 transition-colors"
+            className="mt-6 w-full rounded-full bg-bhe-green px-4 py-2.5 font-bold text-bhe-on-green hover:bg-bhe-green-2"
             onClick={closeHelp}
             type="button"
           >
@@ -173,68 +172,114 @@ export function FormWizard() {
         </div>
       </dialog>
 
-      <FormProgress currentStep={currentStep} steps={STEPS} />
+      <div className="min-w-0 flex-[999_1_560px]">
+        {currentStep === 1 ? (
+          <div className="mb-4 flex items-center justify-between rounded-card bg-bhe-green px-4 py-3 text-bhe-on-green md:hidden">
+            <span className="text-sm font-bold">
+              {state.receipts.length} receipt{state.receipts.length === 1 ? '' : 's'} · step 2 of 4
+            </span>
+            <span className="font-display text-2xl font-extrabold">
+              ${totalAmount.toFixed(2)}
+            </span>
+          </div>
+        ) : null}
 
-      <div aria-live="polite" className="sr-only" role="status">
-        Step {currentStep + 1} of {STEPS.length}: {STEPS[currentStep]}
+        <FormProgress
+          currentStep={currentStep}
+          onStepSelect={goToStep}
+          phoneSteps={PHONE_STEPS}
+          steps={STEPS}
+        />
+
+        <div aria-live="polite" className="sr-only" role="status">
+          Step {currentStep + 1} of {STEPS.length}: {STEPS[currentStep]}
+        </div>
+
+        {currentStep === 0 && (
+          <RequesterInfo
+            data={state.requester}
+            onChange={updateRequester}
+            onNext={nextStep}
+            onShowHelp={() => setShowHelp(true)}
+          />
+        )}
+
+        {currentStep === 1 && (
+          <ReceiptEntries
+            fileError={fileError}
+            filesByReceipt={state.filesByReceipt}
+            onAdd={addReceipt}
+            onAppendReceiptFiles={appendReceiptFiles}
+            onBack={prevStep}
+            onNext={nextStep}
+            onRemove={removeReceipt}
+            onRemoveFileFromReceipt={removeFileFromReceipt}
+            onResetTurnstile={resetTurnstile}
+            onUpdate={updateReceipt}
+            payableTo={state.requester.payableTo}
+            receipts={state.receipts}
+            reimbursementDraftId={state.reimbursementDraftId}
+            totalAmount={totalAmount}
+            turnstileToken={turnstileToken}
+          />
+        )}
+
+        {currentStep === 2 && (
+          <BudgetAccount
+            budget={state.budget}
+            onBack={prevStep}
+            onNext={nextStep}
+            onUpdateBudget={updateBudget}
+            onUpdateReceipt={updateReceipt}
+            receipts={state.receipts}
+            turnstileToken={turnstileToken}
+          />
+        )}
+
+        {currentStep === 3 && (
+          <ReviewSubmit
+            data={state}
+            getReceiptBudgetAccount={getReceiptBudgetAccount}
+            onBack={prevStep}
+            onResetTurnstile={resetTurnstile}
+            onSubmit={handleSubmit}
+            totalAmount={totalAmount}
+            turnstileToken={turnstileToken}
+          />
+        )}
+
+        <div className="mt-6 flex justify-center">
+          <div ref={turnstileRef} />
+        </div>
       </div>
 
-      {currentStep === 0 && (
-        <RequesterInfo
-          data={state.requester}
-          onChange={updateRequester}
-          onNext={nextStep}
-          onShowHelp={() => setShowHelp(true)}
-        />
-      )}
-
-      {currentStep === 1 && (
-        <ReceiptEntries
-          fileError={fileError}
-          filesByReceipt={state.filesByReceipt}
-          onAdd={addReceipt}
-          onAppendReceiptFiles={appendReceiptFiles}
-          onBack={prevStep}
-          onNext={nextStep}
-          onRemove={removeReceipt}
-          onRemoveFileFromReceipt={removeFileFromReceipt}
-          onResetTurnstile={resetTurnstile}
-          onUpdate={updateReceipt}
-          payableTo={state.requester.payableTo}
-          receipts={state.receipts}
-          reimbursementDraftId={state.reimbursementDraftId}
-          totalAmount={totalAmount}
-          turnstileToken={turnstileToken}
-        />
-      )}
-
-      {currentStep === 2 && (
-        <BudgetAccount
-          budget={state.budget}
-          onBack={prevStep}
-          onNext={nextStep}
-          onUpdateBudget={updateBudget}
-          onUpdateReceipt={updateReceipt}
-          receipts={state.receipts}
-          turnstileToken={turnstileToken}
-        />
-      )}
-
-      {currentStep === 3 && (
-        <ReviewSubmit
-          data={state}
-          getReceiptBudgetAccount={getReceiptBudgetAccount}
-          onBack={prevStep}
-          onResetTurnstile={resetTurnstile}
-          onSubmit={handleSubmit}
-          totalAmount={totalAmount}
-          turnstileToken={turnstileToken}
-        />
-      )}
-
-      <div className="flex justify-center mt-6">
-        <div ref={turnstileRef} />
-      </div>
+      <aside className="hidden w-full flex-[1_1_300px] flex-col gap-5 lg:flex lg:max-w-sm">
+        <div className="rounded-panel bg-bhe-green p-6 text-bhe-on-green">
+          <p className="text-[13px] font-bold uppercase tracking-[0.12em] text-bhe-gold">
+            Your request
+          </p>
+          <p className="mt-2 font-display text-4xl font-extrabold">${totalAmount.toFixed(2)}</p>
+          <p className="mt-2 text-sm text-bhe-on-green-muted">
+            {state.receipts.length} receipt{state.receipts.length === 1 ? '' : 's'} · step{' '}
+            {currentStep + 1} of 4
+          </p>
+        </div>
+        <div className="rounded-card border border-bhe-border bg-bhe-card p-6">
+          <h2 className="font-display text-lg font-bold text-bhe-ink">Before you start</h2>
+          <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-bhe-muted">
+            <li>Photos or PDFs of receipts (up to 10 files)</li>
+            <li>Amounts before sales tax, which can&apos;t be reimbursed</li>
+            <li>The PTA budget account</li>
+            <li>Only PTA-approved expenses qualify</li>
+          </ul>
+          <p className="mt-4 text-sm text-bhe-muted">
+            Questions?{' '}
+            <a className="font-bold text-bhe-green hover:underline" href="mailto:pta@bheeagles.com">
+              Email pta@bheeagles.com
+            </a>
+          </p>
+        </div>
+      </aside>
     </div>
   );
 }

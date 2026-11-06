@@ -19,45 +19,33 @@ export default function Contact() {
   return (
     <div>
       {/* ── 1. Page Banner ───────────────────────────────────────────────── */}
-      <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-[0.05]"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)',
-          }}
-        />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white">
-            Contact Us
-          </h1>
-          <p className="mt-4 text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
-            Stay connected with Barton Hills Elementary PTA
-          </p>
-          <div className="mt-6 h-1 w-20 bg-spirit-gold rounded-full mx-auto" />
+      <section className="border-b border-bhe-border bg-bhe-paper py-12 md:py-16">
+        <div className="mx-auto max-w-container px-4 md:px-6">
+          <h1 className="font-display text-[36px] font-extrabold tracking-[-0.03em] text-bhe-ink md:text-[48px]">Contact Us</h1>
+          <p className="mt-4 max-w-2xl text-[17px] text-bhe-body">Stay connected with Barton Hills Elementary PTA</p>
         </div>
       </section>
 
       {/* ── 2. Contact Details ───────────────────────────────────────────── */}
-      <section className="bg-warm-white py-16 md:py-24">
+      <section className="bg-bhe-paper py-16 md:py-24">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-bhe-ink">
               Contact Details
             </h2>
-            <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
+            <div className="mt-3 h-1 w-16 bg-bhe-gold rounded-full mx-auto" />
           </div>
 
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-charcoal/10">
               {/* Left: Address & Hours */}
               <div className="p-8 md:p-10">
-                <h3 className="font-heading font-bold text-lg text-charcoal mb-6">
+                <h3 className="font-display font-bold text-lg text-bhe-ink mb-6">
                   School Information
                 </h3>
                 <div className="space-y-5">
                   <div className="flex items-start gap-4">
-                    <div className="shrink-0 h-10 w-10 rounded-lg bg-eagle-blue/10 flex items-center justify-center text-eagle-blue">
+                    <div className="shrink-0 h-10 w-10 rounded-lg bg-bhe-green/10 flex items-center justify-center text-bhe-green">
                       <svg
                         aria-hidden="true"
                         className="h-5 w-5"
@@ -79,8 +67,8 @@ export default function Contact() {
                       </svg>
                     </div>
                     <div>
-                      <p className="font-heading font-bold text-charcoal">Address</p>
-                      <p className="text-charcoal/70 mt-1">
+                      <p className="font-display font-bold text-bhe-ink">Address</p>
+                      <p className="text-bhe-ink/70 mt-1">
                         2108 Barton Hills Drive
                         <br />
                         Austin, TX 78704
@@ -89,7 +77,7 @@ export default function Contact() {
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <div className="shrink-0 h-10 w-10 rounded-lg bg-eagle-blue/10 flex items-center justify-center text-eagle-blue">
+                    <div className="shrink-0 h-10 w-10 rounded-lg bg-bhe-green/10 flex items-center justify-center text-bhe-green">
                       <svg
                         aria-hidden="true"
                         className="h-5 w-5"
@@ -106,8 +94,8 @@ export default function Contact() {
                       </svg>
                     </div>
                     <div>
-                      <p className="font-heading font-bold text-charcoal">School Hours</p>
-                      <p className="text-charcoal/70 mt-1">7:40 a.m. - 3:10 p.m.</p>
+                      <p className="font-display font-bold text-bhe-ink">School Hours</p>
+                      <p className="text-bhe-ink/70 mt-1">7:40 a.m. - 3:10 p.m.</p>
                     </div>
                   </div>
                 </div>
@@ -115,10 +103,10 @@ export default function Contact() {
 
               {/* Right: Phone, Fax, Email */}
               <div className="p-8 md:p-10">
-                <h3 className="font-heading font-bold text-lg text-charcoal mb-6">Get in Touch</h3>
+                <h3 className="font-display font-bold text-lg text-bhe-ink mb-6">Get in Touch</h3>
                 <div className="space-y-5">
                   <div className="flex items-start gap-4">
-                    <div className="shrink-0 h-10 w-10 rounded-lg bg-eagle-blue/10 flex items-center justify-center text-eagle-blue">
+                    <div className="shrink-0 h-10 w-10 rounded-lg bg-bhe-green/10 flex items-center justify-center text-bhe-green">
                       <svg
                         aria-hidden="true"
                         className="h-5 w-5"
@@ -135,9 +123,9 @@ export default function Contact() {
                       </svg>
                     </div>
                     <div>
-                      <p className="font-heading font-bold text-charcoal">Phone</p>
+                      <p className="font-display font-bold text-bhe-ink">Phone</p>
                       <a
-                        className="text-eagle-blue hover:text-spirit-gold transition-colors mt-1 inline-block"
+                        className="text-bhe-green hover:text-bhe-gold transition-colors mt-1 inline-block"
                         href="tel:+15124142013"
                       >
                         (512) 414-2013
@@ -146,7 +134,7 @@ export default function Contact() {
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <div className="shrink-0 h-10 w-10 rounded-lg bg-eagle-blue/10 flex items-center justify-center text-eagle-blue">
+                    <div className="shrink-0 h-10 w-10 rounded-lg bg-bhe-green/10 flex items-center justify-center text-bhe-green">
                       <svg
                         aria-hidden="true"
                         className="h-5 w-5"
@@ -163,13 +151,13 @@ export default function Contact() {
                       </svg>
                     </div>
                     <div>
-                      <p className="font-heading font-bold text-charcoal">Fax</p>
-                      <p className="text-charcoal/70 mt-1">(512) 841-3849</p>
+                      <p className="font-display font-bold text-bhe-ink">Fax</p>
+                      <p className="text-bhe-ink/70 mt-1">(512) 841-3849</p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <div className="shrink-0 h-10 w-10 rounded-lg bg-eagle-blue/10 flex items-center justify-center text-eagle-blue">
+                    <div className="shrink-0 h-10 w-10 rounded-lg bg-bhe-green/10 flex items-center justify-center text-bhe-green">
                       <svg
                         aria-hidden="true"
                         className="h-5 w-5"
@@ -186,21 +174,21 @@ export default function Contact() {
                       </svg>
                     </div>
                     <div>
-                      <p className="font-heading font-bold text-charcoal">Email</p>
+                      <p className="font-display font-bold text-bhe-ink">Email</p>
                       <a
-                        className="text-eagle-blue hover:text-spirit-gold transition-colors mt-1 inline-block"
+                        className="text-bhe-green hover:text-bhe-gold transition-colors mt-1 inline-block"
                         href="mailto:bhe@austinisd.org"
                       >
                         bhe@austinisd.org
                       </a>
                       <br />
                       <a
-                        className="text-eagle-blue hover:text-spirit-gold transition-colors inline-block"
+                        className="text-bhe-green hover:text-bhe-gold transition-colors inline-block"
                         href="mailto:pta@bheeagles.com"
                       >
                         pta@bheeagles.com
                       </a>
-                      <span className="text-charcoal/70 text-sm ml-1">(PTA)</span>
+                      <span className="text-bhe-ink/70 text-sm ml-1">(PTA)</span>
                     </div>
                   </div>
                 </div>
@@ -214,32 +202,32 @@ export default function Contact() {
       <section className="bg-white py-16 md:py-24">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">Follow Us</h2>
-            <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-bhe-ink">Follow Us</h2>
+            <div className="mt-3 h-1 w-16 bg-bhe-gold rounded-full mx-auto" />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Facebook */}
             <a
-              className="group flex items-center gap-5 rounded-lg bg-warm-white p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+              className="group flex items-center gap-5 rounded-lg bg-bhe-paper p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
               href="https://www.facebook.com/bartonhillspta/"
               rel="noopener noreferrer"
               target="_blank"
             >
-              <div className="shrink-0 h-14 w-14 rounded-full bg-eagle-blue flex items-center justify-center text-white">
+              <div className="shrink-0 h-14 w-14 rounded-full bg-bhe-green flex items-center justify-center text-white">
                 <svg aria-hidden="true" className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
               </div>
               <div>
-                <h3 className="font-heading font-bold text-lg text-charcoal group-hover:text-eagle-blue transition-colors">
+                <h3 className="font-display font-bold text-lg text-bhe-ink group-hover:text-bhe-green transition-colors">
                   Facebook
                 </h3>
-                <p className="text-sm text-charcoal/70">@bartonhillspta</p>
+                <p className="text-sm text-bhe-ink/70">@bartonhillspta</p>
               </div>
               <svg
                 aria-hidden="true"
-                className="h-5 w-5 text-charcoal/30 group-hover:text-eagle-blue transition-colors ml-auto shrink-0"
+                className="h-5 w-5 text-bhe-ink/30 group-hover:text-bhe-green transition-colors ml-auto shrink-0"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth={2}
@@ -256,7 +244,7 @@ export default function Contact() {
 
             {/* Instagram */}
             <a
-              className="group flex items-center gap-5 rounded-lg bg-warm-white p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+              className="group flex items-center gap-5 rounded-lg bg-bhe-paper p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
               href="https://www.instagram.com/bartonhillspta/"
               rel="noopener noreferrer"
               target="_blank"
@@ -267,14 +255,14 @@ export default function Contact() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-heading font-bold text-lg text-charcoal group-hover:text-eagle-blue transition-colors">
+                <h3 className="font-display font-bold text-lg text-bhe-ink group-hover:text-bhe-green transition-colors">
                   Instagram
                 </h3>
-                <p className="text-sm text-charcoal/70">@bartonhillspta (PTA)</p>
+                <p className="text-sm text-bhe-ink/70">@bartonhillspta (PTA)</p>
               </div>
               <svg
                 aria-hidden="true"
-                className="h-5 w-5 text-charcoal/30 group-hover:text-eagle-blue transition-colors ml-auto shrink-0"
+                className="h-5 w-5 text-bhe-ink/30 group-hover:text-bhe-green transition-colors ml-auto shrink-0"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth={2}
@@ -291,7 +279,7 @@ export default function Contact() {
 
             {/* BHE School Instagram */}
             <a
-              className="group flex items-center gap-5 rounded-lg bg-warm-white p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+              className="group flex items-center gap-5 rounded-lg bg-bhe-paper p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
               href="https://www.instagram.com/bheeagles/"
               rel="noopener noreferrer"
               target="_blank"
@@ -302,14 +290,14 @@ export default function Contact() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-heading font-bold text-lg text-charcoal group-hover:text-eagle-blue transition-colors">
+                <h3 className="font-display font-bold text-lg text-bhe-ink group-hover:text-bhe-green transition-colors">
                   BHE on Instagram
                 </h3>
-                <p className="text-sm text-charcoal/70">@bheeagles (School)</p>
+                <p className="text-sm text-bhe-ink/70">@bheeagles (School)</p>
               </div>
               <svg
                 aria-hidden="true"
-                className="h-5 w-5 text-charcoal/30 group-hover:text-eagle-blue transition-colors ml-auto shrink-0"
+                className="h-5 w-5 text-bhe-ink/30 group-hover:text-bhe-green transition-colors ml-auto shrink-0"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth={2}
