@@ -62,15 +62,24 @@ RULES:
 
     const userPrompt = `Suggest budget accounts for these receipts:\n${receiptDescriptions}`;
 
-    const result = await env.AI.run('@cf/moonshotai/kimi-k2.6', {
+    // kimi-k2.6 is deprecated on Workers AI from 2026-11-20; glm-5.3 is Cloudflare's suggested
+    // frontier replacement. Thinking is off: its tokens count against max_tokens, and picking an
+    // account from a list doesn't need it.
+    // glm-5.3 isn't in the generated Workers AI model map yet, so call through the untyped shape.
+    const ai = env.AI as unknown as {run: (model: string, input: object) => Promise<unknown>};
+    const result = await ai.run('@cf/zai-org/glm-5.3', {
       messages: [
         {role: 'system', content: systemPrompt},
         {role: 'user', content: userPrompt},
       ],
       max_tokens: 512,
+      chat_template_kwargs: {enable_thinking: false},
     });
 
-    const responseText = (result as {response?: string}).response ?? '';
+    // Current Workers AI chat models reply in the OpenAI shape (`choices[0].message.content`);
+    // only legacy models use `response`.
+    const reply = result as {choices?: {message?: {content?: string | null}}[]; response?: string};
+    const responseText = reply.choices?.[0]?.message?.content ?? reply.response ?? '';
 
     // Extract JSON from the response (handle markdown code blocks)
     const jsonMatch = responseText.match(/\[[\s\S]*\]/);
