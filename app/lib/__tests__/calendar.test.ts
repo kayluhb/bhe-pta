@@ -122,7 +122,7 @@ describe('calendar', () => {
 });
 
 describe('sanitizeEventDescription', () => {
-  it('keeps the first meaningful line and strips URLs', () => {
+  it('keeps the first meaningful line and drops Google Docs link farms', () => {
     expect(
       sanitizeEventDescription(
         'Body \n\nNational Hispanic Heritage Month\n[https://docs.google.com/document/d/abc]\nMore',
@@ -130,8 +130,24 @@ describe('sanitizeEventDescription', () => {
     ).toBe('National Hispanic Heritage Month');
   });
 
-  it('returns undefined when only links remain', () => {
-    expect(sanitizeEventDescription('[https://example.com/a]')).toBeUndefined();
+  it('keeps a non-Docs URL as a clickable here link with the first line', () => {
+    expect(
+      sanitizeEventDescription(
+        'Purchase your BHE Thanksgiving lunch tickets here\nhttps://example.com/lunch',
+      ),
+    ).toBe(
+      'Purchase your BHE Thanksgiving lunch tickets here <a href="https://example.com/lunch" rel="noopener noreferrer" target="_blank">here</a>',
+    );
+  });
+
+  it('returns a lone safe URL as a link', () => {
+    expect(sanitizeEventDescription('https://example.com/a')).toBe(
+      '<a href="https://example.com/a" rel="noopener noreferrer" target="_blank">Open link</a>',
+    );
+  });
+
+  it('returns undefined when only Docs leftovers remain', () => {
+    expect(sanitizeEventDescription('[https://docs.google.com/document/d/abc]')).toBeUndefined();
   });
 
   it('drops already-mangled protocol-relative Google Docs leftovers', () => {
