@@ -9,11 +9,17 @@ export const EVENT_FILTERS: {id: EventFilterId; label: string}[] = [
   {id: 'prospective', label: 'Prospective families'},
 ];
 
+/** Shared haystack matchers — keep tag chips and filter chips in sync. */
+export const PROSPECTIVE_EVENT_PATTERN =
+  /prospective|\btour\b|future\s*famil|campus\s*tour|open\s*house/i;
+export const PTA_MEETING_PATTERN = /pta\s*meeting|cac\s*meeting|advisory\s+council/i;
+
 /** Map a calendar category string onto a public filter chip. */
 export function filterIdForCategory(category: string): Exclude<EventFilterId, 'all'> {
-  const c = category.toLowerCase();
-  if (/prospective|tour|future famil/.test(c)) return 'prospective';
-  if (/pta\s*meeting|cac meeting|advisory/.test(c) || c === 'pta meeting') return 'pta';
+  if (PROSPECTIVE_EVENT_PATTERN.test(category)) return 'prospective';
+  if (PTA_MEETING_PATTERN.test(category) || category.toLowerCase() === 'pta meeting') {
+    return 'pta';
+  }
   // Unknown and community-adjacent categories stay visible under Community / All
   return 'community';
 }
@@ -29,18 +35,13 @@ export function eventMatchesFilter(
   filter: EventFilterId,
 ): boolean {
   if (filter === 'all') return true;
-  const haystack = `${event.category} ${event.title ?? ''}`.toLowerCase();
-  if (filter === 'prospective') {
-    return /prospective|tour|future famil|campus tour/.test(haystack);
-  }
-  if (filter === 'pta') {
-    return /pta\s*meeting|cac meeting|advisory council/.test(haystack);
-  }
+  const haystack = `${event.category} ${event.title ?? ''}`;
+  const isProspective = PROSPECTIVE_EVENT_PATTERN.test(haystack);
+  const isPtaMeeting = PTA_MEETING_PATTERN.test(haystack);
+  if (filter === 'prospective') return isProspective;
+  if (filter === 'pta') return isPtaMeeting;
   // Community chip: not prospective and not PTA meeting
-  return (
-    !/prospective|tour|future famil|campus tour/.test(haystack) &&
-    !/pta\s*meeting|cac meeting|advisory council/.test(haystack)
-  );
+  return !isProspective && !isPtaMeeting;
 }
 
 export function labelForCategory(category: string): string {

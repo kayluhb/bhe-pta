@@ -17,10 +17,27 @@ const quickLinks = [
 
 const columnLabel = 'text-[13px] font-bold uppercase tracking-[0.12em] text-bhe-gold';
 
+const NEWSLETTER_HIDDEN_PATHS = ['/', '/contact', '/events'];
+
+const socialLinks = [
+  {
+    href: 'https://www.facebook.com/groups/529482027464718/',
+    label: 'Facebook group',
+  },
+  {
+    href: 'https://www.instagram.com/bartonhillspta/',
+    label: 'Instagram @bartonhillspta',
+  },
+  {
+    href: 'https://www.instagram.com/bheeagles/',
+    label: 'Instagram @bheeagles',
+  },
+];
+
 export function Footer() {
   const {pathname} = useLocation();
-  // Full signup already on home and contact — avoid a second Turnstile widget.
-  const showNewsletter = pathname !== '/' && pathname !== '/contact' && pathname !== '/events';
+  // Full signup already on home, contact and events — avoid a second Turnstile widget.
+  const showNewsletter = !NEWSLETTER_HIDDEN_PATHS.includes(pathname);
 
   return (
     <footer className="relative overflow-hidden bg-bhe-green pt-[72px] text-[15px] text-bhe-on-green-muted">
@@ -72,7 +89,7 @@ export function Footer() {
               {quickLinks.map((link) => (
                 <li key={link.to}>
                   <Link
-                    className="inline-flex min-h-11 items-center py-2.5 hover:text-bhe-gold md:min-h-0 md:py-1"
+                    className="inline-flex min-h-11 items-center py-2.5 hover:text-bhe-gold"
                     to={link.to}
                   >
                     {link.label}
@@ -85,36 +102,18 @@ export function Footer() {
           <div className="min-w-[180px] flex-1">
             <h3 className={columnLabel}>Follow</h3>
             <ul className="mt-3 space-y-2">
-              <li>
-                <a
-                  className="hover:text-bhe-gold"
-                  href="https://www.facebook.com/groups/529482027464718/"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  Facebook group
-                </a>
-              </li>
-              <li>
-                <a
-                  className="hover:text-bhe-gold"
-                  href="https://www.instagram.com/bartonhillspta/"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  Instagram @bartonhillspta
-                </a>
-              </li>
-              <li>
-                <a
-                  className="hover:text-bhe-gold"
-                  href="https://www.instagram.com/bheeagles/"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  Instagram @bheeagles
-                </a>
-              </li>
+              {socialLinks.map((social) => (
+                <li key={social.href}>
+                  <a
+                    className="hover:text-bhe-gold"
+                    href={social.href}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    {social.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 

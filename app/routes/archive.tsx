@@ -214,12 +214,12 @@ function YearSection({
               {yearData.year}
             </h2>
             {yearData.description && (
-              <p className="text-sm text-bhe-ink/60 mt-0.5">{yearData.description}</p>
+              <p className="text-sm text-bhe-muted mt-0.5">{yearData.description}</p>
             )}
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-xs font-medium text-bhe-ink/40">
+          <span className="text-xs font-medium text-bhe-muted">
             {postCount > 0 && (
               <>
                 {postCount} {postCount === 1 ? 'post' : 'posts'}
@@ -234,7 +234,7 @@ function YearSection({
           </span>
           <svg
             aria-hidden="true"
-            className={`h-5 w-5 text-bhe-ink/40 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+            className={`h-5 w-5 text-bhe-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
             fill="none"
             stroke="currentColor"
             strokeWidth={2}
@@ -298,7 +298,7 @@ function PostCard({post}: {post: ArchivePost}) {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 mb-1">
-              <time className="text-xs font-medium text-bhe-ink/50" dateTime={post.date}>
+              <time className="text-xs font-medium text-bhe-muted" dateTime={post.date}>
                 {formatPostDate(post.date)}
               </time>
               {post.category && post.category !== 'News' && (
@@ -311,14 +311,14 @@ function PostCard({post}: {post: ArchivePost}) {
               {post.title}
             </h3>
             {!expanded && post.excerpt && (
-              <p className="mt-1.5 text-sm text-bhe-ink/60 line-clamp-2 leading-relaxed">
+              <p className="mt-1.5 text-sm text-bhe-muted line-clamp-2 leading-relaxed">
                 {post.excerpt}
               </p>
             )}
           </div>
           <svg
             aria-hidden="true"
-            className={`h-4 w-4 text-bhe-ink/30 shrink-0 mt-1.5 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+            className={`h-4 w-4 text-bhe-muted shrink-0 mt-1.5 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
             fill="none"
             stroke="currentColor"
             strokeWidth={2}
@@ -366,7 +366,7 @@ function MediaSection({
       <button
         aria-controls={panelId}
         aria-expanded={showMedia}
-        className="flex items-center gap-2 text-sm font-display font-semibold text-bhe-ink/50 hover:text-bhe-green transition-colors cursor-pointer"
+        className="flex items-center gap-2 text-sm font-display font-semibold text-bhe-muted hover:text-bhe-green transition-colors cursor-pointer"
         onClick={() => setShowMedia(!showMedia)}
         type="button"
       >
@@ -442,8 +442,8 @@ function ItemCard({
             src={thumbUrl}
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-        <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-200">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200" />
+        <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100 transition-all duration-200">
           <p className="text-white text-sm font-display font-semibold">{item.title}</p>
           {item.description && (
             <p className="text-bhe-on-green-muted text-xs mt-0.5">{item.description}</p>
@@ -498,8 +498,8 @@ function ItemCard({
         <p className="text-sm font-display font-semibold text-bhe-ink group-hover:text-bhe-green transition-colors">
           {item.title}
         </p>
-        {item.description && <p className="text-xs text-bhe-ink/60 mt-0.5">{item.description}</p>}
-        <p className="text-xs text-bhe-ink/40 mt-1 uppercase tracking-wide">
+        {item.description && <p className="text-xs text-bhe-muted mt-0.5">{item.description}</p>}
+        <p className="text-xs text-bhe-muted mt-1 uppercase tracking-wide">
           {item.type === 'pdf' ? 'PDF' : 'Document'}
         </p>
       </div>

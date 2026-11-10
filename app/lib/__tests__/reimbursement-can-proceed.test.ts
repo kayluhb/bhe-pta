@@ -39,11 +39,34 @@ describe('canProceedToNext', () => {
         payableTo: '',
       },
     });
-    expect(canProceedToNext(0, state, false)).toBe(false);
+    expect(canProceedToNext(0, state)).toBe(false);
   });
 
-  it('requires sales-tax confirmation and positive amounts on step 1', () => {
-    expect(canProceedToNext(1, baseState(), false)).toBe(false);
-    expect(canProceedToNext(1, baseState(), true)).toBe(true);
+  it('allows step 0 when required requester fields are present', () => {
+    expect(canProceedToNext(0, baseState())).toBe(true);
+  });
+
+  it('requires receipts with positive amounts on step 1', () => {
+    expect(canProceedToNext(1, baseState())).toBe(true);
+    expect(canProceedToNext(1, baseState({receipts: []}))).toBe(false);
+    expect(
+      canProceedToNext(
+        1,
+        baseState({
+          receipts: [{...baseState().receipts[0], amount: 0}],
+        }),
+      ),
+    ).toBe(false);
+  });
+
+  it('requires a primary budget account on step 2', () => {
+    expect(canProceedToNext(2, baseState())).toBe(true);
+    expect(
+      canProceedToNext(2, baseState({budget: {primaryAccount: '', splitAccounts: false}})),
+    ).toBe(false);
+  });
+
+  it('allows review step', () => {
+    expect(canProceedToNext(3, baseState())).toBe(true);
   });
 });

@@ -9,8 +9,8 @@ describe('design tokens', () => {
       '--color-bhe-green: #173D2E',
       '--color-bhe-gold: #F3B23C',
       '--color-bhe-paper: #F6F1E7',
-      '--font-family-display:',
-      '--font-family-body:',
+      '--font-display:',
+      '--font-body:',
       'Bricolage Grotesque',
       'Figtree',
     ]) {

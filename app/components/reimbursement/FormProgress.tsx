@@ -28,6 +28,7 @@ export function FormProgress({
             >
               <div className="flex flex-col items-center">
                 <button
+                  aria-label={`${done ? 'Completed' : current ? 'Current' : 'Upcoming'}: ${labels[index] ?? step}`}
                   className={[
                     'flex h-11 w-11 items-center justify-center rounded-full border-2 text-sm font-bold transition-colors md:h-12 md:w-12',
                     done

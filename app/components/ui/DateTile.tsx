@@ -19,7 +19,6 @@ const dayClass = {
 export function DateTile({day, label, size = 'md'}: DateTileProps) {
   return (
     <div
-      aria-hidden="true"
       className={`flex shrink-0 flex-col items-center justify-center rounded-tile bg-bhe-green text-bhe-on-green ${sizeClass[size]}`}
     >
       <span className="font-bold uppercase tracking-[0.12em] text-bhe-gold">{label}</span>

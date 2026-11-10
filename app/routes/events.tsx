@@ -152,6 +152,11 @@ export default function EventsPage() {
             );
           })}
         </div>
+        <p aria-live="polite" className="sr-only" role="status">
+          {upcoming.length === 0
+            ? 'No upcoming events match this filter.'
+            : `${upcoming.length} upcoming event${upcoming.length === 1 ? '' : 's'} shown.`}
+        </p>
 
         <div className="mt-10 flex flex-col gap-10 lg:flex-row">
           <div className="min-w-0 flex-[999_1_560px] space-y-10">

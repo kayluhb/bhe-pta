@@ -151,7 +151,7 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
           </form>
         )}
         {status === 'error' && (
-          <p className="mt-2 text-sm text-red-200" id={errorId} role="alert">
+          <p className="mt-2 text-sm text-bhe-gold" id={errorId} role="alert">
             {message}
           </p>
         )}
@@ -173,7 +173,7 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
             <h2 className="font-display text-[30px] font-extrabold leading-tight tracking-[-0.02em] md:text-[44px]">
               Get the Eagle Update
             </h2>
-            <p className="mt-3 text-base leading-relaxed text-bhe-green/80 md:text-[17px]">
+            <p className="mt-3 text-base leading-relaxed text-bhe-green md:text-[17px]">
               Stay up to date with PTA events, meetings, and important school information.
             </p>
             {status === 'success' ? (
@@ -194,7 +194,7 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
                     }
                     aria-invalid={status === 'error' ? true : undefined}
                     aria-required="true"
-                    className="min-h-11 flex-1 rounded-full border-2 border-bhe-green bg-white px-5 py-3 text-bhe-ink placeholder:text-bhe-muted focus:outline-none focus:ring-2 focus:ring-bhe-green/30"
+                    className="min-h-11 flex-1 rounded-full border-2 border-bhe-green bg-white px-5 py-3 text-bhe-ink placeholder:text-bhe-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bhe-green"
                     disabled={status === 'submitting'}
                     id={emailId}
                     onChange={(e) => setEmail(e.target.value)}
@@ -232,7 +232,7 @@ export function NewsletterSignup({variant = 'full'}: NewsletterSignupProps) {
                 {message}
               </p>
             )}
-            <p className="mt-4 text-xs text-bhe-green/70">
+            <p className="mt-4 text-xs font-medium text-bhe-green">
               We respect your privacy. Unsubscribe at any time.
             </p>
           </div>

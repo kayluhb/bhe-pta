@@ -1,7 +1,8 @@
+import {PROSPECTIVE_EVENT_PATTERN} from '~/lib/event-categories';
 import type {CalendarEvent} from '~/lib/types';
 
-function startOfDay(d: Date): Date {
-  const copy = new Date(d);
+function startOfDay(date: Date): Date {
+  const copy = new Date(date);
   copy.setHours(0, 0, 0, 0);
   return copy;
 }
@@ -40,7 +41,7 @@ export function pickHomeBannerEvent(
 ): CalendarEvent | undefined {
   const upcoming = pickHomeUpcomingEvents(events, now, 12);
   const prospective = upcoming.find((event) =>
-    /prospective|tour|open house/i.test(`${event.category} ${event.title}`),
+    PROSPECTIVE_EVENT_PATTERN.test(`${event.category} ${event.title}`),
   );
   return prospective ?? upcoming[0];
 }

@@ -138,7 +138,7 @@ function NewsletterEntry({newsletter}: {newsletter: Newsletter}) {
           </time>
           <span
             className={`font-display text-xs font-semibold tracking-wider uppercase ${
-              newsletter.source === 'school' ? 'text-bhe-green' : 'text-bhe-ink/55'
+              newsletter.source === 'school' ? 'text-bhe-green' : 'text-bhe-muted'
             }`}
           >
             {newsletter.source === 'school' ? 'Eagle Update' : 'PTA News'}

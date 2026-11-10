@@ -73,7 +73,7 @@ export default function Privacy() {
               <strong className="text-bhe-ink">Mailchimp</strong> — for newsletter distribution.
               Your email address is shared with Mailchimp when you subscribe. See{' '}
               <a
-                className="text-bhe-green hover:text-bhe-gold transition-colors"
+                className="text-bhe-green underline-offset-2 hover:underline transition-colors"
                 href="https://mailchimp.com/legal/privacy/"
                 rel="noopener noreferrer"
                 target="_blank"
@@ -87,7 +87,7 @@ export default function Privacy() {
               <strong className="text-bhe-ink">Cloudflare</strong> — for website hosting and
               security. See{' '}
               <a
-                className="text-bhe-green hover:text-bhe-gold transition-colors"
+                className="text-bhe-green underline-offset-2 hover:underline transition-colors"
                 href="https://www.cloudflare.com/privacypolicy/"
                 rel="noopener noreferrer"
                 target="_blank"
@@ -119,7 +119,7 @@ export default function Privacy() {
             request deletion of your reimbursement data or other personal information, please
             contact us at{' '}
             <a
-              className="text-bhe-green hover:text-bhe-gold transition-colors"
+              className="text-bhe-green underline-offset-2 hover:underline transition-colors"
               href="mailto:pta@bheeagles.com"
             >
               pta@bheeagles.com
@@ -139,7 +139,7 @@ export default function Privacy() {
           <p className="text-bhe-ink/70 leading-relaxed mt-3">
             If you have questions about this Privacy Policy, please contact us at{' '}
             <a
-              className="text-bhe-green hover:text-bhe-gold transition-colors"
+              className="text-bhe-green underline-offset-2 hover:underline transition-colors"
               href="mailto:pta@bheeagles.com"
             >
               pta@bheeagles.com

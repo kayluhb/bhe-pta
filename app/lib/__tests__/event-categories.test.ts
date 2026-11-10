@@ -25,4 +25,30 @@ describe('event-categories', () => {
       false,
     );
   });
+
+  it('does not treat Tournament titles as prospective tours', () => {
+    expect(filterIdForCategory('Tournament')).toBe('community');
+    expect(
+      eventMatchesFilter({category: 'Community Event', title: 'Chess Tournament'}, 'prospective'),
+    ).toBe(false);
+    expect(
+      eventMatchesFilter({category: 'Community Event', title: 'Chess Tournament'}, 'community'),
+    ).toBe(true);
+  });
+
+  it('keeps tag mapping and chip filters aligned for advisory council', () => {
+    expect(filterIdForCategory('Advisory Council')).toBe('pta');
+    expect(eventMatchesFilter({category: 'Advisory Council'}, 'pta')).toBe(true);
+    expect(filterIdForCategory('Advisory Board')).toBe('community');
+    expect(eventMatchesFilter({category: 'Advisory Board'}, 'pta')).toBe(false);
+  });
+
+  it('matches prospective tours from title haystack', () => {
+    expect(
+      eventMatchesFilter(
+        {category: 'Community Event', title: 'Campus tour for families'},
+        'prospective',
+      ),
+    ).toBe(true);
+  });
 });

@@ -99,7 +99,7 @@ export default function Terms() {
           <p className="text-bhe-ink/70 leading-relaxed mt-3">
             If you have questions about these Terms of Use, please contact us at{' '}
             <a
-              className="text-bhe-green hover:text-bhe-gold transition-colors"
+              className="text-bhe-green underline-offset-2 hover:underline transition-colors"
               href="mailto:pta@bheeagles.com"
             >
               pta@bheeagles.com

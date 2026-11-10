@@ -5,6 +5,7 @@ import {HeaderLogo} from '~/components/HeaderLogo';
 import {Button} from '~/components/ui/Button';
 import {Container} from '~/components/ui/Container';
 import {annualFundPath} from '~/data/annual-fund-campaign';
+import {PROSPECTIVE_EVENT_PATTERN} from '~/lib/event-categories';
 import type {CalendarEvent} from '~/lib/types';
 
 type HomeLoaderData = {
@@ -108,7 +109,7 @@ export function Header() {
   const bannerEvent = isHome ? homeData?.bannerEvent : null;
   const bannerDate = bannerEvent ? formatBannerDate(bannerEvent.start) : '';
   const bannerLabel = bannerEvent
-    ? /prospective|tour|open house/i.test(`${bannerEvent.category} ${bannerEvent.title}`)
+    ? PROSPECTIVE_EVENT_PATTERN.test(`${bannerEvent.category} ${bannerEvent.title}`)
       ? `Prospective families: tour ${bannerDate} →`
       : `Coming up: ${bannerEvent.title} · ${bannerDate} →`
     : null;

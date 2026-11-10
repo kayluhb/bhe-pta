@@ -121,7 +121,7 @@ function SponsorTierSection({tier}: {tier: SponsorTier}) {
             rel="noopener noreferrer"
             target="_blank"
           >
-            <span className="text-xs font-medium text-bhe-ink/30 text-center px-3">
+            <span className="text-xs font-medium text-bhe-muted text-center px-3">
               Your Logo Here
             </span>
           </a>
@@ -224,10 +224,9 @@ export default function Sponsors() {
               for one year.
             </p>
             {showYearPicker && (
-              <div
+              <nav
                 aria-label="School year"
                 className="mt-8 inline-flex flex-wrap items-center justify-center gap-2 rounded-full bg-white p-1.5 shadow-sm border border-bhe-border/10"
-                role="tablist"
               >
                 {schoolYears.map((year) => {
                   const isSelected = year === schoolYear;
@@ -249,7 +248,7 @@ export default function Sponsors() {
                     </Link>
                   );
                 })}
-              </div>
+              </nav>
             )}
           </div>
 

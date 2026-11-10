@@ -1,6 +1,7 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {useNavigate} from 'react-router';
 import {useFormState} from '~/hooks/useFormState';
+import {canProceedToNext} from '~/lib/reimbursement/can-proceed';
 import {useTurnstile} from '~/hooks/useTurnstile';
 import {FormProgress} from './FormProgress';
 import {BudgetAccount} from './steps/BudgetAccount';
@@ -73,6 +74,11 @@ export function FormWizard() {
       localStorage.setItem(HELP_SEEN_KEY, '1');
     } catch {}
   }, []);
+
+  const handleNext = useCallback(() => {
+    if (!canProceedToNext(currentStep, state)) return;
+    nextStep();
+  }, [currentStep, nextStep, state]);
 
   useEffect(() => {
     try {
@@ -199,7 +205,7 @@ export function FormWizard() {
           <RequesterInfo
             data={state.requester}
             onChange={updateRequester}
-            onNext={nextStep}
+            onNext={handleNext}
             onShowHelp={() => setShowHelp(true)}
           />
         )}
@@ -211,7 +217,7 @@ export function FormWizard() {
             onAdd={addReceipt}
             onAppendReceiptFiles={appendReceiptFiles}
             onBack={prevStep}
-            onNext={nextStep}
+            onNext={handleNext}
             onRemove={removeReceipt}
             onRemoveFileFromReceipt={removeFileFromReceipt}
             onResetTurnstile={resetTurnstile}
@@ -228,7 +234,7 @@ export function FormWizard() {
           <BudgetAccount
             budget={state.budget}
             onBack={prevStep}
-            onNext={nextStep}
+            onNext={handleNext}
             onUpdateBudget={updateBudget}
             onUpdateReceipt={updateReceipt}
             receipts={state.receipts}

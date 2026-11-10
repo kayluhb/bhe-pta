@@ -1,23 +1,15 @@
 import type {FormState} from '~/hooks/useFormState';
 
 /** Client-side gate for reimbursement wizard Next buttons. */
-export function canProceedToNext(
-  step: number,
-  state: FormState,
-  salesTaxConfirmed: boolean,
-): boolean {
+export function canProceedToNext(step: number, state: FormState): boolean {
   if (step === 0) {
-    const r = state.requester;
+    const {address, dateCheckNeeded, email, payableTo} = state.requester;
     return Boolean(
-      r.payableTo.trim() &&
-        r.email.trim() &&
-        r.address.trim() &&
-        r.dateCheckNeeded.trim(),
+      payableTo.trim() && email.trim() && address.trim() && dateCheckNeeded.trim(),
     );
   }
 
   if (step === 1) {
-    if (!salesTaxConfirmed) return false;
     if (state.receipts.length === 0) return false;
     return state.receipts.every(
       (receipt) =>
