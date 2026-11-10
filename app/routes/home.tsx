@@ -366,26 +366,41 @@ export default function Home({loaderData}: Route.ComponentProps) {
                   const href = item.url !== '#' ? item.url : '/news';
                   const titleClass =
                     'font-heading font-bold text-charcoal leading-snug hover:text-eagle-blue transition-colors';
+                  const title = isExternalUrl(href) ? (
+                    <a
+                      className={`mt-1 block ${titleClass}`}
+                      href={href}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      {item.title}
+                      <span className="sr-only"> (opens in new tab)</span>
+                    </a>
+                  ) : (
+                    <Link className={`mt-1 block ${titleClass}`} to={href}>
+                      {item.title}
+                    </Link>
+                  );
                   return (
                     <li className="py-3 first:pt-0 last:pb-0" key={item.id}>
-                      <span className="font-heading text-xs font-bold tracking-wider text-spirit-gold uppercase">
-                        {formatNewsletterDate(item.date)}
-                      </span>
-                      {isExternalUrl(href) ? (
-                        <a
-                          className={`mt-1 block ${titleClass}`}
-                          href={href}
-                          rel="noopener noreferrer"
-                          target="_blank"
-                        >
-                          {item.title}
-                          <span className="sr-only"> (opens in new tab)</span>
-                        </a>
-                      ) : (
-                        <Link className={`mt-1 block ${titleClass}`} to={href}>
-                          {item.title}
-                        </Link>
-                      )}
+                      <div className={item.imageUrl ? 'flex gap-3' : undefined}>
+                        {item.imageUrl ? (
+                          <div className="relative mt-0.5 h-14 w-14 shrink-0 overflow-hidden rounded-md bg-charcoal/5">
+                            <img
+                              alt=""
+                              className="h-full w-full object-cover object-top"
+                              loading="lazy"
+                              src={item.imageUrl}
+                            />
+                          </div>
+                        ) : null}
+                        <div className="min-w-0">
+                          <span className="font-heading text-xs font-bold tracking-wider text-spirit-gold uppercase">
+                            {formatNewsletterDate(item.date)}
+                          </span>
+                          {title}
+                        </div>
+                      </div>
                     </li>
                   );
                 })}

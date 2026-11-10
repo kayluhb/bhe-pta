@@ -9,6 +9,7 @@ export const mockNewsletters: Newsletter[] = [
       "This week's update from Principal Achtermann covering upcoming events, curriculum updates, and community announcements for Barton Hills Elementary.",
     url: 'https://bartonhills.austinschools.org/news/eagle-update-february-7-2026',
     source: 'school',
+    imageUrl: 'https://cdn.smore.com/ss/9689/6aeb5694b396cf591ff89139-screenshot-fb_wide.jpg',
   },
   {
     id: 'eagle-update-2026-01-31',
@@ -57,6 +58,8 @@ export const mockPtaNewsletters: Newsletter[] = [
       "Updates on the Annual Fund progress, Spring Carnival volunteer signups, Spirit Night schedule, and Valentine's Day Dance details.",
     url: '#',
     source: 'pta',
+    imageUrl:
+      'https://mcusercontent.com/bec8051159f5dd775329aa6af/images/76ea7d1e-80bd-e4fa-7af1-1f48a321be57.jpeg',
   },
   {
     id: 'pta-jan-2026',

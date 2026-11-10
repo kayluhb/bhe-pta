@@ -26,6 +26,7 @@ describe('fetchMailchimpCampaigns', () => {
     };
     const contentJson = {
       plain_text: 'Body *|MC_PREVIEW_TEXT|* with <b>html</b> &nbsp; &amp; text',
+      html: '<img src="https://cdn-images.mailchimp.com/icons/x.png" /><img class="imageDropZone mceImage" src="https://mcusercontent.com/abc/images/header.jpeg" width="400" /><img src="https://mcusercontent.com/abc/images/hero.jpeg" width="624" />',
     };
     vi.stubGlobal(
       'fetch',
@@ -46,6 +47,7 @@ describe('fetchMailchimpCampaigns', () => {
     expect(out).toHaveLength(1);
     expect(out[0]?.excerpt.length).toBeGreaterThan(0);
     expect(out[0]?.source).toBe('pta');
+    expect(out[0]?.imageUrl).toBe('https://mcusercontent.com/abc/images/hero.jpeg');
     vi.unstubAllGlobals();
   });
 

@@ -1,3 +1,4 @@
+import {extractMailchimpImageUrl} from './newsletter-image';
 import type {Newsletter} from './types';
 
 interface MailchimpCampaignContent {
@@ -42,30 +43,42 @@ function cleanMailchimpText(text: string): string {
   );
 }
 
+function excerptFromText(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text;
+  const truncated = text.slice(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(' ');
+  return `${lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated}…`;
+}
+
+interface CampaignContentFields {
+  excerpt: string;
+  imageUrl?: string;
+}
+
 /**
- * Fetch the plain-text content of a single campaign and extract an excerpt.
+ * Fetch campaign HTML/text and extract excerpt + first content image.
  */
-async function fetchCampaignExcerpt(
+async function fetchCampaignContent(
   dc: string,
   apiKey: string,
   campaignId: string,
   maxLength = 250,
-): Promise<string> {
+): Promise<CampaignContentFields> {
   try {
     const res = await fetch(`https://${dc}.api.mailchimp.com/3.0/campaigns/${campaignId}/content`, {
       headers: {Authorization: `Bearer ${apiKey}`},
     });
-    if (!res.ok) return '';
+    if (!res.ok) return {excerpt: ''};
     const data = (await res.json()) as MailchimpCampaignContent;
-    // Prefer plain_text (cleaner), fall back to HTML
-    const raw = data.plain_text || data.html || '';
+    const html = data.html || '';
+    const raw = data.plain_text || html || '';
     const text = cleanMailchimpText(raw);
-    if (text.length <= maxLength) return text;
-    const truncated = text.slice(0, maxLength);
-    const lastSpace = truncated.lastIndexOf(' ');
-    return `${lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated}…`;
+    return {
+      excerpt: excerptFromText(text, maxLength),
+      imageUrl: html ? extractMailchimpImageUrl(html) : undefined,
+    };
   } catch {
-    return '';
+    return {excerpt: ''};
   }
 }
 
@@ -90,15 +103,13 @@ export async function fetchMailchimpCampaigns(apiKey: string): Promise<Newslette
   const data = (await response.json()) as MailchimpCampaignListResponse;
   const campaigns = data.campaigns ?? [];
 
-  // Fetch content excerpts for all campaigns in parallel
-  const excerpts = await Promise.all(campaigns.map((c) => fetchCampaignExcerpt(dc, apiKey, c.id)));
+  const contents = await Promise.all(campaigns.map((c) => fetchCampaignContent(dc, apiKey, c.id)));
 
   return campaigns.map((c, i) => {
     const title = c.settings?.subject_line || 'PTA Newsletter';
     const preview = c.settings?.preview_text || '';
-    // Prefer the richer content excerpt; fall back to preview_text
-    const contentExcerpt = excerpts[i];
-    const excerpt = contentExcerpt || (preview && preview !== title ? preview : '');
+    const content = contents[i] ?? {excerpt: ''};
+    const excerpt = content.excerpt || (preview && preview !== title ? preview : '');
     return {
       id: c.id,
       title,
@@ -106,6 +117,7 @@ export async function fetchMailchimpCampaigns(apiKey: string): Promise<Newslette
       excerpt,
       url: c.archive_url || '#',
       source: 'pta' as const,
+      ...(content.imageUrl ? {imageUrl: content.imageUrl} : {}),
     };
   });
 }

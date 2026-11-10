@@ -50,6 +50,13 @@ describe('scrapeSchoolNews', () => {
       </div>
     `;
     const fetchMock = vi.fn(async (url: string) => {
+      if (String(url).includes('app.smore.com/n/abc') || String(url).includes('www.smore.com/n/abc')) {
+        return {
+          ok: true,
+          text: async () =>
+            `<html><head><meta property="og:image" content="https://cdn.smore.com/ss/abc/preview.jpg" /></head></html>`,
+        };
+      }
       if (String(url).includes('/news/2026/02/04/eagle-update')) {
         return {
           ok: true,
@@ -69,6 +76,7 @@ describe('scrapeSchoolNews', () => {
     expect(items[0]?.source).toBe('school');
     expect(items[0]?.date).toBe('2026-02-04');
     expect(items[0]?.excerpt).toBe('Short excerpt text here for families.');
+    expect(items[0]?.imageUrl).toBe('https://cdn.smore.com/ss/abc/preview.jpg');
     expect(items[1]?.date).toBe('2025-12-01');
     expect(items[2]?.url.startsWith('http')).toBe(true);
     vi.unstubAllGlobals();

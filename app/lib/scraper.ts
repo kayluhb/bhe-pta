@@ -1,5 +1,6 @@
 import * as cheerio from 'cheerio';
 import {toIsoDay} from './format-newsletter-date';
+import {extractOgImageUrl} from './newsletter-image';
 import type {Newsletter} from './types';
 
 const SCHOOL_ORIGIN = 'https://bartonhills.austinschools.org';
@@ -64,11 +65,7 @@ function absoluteUrl(href: string): string {
  * Eagle Update Drupal pages usually wrap a single Smore (or PDF) link in the body.
  * Prefer that destination so readers skip the intermediate campus page.
  */
-export function extractDestinationUrl(
-  html: string,
-  fallbackUrl: string,
-  title?: string,
-): string {
+export function extractDestinationUrl(html: string, fallbackUrl: string, title?: string): string {
   const $ = cheerio.load(html);
   const links = $('article .content .field--name-body a[href]')
     .toArray()
@@ -79,9 +76,7 @@ export function extractDestinationUrl(
     .filter((link) => /^https?:\/\//i.test(link.href));
 
   if (title) {
-    const titleMatch = links.find(
-      (link) => link.text.toLowerCase() === title.trim().toLowerCase(),
-    );
+    const titleMatch = links.find((link) => link.text.toLowerCase() === title.trim().toLowerCase());
     if (titleMatch) return titleMatch.href;
   }
 
@@ -101,6 +96,18 @@ async function resolveDestinationUrl(listingUrl: string, title: string): Promise
     return extractDestinationUrl(html, listingUrl, title);
   } catch {
     return listingUrl;
+  }
+}
+
+/** Prefer Smore/Open Graph preview images for Eagle Update cards. */
+async function fetchDestinationImageUrl(url: string): Promise<string | undefined> {
+  if (!/smore\.com/i.test(url)) return undefined;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) return undefined;
+    return extractOgImageUrl(await response.text());
+  } catch {
+    return undefined;
   }
 }
 
@@ -141,7 +148,8 @@ export async function scrapeSchoolNews(): Promise<Newsletter[]> {
     listing.map(async (item) => {
       const {listingUrl, ...rest} = item;
       const url = await resolveDestinationUrl(listingUrl, item.title);
-      return {...rest, url};
+      const imageUrl = await fetchDestinationImageUrl(url);
+      return {...rest, url, ...(imageUrl ? {imageUrl} : {})};
     }),
   );
 }
