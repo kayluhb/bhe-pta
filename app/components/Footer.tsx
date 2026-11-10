@@ -23,8 +23,9 @@ export function Footer() {
   const showNewsletter = pathname !== '/' && pathname !== '/contact' && pathname !== '/events';
 
   return (
-    <footer className="bg-bhe-green pt-[72px] text-[15px] text-bhe-on-green-muted">
-      <Container>
+    <footer className="relative overflow-hidden bg-bhe-green pt-[72px] text-[15px] text-bhe-on-green-muted">
+      <EagleLogo className="pointer-events-none absolute -right-24 -bottom-24 h-auto w-[min(860px,160vw)] text-bhe-on-green opacity-[0.07]" />
+      <Container className="relative z-10">
         <div className="flex flex-wrap gap-10 pb-12 lg:gap-12">
           <div className="min-w-[240px] flex-[1.2_1_280px]">
             <div className="flex items-start gap-3 text-bhe-on-green">
@@ -125,9 +126,11 @@ export function Footer() {
         </div>
       </Container>
 
-      <div className="border-t border-bhe-green-line">
+      <div className="relative z-10 border-t border-bhe-green-line">
         <Container className="flex flex-col items-start justify-between gap-3 py-4 sm:flex-row sm:items-center">
-          <p className="text-sm">© {new Date().getFullYear()} PTA Texas Congress Barton Hills Elementary</p>
+          <p className="text-sm">
+            © {new Date().getFullYear()} PTA Texas Congress Barton Hills Elementary
+          </p>
           <div className="flex items-center gap-4">
             <Link className="hover:text-bhe-gold" to="/privacy">
               Privacy Policy

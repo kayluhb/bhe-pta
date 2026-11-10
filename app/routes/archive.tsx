@@ -1,4 +1,5 @@
 import {useEffect, useRef, useState} from 'react';
+import {PageHero} from '~/components/ui/PageHero';
 import type {ArchiveItem, ArchivePost, ArchiveYear} from '~/data/archive';
 import {archiveData} from '~/data/archive';
 import {mergeParentMeta} from '~/lib/meta';
@@ -26,13 +27,10 @@ export default function Archive({loaderData}: Route.ComponentProps) {
   return (
     <div>
       {/* ── 1. Page Banner ───────────────────────────────────────────────── */}
-      <section className="border-b border-bhe-border bg-bhe-paper py-12 md:py-16">
-        <div className="mx-auto max-w-container px-4 md:px-6">
-          <h1 className="font-display text-[36px] font-extrabold tracking-[-0.03em] text-bhe-ink md:text-[48px]">Our History</h1>
-          <p className="mt-4 max-w-2xl text-[17px] text-bhe-body">A look back at the Barton Hills Elementary PTA community through the years — blog posts,
-            photos, newsletters, and memories from our Eagle family.</p>
-        </div>
-      </section>
+      <PageHero
+        lead="A look back at the Barton Hills Elementary PTA community through the years — blog posts, photos, newsletters, and memories from our Eagle family."
+        title="Our History"
+      />
 
       {/* ── 2. Timeline ──────────────────────────────────────────────────── */}
       {years.length > 0 ? (
@@ -447,7 +445,9 @@ function ItemCard({
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
         <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-200">
           <p className="text-white text-sm font-display font-semibold">{item.title}</p>
-          {item.description && <p className="text-bhe-on-green-muted text-xs mt-0.5">{item.description}</p>}
+          {item.description && (
+            <p className="text-bhe-on-green-muted text-xs mt-0.5">{item.description}</p>
+          )}
         </div>
       </button>
     );

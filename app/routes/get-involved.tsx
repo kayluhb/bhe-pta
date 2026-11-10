@@ -1,5 +1,3 @@
-import {Link} from 'react-router';
-
 import {Button} from '~/components/ui/Button';
 import {Container} from '~/components/ui/Container';
 import {GreenBand} from '~/components/ui/GreenBand';
@@ -112,10 +110,10 @@ export default function GetInvolved({loaderData}: Route.ComponentProps) {
     <div>
       <section className="py-12 md:py-[64px]">
         <Container>
-          <h1 className="font-display text-[42px] font-extrabold tracking-[-0.035em] text-bhe-ink md:text-[clamp(48px,5vw,72px)]">
+          <h1 className="font-display text-[46px] font-extrabold leading-[0.98] tracking-[-0.035em] text-bhe-ink md:text-[clamp(48px,6vw,84px)]">
             Find your flock.
           </h1>
-          <p className="mt-4 max-w-2xl text-[17px] leading-relaxed text-bhe-body md:text-[20px]">
+          <p className="mt-4 max-w-[40ch] text-lg leading-relaxed text-bhe-body md:text-[21px]">
             The PTA runs on community help. Give an hour or a semester, a gift or a sponsorship —
             every bit keeps BHE soaring.
           </p>

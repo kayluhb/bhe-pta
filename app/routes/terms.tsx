@@ -1,3 +1,4 @@
+import {PageHero} from '~/components/ui/PageHero';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/terms';
 
@@ -15,12 +16,7 @@ export default function Terms() {
   return (
     <div>
       {/* ── Page Banner ────────────────────────────────────────────────── */}
-      <section className="border-b border-bhe-border bg-bhe-paper py-12 md:py-16">
-        <div className="mx-auto max-w-container px-4 md:px-6">
-          <h1 className="font-display text-[36px] font-extrabold tracking-[-0.03em] text-bhe-ink md:text-[48px]">Terms of Use</h1>
-          <p className="mt-4 max-w-2xl text-[17px] text-bhe-body">Guidelines for using the BHE PTA website</p>
-        </div>
-      </section>
+      <PageHero lead="Guidelines for using the BHE PTA website" title="Terms of Use" />
 
       {/* ── Content ────────────────────────────────────────────────────── */}
       <section className="bg-bhe-paper py-16 md:py-24">
@@ -35,9 +31,7 @@ export default function Terms() {
             agree to these Terms of Use. If you do not agree, please do not use the site.
           </p>
 
-          <h2 className="text-2xl font-display font-bold text-bhe-ink mt-10">
-            Use of the Website
-          </h2>
+          <h2 className="text-2xl font-display font-bold text-bhe-ink mt-10">Use of the Website</h2>
           <p className="text-bhe-ink/70 leading-relaxed mt-3">
             This website is provided by the Barton Hills Elementary PTA for informational purposes
             to support our school community. You agree to use it only for lawful purposes related to

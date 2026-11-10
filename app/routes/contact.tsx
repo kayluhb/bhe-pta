@@ -1,4 +1,5 @@
 import {NewsletterSignup} from '~/components/NewsletterSignup';
+import {PageHero} from '~/components/ui/PageHero';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/contact';
 
@@ -19,12 +20,7 @@ export default function Contact() {
   return (
     <div>
       {/* ── 1. Page Banner ───────────────────────────────────────────────── */}
-      <section className="border-b border-bhe-border bg-bhe-paper py-12 md:py-16">
-        <div className="mx-auto max-w-container px-4 md:px-6">
-          <h1 className="font-display text-[36px] font-extrabold tracking-[-0.03em] text-bhe-ink md:text-[48px]">Contact Us</h1>
-          <p className="mt-4 max-w-2xl text-[17px] text-bhe-body">Stay connected with Barton Hills Elementary PTA</p>
-        </div>
-      </section>
+      <PageHero lead="Stay connected with Barton Hills Elementary PTA" title="Contact Us" />
 
       {/* ── 2. Contact Details ───────────────────────────────────────────── */}
       <section className="bg-bhe-paper py-16 md:py-24">

@@ -1,6 +1,8 @@
 import {Fragment, useEffect} from 'react';
 import {Link, useLoaderData, useLocation} from 'react-router';
 
+import {GreenCta} from '~/components/ui/GreenCta';
+import {PageHero} from '~/components/ui/PageHero';
 import {corporateContributionsUrl} from '~/data/annual-fund-campaign';
 import {pageSeoMeta} from '~/lib/meta';
 import {formatSchoolYearLong} from '~/lib/school-year';
@@ -144,12 +146,10 @@ export default function Sponsors() {
   return (
     <div>
       {/* ── 1. Page Banner ───────────────────────────────────────────────── */}
-      <section className="border-b border-bhe-border bg-bhe-paper py-12 md:py-16">
-        <div className="mx-auto max-w-container px-4 md:px-6">
-          <h1 className="font-display text-[36px] font-extrabold tracking-[-0.03em] text-bhe-ink md:text-[48px]">Local Business Sponsors</h1>
-          <p className="mt-4 max-w-2xl text-[17px] text-bhe-body">BHE Local Business Contributions {formatSchoolYearLong(schoolYear)}</p>
-        </div>
-      </section>
+      <PageHero
+        lead={`BHE Local Business Contributions ${formatSchoolYearLong(schoolYear)}`}
+        title="Local Business Sponsors"
+      />
 
       {/* ── 2. Intro ─────────────────────────────────────────────────────── */}
       <section className="bg-bhe-paper py-16 md:py-24">
@@ -231,7 +231,8 @@ export default function Sponsors() {
               >
                 {schoolYears.map((year) => {
                   const isSelected = year === schoolYear;
-                  const yearHref = year === featuredSchoolYear ? '/sponsors' : `/sponsors?year=${year}`;
+                  const yearHref =
+                    year === featuredSchoolYear ? '/sponsors' : `/sponsors?year=${year}`;
                   return (
                     <Link
                       aria-current={isSelected ? 'page' : undefined}
@@ -260,12 +261,21 @@ export default function Sponsors() {
         </div>
       </section>
 
-      {/* ── 5. Become a Sponsor CTA ──────────────────────────────────────── */}
-      <section className="border-b border-bhe-border bg-bhe-paper py-12 md:py-16">
-        <div className="mx-auto max-w-container px-4 md:px-6">
-          <h1 className="font-display text-[36px] font-extrabold tracking-[-0.03em] text-bhe-ink md:text-[48px]">Page</h1>
-        </div>
-      </section>
+      <GreenCta
+        action={
+          <a
+            className="inline-flex min-h-12 items-center justify-center rounded-full bg-bhe-gold px-7 py-3.5 text-lg font-bold text-bhe-green hover:brightness-95"
+            href={corporateContributionsUrl}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Contribute Now
+            <span className="sr-only">(opens in new tab)</span>
+          </a>
+        }
+        lead="Support our school community and gain visibility with Barton Hills families. Your sponsorship directly funds programs that benefit every student."
+        title="Become a Sponsor"
+      />
     </div>
   );
 }

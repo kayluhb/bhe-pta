@@ -141,20 +141,20 @@ export default function Home({loaderData}: Route.ComponentProps) {
   return (
     <div>
       {/* Hero */}
-      <section className="py-12 md:py-[72px]">
-        <Container className="flex flex-col gap-10 lg:flex-row lg:items-center lg:gap-14">
-          <div className="flex-1">
-            <p className="inline-flex rounded-full border border-bhe-border px-3 py-1.5 text-[13px] font-bold uppercase tracking-[0.12em] text-bhe-green-2">
+      <section className="pt-8 md:pt-[72px]">
+        <Container className="grid items-center gap-8 lg:grid-cols-2 lg:gap-14">
+          <div className="flex flex-col gap-5 md:gap-6">
+            <p className="inline-flex self-start rounded-full border-[1.5px] border-bhe-green px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.08em] text-bhe-ink md:text-sm">
               Go Eagles · Est. 1964
             </p>
-            <h1 className="mt-5 font-display text-[42px] font-extrabold leading-[0.98] tracking-[-0.035em] text-bhe-ink md:text-[clamp(48px,6vw,84px)]">
+            <h1 className="font-display text-[46px] font-extrabold leading-[0.98] tracking-[-0.035em] text-bhe-ink md:text-[clamp(48px,6vw,84px)]">
               Soaring together since 1964.
             </h1>
-            <p className="mt-5 max-w-xl text-[17px] leading-relaxed text-bhe-body md:text-[20px]">
-              Parents, teachers and neighbors keeping Barton Hills a school where every Eagle thrives
-              — through volunteering, fundraising and advocacy.
+            <p className="max-w-[34ch] text-lg leading-relaxed text-bhe-body md:text-[21px]">
+              Parents, teachers and neighbors keeping Barton Hills a school where every Eagle
+              thrives — through volunteering, fundraising and advocacy.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-1 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap">
               <Button size="lg" to={annualFundPath} variant="primary">
                 Give to the Annual Fund
               </Button>
@@ -164,23 +164,26 @@ export default function Home({loaderData}: Route.ComponentProps) {
             </div>
           </div>
 
-          <div className="relative flex-1">
-            <div className="overflow-hidden rounded-panel">
+          <div className="relative mb-4 pb-14 md:mb-16 md:pb-0">
+            <div className="h-[260px] overflow-hidden rounded-[22px] md:h-[460px] md:rounded-panel">
               <img
-                alt="Barton Hills Elementary community"
-                className="h-[280px] w-full object-cover md:h-[460px]"
+                alt="Barton Hills Elementary community at Spring Fling"
+                className="h-full w-full object-cover object-[center_35%]"
                 src="/spring-fling-2026.jpg"
               />
             </div>
-            <div className="absolute -bottom-4 left-4 max-w-[260px] rounded-card bg-bhe-gold p-5 text-bhe-green shadow-float md:bottom-6 md:left-6 md:max-w-[280px]">
-              <p className="text-[12px] font-bold uppercase tracking-[0.12em]">
+            <div className="absolute inset-x-4 bottom-0 flex items-center gap-3.5 rounded-[18px] bg-bhe-gold px-[18px] py-4 text-bhe-green shadow-float md:inset-x-auto md:-bottom-7 md:-left-6 md:block md:w-[300px] md:max-w-[80%] md:rounded-card md:px-6 md:py-[22px]">
+              <p className="hidden text-[13px] font-bold uppercase tracking-[0.1em] md:block">
                 {schoolYearLabel} Annual Fund
               </p>
-              <p className="mt-1 font-display text-[44px] font-extrabold leading-none md:text-[52px]">
+              <p className="font-display text-4xl font-extrabold leading-none md:mt-1.5 md:text-[44px]">
                 $930
               </p>
-              <p className="mt-2 text-sm leading-snug">
-                invested per student each year in programs, staff and resources.
+              <p className="text-sm leading-snug md:mt-1 md:text-[15px]">
+                <span className="md:hidden">invested per student each year by the Annual Fund</span>
+                <span className="hidden md:inline">
+                  invested per student each year in programs, staff and resources.
+                </span>
               </p>
             </div>
           </div>
@@ -210,7 +213,9 @@ export default function Home({loaderData}: Route.ComponentProps) {
                     {formatEventWeekday(event.start)}
                     {event.category ? ` · ${event.category}` : ''}
                   </p>
-                  <h3 className="mt-1 font-display text-xl font-bold text-bhe-ink">{event.title}</h3>
+                  <h3 className="mt-1 font-display text-xl font-bold text-bhe-ink">
+                    {event.title}
+                  </h3>
                   {event.description ? (
                     <p className="mt-1 line-clamp-2 text-sm text-bhe-muted">
                       {stripHtml(event.description)}
@@ -305,8 +310,8 @@ export default function Home({loaderData}: Route.ComponentProps) {
               does not fully cover — for every student at Barton Hills.
             </p>
           </div>
-          <div className="w-full max-w-md rounded-panel bg-bhe-paper p-7 text-bhe-ink shadow-form">
-            <p className="font-display text-[44px] font-extrabold leading-none md:text-[52px]">
+          <div className="w-full max-w-md rounded-panel bg-bhe-paper p-7 text-bhe-ink shadow-form md:p-9">
+            <p className="font-display text-[52px] font-extrabold leading-none md:text-[64px]">
               ${ask}
             </p>
             <p className="mt-1 text-bhe-muted">suggested per child</p>
@@ -350,7 +355,9 @@ export default function Home({loaderData}: Route.ComponentProps) {
                 key={card.title}
               >
                 <h3 className="font-display text-xl font-bold text-bhe-ink">{card.title}</h3>
-                <p className="mt-2 text-[15px] leading-relaxed text-bhe-muted">{card.description}</p>
+                <p className="mt-2 text-[15px] leading-relaxed text-bhe-muted">
+                  {card.description}
+                </p>
                 <Link
                   className="mt-4 inline-flex font-bold text-bhe-green hover:underline"
                   to={card.to}

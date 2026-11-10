@@ -1,5 +1,6 @@
-import {Link} from 'react-router';
-
+import {Button} from '~/components/ui/Button';
+import {GreenCta} from '~/components/ui/GreenCta';
+import {PageHero} from '~/components/ui/PageHero';
 import {annualFundPath} from '~/data/annual-fund-campaign';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/about';
@@ -146,12 +147,10 @@ export default function About() {
   return (
     <div>
       {/* ── 1. Page Banner ───────────────────────────────────────────────── */}
-      <section className="border-b border-bhe-border bg-bhe-paper py-12 md:py-16">
-        <div className="mx-auto max-w-container px-4 md:px-6">
-          <h1 className="font-display text-[36px] font-extrabold tracking-[-0.03em] text-bhe-ink md:text-[48px]">About Our PTA</h1>
-          <p className="mt-4 max-w-2xl text-[17px] text-bhe-body">Building community, supporting education, empowering every Eagle</p>
-        </div>
-      </section>
+      <PageHero
+        lead="Building community, supporting education, empowering every Eagle"
+        title="About Our PTA"
+      />
 
       {/* ── 2. Mission ───────────────────────────────────────────────────── */}
       <section className="bg-bhe-paper py-16 md:py-24">
@@ -177,10 +176,7 @@ export default function About() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {initiatives.map((item) => (
-              <div
-                className="rounded-lg bg-bhe-paper p-8 shadow-md"
-                key={item.title}
-              >
+              <div className="rounded-lg bg-bhe-paper p-8 shadow-md" key={item.title}>
                 <div className="h-14 w-14 rounded-full bg-bhe-green/10 flex items-center justify-center mb-5 text-bhe-green">
                   {item.icon}
                 </div>
@@ -207,10 +203,7 @@ export default function About() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {boardMembers.map((member) => (
-              <div
-                className="rounded-lg bg-white p-8 text-center shadow-md"
-                key={member.name}
-              >
+              <div className="rounded-lg bg-white p-8 text-center shadow-md" key={member.name}>
                 <div className="mx-auto mb-5 flex h-24 w-24 items-center justify-center rounded-full bg-bhe-green/10 text-bhe-green">
                   <svg
                     aria-hidden="true"
@@ -298,12 +291,15 @@ export default function About() {
         </section>
       )}
 
-      {/* ── 6. Join Us CTA ───────────────────────────────────────────────── */}
-      <section className="border-b border-bhe-border bg-bhe-paper py-12 md:py-16">
-        <div className="mx-auto max-w-container px-4 md:px-6">
-          <h1 className="font-display text-[36px] font-extrabold tracking-[-0.03em] text-bhe-ink md:text-[48px]">Page</h1>
-        </div>
-      </section>
+      <GreenCta
+        action={
+          <Button size="lg" to={annualFundPath} variant="accent">
+            Give to the Annual Fund
+          </Button>
+        }
+        lead="Your Annual Fund gift includes membership and helps fund programs for students, teachers, and staff."
+        title="Support Our PTA"
+      />
     </div>
   );
 }

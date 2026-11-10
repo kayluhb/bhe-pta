@@ -1,4 +1,5 @@
 import {Link, useSearchParams} from 'react-router';
+import {PageHero} from '~/components/ui/PageHero';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/reimbursement.success';
 
@@ -20,11 +21,7 @@ export default function ReimbursementSuccess() {
   return (
     <div>
       {/* Page Banner */}
-      <section className="border-b border-bhe-border bg-bhe-paper py-12 md:py-16">
-        <div className="mx-auto max-w-container px-4 md:px-6">
-          <h1 className="font-display text-[36px] font-extrabold tracking-[-0.03em] text-bhe-ink md:text-[48px]">Request Submitted</h1>
-        </div>
-      </section>
+      <PageHero title="Request Submitted" />
 
       {/* Success Content */}
       <section className="bg-bhe-paper py-12 md:py-16">

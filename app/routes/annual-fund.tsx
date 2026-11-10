@@ -155,19 +155,15 @@ export default function AnnualFund({loaderData}: Route.ComponentProps) {
             <p className="text-[13px] font-bold uppercase tracking-[0.12em] text-bhe-green-2">
               {formatSchoolYearLong(campaign.schoolYear)} Annual Fund
             </p>
-            <h1 className="mt-4 font-display text-[42px] font-extrabold leading-[0.98] tracking-[-0.035em] text-bhe-ink md:text-[clamp(48px,5vw,72px)]">
+            <h1 className="mt-4 font-display text-[46px] font-extrabold leading-[0.98] tracking-[-0.035em] text-bhe-ink md:text-[clamp(48px,5.5vw,80px)]">
               One gift funds a whole year at BHE.
             </h1>
-            <p className="mt-5 max-w-xl text-[17px] leading-relaxed text-bhe-body md:text-[20px]">
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-bhe-body md:text-[21px]">
               Tax-deductible gifts fund Art, Music &amp; PE and the programs every Eagle relies on.
               Suggested contribution: ${ask} per child.
             </p>
             <ul className="mt-6 space-y-2 text-[15px] text-bhe-ink">
-              {[
-                'PTA membership included',
-                'Tax-deductible',
-                'Every amount counts',
-              ].map((item) => (
+              {['PTA membership included', 'Tax-deductible', 'Every amount counts'].map((item) => (
                 <li className="flex gap-2" key={item}>
                   <span aria-hidden="true" className="text-bhe-green-2">
                     ✓

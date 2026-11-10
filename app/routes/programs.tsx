@@ -1,4 +1,6 @@
-import {Link} from 'react-router';
+import {Button} from '~/components/ui/Button';
+import {GreenCta} from '~/components/ui/GreenCta';
+import {PageHero} from '~/components/ui/PageHero';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/programs';
 
@@ -346,21 +348,13 @@ export default function Programs() {
   return (
     <div>
       {/* ── 1. Page Banner ───────────────────────────────────────────────── */}
-      <section className="border-b border-bhe-border bg-bhe-paper py-12 md:py-16">
-        <div className="mx-auto max-w-container px-4 md:px-6">
-          <h1 className="font-display text-[36px] font-extrabold tracking-[-0.03em] text-bhe-ink md:text-[48px]">Our Programs</h1>
-          <p className="mt-4 max-w-2xl text-[17px] text-bhe-body">Enriching the educational experience for every Eagle</p>
-        </div>
-      </section>
+      <PageHero lead="Enriching the educational experience for every Eagle" title="Our Programs" />
 
       {/* ── 2. Program Cards ─────────────────────────────────────────────── */}
       <section className="bg-bhe-paper py-16 md:py-24">
         <div className="max-w-5xl mx-auto px-4 space-y-8">
           {programs.map((program) => (
-            <div
-              className="rounded-lg bg-white p-8 shadow-md md:p-10"
-              key={program.name}
-            >
+            <div className="rounded-lg bg-white p-8 shadow-md md:p-10" key={program.name}>
               <div className="flex items-start gap-5">
                 <div
                   className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-lg text-white ${program.color}`}
@@ -381,12 +375,15 @@ export default function Programs() {
         </div>
       </section>
 
-      {/* ── 3. Get Involved CTA ──────────────────────────────────────────── */}
-      <section className="border-b border-bhe-border bg-bhe-paper py-12 md:py-16">
-        <div className="mx-auto max-w-container px-4 md:px-6">
-          <h1 className="font-display text-[36px] font-extrabold tracking-[-0.03em] text-bhe-ink md:text-[48px]">Page</h1>
-        </div>
-      </section>
+      <GreenCta
+        action={
+          <Button size="lg" to="/get-involved" variant="accent">
+            Get Involved
+          </Button>
+        }
+        lead="Our programs are made possible by the generous support of parents, families, and community members. Get involved and help us continue to make a difference."
+        title="Support Our Programs"
+      />
     </div>
   );
 }

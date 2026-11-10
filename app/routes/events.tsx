@@ -9,11 +9,11 @@ import {sanitizeCalendarEvents, stripHtml} from '~/lib/calendar';
 import {getCloudflare} from '~/lib/cloudflare-context';
 import {
   EVENT_FILTERS,
+  type EventFilterId,
   eventMatchesFilter,
   filterIdForCategory,
   labelForCategory,
   tintForFilter,
-  type EventFilterId,
 } from '~/lib/event-categories';
 import {eventPrimaryCta} from '~/lib/event-cta';
 import {mergeParentMeta} from '~/lib/meta';
@@ -113,10 +113,10 @@ export default function EventsPage() {
       <Container>
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 className="font-display text-[42px] font-extrabold tracking-[-0.035em] text-bhe-ink md:text-[56px]">
+            <h1 className="font-display text-[46px] font-extrabold leading-[0.98] tracking-[-0.035em] text-bhe-ink md:text-[clamp(48px,6vw,80px)]">
               Events
             </h1>
-            <p className="mt-3 max-w-xl text-[17px] text-bhe-body">
+            <p className="mt-3 max-w-xl text-lg text-bhe-body md:text-xl">
               PTA meetings, community gatherings, and tours for prospective families.
             </p>
           </div>

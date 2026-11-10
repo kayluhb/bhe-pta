@@ -21,7 +21,7 @@ export default function Reimbursement() {
         <p className="text-[13px] font-bold uppercase tracking-[0.12em] text-bhe-green-2">
           For volunteers & staff
         </p>
-        <h1 className="mt-3 font-display text-[36px] font-extrabold tracking-[-0.03em] text-bhe-ink md:text-[48px]">
+        <h1 className="mt-3 font-display text-[40px] font-extrabold leading-[0.98] tracking-[-0.035em] text-bhe-ink md:text-[clamp(44px,5vw,64px)]">
           Reimbursement request
         </h1>
         <p className="mt-3 max-w-2xl text-[17px] text-bhe-body">

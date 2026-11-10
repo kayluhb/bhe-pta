@@ -8,6 +8,7 @@ type GreenBandProps = {
   id?: string;
 };
 
+/** Full-bleed green band with the large cream eagle watermark from the redesign. */
 export function GreenBand({children, className, id}: GreenBandProps) {
   return (
     <section
@@ -16,7 +17,7 @@ export function GreenBand({children, className, id}: GreenBandProps) {
         .join(' ')}
       id={id}
     >
-      <EagleLogo className="pointer-events-none absolute -right-16 -bottom-10 h-[280px] w-auto text-bhe-on-green opacity-[0.07] md:h-[360px]" />
+      <EagleLogo className="pointer-events-none absolute -bottom-16 -left-16 h-auto w-[min(920px,170vw)] text-bhe-on-green opacity-[0.07] md:-bottom-20 md:-left-[120px]" />
       <div className="relative z-10">{children}</div>
     </section>
   );

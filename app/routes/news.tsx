@@ -1,5 +1,7 @@
 import {useState} from 'react';
 import {useLoaderData} from 'react-router';
+
+import {PageHero} from '~/components/ui/PageHero';
 import {getCloudflare} from '~/lib/cloudflare-context';
 import {formatNewsletterDate} from '~/lib/format-newsletter-date';
 import {mergeParentMeta} from '~/lib/meta';
@@ -47,24 +49,7 @@ export default function News() {
 
   return (
     <div>
-      <section className="relative overflow-hidden bg-gradient-to-br from-bhe-green to-bhe-green py-16 md:py-24">
-        <div
-          className="absolute inset-0 opacity-[0.05]"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)',
-          }}
-        />
-        <div className="relative z-10 mx-auto max-w-7xl px-4 text-center">
-          <h1 className="font-display text-4xl font-bold text-white md:text-5xl lg:text-6xl">
-            News & Updates
-          </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-bhe-on-green-muted md:text-xl">
-            Eagle Updates and PTA newsletters, newest first
-          </p>
-          <div className="mx-auto mt-6 h-1 w-20 rounded-full bg-bhe-gold" />
-        </div>
-      </section>
+      <PageHero lead="Eagle Updates and PTA newsletters, newest first" title="News & Updates" />
 
       <section className="bg-bhe-paper py-16 md:py-24">
         <div className="mx-auto max-w-3xl px-4">

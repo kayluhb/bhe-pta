@@ -1,5 +1,6 @@
 import {Link} from 'react-router';
 
+import {PageHero} from '~/components/ui/PageHero';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/official-name';
 
@@ -37,24 +38,10 @@ export function meta({matches}: Route.MetaArgs) {
 export default function OfficialName() {
   return (
     <div>
-      <section className="relative bg-linear-to-br from-bhe-green to-bhe-green py-16 md:py-24 overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-[0.05]"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)',
-          }}
-        />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white">
-            Organization Information
-          </h1>
-          <p className="mt-4 text-lg md:text-xl text-bhe-on-green-muted max-w-2xl mx-auto">
-            Official name, mission, and transparency details for {COMMON_NAME}
-          </p>
-          <div className="mt-6 h-1 w-20 bg-bhe-gold rounded-full mx-auto" />
-        </div>
-      </section>
+      <PageHero
+        lead={`Official name, mission, and transparency details for ${COMMON_NAME}`}
+        title="Organization Information"
+      />
 
       <section className="bg-bhe-paper py-16 md:py-24">
         <div className="max-w-3xl mx-auto px-4 text-center">
@@ -80,8 +67,8 @@ export default function OfficialName() {
           </h2>
           <div className="mt-3 h-1 w-16 bg-bhe-gold rounded-full mx-auto" />
           <p className="mt-8 text-lg text-bhe-ink/70 leading-relaxed">
-            The acronym <strong>{ACRONYM}</strong> stands for{' '}
-            <strong>{ACRONYM_EXPANSION}</strong>. Our official website is{' '}
+            The acronym <strong>{ACRONYM}</strong> stands for <strong>{ACRONYM_EXPANSION}</strong>.
+            Our official website is{' '}
             <a
               className="font-medium text-bhe-green hover:text-bhe-gold transition-colors"
               href={`https://${WEBSITE}`}

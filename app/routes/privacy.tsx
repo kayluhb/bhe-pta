@@ -1,3 +1,4 @@
+import {PageHero} from '~/components/ui/PageHero';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/privacy';
 
@@ -15,12 +16,7 @@ export default function Privacy() {
   return (
     <div>
       {/* ── Page Banner ────────────────────────────────────────────────── */}
-      <section className="border-b border-bhe-border bg-bhe-paper py-12 md:py-16">
-        <div className="mx-auto max-w-container px-4 md:px-6">
-          <h1 className="font-display text-[36px] font-extrabold tracking-[-0.03em] text-bhe-ink md:text-[48px]">Privacy Policy</h1>
-          <p className="mt-4 max-w-2xl text-[17px] text-bhe-body">How we collect, use, and protect your information</p>
-        </div>
-      </section>
+      <PageHero lead="How we collect, use, and protect your information" title="Privacy Policy" />
 
       {/* ── Content ────────────────────────────────────────────────────── */}
       <section className="bg-bhe-paper py-16 md:py-24">
@@ -46,9 +42,9 @@ export default function Privacy() {
               newsletter via Mailchimp.
             </li>
             <li>
-              <strong className="text-bhe-ink">Reimbursement details</strong> — names,
-              descriptions, amounts, and receipt images submitted through our reimbursement form.
-              This data is stored securely and used solely for processing PTA reimbursements.
+              <strong className="text-bhe-ink">Reimbursement details</strong> — names, descriptions,
+              amounts, and receipt images submitted through our reimbursement form. This data is
+              stored securely and used solely for processing PTA reimbursements.
             </li>
             <li>
               <strong className="text-bhe-ink">Usage data</strong> — we may use privacy-respecting
@@ -110,9 +106,7 @@ export default function Privacy() {
             However, no method of transmission over the Internet is 100% secure.
           </p>
 
-          <h2 className="text-2xl font-display font-bold text-bhe-ink mt-10">
-            Children's Privacy
-          </h2>
+          <h2 className="text-2xl font-display font-bold text-bhe-ink mt-10">Children's Privacy</h2>
           <p className="text-bhe-ink/70 leading-relaxed mt-3">
             Our website is intended for parents, guardians, and community members. We do not
             knowingly collect personal information from children under 13. If you believe a child
