@@ -22,10 +22,11 @@
   --color-bhe-tint-gold: #FCEBC7;
   --color-bhe-tint-blue: #E1E9F3;
 
-  --font-family-display: "Bricolage Grotesque", system-ui, sans-serif;
-  --font-family-body: "Figtree", system-ui, sans-serif;
-  /* Alias legacy heading utility to display during migration */
-  --font-family-heading: "Bricolage Grotesque", system-ui, sans-serif;
+  /* Tailwind v4 maps --font-* → font-* utilities (not --font-family-*) */
+  --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-body: "Figtree", system-ui, sans-serif;
+  --font-heading: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-sans: "Figtree", system-ui, sans-serif;
 
   --radius-input: 12px;
   --radius-tile: 14px;
