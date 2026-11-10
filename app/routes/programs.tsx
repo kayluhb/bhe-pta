@@ -34,7 +34,12 @@ const programs = [
         viewBox="0 0 24 24"
       >
         <path
-          d="M9 9l10.5-3m0 6.696V21M9 9v12m0-12l-5.5 1.5M21 9.5v3.75a2.25 2.25 0 01-1.5 2.121L9 18"
+          d="M9 18V5l12-2v13"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M6 21a3 3 0 100-6 3 3 0 000 6zM18 19a3 3 0 100-6 3 3 0 000 6z"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
