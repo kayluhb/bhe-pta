@@ -142,7 +142,6 @@ const flockCards = [
 export default function Home({loaderData}: Route.ComponentProps) {
   const {annualFundCampaign: campaign, events, news, sponsorSchoolYear, sponsors} = loaderData;
   const ask = campaign.suggestedAskPerChild;
-  const schoolYearLabel = formatSchoolYearLong(campaign.schoolYear);
 
   return (
     <div>
@@ -170,27 +169,13 @@ export default function Home({loaderData}: Route.ComponentProps) {
             </div>
           </div>
 
-          <div className="relative mb-4 pb-14 md:mb-16 md:pb-0">
+          <div className="mb-4 md:mb-0">
             <div className="h-[260px] overflow-hidden rounded-[22px] md:h-[460px] md:rounded-panel">
               <img
                 alt="Front entrance of Barton Hills Elementary"
                 className="h-full w-full object-cover object-[center_40%]"
                 src="/school-front.jpg"
               />
-            </div>
-            <div className="absolute inset-x-4 bottom-0 flex items-center gap-3.5 rounded-[18px] bg-bhe-gold px-[18px] py-4 text-bhe-green shadow-float md:inset-x-auto md:-bottom-7 md:-left-6 md:block md:w-[300px] md:max-w-[80%] md:rounded-card md:px-6 md:py-[22px]">
-              <p className="hidden text-[13px] font-bold uppercase tracking-[0.1em] md:block">
-                {schoolYearLabel} Annual Fund
-              </p>
-              <p className="font-display text-4xl font-extrabold leading-none md:mt-1.5 md:text-[44px]">
-                $930
-              </p>
-              <p className="text-sm leading-snug md:mt-1 md:text-[15px]">
-                <span className="md:hidden">invested per student each year by the Annual Fund</span>
-                <span className="hidden md:inline">
-                  invested per student each year in programs, staff and resources.
-                </span>
-              </p>
             </div>
           </div>
         </Container>

@@ -5,9 +5,7 @@ import {buildGiveCheckoutUrl} from '~/lib/give-checkout-url';
 describe('buildGiveCheckoutUrl', () => {
   it('always includes campaign UTMs and does not invent amount query params', () => {
     const url = buildGiveCheckoutUrl({
-      amount: 650,
       baseUrl: 'https://bhe-pta-annual-fund-drive-2026-2027.cheddarup.com',
-      frequency: 'monthly',
       utmContent: 'give-form',
     });
     const parsed = new URL(url);

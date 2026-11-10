@@ -7,7 +7,7 @@ Recorded after implementing `docs/superpowers/plans/2026-11-04-bhe-redesign.md` 
 - **Calendar feed** for “Add to my calendar” — no public ICS/Google URL confirmed in repo; button omitted on Events.
 - **Submit an event** — no submission form; Events sidebar uses `mailto:pta@bheeagles.com?subject=Submit%20an%20event`.
 - **Prospective-families utility bar CTA** — home utility bar shows school-day line only; tour link hidden until a prospective event is wired from the home loader.
-- **CheddarUp amount/frequency query params** — Give form collects presets/monthly/employer/student fields; checkout URL is UTM-only until CheddarUp encoding is confirmed.
+- **CheddarUp amount/frequency query params** — Resolved: CheddarUp has no documented amount/frequency URL params. Annual Fund give card is a UTM handoff; donors choose amount on CheddarUp.
 - **Why $650 wording** — FAQ text written from SPEC/campaign ask; PTA should confirm final copy.
 - **Reimbursement done-state copy** — still uses `/reimbursement/success` route; confirm “we've emailed a copy…” wording with PTA.
 - **Hero / news photos** — home hero uses `/spring-fling-2026.jpg`; news cards use tint placeholders (no per-story images in data).
