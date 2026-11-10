@@ -97,24 +97,24 @@ function isExternalUrl(url: string): boolean {
 
 const programs = [
   {
-    name: 'Cultural Arts',
-    description: 'Bringing live performances and art workshops to students',
+    name: 'Art, Music & PE',
+    description: 'The PTA funds the final third of these special-area teaching roles every year',
   },
   {
-    name: 'Reflections',
-    description: 'Student arts recognition program celebrating creative expression',
+    name: 'Academic Enrichment',
+    description: 'After-school activities, Reflections, and field trips beyond the core day',
+  },
+  {
+    name: 'Teacher Grants',
+    description: 'Classroom projects and materials teachers request for their students',
+  },
+  {
+    name: 'Cultural Arts',
+    description: 'Live performances and artist visits that bring the wider world to campus',
   },
   {
     name: 'Greenworks',
-    description: 'Campus beautification and environmental stewardship',
-  },
-  {
-    name: 'Nick Akery Scholarship',
-    description: 'Supporting BHE graduates as they continue their education',
-  },
-  {
-    name: 'Social-Emotional Learning',
-    description: 'Programs that help every Eagle thrive in and out of the classroom',
+    description: 'Gardens, outdoor campus care, and hands-on environmental learning',
   },
 ];
 
@@ -173,9 +173,9 @@ export default function Home({loaderData}: Route.ComponentProps) {
           <div className="relative mb-4 pb-14 md:mb-16 md:pb-0">
             <div className="h-[260px] overflow-hidden rounded-[22px] md:h-[460px] md:rounded-panel">
               <img
-                alt="Barton Hills Elementary community at Spring Fling"
-                className="h-full w-full object-cover object-[center_35%]"
-                src="/spring-fling-2026.jpg"
+                alt="Front entrance of Barton Hills Elementary"
+                className="h-full w-full object-cover object-[center_40%]"
+                src="/school-front.jpg"
               />
             </div>
             <div className="absolute inset-x-4 bottom-0 flex items-center gap-3.5 rounded-[18px] bg-bhe-gold px-[18px] py-4 text-bhe-green shadow-float md:inset-x-auto md:-bottom-7 md:-left-6 md:block md:w-[300px] md:max-w-[80%] md:rounded-card md:px-6 md:py-[22px]">
