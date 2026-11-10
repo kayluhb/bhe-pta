@@ -5,6 +5,8 @@ export interface Newsletter {
   excerpt: string;
   url: string;
   source: 'school' | 'pta';
+  /** Preview image from Mailchimp HTML or Smore og:image when available. */
+  imageUrl?: string;
 }
 
 export interface CalendarEvent {

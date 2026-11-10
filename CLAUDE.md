@@ -56,7 +56,7 @@ All loaders follow a KV-first pattern with mock data fallback (`app/lib/mock-dat
 | `R2_BUCKET` | R2 | Receipt file uploads |
 | `R2_ARCHIVE` | R2 | Archive bucket (`api.archive.file`) |
 | `RECEIPT_CONVERSION_QUEUE` | Queue | Async receipt → PDF pipeline |
-| `AI` | Workers AI | Budget account suggestions (`@cf/moonshotai/kimi-k2.6`) |
+| `AI` | Workers AI | Budget account suggestions (`@cf/zai-org/glm-5.3`) |
 
 Bindings are declared in `wrangler.jsonc`. Generated binding types live in `worker-configuration.d.ts` (from `pnpm cf-typegen`); extra secrets/optional keys merge via `app/env.d.ts`.
 

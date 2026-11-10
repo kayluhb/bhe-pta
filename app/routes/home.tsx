@@ -250,7 +250,18 @@ export default function Home({loaderData}: Route.ComponentProps) {
                   className="overflow-hidden rounded-card border border-bhe-border bg-bhe-card"
                   key={item.id}
                 >
-                  <div className="aspect-[4/3] bg-bhe-tint-green" />
+                  {item.imageUrl ? (
+                    <div className="aspect-[4/3] overflow-hidden bg-bhe-tint-green">
+                      <img
+                        alt=""
+                        className="h-full w-full object-cover object-top"
+                        loading="lazy"
+                        src={item.imageUrl}
+                      />
+                    </div>
+                  ) : (
+                    <div className="aspect-[4/3] bg-bhe-tint-green" />
+                  )}
                   <div className="p-5">
                     <p className="text-sm text-bhe-muted">
                       {formatNewsletterDate(item.date)} ·{' '}

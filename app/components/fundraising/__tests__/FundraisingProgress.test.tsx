@@ -33,6 +33,7 @@ const campaign: AnnualFundCampaign = {
   raisedAmount: 120,
   schoolYear: '2026-27',
   suggestedAskPerChild: 650,
+  thermometerVisible: true,
   title: 'Annual Fund Milestones',
 };
 
