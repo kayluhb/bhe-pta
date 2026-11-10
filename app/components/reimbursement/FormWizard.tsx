@@ -274,8 +274,11 @@ export function FormWizard() {
           </ul>
           <p className="mt-4 text-sm text-bhe-muted">
             Questions?{' '}
-            <a className="font-bold text-bhe-green hover:underline" href="mailto:pta@bheeagles.com">
-              Email pta@bheeagles.com
+            <a
+              className="font-bold text-bhe-green hover:underline"
+              href="mailto:treasurer@bheeagles.com"
+            >
+              Email treasurer@bheeagles.com
             </a>
           </p>
         </div>
