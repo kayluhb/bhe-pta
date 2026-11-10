@@ -208,7 +208,7 @@ export default function Home({loaderData}: Route.ComponentProps) {
                     {event.title}
                   </h3>
                   {event.description ? (
-                    <p className="mt-1 line-clamp-2 text-sm text-bhe-muted">
+                    <p className="mt-1 text-sm leading-relaxed text-bhe-muted">
                       {stripHtml(event.description)}
                     </p>
                   ) : null}

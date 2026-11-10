@@ -71,21 +71,16 @@ function dayNum(start: string): string {
   return String(eventDate(start).getDate());
 }
 
-function timeLocationLine(event: CalendarEvent): string {
-  const parts: string[] = [];
-  if (!event.allDay && event.start.includes('T')) {
-    parts.push(
-      eventDate(event.start).toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-      }),
-    );
-  }
-  if (event.description) {
-    const plain = stripHtml(event.description);
-    if (plain) parts.push(plain.slice(0, 80) + (plain.length > 80 ? '…' : ''));
-  }
-  return parts.join(' · ') || '[TIME · LOCATION]';
+function eventTimeLabel(event: CalendarEvent): string | null {
+  if (event.allDay || !event.start.includes('T')) return null;
+  return eventDate(event.start).toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
+
+function eventDescriptionPlain(event: CalendarEvent): string {
+  return event.description ? stripHtml(event.description) : '';
 }
 
 export default function EventsPage() {
@@ -190,7 +185,27 @@ export default function EventsPage() {
                           <h3 className="mt-2 font-display text-[22px] font-bold leading-tight text-bhe-ink md:text-[28px]">
                             {event.title}
                           </h3>
-                          <p className="mt-1 text-sm text-bhe-muted">{timeLocationLine(event)}</p>
+                          {(() => {
+                            const time = eventTimeLabel(event);
+                            const description = eventDescriptionPlain(event);
+                            if (!time && !description) {
+                              return (
+                                <p className="mt-1 text-sm text-bhe-muted">[TIME · LOCATION]</p>
+                              );
+                            }
+                            return (
+                              <>
+                                {time ? (
+                                  <p className="mt-1 text-sm font-semibold text-bhe-ink">{time}</p>
+                                ) : null}
+                                {description ? (
+                                  <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-bhe-body">
+                                    {description}
+                                  </p>
+                                ) : null}
+                              </>
+                            );
+                          })()}
                         </div>
                         {(() => {
                           const cta = eventPrimaryCta(event);
