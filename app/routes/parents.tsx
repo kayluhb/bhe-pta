@@ -1,4 +1,5 @@
 import {Link} from 'react-router';
+import {PageHero} from '~/components/ui/PageHero';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/parents';
 
@@ -113,11 +114,7 @@ const contactCards = [
         viewBox="0 0 24 24"
       >
         <title>Address</title>
-        <path
-          d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+        <path d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" />
         <path
           d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
           strokeLinecap="round"
@@ -247,34 +244,20 @@ export default function Parents() {
   return (
     <div>
       {/* ── 1. Page Banner ───────────────────────────────────────────────── */}
-      <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-[0.05]"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)',
-          }}
-        />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white">
-            Parents
-          </h1>
-          <p className="mt-4 text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
-            Essential information and resources for Barton Hills Elementary families
-          </p>
-          <div className="mt-6 h-1 w-20 bg-spirit-gold rounded-full mx-auto" />
-        </div>
-      </section>
+      <PageHero
+        lead="Essential information and resources for Barton Hills Elementary families"
+        title="Parents"
+      />
 
       {/* ── 2. Quick Links ───────────────────────────────────────────────── */}
-      <section className="bg-warm-white py-16 md:py-24">
+      <section className="bg-bhe-paper py-16 md:py-24">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-bhe-ink">
               Quick Links
             </h2>
-            <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
-            <p className="mt-4 text-charcoal/70 max-w-2xl mx-auto">
+            <div className="mt-3 h-1 w-16 bg-bhe-gold rounded-full mx-auto" />
+            <p className="mt-4 text-bhe-ink/70 max-w-2xl mx-auto">
               Helpful resources for Barton Hills Elementary families
             </p>
           </div>
@@ -282,18 +265,18 @@ export default function Parents() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {quickLinks.map((link) => {
               const cardClass =
-                'group rounded-lg bg-white p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg'
+                'group rounded-card border border-bhe-border bg-bhe-card p-6 transition-colors hover:border-bhe-green/30';
               const inner = (
                 <div className="flex items-start gap-4">
-                  <div className="shrink-0 h-12 w-12 rounded-lg bg-eagle-blue/10 flex items-center justify-center text-eagle-blue group-hover:bg-eagle-blue group-hover:text-white transition-colors">
+                  <div className="shrink-0 h-12 w-12 rounded-tile bg-bhe-tint-green flex items-center justify-center text-bhe-green group-hover:bg-bhe-green group-hover:text-white transition-colors">
                     {link.icon}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-heading font-bold text-charcoal group-hover:text-eagle-blue transition-colors">
+                    <h3 className="font-display font-bold text-bhe-ink group-hover:text-bhe-green transition-colors">
                       {link.title}
                     </h3>
-                    <p className="mt-1 text-sm text-charcoal/70">{link.description}</p>
-                    <span className="mt-3 inline-flex items-center gap-1 text-sm font-heading font-bold text-eagle-blue group-hover:text-spirit-gold transition-colors">
+                    <p className="mt-1 text-sm text-bhe-ink/70">{link.description}</p>
+                    <span className="mt-3 inline-flex items-center gap-1 text-sm font-display font-bold text-bhe-green group-hover:text-bhe-green-2 transition-colors">
                       {'to' in link ? 'Go' : 'Visit'}
                       <svg
                         aria-hidden="true"
@@ -342,23 +325,23 @@ export default function Parents() {
       {/* ── 3. School Overview Card ──────────────────────────────────────── */}
       <section className="bg-white py-16 md:py-24">
         <div className="max-w-4xl mx-auto px-4">
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <div className="bg-eagle-blue p-6 md:p-8">
-              <h2 className="text-2xl md:text-3xl font-heading font-bold text-white">
+          <div className="overflow-hidden rounded-card border border-bhe-border bg-bhe-card">
+            <div className="bg-bhe-green p-6 md:p-8">
+              <h2 className="text-2xl md:text-3xl font-display font-bold text-white">
                 School Hours
               </h2>
             </div>
             <div className="p-6 md:p-8">
               <table className="w-full">
                 <caption className="sr-only">School hours</caption>
-                <tbody className="divide-y divide-charcoal/10">
+                <tbody className="divide-y divide-bhe-border">
                   {hours.map((row) => (
                     <tr key={row.label}>
                       <th className="py-4 pr-4 text-left" scope="row">
-                        <span className="font-heading font-bold text-charcoal">{row.label}</span>
+                        <span className="font-display font-bold text-bhe-ink">{row.label}</span>
                       </th>
                       <td className="py-4 text-right">
-                        <span className="text-charcoal/70 font-medium">{row.time}</span>
+                        <span className="text-bhe-ink/70 font-medium">{row.time}</span>
                       </td>
                     </tr>
                   ))}
@@ -370,34 +353,34 @@ export default function Parents() {
       </section>
 
       {/* ── 4. Contact Info ──────────────────────────────────────────────── */}
-      <section className="bg-warm-white py-16 md:py-24">
+      <section className="bg-bhe-paper py-16 md:py-24">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-bhe-ink">
               Contact Information
             </h2>
-            <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
+            <div className="mt-3 h-1 w-16 bg-bhe-gold rounded-full mx-auto" />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {contactCards.map((card) => (
               <a
-                className="group rounded-lg bg-white p-6 text-center shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                className="group rounded-card border border-bhe-border bg-bhe-card p-6 text-center transition-colors hover:border-bhe-green/30"
                 href={card.href}
                 key={card.label}
                 {...('external' in card && card.external
                   ? {rel: 'noopener noreferrer', target: '_blank'}
                   : {})}
               >
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-eagle-blue/10 text-eagle-blue transition-colors group-hover:bg-eagle-blue group-hover:text-white">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-bhe-green/10 text-bhe-green transition-colors group-hover:bg-bhe-green group-hover:text-white">
                   {card.icon}
                 </div>
-                <p className="font-heading text-sm font-bold text-charcoal">{card.label}</p>
+                <p className="font-display text-sm font-bold text-bhe-ink">{card.label}</p>
                 <p
                   className={`mt-1 text-sm transition-colors ${
                     card.accent
-                      ? 'text-eagle-blue group-hover:text-spirit-gold'
-                      : 'text-charcoal/70 group-hover:text-eagle-blue'
+                      ? 'text-bhe-green group-hover:text-bhe-green-2'
+                      : 'text-bhe-ink/70 group-hover:text-bhe-green'
                   }`}
                 >
                   {card.value}

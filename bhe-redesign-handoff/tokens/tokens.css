@@ -1,0 +1,63 @@
+/* bheeagles.com redesign — design tokens */
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap");
+
+:root {
+  /* Brand */
+  --bhe-green: #173D2E;        /* primary: text, buttons, dark bands */
+  --bhe-green-2: #2E6B4F;      /* icons, eyebrow labels, links on light */
+  --bhe-green-line: #2C5243;   /* dividers/borders on green */
+  --bhe-gold: #F3B23C;         /* accent: Give button, highlights, labels on green */
+
+  /* Surfaces */
+  --bhe-paper: #F6F1E7;        /* page background */
+  --bhe-paper-2: #F1EADC;      /* disabled inputs, segmented-control track */
+  --bhe-card: #FFFFFF;
+  --bhe-card-alt: #FBF8F2;     /* nested cards (receipt rows) */
+
+  /* Text */
+  --bhe-ink: #173D2E;          /* headings + default text */
+  --bhe-body: #374151;         /* lead paragraphs */
+  --bhe-muted: #4B5563;        /* secondary text (passes 4.5:1 on paper and white) */
+  --bhe-on-green: #F6F1E7;     /* text on green */
+  --bhe-on-green-muted: #D3E0D8;
+  --bhe-error: #B42318;        /* required asterisks, errors */
+
+  /* Lines */
+  --bhe-border: #E3DACB;       /* card borders, dividers */
+  --bhe-border-input: #CFC5B3; /* inputs, dashed dropzones, inactive chips */
+
+  /* Tag tints (text stays --bhe-ink) */
+  --bhe-tint-green: #E4EEE7;   /* Community / regular-cadence */
+  --bhe-tint-gold: #FCEBC7;    /* Prospective families / intermittent / tax notice */
+  --bhe-tint-blue: #E1E9F3;    /* PTA meeting / one-time */
+
+  /* Type */
+  --bhe-font-display: "Bricolage Grotesque", system-ui, sans-serif; /* 700–800 */
+  --bhe-font-body: "Figtree", system-ui, sans-serif;               /* 400–700 */
+  --bhe-text-body: 17px;       /* desktop body; 16px on phone */
+  --bhe-leading: 1.55;
+
+  /* Radii */
+  --bhe-radius-pill: 999px;    /* buttons, chips, newsletter input */
+  --bhe-radius-input: 12px;
+  --bhe-radius-tile: 14px;     /* date tiles, dropzones */
+  --bhe-radius-card: 20px;     /* event, news and small cards (18–24 in mockups) */
+  --bhe-radius-panel: 28px;    /* hero image, big panels, newsletter band */
+
+  /* Layout */
+  --bhe-container: 1240px;
+  --bhe-gutter: 24px;          /* 16px on phone */
+  --bhe-section-y: 88px;       /* 40–48px on phone */
+
+  /* Elevation (used sparingly) */
+  --bhe-shadow-float: 0 12px 30px rgba(23, 61, 46, 0.18);
+  --bhe-shadow-form: 0 16px 40px rgba(23, 61, 46, 0.10);
+}
+
+@media (max-width: 767px) {
+  :root {
+    --bhe-gutter: 16px;
+    --bhe-text-body: 16px;
+    --bhe-section-y: 44px;
+  }
+}

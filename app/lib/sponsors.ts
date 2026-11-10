@@ -26,13 +26,13 @@ function buildTiers(logoPath: string): SponsorTier[] {
   return [
     {
       amount: '$5,000+',
-      bgLight: 'bg-eagle-blue/5',
-      borderColor: 'border-eagle-blue',
-      color: 'bg-eagle-blue',
+      bgLight: 'bg-bhe-tint-green',
+      borderColor: 'border-bhe-green',
+      color: 'bg-bhe-green',
       name: 'Eagle Pride',
       signage: '96" x 72" sign with logo',
       slots: 4,
-      textColor: 'text-eagle-blue',
+      textColor: 'text-bhe-green',
       sponsors: [
         {
           logo: `${logoPath}/berbar-group.png`,
@@ -58,13 +58,13 @@ function buildTiers(logoPath: string): SponsorTier[] {
     },
     {
       amount: '$2,500 - $4,999',
-      bgLight: 'bg-charcoal/5',
-      borderColor: 'border-charcoal',
-      color: 'bg-charcoal',
+      bgLight: 'bg-bhe-paper-2',
+      borderColor: 'border-bhe-border',
+      color: 'bg-bhe-ink',
       name: 'Eagle Support',
       signage: '80" x 60" sign with logo',
       slots: 12,
-      textColor: 'text-charcoal',
+      textColor: 'text-bhe-ink',
       sponsors: [
         {
           logo: `${logoPath}/harben-house.png`,
@@ -104,13 +104,13 @@ function buildTiers(logoPath: string): SponsorTier[] {
     },
     {
       amount: '$1,000 - $2,499',
-      bgLight: 'bg-spirit-gold/5',
-      borderColor: 'border-spirit-gold',
-      color: 'bg-spirit-gold',
+      bgLight: 'bg-bhe-tint-gold',
+      borderColor: 'border-bhe-gold',
+      color: 'bg-bhe-gold',
       name: 'Eagle Love',
       signage: '64" x 48" sign with logo',
       slots: 18,
-      textColor: 'text-spirit-gold',
+      textColor: 'text-bhe-ink',
       sponsors: [
         {
           logo: `${logoPath}/allensworth.png`,
@@ -188,13 +188,13 @@ function buildTiers(logoPath: string): SponsorTier[] {
     },
     {
       amount: '$500 - $999',
-      bgLight: 'bg-creek-green/5',
-      borderColor: 'border-creek-green',
-      color: 'bg-creek-green',
+      bgLight: 'bg-bhe-tint-green',
+      borderColor: 'border-bhe-green-2',
+      color: 'bg-bhe-green-2',
       name: 'Eagle Friend',
       signage: '48" x 36" sign with name or logo',
       slots: 24,
-      textColor: 'text-creek-green',
+      textColor: 'text-bhe-green-2',
       sponsors: [
         {logo: `${logoPath}/ai-vector.png`, name: 'ARC', url: 'https://www.e-arc.com/'},
         {
@@ -272,13 +272,13 @@ function buildTiers(logoPath: string): SponsorTier[] {
     },
     {
       amount: '$200 - $499',
-      bgLight: 'bg-charcoal/[0.03]',
-      borderColor: 'border-charcoal/30',
-      color: 'bg-charcoal/50',
+      bgLight: 'bg-bhe-paper-2',
+      borderColor: 'border-bhe-border/30',
+      color: 'bg-bhe-paper-20',
       name: 'Eagle Fan',
       signage: '32" x 24" sign with name or logo',
       slots: 6,
-      textColor: 'text-charcoal/70',
+      textColor: 'text-bhe-ink/70',
       sponsors: [
         {
           logo: `${logoPath}/bhe-sign-fan.jpg`,
@@ -300,13 +300,13 @@ function build202627Tiers(logoPath: string): SponsorTier[] {
   return [
     {
       amount: '$5,000+',
-      bgLight: 'bg-eagle-blue/5',
-      borderColor: 'border-eagle-blue',
-      color: 'bg-eagle-blue',
+      bgLight: 'bg-bhe-tint-green',
+      borderColor: 'border-bhe-green',
+      color: 'bg-bhe-green',
       name: 'Eagle Pride',
       signage: '96" x 72" sign with logo',
       slots: 6,
-      textColor: 'text-eagle-blue',
+      textColor: 'text-bhe-green',
       sponsors: [
         {
           logo: `${logoPath}/chubbies.png`,
@@ -337,13 +337,13 @@ function build202627Tiers(logoPath: string): SponsorTier[] {
     },
     {
       amount: '$2,500 - $4,999',
-      bgLight: 'bg-charcoal/5',
-      borderColor: 'border-charcoal',
-      color: 'bg-charcoal',
+      bgLight: 'bg-bhe-paper-2',
+      borderColor: 'border-bhe-border',
+      color: 'bg-bhe-ink',
       name: 'Eagle Support',
       signage: '80" x 60" sign with logo',
       slots: 12,
-      textColor: 'text-charcoal',
+      textColor: 'text-bhe-ink',
       sponsors: [
         {
           logo: `${logoPath}/allensworth.png`,
@@ -376,13 +376,13 @@ function build202627Tiers(logoPath: string): SponsorTier[] {
     },
     {
       amount: '$1,000 - $2,499',
-      bgLight: 'bg-spirit-gold/5',
-      borderColor: 'border-spirit-gold',
-      color: 'bg-spirit-gold',
+      bgLight: 'bg-bhe-tint-gold',
+      borderColor: 'border-bhe-gold',
+      color: 'bg-bhe-gold',
       name: 'Eagle Love',
       signage: '64" x 48" sign with logo',
       slots: 18,
-      textColor: 'text-spirit-gold',
+      textColor: 'text-bhe-ink',
       sponsors: [
         {
           logo: `${logoPath}/ander-corp.jpg`,
@@ -445,13 +445,13 @@ function build202627Tiers(logoPath: string): SponsorTier[] {
     },
     {
       amount: '$500 - $999',
-      bgLight: 'bg-creek-green/5',
-      borderColor: 'border-creek-green',
-      color: 'bg-creek-green',
+      bgLight: 'bg-bhe-tint-green',
+      borderColor: 'border-bhe-green-2',
+      color: 'bg-bhe-green-2',
       name: 'Eagle Friend',
       signage: '48" x 36" sign with name or logo',
       slots: 24,
-      textColor: 'text-creek-green',
+      textColor: 'text-bhe-green-2',
       sponsors: [
         {
           logo: `${logoPath}/bodybar-pilates.svg`,
@@ -473,13 +473,13 @@ function build202627Tiers(logoPath: string): SponsorTier[] {
     },
     {
       amount: '$200 - $499',
-      bgLight: 'bg-charcoal/[0.03]',
-      borderColor: 'border-charcoal/30',
-      color: 'bg-charcoal/50',
+      bgLight: 'bg-bhe-paper-2',
+      borderColor: 'border-bhe-border/30',
+      color: 'bg-bhe-paper-20',
       name: 'Eagle Fan',
       signage: '32" x 24" sign with name or logo',
       slots: 6,
-      textColor: 'text-charcoal/70',
+      textColor: 'text-bhe-ink/70',
       sponsors: [
         {
           logo: `${logoPath}/house-of-noa.png`,

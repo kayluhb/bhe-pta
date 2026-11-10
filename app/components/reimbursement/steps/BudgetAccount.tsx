@@ -58,7 +58,7 @@ function SuggestHelper({
   if (!expanded) {
     return (
       <button
-        className="mt-3 text-sm text-eagle-blue hover:text-eagle-blue/80 underline underline-offset-2"
+        className="mt-3 text-sm text-bhe-green hover:text-bhe-green/80 underline underline-offset-2"
         onClick={() => setExpanded(true)}
         type="button"
       >
@@ -68,13 +68,13 @@ function SuggestHelper({
   }
 
   return (
-    <div className="mt-3 rounded-lg border border-charcoal/10 bg-warm-white p-4">
-      <label className="text-sm font-medium text-charcoal/80 mb-2 block" htmlFor="budget-suggest-input">
+    <div className="mt-3 rounded-lg border border-bhe-border bg-bhe-paper p-4">
+      <label className="text-sm font-medium text-bhe-ink/80 mb-2 block" htmlFor="budget-suggest-input">
         Describe what you purchased and we'll suggest an account
       </label>
       <div className="flex gap-2">
         <input
-          className="flex-1 px-3 py-2 border border-charcoal/20 rounded-lg text-sm text-charcoal placeholder:text-charcoal/70 focus:outline-none focus:ring-2 focus:ring-eagle-blue focus:border-eagle-blue"
+          className="flex-1 px-3 py-2 border border-bhe-border rounded-lg text-sm text-bhe-ink placeholder:text-bhe-ink/70 focus:outline-none focus:ring-2 focus:ring-bhe-green focus:border-bhe-green"
           disabled={suggesting}
           id="budget-suggest-input"
           onChange={(e) => setDescription(e.target.value)}
@@ -130,9 +130,9 @@ export function BudgetAccount({
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-charcoal/10">
-        <h2 className="text-xl font-semibold text-charcoal mb-2">Budget Account</h2>
-        <p className="text-charcoal/70 mb-6">
+      <div className="rounded-card border border-bhe-border bg-bhe-card p-6">
+        <h2 className="font-display text-xl font-bold text-bhe-ink mb-2">Which budget does this come from?</h2>
+        <p className="text-bhe-ink/70 mb-6">
           Select which PTA budget account should be debited for this reimbursement.
         </p>
 
@@ -155,15 +155,15 @@ export function BudgetAccount({
               <label className="flex items-center space-x-3 cursor-pointer">
                 <input
                   checked={budget.splitAccounts}
-                  className="w-4 h-4 text-eagle-blue border-charcoal/20 rounded focus:ring-eagle-blue"
+                  className="w-4 h-4 text-bhe-green border-bhe-border rounded focus:ring-bhe-green"
                   onChange={(e) => onUpdateBudget({splitAccounts: e.target.checked})}
                   type="checkbox"
                 />
-                <span className="text-sm font-medium text-charcoal/80">
+                <span className="text-sm font-medium text-bhe-ink/80">
                   Split receipts across different accounts
                 </span>
               </label>
-              <p className="mt-1 ml-7 text-xs text-charcoal/70">
+              <p className="mt-1 ml-7 text-xs text-bhe-ink/70">
                 Enable this to assign different budget accounts to each receipt.
               </p>
             </div>
@@ -171,21 +171,21 @@ export function BudgetAccount({
 
           {budget.splitAccounts && receipts.length > 1 && (
             <div className="border-t pt-4 space-y-4">
-              <h3 className="text-sm font-medium text-charcoal/80">
+              <h3 className="text-sm font-medium text-bhe-ink/80">
                 Assign accounts to each receipt:
               </h3>
               {receipts.map((receipt, index) => (
                 <div
-                  className="p-3 bg-warm-white rounded-lg border border-charcoal/10"
+                  className="p-3 bg-bhe-paper rounded-lg border border-bhe-border"
                   key={
                     receipt.clientKey ?? `${receipt.date}-${receipt.amount}-${receipt.description}`
                   }
                 >
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-charcoal">
+                    <span className="text-sm font-medium text-bhe-ink">
                       Receipt {index + 1}: {receipt.description || 'No description'}
                     </span>
-                    <span className="text-sm text-charcoal/70">
+                    <span className="text-sm text-bhe-ink/70">
                       {formatCurrency(receipt.amount)}
                     </span>
                   </div>

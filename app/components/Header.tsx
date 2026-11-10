@@ -1,8 +1,22 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
-import {Link, NavLink, useLocation} from 'react-router';
+import {Link, NavLink, useLocation, useRouteLoaderData} from 'react-router';
 
 import {HeaderLogo} from '~/components/HeaderLogo';
+import {Button} from '~/components/ui/Button';
+import {Container} from '~/components/ui/Container';
 import {annualFundPath} from '~/data/annual-fund-campaign';
+import {PROSPECTIVE_EVENT_PATTERN} from '~/lib/event-categories';
+import type {CalendarEvent} from '~/lib/types';
+
+type HomeLoaderData = {
+  bannerEvent?: CalendarEvent | null;
+};
+
+function formatBannerDate(start: string): string {
+  const date = start.includes('T') ? new Date(start) : new Date(`${start}T12:00:00`);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
+}
 
 const navLinks = [
   {to: '/about', label: 'About'},
@@ -26,13 +40,11 @@ export function Header() {
     buttonRef.current?.focus();
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => {
     void location.pathname;
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
-  // Close menu when clicking outside
   useEffect(() => {
     if (!mobileMenuOpen) return;
 
@@ -46,7 +58,6 @@ export function Header() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [mobileMenuOpen, closeMenu]);
 
-  // Escape key handler and focus trap
   useEffect(() => {
     if (!mobileMenuOpen) return;
 
@@ -56,7 +67,6 @@ export function Header() {
         return;
       }
 
-      // Focus trap across hamburger + menu panel
       if (e.key === 'Tab') {
         const focusable = headerRef.current?.querySelectorAll<HTMLElement>(
           'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
@@ -80,7 +90,6 @@ export function Header() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [mobileMenuOpen, closeMenu]);
 
-  // Focus first menu item when menu opens
   useEffect(() => {
     if (mobileMenuOpen && menuRef.current) {
       const firstLink = menuRef.current.querySelector<HTMLElement>('a[href]');
@@ -88,22 +97,52 @@ export function Header() {
     }
   }, [mobileMenuOpen]);
 
+  useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
+  const isHome = location.pathname === '/';
+  const homeData = useRouteLoaderData('routes/home') as HomeLoaderData | undefined;
+  const bannerEvent = isHome ? homeData?.bannerEvent : null;
+  const bannerDate = bannerEvent ? formatBannerDate(bannerEvent.start) : '';
+  const bannerLabel = bannerEvent
+    ? PROSPECTIVE_EVENT_PATTERN.test(`${bannerEvent.category} ${bannerEvent.title}`)
+      ? `Prospective families: tour ${bannerDate} →`
+      : `Coming up: ${bannerEvent.title} · ${bannerDate} →`
+    : null;
+
   return (
-    <header className="sticky top-0 z-50 bg-eagle-blue shadow-lg" ref={headerRef}>
-      <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
-        {/* Logo + Site Name */}
-        <Link aria-label="Barton Hills Elementary PTA home" className="flex items-center shrink-0" to="/">
-          <HeaderLogo />
+    <header className="sticky top-0 z-50 border-b border-bhe-border bg-bhe-paper" ref={headerRef}>
+      {isHome && bannerLabel ? (
+        <div className="bg-bhe-green text-bhe-on-green">
+          <Container className="flex items-center justify-center py-2.5 text-sm md:justify-end md:text-[14px]">
+            <Link className="font-bold text-bhe-gold hover:underline" to="/events">
+              {bannerLabel}
+            </Link>
+          </Container>
+        </div>
+      ) : null}
+      <Container className="flex items-center justify-between py-[18px]">
+        <Link aria-label="Barton Hills Elementary PTA home" className="shrink-0" to="/">
+          <span className="hidden md:inline">
+            <HeaderLogo />
+          </span>
+          <span className="md:hidden">
+            <HeaderLogo compact />
+          </span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav aria-label="Main navigation" className="hidden lg:flex items-center gap-1">
+        <nav aria-label="Main navigation" className="hidden items-center gap-0.5 md:flex">
           {navLinks.map((link) => (
             <NavLink
               className={({isActive}) =>
-                `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive ? 'text-spirit-gold' : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`
+                [
+                  'px-3 py-2.5 text-base font-semibold text-bhe-ink transition-colors hover:text-bhe-green-2',
+                  isActive ? 'font-bold underline decoration-2 underline-offset-6' : '',
+                ].join(' ')
               }
               key={link.to}
               to={link.to}
@@ -111,23 +150,20 @@ export function Header() {
               {link.label}
             </NavLink>
           ))}
+          <Button className="ml-3" size="md" to={annualFundPath} variant="accent">
+            Give
+          </Button>
         </nav>
 
-        {/* CTA + Mobile Toggle */}
-        <div className="flex items-center gap-3">
-          <Link
-            className="hidden sm:inline-block bg-spirit-gold text-night-blue font-heading font-bold text-sm px-5 py-2 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors"
-            to={annualFundPath}
-          >
+        <div className="flex items-center gap-2 md:hidden">
+          <Button size="md" to={annualFundPath} variant="accent">
             Give
-          </Link>
-
-          {/* Hamburger Button */}
+          </Button>
           <button
             aria-controls="mobile-menu"
             aria-expanded={mobileMenuOpen}
-            aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-            className="lg:hidden text-white p-2 rounded-md hover:bg-white/10 transition-colors cursor-pointer"
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full text-bhe-green hover:bg-bhe-tint-green"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             ref={buttonRef}
             type="button"
@@ -161,45 +197,44 @@ export function Header() {
             )}
           </button>
         </div>
-      </div>
+      </Container>
 
-      {/* Mobile Menu */}
       <div
         aria-hidden={!mobileMenuOpen}
-        className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-          mobileMenuOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
-        }`}
+        className={`md:hidden ${mobileMenuOpen ? 'block' : 'hidden'}`}
         id="mobile-menu"
         ref={menuRef}
       >
-        <nav aria-label="Mobile navigation" className="bg-eagle-blue border-t border-white/10 pb-4">
-          <div className="max-w-7xl mx-auto px-4 pt-2 flex flex-col gap-1">
-            {navLinks.map((link) => (
-              <NavLink
-                className={({isActive}) =>
-                  `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'text-spirit-gold bg-white/5'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                  }`
-                }
-                key={link.to}
-                onClick={() => setMobileMenuOpen(false)}
-                tabIndex={mobileMenuOpen ? 0 : -1}
-                to={link.to}
-              >
-                {link.label}
-              </NavLink>
-            ))}
-            <Link
-              className="mt-2 bg-spirit-gold text-night-blue font-heading font-bold text-sm px-5 py-2 rounded-full text-center border-2 border-spirit-gold hover:bg-white transition-colors block"
+        <nav
+          aria-label="Mobile navigation"
+          className="flex min-h-[calc(100dvh-5.5rem)] flex-col border-t border-bhe-border bg-bhe-paper px-4 pb-8 pt-2"
+        >
+          {navLinks.map((link) => (
+            <NavLink
+              className={({isActive}) =>
+                [
+                  'flex min-h-[52px] items-center text-xl font-bold text-bhe-ink',
+                  isActive ? 'underline decoration-2 underline-offset-4' : '',
+                ].join(' ')
+              }
+              key={link.to}
               onClick={() => setMobileMenuOpen(false)}
               tabIndex={mobileMenuOpen ? 0 : -1}
-              to={annualFundPath}
+              to={link.to}
             >
-              Give
-            </Link>
-          </div>
+              {link.label}
+            </NavLink>
+          ))}
+          <Button
+            className="mt-auto w-full"
+            onClick={() => setMobileMenuOpen(false)}
+            size="lg"
+            tabIndex={mobileMenuOpen ? 0 : -1}
+            to={annualFundPath}
+            variant="accent"
+          >
+            Give
+          </Button>
         </nav>
       </div>
     </header>

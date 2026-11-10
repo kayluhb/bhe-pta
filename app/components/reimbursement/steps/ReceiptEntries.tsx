@@ -60,29 +60,29 @@ export function ReceiptEntries({
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-charcoal/10">
+      <div className="rounded-card border border-bhe-border bg-bhe-card p-6">
         <div className="flex justify-between items-center mb-4">
           <div>
-            <h2 className="text-xl font-semibold text-charcoal">Receipt Details</h2>
-            <p className="text-charcoal/70 mt-1">
+            <h2 className="font-display text-xl font-bold text-bhe-ink">What did you buy?</h2>
+            <p className="text-bhe-ink/70 mt-1">
               Add a row for each reimbursement line. Attach a photo or PDF on each row (optional).
               You can attach up to {MAX_RECEIPT_UPLOADS} files total across all rows.
             </p>
           </div>
           <div aria-live="polite" className="text-right">
-            <p className="text-sm text-charcoal/70">Total</p>
-            <p className="text-2xl font-bold text-eagle-blue">{formatCurrency(totalAmount)}</p>
+            <p className="text-sm text-bhe-ink/70">Total</p>
+            <p className="text-2xl font-bold text-bhe-green">{formatCurrency(totalAmount)}</p>
           </div>
         </div>
 
         <div className="space-y-6">
           {receipts.map((receipt, index) => (
             <div
-              className="p-4 bg-warm-white rounded-lg border border-charcoal/10"
+              className="p-4 bg-bhe-paper rounded-lg border border-bhe-border"
               key={receipt.clientKey ?? `receipt-${index}`}
             >
               <div className="flex justify-between items-center mb-4">
-                <h3 className="font-medium text-charcoal">Receipt {index + 1}</h3>
+                <h3 className="font-medium text-bhe-ink">Receipt {index + 1}</h3>
                 {receipts.length > 1 && (
                   <button
                     aria-label={`Remove Receipt ${index + 1}`}
@@ -134,7 +134,7 @@ export function ReceiptEntries({
                     placeholder="Name of store or location of website"
                     value={receipt.placeOfPurchase || ''}
                   />
-                  <p className="mt-1 text-xs text-charcoal/70">
+                  <p className="mt-1 text-xs text-bhe-ink/70">
                     Name of store or location of website.
                   </p>
                 </div>
@@ -169,7 +169,7 @@ export function ReceiptEntries({
 
         {receipts.length < MAX_RECEIPT_LINES && (
           <button
-            className="mt-4 w-full py-3 border-2 border-dashed border-charcoal/20 rounded-lg text-charcoal/70 hover:border-eagle-blue hover:text-eagle-blue transition-colors"
+            className="mt-4 w-full py-3 border-2 border-dashed border-bhe-border rounded-lg text-bhe-ink/70 hover:border-bhe-green hover:text-bhe-green transition-colors"
             onClick={onAdd}
             type="button"
           >
@@ -180,11 +180,11 @@ export function ReceiptEntries({
 
       <label className="flex items-start gap-2 cursor-pointer">
         <input
-          className="mt-0.5 h-4 w-4 rounded border-charcoal/20 text-eagle-blue focus:ring-eagle-blue"
+          className="mt-0.5 h-4 w-4 rounded border-bhe-border text-bhe-green focus:ring-bhe-green"
           required
           type="checkbox"
         />
-        <span className="text-sm text-charcoal/70">
+        <span className="text-sm text-bhe-ink/70">
           I confirm my amounts <strong>do not include sales tax</strong>. Sales tax cannot be
           reimbursed.
         </span>

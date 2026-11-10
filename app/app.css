@@ -1,15 +1,51 @@
 @import "tailwindcss";
 
 @theme {
-  --color-eagle-blue: #1a6b3a;
-  --color-spirit-gold: #d4a843;
-  --color-spirit-gold-on-dark: #f0d78c;
-  --color-creek-green: #2d6a4f;
-  --color-warm-white: #faf8f5;
-  --color-night-blue: #0a2a15;
-  --color-charcoal: #1a2e1a;
-  --font-family-heading: "Montserrat", sans-serif;
-  --font-family-body: "Inter", sans-serif;
+  /* Redesign tokens (bheeagles.com handoff) */
+  --color-bhe-green: #173D2E;
+  --color-bhe-green-2: #2E6B4F;
+  --color-bhe-green-line: #2C5243;
+  --color-bhe-gold: #F3B23C;
+  --color-bhe-paper: #F6F1E7;
+  --color-bhe-paper-2: #F1EADC;
+  --color-bhe-card: #FFFFFF;
+  --color-bhe-card-alt: #FBF8F2;
+  --color-bhe-ink: #173D2E;
+  --color-bhe-body: #374151;
+  --color-bhe-muted: #4B5563;
+  --color-bhe-on-green: #F6F1E7;
+  --color-bhe-on-green-muted: #D3E0D8;
+  --color-bhe-error: #B42318;
+  --color-bhe-border: #E3DACB;
+  --color-bhe-border-input: #CFC5B3;
+  --color-bhe-tint-green: #E4EEE7;
+  --color-bhe-tint-gold: #FCEBC7;
+  --color-bhe-tint-blue: #E1E9F3;
+
+  /* Tailwind v4 maps --font-* → font-* utilities (not --font-family-*) */
+  --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-body: "Figtree", system-ui, sans-serif;
+  --font-heading: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-sans: "Figtree", system-ui, sans-serif;
+
+  --radius-input: 12px;
+  --radius-tile: 14px;
+  --radius-card: 20px;
+  --radius-panel: 28px;
+
+  --max-width-container: 1240px;
+
+  --shadow-float: 0 12px 30px rgba(23, 61, 46, 0.18);
+  --shadow-form: 0 16px 40px rgba(23, 61, 46, 0.10);
+
+  /* Legacy aliases → nearest redesign values (admin + old pages) */
+  --color-eagle-blue: #173D2E;
+  --color-spirit-gold: #F3B23C;
+  --color-spirit-gold-on-dark: #F3B23C;
+  --color-creek-green: #2E6B4F;
+  --color-warm-white: #F6F1E7;
+  --color-night-blue: #173D2E;
+  --color-charcoal: #173D2E;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -30,7 +66,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid #d4a843;
+    outline: 2px solid var(--color-bhe-green);
     outline-offset: 2px;
   }
 }

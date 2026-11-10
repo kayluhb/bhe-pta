@@ -1,5 +1,7 @@
 import {useState} from 'react';
 import {useLoaderData} from 'react-router';
+
+import {PageHero} from '~/components/ui/PageHero';
 import {getCloudflare} from '~/lib/cloudflare-context';
 import {formatNewsletterDate} from '~/lib/format-newsletter-date';
 import {mergeParentMeta} from '~/lib/meta';
@@ -47,29 +49,12 @@ export default function News() {
 
   return (
     <div>
-      <section className="relative overflow-hidden bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24">
-        <div
-          className="absolute inset-0 opacity-[0.05]"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)',
-          }}
-        />
-        <div className="relative z-10 mx-auto max-w-7xl px-4 text-center">
-          <h1 className="font-heading text-4xl font-bold text-white md:text-5xl lg:text-6xl">
-            News & Updates
-          </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-white/90 md:text-xl">
-            Eagle Updates and PTA newsletters, newest first
-          </p>
-          <div className="mx-auto mt-6 h-1 w-20 rounded-full bg-spirit-gold" />
-        </div>
-      </section>
+      <PageHero lead="Eagle Updates and PTA newsletters, newest first" title="News & Updates" />
 
-      <section className="bg-warm-white py-16 md:py-24">
+      <section className="bg-bhe-paper py-16 md:py-24">
         <div className="mx-auto max-w-3xl px-4">
           {displayedNews.length > 0 ? (
-            <ol className="relative border-l border-charcoal/15 pl-8 md:pl-10">
+            <ol className="relative border-l border-bhe-border/15 pl-8 md:pl-10">
               {displayedNews.map((item, index) => (
                 <li
                   className="news-feed-item relative pb-12 last:pb-0"
@@ -78,8 +63,8 @@ export default function News() {
                 >
                   <span
                     aria-hidden="true"
-                    className={`absolute top-1.5 -left-8 h-2.5 w-2.5 -translate-x-1/2 rounded-full ring-4 ring-warm-white md:-left-10 ${
-                      item.source === 'school' ? 'bg-eagle-blue' : 'bg-spirit-gold'
+                    className={`absolute top-1.5 -left-8 h-2.5 w-2.5 -translate-x-1/2 rounded-full ring-4 ring-bhe-paper md:-left-10 ${
+                      item.source === 'school' ? 'bg-bhe-green' : 'bg-bhe-gold'
                     }`}
                   />
                   <NewsletterEntry newsletter={item} />
@@ -87,7 +72,7 @@ export default function News() {
               ))}
             </ol>
           ) : (
-            <p className="py-12 text-center text-lg text-charcoal/70">
+            <p className="py-12 text-center text-lg text-bhe-ink/70">
               No newsletters available yet. Check back soon!
             </p>
           )}
@@ -95,7 +80,7 @@ export default function News() {
           {hasMore && (
             <div className="mt-12 text-center">
               <button
-                className="inline-flex items-center gap-2 rounded-full bg-eagle-blue px-8 py-3 font-heading font-bold text-white border-2 border-eagle-blue hover:bg-white hover:text-eagle-blue transition-colors duration-200"
+                className="inline-flex items-center gap-2 rounded-full bg-bhe-green px-8 py-3 font-display font-bold text-white border-2 border-bhe-green hover:bg-white hover:text-bhe-green transition-colors duration-200"
                 onClick={() => setVisibleCount((count) => count + LOAD_MORE_STEP)}
                 type="button"
               >
@@ -130,13 +115,13 @@ function NewsletterEntry({newsletter}: {newsletter: Newsletter}) {
 
   return (
     <a
-      className="group block overflow-hidden rounded-lg bg-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+      className="group block overflow-hidden rounded-card border border-bhe-border bg-bhe-card transition-colors hover:border-bhe-green/30"
       href={newsletter.url}
       rel="noopener noreferrer"
       target="_blank"
     >
       {newsletter.imageUrl ? (
-        <div className="aspect-[16/10] overflow-hidden bg-charcoal/5">
+        <div className="aspect-[16/10] overflow-hidden bg-bhe-tint-green">
           <img
             alt=""
             className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.02]"
@@ -148,28 +133,28 @@ function NewsletterEntry({newsletter}: {newsletter: Newsletter}) {
 
       <div className="p-6 md:p-8">
         <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1">
-          <time className="font-heading text-xs font-bold tracking-wider text-spirit-gold uppercase">
+          <time className="font-display text-xs font-bold tracking-wider text-bhe-green-2 uppercase">
             {formatNewsletterDate(newsletter.date)}
           </time>
           <span
-            className={`font-heading text-xs font-semibold tracking-wider uppercase ${
-              newsletter.source === 'school' ? 'text-eagle-blue' : 'text-charcoal/55'
+            className={`font-display text-xs font-semibold tracking-wider uppercase ${
+              newsletter.source === 'school' ? 'text-bhe-green' : 'text-bhe-muted'
             }`}
           >
             {newsletter.source === 'school' ? 'Eagle Update' : 'PTA News'}
           </span>
         </div>
 
-        <h2 className="font-heading text-xl font-bold text-charcoal transition-colors group-hover:text-eagle-blue md:text-2xl">
+        <h2 className="font-display text-xl font-bold text-bhe-ink transition-colors group-hover:text-bhe-green md:text-2xl">
           {newsletter.title}
           <span className="sr-only"> (opens in new tab)</span>
         </h2>
 
         {showExcerpt && (
-          <p className="mt-3 leading-relaxed text-charcoal/70">{newsletter.excerpt}</p>
+          <p className="mt-3 leading-relaxed text-bhe-ink/70">{newsletter.excerpt}</p>
         )}
 
-        <span className="mt-4 inline-flex items-center text-sm font-semibold text-eagle-blue transition-colors group-hover:text-spirit-gold">
+        <span className="mt-4 inline-flex items-center text-sm font-semibold text-bhe-green transition-colors group-hover:text-bhe-green-2">
           Read more
           <span className="sr-only"> about {newsletter.title}</span>
           <svg

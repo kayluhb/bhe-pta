@@ -1,5 +1,6 @@
-import {Link} from 'react-router';
-
+import {Button} from '~/components/ui/Button';
+import {GreenCta} from '~/components/ui/GreenCta';
+import {PageHero} from '~/components/ui/PageHero';
 import {annualFundPath} from '~/data/annual-fund-campaign';
 import {mergeParentMeta} from '~/lib/meta';
 import type {Route} from './+types/about';
@@ -146,31 +147,17 @@ export default function About() {
   return (
     <div>
       {/* ── 1. Page Banner ───────────────────────────────────────────────── */}
-      <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-[0.05]"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)',
-          }}
-        />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white">
-            About Our PTA
-          </h1>
-          <p className="mt-4 text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
-            Building community, supporting education, empowering every Eagle
-          </p>
-          <div className="mt-6 h-1 w-20 bg-spirit-gold rounded-full mx-auto" />
-        </div>
-      </section>
+      <PageHero
+        lead="Building community, supporting education, empowering every Eagle"
+        title="About Our PTA"
+      />
 
       {/* ── 2. Mission ───────────────────────────────────────────────────── */}
-      <section className="bg-warm-white py-16 md:py-24">
+      <section className="bg-bhe-paper py-16 md:py-24">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">Our Mission</h2>
-          <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
-          <p className="mt-8 text-lg md:text-xl text-charcoal/70 leading-relaxed">
+          <h2 className="text-3xl md:text-4xl font-display font-bold text-bhe-ink">Our Mission</h2>
+          <div className="mt-3 h-1 w-16 bg-bhe-gold rounded-full mx-auto" />
+          <p className="mt-8 text-lg md:text-xl text-bhe-ink/70 leading-relaxed">
             BHE is supported by an active PTA committed to providing significant support for our
             teachers and students. Our PTA would like every parent to be involved in our mission!
           </p>
@@ -181,23 +168,20 @@ export default function About() {
       <section className="bg-white py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4">
           <div className="mb-10">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-bhe-ink">
               Key Initiatives
             </h2>
-            <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full" />
+            <div className="mt-3 h-1 w-16 bg-bhe-gold rounded-full" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {initiatives.map((item) => (
-              <div
-                className="rounded-lg bg-warm-white p-8 shadow-md"
-                key={item.title}
-              >
-                <div className="h-14 w-14 rounded-full bg-eagle-blue/10 flex items-center justify-center mb-5 text-eagle-blue">
+              <div className="rounded-card border border-bhe-border bg-bhe-card-alt p-8" key={item.title}>
+                <div className="h-14 w-14 rounded-full bg-bhe-green/10 flex items-center justify-center mb-5 text-bhe-green">
                   {item.icon}
                 </div>
-                <h3 className="font-heading font-bold text-xl text-charcoal">{item.title}</h3>
-                <p className="mt-3 text-charcoal/70 leading-relaxed">{item.description}</p>
+                <h3 className="font-display font-bold text-xl text-bhe-ink">{item.title}</h3>
+                <p className="mt-3 text-bhe-ink/70 leading-relaxed">{item.description}</p>
               </div>
             ))}
           </div>
@@ -205,28 +189,25 @@ export default function About() {
       </section>
 
       {/* ── 4. PTA Board — Our Leadership ────────────────────────────────── */}
-      <section className="bg-warm-white py-16 md:py-24">
+      <section className="bg-bhe-paper py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-bhe-ink">
               Our 26–27 PTA Officers
             </h2>
-            <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
-            <p className="mt-4 text-charcoal/70 max-w-2xl mx-auto">
+            <div className="mt-3 h-1 w-16 bg-bhe-gold rounded-full mx-auto" />
+            <p className="mt-4 text-bhe-ink/70 max-w-2xl mx-auto">
               PTA Leadership Team — the dedicated volunteers who lead our PTA
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {boardMembers.map((member) => (
-              <div
-                className="rounded-lg bg-white p-8 text-center shadow-md"
-                key={member.name}
-              >
-                <div className="mx-auto mb-5 flex h-24 w-24 items-center justify-center rounded-full bg-eagle-blue/10 text-eagle-blue">
+              <div className="rounded-card border border-bhe-border bg-bhe-card p-8 text-center" key={member.name}>
+                <div className="mx-auto mb-5 flex h-24 w-24 items-center justify-center rounded-full bg-bhe-green/10 text-bhe-green">
                   <svg
                     aria-hidden="true"
-                    className="h-10 w-10 text-eagle-blue/40"
+                    className="h-10 w-10 text-bhe-green/40"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={1.5}
@@ -239,8 +220,8 @@ export default function About() {
                     />
                   </svg>
                 </div>
-                <h3 className="font-heading text-lg font-bold text-charcoal">{member.name}</h3>
-                <p className="mt-1 font-heading text-sm font-semibold text-spirit-gold">
+                <h3 className="font-display text-lg font-bold text-bhe-ink">{member.name}</h3>
+                <p className="mt-1 font-display text-sm font-semibold text-bhe-muted">
                   {member.role}
                 </p>
               </div>
@@ -254,20 +235,20 @@ export default function About() {
         <section className="bg-white py-16 md:py-24">
           <div className="max-w-4xl mx-auto px-4">
             <div className="mb-10">
-              <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">
+              <h2 className="text-3xl md:text-4xl font-display font-bold text-bhe-ink">
                 Meeting Minutes & Bylaws
               </h2>
-              <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full" />
+              <div className="mt-3 h-1 w-16 bg-bhe-gold rounded-full" />
             </div>
 
             <div className="space-y-3">
               {documents.map((doc) => (
                 <a
-                  className="flex items-center gap-4 bg-warm-white rounded-lg p-5 shadow-sm border border-charcoal/5 hover:shadow-md hover:border-spirit-gold/30 transition-all duration-200 group"
+                  className="flex items-center gap-4 rounded-card border border-bhe-border bg-bhe-card-alt p-5 transition-colors hover:border-bhe-green/30 group"
                   href={`/about#${encodeURIComponent(doc.title)}`}
                   key={doc.title}
                 >
-                  <div className="shrink-0 h-10 w-10 rounded-lg bg-eagle-blue/10 flex items-center justify-center text-eagle-blue group-hover:bg-eagle-blue group-hover:text-white transition-colors">
+                  <div className="shrink-0 h-10 w-10 rounded-lg bg-bhe-green/10 flex items-center justify-center text-bhe-green group-hover:bg-bhe-green group-hover:text-white transition-colors">
                     <svg
                       aria-hidden="true"
                       className="h-5 w-5"
@@ -284,14 +265,14 @@ export default function About() {
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-heading font-bold text-charcoal group-hover:text-eagle-blue transition-colors">
+                    <p className="font-display font-bold text-bhe-ink group-hover:text-bhe-green transition-colors">
                       {doc.title}
                     </p>
-                    <p className="text-sm text-charcoal/70">{doc.type}</p>
+                    <p className="text-sm text-bhe-ink/70">{doc.type}</p>
                   </div>
                   <svg
                     aria-hidden="true"
-                    className="h-5 w-5 text-charcoal/30 group-hover:text-eagle-blue transition-colors shrink-0"
+                    className="h-5 w-5 text-bhe-ink/30 group-hover:text-bhe-green transition-colors shrink-0"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={2}
@@ -310,29 +291,15 @@ export default function About() {
         </section>
       )}
 
-      {/* ── 6. Join Us CTA ───────────────────────────────────────────────── */}
-      <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
-        <div
-          className="absolute top-0 right-0 w-1/2 h-full bg-spirit-gold/5"
-          style={{clipPath: 'polygon(100% 0, 0 100%, 100% 100%)'}}
-        />
-        <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-heading font-bold text-white">
-            Support Our PTA
-          </h2>
-          <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
-          <p className="mt-6 text-lg text-white/90 leading-relaxed">
-            Your Annual Fund gift includes membership and helps fund programs for students,
-            teachers, and staff.
-          </p>
-          <Link
-            className="mt-8 inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors duration-200"
-            to={annualFundPath}
-          >
+      <GreenCta
+        action={
+          <Button size="lg" to={annualFundPath} variant="accent">
             Give to the Annual Fund
-          </Link>
-        </div>
-      </section>
+          </Button>
+        }
+        lead="Your Annual Fund gift includes membership and helps fund programs for students, teachers, and staff."
+        title="Support Our PTA"
+      />
     </div>
   );
 }

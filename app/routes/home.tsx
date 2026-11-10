@@ -1,14 +1,19 @@
 import {Link} from 'react-router';
-import {FundraisingProgress} from '~/components/fundraising/FundraisingProgress';
+
 import {NewsletterSignup} from '~/components/NewsletterSignup';
+import {Button} from '~/components/ui/Button';
+import {Container} from '~/components/ui/Container';
+import {DateTile} from '~/components/ui/DateTile';
+import {GreenBand} from '~/components/ui/GreenBand';
 import {annualFundCampaign, annualFundPath} from '~/data/annual-fund-campaign';
 import {sanitizeCalendarEvents, stripHtml} from '~/lib/calendar';
 import {getCloudflare} from '~/lib/cloudflare-context';
 import {formatNewsletterDate} from '~/lib/format-newsletter-date';
 import {loadPublishedCampaign} from '~/lib/fundraising/campaign-store';
+import {pickHomeBannerEvent, pickHomeUpcomingEvents} from '~/lib/home-upcoming-events';
 import {pageSeoMeta} from '~/lib/meta';
 import {mixNewsletters} from '~/lib/mix-newsletters';
-import {mockNewsletters, mockPtaNewsletters} from '~/lib/mock-data';
+import {mockEvents, mockNewsletters, mockPtaNewsletters} from '~/lib/mock-data';
 import {formatSchoolYearLong} from '~/lib/school-year';
 import {getFeaturedSponsorSchoolYear, getFeaturedSponsors} from '~/lib/sponsors';
 import type {CalendarEvent} from '~/lib/types';
@@ -27,10 +32,8 @@ export function meta({loaderData, matches}: Route.MetaArgs) {
   });
 }
 
-// ─── Loader ──────────────────────────────────────────────────────────────────
-
 export async function loader({context}: Route.LoaderArgs) {
-  let events: CalendarEvent[] = [];
+  let events: CalendarEvent[] = mockEvents;
   let schoolNews = mockNewsletters;
   let ptaNews = mockPtaNewsletters;
   let campaign = annualFundCampaign;
@@ -43,7 +46,10 @@ export async function loader({context}: Route.LoaderArgs) {
       campaign = annualFundCampaign;
     }
     const kvEvents = await env.BHE_CALENDAR.get('events', 'json');
-    if (kvEvents) events = sanitizeCalendarEvents(kvEvents as typeof events);
+    if (kvEvents) {
+      const sanitized = sanitizeCalendarEvents(kvEvents as typeof events);
+      if (sanitized.length > 0) events = sanitized;
+    }
     const kvSchool = await env.BHE_NEWSLETTERS.get('latest', 'json');
     if (kvSchool) schoolNews = kvSchool as typeof schoolNews;
     const kvPta = await env.BHE_PTA_NEWSLETTERS.get('latest', 'json');
@@ -52,19 +58,17 @@ export async function loader({context}: Route.LoaderArgs) {
     // KV not available — use mock data
   }
 
+  const now = new Date();
   const allNews = mixNewsletters(schoolNews, ptaNews, 3);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const upcomingEvents = events
-    .filter((e) => new Date(e.start) >= today)
-    .sort((a, b) => a.start.localeCompare(b.start))
-    .slice(0, 4);
+  const upcomingEvents = pickHomeUpcomingEvents(events, now, 3);
+  const bannerEvent = pickHomeBannerEvent(events, now);
 
   const sponsorSchoolYear = getFeaturedSponsorSchoolYear();
   const sponsors = getFeaturedSponsors(6, sponsorSchoolYear);
 
   return {
     annualFundCampaign: campaign,
+    bannerEvent: bannerEvent ?? null,
     events: upcomingEvents,
     news: allNews,
     sponsorSchoolYear,
@@ -72,16 +76,19 @@ export async function loader({context}: Route.LoaderArgs) {
   };
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
 function formatEventMonth(dateStr: string): string {
   const date = dateStr.includes('T') ? new Date(dateStr) : new Date(`${dateStr}T00:00:00`);
-  return date.toLocaleDateString('en-US', {month: 'short'});
+  return date.toLocaleDateString('en-US', {month: 'short'}).toUpperCase();
 }
 
 function formatEventDay(dateStr: string): string {
   const date = dateStr.includes('T') ? new Date(dateStr) : new Date(`${dateStr}T00:00:00`);
   return date.getDate().toString();
+}
+
+function formatEventWeekday(dateStr: string): string {
+  const date = dateStr.includes('T') ? new Date(dateStr) : new Date(`${dateStr}T00:00:00`);
+  return date.toLocaleDateString('en-US', {weekday: 'long'});
 }
 
 function isExternalUrl(url: string): boolean {
@@ -90,628 +97,359 @@ function isExternalUrl(url: string): boolean {
 
 const programs = [
   {
-    name: 'Cultural Arts',
-    description: 'Bringing live performances and art workshops to students',
-    color: 'bg-eagle-blue',
-    icon: (
-      <svg
-        aria-hidden="true"
-        className="h-8 w-8"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={1.5}
-        viewBox="0 0 24 24"
-      >
-        <path
-          d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
+    name: 'Art, Music & PE',
+    description: 'The PTA funds the final third of these special-area teaching roles every year',
   },
   {
-    name: 'Reflections',
-    description: 'National arts recognition program for student creativity',
-    color: 'bg-spirit-gold',
-    icon: (
-      <svg
-        aria-hidden="true"
-        className="h-8 w-8"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={1.5}
-        viewBox="0 0 24 24"
-      >
-        <path
-          d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
+    name: 'Academic Enrichment',
+    description: 'After-school activities, Reflections, and field trips beyond the core day',
+  },
+  {
+    name: 'Teacher Grants',
+    description: 'Classroom projects and materials teachers request for their students',
+  },
+  {
+    name: 'Cultural Arts',
+    description: 'Live performances and artist visits that bring the wider world to campus',
   },
   {
     name: 'Greenworks',
-    description: 'Environmental education and school garden stewardship',
-    color: 'bg-creek-green',
-    icon: (
-      <svg
-        aria-hidden="true"
-        className="h-8 w-8"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={1.5}
-        viewBox="0 0 24 24"
-      >
-        <path
-          d="M12 21V10m0 0c0-4.418 3.582-8 8-8 0 4.418-3.582 8-8 8zm0 0c0-3.314-2.686-6-6-6 0 3.314 2.686 6 6 6z"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: 'Nick Akery Scholarship',
-    description: 'Supporting college-bound BHE alumni with financial aid',
-    color: 'bg-eagle-blue',
-    icon: (
-      <svg
-        aria-hidden="true"
-        className="h-8 w-8"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={1.5}
-        viewBox="0 0 24 24"
-      >
-        <path
-          d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.62 48.62 0 0112 20.904a48.62 48.62 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.636 50.636 0 00-2.658-.813A59.906 59.906 0 0112 3.493a59.903 59.903 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: 'Social-Emotional Learning',
-    description: 'Building resilience, empathy, and confidence in every student',
-    color: 'bg-creek-green',
-    icon: (
-      <svg
-        aria-hidden="true"
-        className="h-8 w-8"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={1.5}
-        viewBox="0 0 24 24"
-      >
-        <path
-          d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
+    description: 'Gardens, outdoor campus care, and hands-on environmental learning',
   },
 ];
 
-// ─── Section Header Helper ──────────────────────────────────────────────────
-
-function SectionHeader({
-  children,
-  className = '',
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={`mb-10 ${className}`}>
-      <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">{children}</h2>
-      <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full" />
-    </div>
-  );
-}
-
-// ─── Homepage Component ─────────────────────────────────────────────────────
+const flockCards = [
+  {
+    title: 'Volunteer',
+    description: 'Give an hour or a semester — 25+ ways to help keep BHE soaring.',
+    to: '/get-involved#volunteer',
+    linkLabel: 'Find a role →',
+  },
+  {
+    title: 'Join the PTA',
+    description: 'Membership is included with your Annual Fund gift. Belong to the flock.',
+    to: '/get-involved#join',
+    linkLabel: 'Become a member →',
+  },
+  {
+    title: 'Sponsor as a business',
+    description: 'Local businesses power programs and events that serve every student.',
+    to: '/sponsors',
+    linkLabel: 'View sponsor tiers →',
+  },
+];
 
 export default function Home({loaderData}: Route.ComponentProps) {
   const {annualFundCampaign: campaign, events, news, sponsorSchoolYear, sponsors} = loaderData;
+  const ask = campaign.suggestedAskPerChild;
+  const schoolYearLabel = formatSchoolYearLong(campaign.schoolYear);
+
   return (
     <div>
-      {/* ── 1. Hero Section ─────────────────────────────────────────────── */}
-      <section className="relative min-h-[40vh] flex items-center bg-gradient-to-br from-eagle-blue to-night-blue overflow-hidden">
-        {/* Diagonal gold accent stripe */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(135deg, transparent, transparent 60px, #d4a843 60px, #d4a843 62px)',
-          }}
-        />
-
-        {/* Gold diagonal accent bar */}
-        <div
-          aria-hidden="true"
-          className="absolute -right-20 top-1/4 w-80 h-2 bg-spirit-gold/30 rotate-[135deg]"
-        />
-        <div
-          aria-hidden="true"
-          className="absolute -left-10 bottom-1/3 w-60 h-1.5 bg-spirit-gold/20 rotate-[135deg]"
-        />
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 pt-12 pb-20 md:pt-16 md:pb-20 lg:py-20 w-full flex flex-col md:flex-row md:items-center gap-8 md:gap-10">
-          <div className="shrink-0 mx-auto md:mx-0">
-            <span className="inline-flex rounded-full bg-white p-2 shadow-lg shadow-night-blue/30">
-              <img
-                alt="Barton Hills Elementary PTA Eagle Logo"
-                className="h-40 w-auto sm:h-48 md:h-56"
-                src="/logo.svg"
-              />
-            </span>
-          </div>
-
-          <div className="max-w-3xl">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white leading-tight">
-              Soaring Together <span className="block text-spirit-gold-on-dark">Since 1964</span>
-            </h1>
-            <p className="mt-6 text-lg md:text-xl text-white/80 max-w-2xl leading-relaxed">
-              Supporting our school community through parent involvement, fundraising, and advocacy
+      {/* Hero */}
+      <section className="pt-8 md:pt-[72px]">
+        <Container className="grid items-center gap-8 lg:grid-cols-2 lg:gap-14">
+          <div className="flex flex-col gap-5 md:gap-6">
+            <p className="inline-flex self-start rounded-full border-[1.5px] border-bhe-green px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.08em] text-bhe-ink md:text-sm">
+              Go Eagles · Est. 1964
             </p>
-            <div className="mt-6 flex flex-wrap gap-4">
-              <Link
-                className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-base px-6 py-3 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors duration-200"
-                to={annualFundPath}
-              >
-                Give to Annual Fund
-              </Link>
-              <Link
-                className="inline-flex items-center border-2 border-white/70 text-white font-heading font-bold text-base px-6 py-3 rounded-full hover:bg-white/10 transition-colors duration-200"
-                to="/get-involved"
-              >
-                Get Involved
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Angled bottom edge */}
-        <div
-          aria-hidden="true"
-          className="absolute bottom-0 left-0 right-0 h-16 bg-warm-white"
-          style={{clipPath: 'polygon(0 100%, 100% 0, 100% 100%)'}}
-        />
-      </section>
-
-      {campaign.thermometerVisible ? (
-        <section className="bg-white py-16 md:py-20 border-y border-charcoal/5">
-          <div className="max-w-7xl mx-auto px-4">
-            <FundraisingProgress campaign={campaign} className="mt-0" />
-            <div className="mt-10">
-              <Link
-                className="inline-flex items-center bg-spirit-gold text-night-blue font-heading font-bold text-lg px-8 py-3.5 rounded-full border-2 border-spirit-gold hover:bg-white transition-colors duration-200"
-                to={annualFundPath}
-              >
+            <h1 className="font-display text-[46px] font-extrabold leading-[0.98] tracking-[-0.035em] text-bhe-ink md:text-[clamp(48px,6vw,84px)]">
+              Soaring together since 1964.
+            </h1>
+            <p className="max-w-[34ch] text-lg leading-relaxed text-bhe-body md:text-[21px]">
+              Parents, teachers and neighbors keeping Barton Hills a school where every Eagle
+              thrives — through volunteering, fundraising and advocacy.
+            </p>
+            <div className="mt-1 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap">
+              <Button size="lg" to={annualFundPath} variant="primary">
                 Give to the Annual Fund
-              </Link>
+              </Button>
+              <Button size="lg" to="/get-involved" variant="secondary">
+                Get involved
+              </Button>
             </div>
           </div>
-        </section>
-      ) : null}
 
-      {/* ── 2. News & Events ────────────────────────────────────────────── */}
-      <section className="bg-warm-white py-16 md:py-20">
-        <div className="max-w-7xl mx-auto px-4">
-          <SectionHeader>News & Events</SectionHeader>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 lg:gap-16">
-            {/* Events column */}
-            <div>
-              <h3 className="font-heading font-bold text-lg text-charcoal mb-4">Upcoming Events</h3>
-              <ul className="divide-y divide-charcoal/10">
-                {events.map((event) => (
-                  <li className="flex gap-4 py-3 first:pt-0 last:pb-0" key={event.id}>
-                    <div className="shrink-0 w-12 text-center">
-                      <span className="block text-[10px] font-heading font-bold uppercase tracking-wider text-creek-green/70">
-                        {formatEventMonth(event.start)}
-                      </span>
-                      <span className="block text-xl font-heading font-bold leading-none text-creek-green">
-                        {formatEventDay(event.start)}
-                      </span>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-heading font-bold text-charcoal leading-snug">
-                        {event.title}
-                      </p>
-                      {(event.category || event.description) && (
-                        <p className="mt-0.5 text-sm text-charcoal/60 line-clamp-1">
-                          {event.category ||
-                            (event.description ? stripHtml(event.description) : '')}
-                        </p>
-                      )}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-5">
-                <Link
-                  className="inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
-                  to="/events"
-                >
-                  View all events
-                  <svg
-                    aria-hidden="true"
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2.5}
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </Link>
-              </div>
+          <div className="relative mb-4 pb-14 md:mb-16 md:pb-0">
+            <div className="h-[260px] overflow-hidden rounded-[22px] md:h-[460px] md:rounded-panel">
+              <img
+                alt="Front entrance of Barton Hills Elementary"
+                className="h-full w-full object-cover object-[center_40%]"
+                src="/school-front.jpg"
+              />
             </div>
-
-            {/* News column */}
-            <div>
-              <h3 className="font-heading font-bold text-lg text-charcoal mb-4">Latest News</h3>
-              <ul className="divide-y divide-charcoal/10">
-                {news.map((item) => {
-                  const href = item.url !== '#' ? item.url : '/news';
-                  const titleClass =
-                    'font-heading font-bold text-charcoal leading-snug hover:text-eagle-blue transition-colors';
-                  const title = isExternalUrl(href) ? (
-                    <a
-                      className={`mt-1 block ${titleClass}`}
-                      href={href}
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      {item.title}
-                      <span className="sr-only"> (opens in new tab)</span>
-                    </a>
-                  ) : (
-                    <Link className={`mt-1 block ${titleClass}`} to={href}>
-                      {item.title}
-                    </Link>
-                  );
-                  return (
-                    <li className="py-3 first:pt-0 last:pb-0" key={item.id}>
-                      <div className={item.imageUrl ? 'flex gap-3' : undefined}>
-                        {item.imageUrl ? (
-                          <div className="relative mt-0.5 h-14 w-14 shrink-0 overflow-hidden rounded-md bg-charcoal/5">
-                            <img
-                              alt=""
-                              className="h-full w-full object-cover object-top"
-                              loading="lazy"
-                              src={item.imageUrl}
-                            />
-                          </div>
-                        ) : null}
-                        <div className="min-w-0">
-                          <span className="font-heading text-xs font-bold tracking-wider text-spirit-gold uppercase">
-                            {formatNewsletterDate(item.date)}
-                          </span>
-                          {title}
-                        </div>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-              <div className="mt-5">
-                <Link
-                  className="inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
-                  to="/news"
-                >
-                  All news
-                  <svg
-                    aria-hidden="true"
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2.5}
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </Link>
-              </div>
+            <div className="absolute inset-x-4 bottom-0 flex items-center gap-3.5 rounded-[18px] bg-bhe-gold px-[18px] py-4 text-bhe-green shadow-float md:inset-x-auto md:-bottom-7 md:-left-6 md:block md:w-[300px] md:max-w-[80%] md:rounded-card md:px-6 md:py-[22px]">
+              <p className="hidden text-[13px] font-bold uppercase tracking-[0.1em] md:block">
+                {schoolYearLabel} Annual Fund
+              </p>
+              <p className="font-display text-4xl font-extrabold leading-none md:mt-1.5 md:text-[44px]">
+                $930
+              </p>
+              <p className="text-sm leading-snug md:mt-1 md:text-[15px]">
+                <span className="md:hidden">invested per student each year by the Annual Fund</span>
+                <span className="hidden md:inline">
+                  invested per student each year in programs, staff and resources.
+                </span>
+              </p>
             </div>
           </div>
-        </div>
+        </Container>
       </section>
 
-      {/* ── Newsletter Signup ───────────────────────────────────────────── */}
+      {/* Coming up */}
+      <section className="py-12 md:py-[72px]">
+        <Container>
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+            <h2 className="font-display text-[30px] font-extrabold tracking-[-0.02em] text-bhe-ink md:text-[44px]">
+              Coming up
+            </h2>
+            <Button to="/events" variant="text-link">
+              View all events →
+            </Button>
+          </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            {events.map((event) => (
+              <article
+                className="flex gap-4 rounded-card border border-bhe-border bg-bhe-card p-5"
+                key={event.id}
+              >
+                <DateTile day={formatEventDay(event.start)} label={formatEventMonth(event.start)} />
+                <div className="min-w-0">
+                  <p className="text-[13px] font-bold uppercase tracking-[0.12em] text-bhe-green-2">
+                    {formatEventWeekday(event.start)}
+                    {event.category ? ` · ${event.category}` : ''}
+                  </p>
+                  <h3 className="mt-1 font-display text-xl font-bold text-bhe-ink">
+                    {event.title}
+                  </h3>
+                  {event.description ? (
+                    <p className="mt-1 line-clamp-2 text-sm text-bhe-muted">
+                      {stripHtml(event.description)}
+                    </p>
+                  ) : null}
+                </div>
+              </article>
+            ))}
+            {events.length === 0 ? (
+              <p className="text-bhe-muted md:col-span-3">More events will be posted soon.</p>
+            ) : null}
+          </div>
+        </Container>
+      </section>
+
+      {/* From the nest */}
+      <section className="bg-bhe-paper-2/50 py-12 md:py-[72px]">
+        <Container>
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+            <h2 className="font-display text-[30px] font-extrabold tracking-[-0.02em] text-bhe-ink md:text-[44px]">
+              From the nest
+            </h2>
+            <Button to="/news" variant="text-link">
+              All news →
+            </Button>
+          </div>
+          <div className="grid gap-5 md:grid-cols-3">
+            {news.map((item) => {
+              const href = item.url !== '#' ? item.url : '/news';
+              const title = (
+                <h3 className="mt-3 font-display text-[22px] font-bold leading-snug text-bhe-ink md:text-[25px]">
+                  {item.title}
+                </h3>
+              );
+              return (
+                <article
+                  className="overflow-hidden rounded-card border border-bhe-border bg-bhe-card"
+                  key={item.id}
+                >
+                  {item.imageUrl ? (
+                    <div className="aspect-[4/3] overflow-hidden bg-bhe-tint-green">
+                      <img
+                        alt=""
+                        className="h-full w-full object-cover object-top"
+                        loading="lazy"
+                        src={item.imageUrl}
+                      />
+                    </div>
+                  ) : (
+                    <div className="aspect-[4/3] bg-bhe-tint-green" />
+                  )}
+                  <div className="p-5">
+                    <p className="text-sm text-bhe-muted">
+                      {formatNewsletterDate(item.date)} ·{' '}
+                      {item.source === 'pta' ? 'PTA newsletter' : 'Newsletter'}
+                    </p>
+                    {isExternalUrl(href) ? (
+                      <a
+                        className="block hover:text-bhe-green-2"
+                        href={href}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        {title}
+                        <span className="sr-only"> (opens in new tab)</span>
+                      </a>
+                    ) : (
+                      <Link className="block hover:text-bhe-green-2" to={href}>
+                        {title}
+                      </Link>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </Container>
+      </section>
+
+      {/* Annual Fund band */}
+      <GreenBand className="py-14 md:py-[88px]">
+        <Container className="flex flex-col gap-10 lg:flex-row lg:items-center">
+          <div className="flex-1">
+            <p className="text-[13px] font-bold uppercase tracking-[0.12em] text-bhe-gold">
+              The Annual Fund
+            </p>
+            <h2 className="mt-3 font-display text-[clamp(32px,4.4vw,60px)] font-extrabold leading-[1.02] tracking-[-0.03em] text-bhe-on-green">
+              One gift. A whole year of Eagle programs.
+            </h2>
+            <p className="mt-4 max-w-xl text-[17px] leading-relaxed text-bhe-on-green-muted">
+              Your contribution funds Art, Music & PE, enrichment, and the everyday resources AISD
+              does not fully cover — for every student at Barton Hills.
+            </p>
+          </div>
+          <div className="w-full max-w-md rounded-panel bg-bhe-paper p-7 text-bhe-ink shadow-form md:p-9">
+            <p className="font-display text-[52px] font-extrabold leading-none md:text-[64px]">
+              ${ask}
+            </p>
+            <p className="mt-1 text-bhe-muted">suggested per child</p>
+            <ul className="mt-5 space-y-2 text-[15px]">
+              {[
+                'Includes your PTA membership',
+                'Tax-deductible',
+                'Any amount makes a difference',
+              ].map((item) => (
+                <li className="flex gap-2" key={item}>
+                  <span aria-hidden="true" className="text-bhe-green-2">
+                    ✓
+                  </span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+            <Button className="mt-6 w-full" size="lg" to={annualFundPath} variant="accent">
+              Give now
+            </Button>
+            <Link
+              className="mt-4 inline-flex text-sm font-bold text-bhe-green hover:underline"
+              to="/reimbursement"
+            >
+              Need a reimbursement form?
+            </Link>
+          </div>
+        </Container>
+      </GreenBand>
+
+      {/* Find your flock */}
+      <section className="py-12 md:py-[72px]">
+        <Container>
+          <h2 className="font-display text-[30px] font-extrabold tracking-[-0.02em] text-bhe-ink md:text-[44px]">
+            Find your flock
+          </h2>
+          <div className="mt-8 grid gap-5 md:grid-cols-3">
+            {flockCards.map((card) => (
+              <article
+                className="rounded-card border border-bhe-border bg-bhe-card p-6"
+                key={card.title}
+              >
+                <h3 className="font-display text-xl font-bold text-bhe-ink">{card.title}</h3>
+                <p className="mt-2 text-[15px] leading-relaxed text-bhe-muted">
+                  {card.description}
+                </p>
+                <Link
+                  className="mt-4 inline-flex font-bold text-bhe-green hover:underline"
+                  to={card.to}
+                >
+                  {card.linkLabel}
+                </Link>
+              </article>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* What your gift funds */}
+      <section className="py-12 md:py-[72px]">
+        <Container>
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+            <h2 className="font-display text-[30px] font-extrabold tracking-[-0.02em] text-bhe-ink md:text-[44px]">
+              What your gift funds
+            </h2>
+            <Button to="/programs" variant="text-link">
+              View all programs →
+            </Button>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {programs.map((program) => (
+              <div className="border-t-[3px] border-bhe-green pt-4" key={program.name}>
+                <h3 className="font-display text-xl font-bold text-bhe-ink">{program.name}</h3>
+                <p className="mt-2 text-[15px] text-bhe-muted">{program.description}</p>
+              </div>
+            ))}
+          </div>
+        </Container>
+      </section>
+
       <NewsletterSignup />
 
-      {/* ── Angled divider ──────────────────────────────────────────────── */}
-      <div
-        aria-hidden="true"
-        className="h-16 bg-white"
-        style={{clipPath: 'polygon(0 0, 100% 0, 0 100%, 0 0)'}}
-      />
-
-      {/* ── 4. Get Involved Section ─────────────────────────────────────── */}
-      <section className="relative bg-gradient-to-br from-eagle-blue to-night-blue py-16 md:py-24 overflow-hidden">
-        {/* Subtle gold diagonal accent */}
-        <div
-          aria-hidden="true"
-          className="absolute top-0 right-0 w-1/2 h-full bg-spirit-gold/5"
-          style={{clipPath: 'polygon(100% 0, 0 100%, 100% 100%)'}}
-        />
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4">
-          <div className="mb-10">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-white">Get Involved</h2>
-            <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full" />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Volunteer Card */}
-            <div className="rounded-lg bg-white p-8 shadow-lg">
-              <div className="h-14 w-14 rounded-full bg-eagle-blue/10 flex items-center justify-center mb-5">
-                <svg
-                  aria-hidden="true"
-                  className="h-7 w-7 text-eagle-blue"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-              <h3 className="font-heading font-bold text-xl text-charcoal">Volunteer</h3>
-              <p className="mt-3 text-charcoal/70 leading-relaxed">
-                We cannot do what we do without your help! There are many ways to get involved and
-                make a difference.
-              </p>
-              <Link
-                className="mt-5 inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
-                to="/get-involved"
-              >
-                Learn More
-                <span className="sr-only"> about volunteering</span>
-                <svg
-                  aria-hidden="true"
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2.5}
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </Link>
-            </div>
-
-            {/* Join PTA Card */}
-            <div className="rounded-lg bg-white p-8 shadow-lg">
-              <div className="h-14 w-14 rounded-full bg-eagle-blue/10 flex items-center justify-center mb-5">
-                <svg
-                  aria-hidden="true"
-                  className="h-7 w-7 text-eagle-blue"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-              <h3 className="font-heading font-bold text-xl text-charcoal">Join &amp; Give</h3>
-              <p className="mt-3 text-charcoal/70 leading-relaxed">
-                Your Annual Fund gift includes PTA membership and funds programs that make Barton
-                Hills great.
-              </p>
-              <Link
-                className="mt-5 inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
-                to={annualFundPath}
-              >
-                Give to Annual Fund
-                <svg
-                  aria-hidden="true"
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2.5}
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </Link>
-            </div>
-
-            {/* Annual Fund Card */}
-            <div className="rounded-lg bg-white p-8 shadow-lg">
-              <div className="h-14 w-14 rounded-full bg-eagle-blue/10 flex items-center justify-center mb-5">
-                <svg
-                  aria-hidden="true"
-                  className="h-7 w-7 text-eagle-blue"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-              <h3 className="font-heading font-bold text-xl text-charcoal">Annual Fund</h3>
-              <p className="mt-3 text-charcoal/70 leading-relaxed">
-                About <span className="font-bold text-charcoal">$930 per student</span> annually
-                goes directly to programs, staff, and resources.
-              </p>
-              <Link
-                className="mt-5 inline-flex items-center gap-1 font-heading font-bold text-sm text-eagle-blue hover:text-spirit-gold transition-colors"
-                to={annualFundPath}
-              >
-                Give Now
-                <svg
-                  aria-hidden="true"
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2.5}
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Angled divider ──────────────────────────────────────────────── */}
-      <div
-        aria-hidden="true"
-        className="h-16 bg-gradient-to-br from-eagle-blue to-night-blue -mb-1"
-        style={{clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 0)'}}
-      />
-
-      {/* ── 5. Programs Highlight Section ───────────────────────────────── */}
-      <section className="bg-warm-white py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4">
-          <SectionHeader>Our Programs</SectionHeader>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {programs.map((program) => (
-              <div
-                className="flex items-start gap-4 rounded-lg bg-white p-6 shadow-md"
-                key={program.name}
-              >
-                <div
-                  className={`shrink-0 h-12 w-12 rounded-lg ${program.color} flex items-center justify-center text-white`}
-                >
-                  {program.icon}
-                </div>
-                <div>
-                  <h3 className="font-heading font-bold text-charcoal">{program.name}</h3>
-                  <p className="mt-1 text-sm text-charcoal/70 leading-relaxed">
-                    {program.description}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10 text-right">
-            <Link
-              className="inline-flex items-center gap-1 font-heading font-bold text-eagle-blue hover:text-spirit-gold transition-colors"
-              to="/programs"
-            >
-              View All Programs
-              <svg
-                aria-hidden="true"
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2.5}
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 6. Sponsors/Partners Section ────────────────────────────────── */}
-      <section className="bg-white border-t border-charcoal/5 py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">
-            Some of Our Partners
-          </h2>
-          <div className="mt-3 h-1 w-16 bg-spirit-gold rounded-full mx-auto" />
-
-          <p className="mt-6 text-charcoal/70 max-w-2xl mx-auto text-lg leading-relaxed">
-            Thank you to some of our generous local business sponsors who make our programs possible
-            {sponsorSchoolYear ? ` (${formatSchoolYearLong(sponsorSchoolYear)})` : ''}.{' '}
-            <Link
-              className="font-heading font-bold text-eagle-blue hover:text-spirit-gold transition-colors"
-              to="/sponsors#sponsor-list"
-            >
-              View all sponsors
-            </Link>
+      {/* Sponsors */}
+      <section className="py-12 md:py-[72px]">
+        <Container>
+          <p className="text-[13px] font-bold uppercase tracking-[0.12em] text-bhe-green-2">
+            {formatSchoolYearLong(sponsorSchoolYear)} local business sponsors
           </p>
-
-          <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+          <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
+            <h2 className="font-display text-[30px] font-extrabold tracking-[-0.02em] text-bhe-ink md:text-[44px]">
+              Thank you, neighbors.
+            </h2>
+            <div className="flex flex-wrap gap-4">
+              <Link className="font-bold text-bhe-green hover:underline" to="/sponsors">
+                View all sponsors
+              </Link>
+              <Link className="font-bold text-bhe-green hover:underline" to="/sponsors">
+                Become a sponsor →
+              </Link>
+            </div>
+          </div>
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
             {sponsors.map((sponsor) => (
               <div
-                className="aspect-[3/2] rounded-lg bg-white border border-charcoal/10 flex items-center justify-center p-3"
+                className="flex h-24 items-center justify-center rounded-card border border-bhe-border bg-bhe-card p-4"
                 key={sponsor.name}
               >
-                <img
-                  alt={sponsor.name}
-                  className={`max-h-full max-w-full object-contain ${sponsor.logoClassName ?? ''}`}
-                  src={sponsor.logo}
-                />
+                {sponsor.url ? (
+                  <a
+                    className="flex h-full w-full items-center justify-center"
+                    href={sponsor.url}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt={sponsor.name}
+                      className={`max-h-14 w-auto object-contain ${sponsor.logoClassName ?? ''}`}
+                      src={sponsor.logo}
+                    />
+                    <span className="sr-only"> (opens in new tab)</span>
+                  </a>
+                ) : (
+                  <img
+                    alt={sponsor.name}
+                    className={`max-h-14 w-auto object-contain ${sponsor.logoClassName ?? ''}`}
+                    src={sponsor.logo}
+                  />
+                )}
               </div>
             ))}
           </div>
-
-          <div className="mt-10">
-            <Link
-              className="inline-flex items-center gap-1 font-heading font-bold text-eagle-blue hover:text-spirit-gold transition-colors"
-              to="/sponsors"
-            >
-              Become a Local Business Sponsor
-              <svg
-                aria-hidden="true"
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2.5}
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </Link>
-          </div>
-        </div>
+        </Container>
       </section>
     </div>
   );

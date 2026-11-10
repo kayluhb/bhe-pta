@@ -1,0 +1,15 @@
+---
+description: bheeagles.com redesign — follow the handoff spec when touching UI
+globs: ["**/*.{tsx,jsx,ts,js,html,css,scss,vue,svelte,astro,mdx}"]
+alwaysApply: false
+---
+
+- The source of truth for UI is `bhe-redesign-handoff/SPEC.md`; mockups live in `bhe-redesign-handoff/reference/`.
+- Use only the design tokens (bhe-* colors, display/body fonts, radii); no ad-hoc hex values.
+- Headings use Bricolage Grotesque at weight 800 with tight negative letter-spacing; body text uses Figtree.
+- Buttons and chips are pill-shaped (999px radius). Primary is green with cream text; the accent (Give, final submit) is gold with green text; secondary is a 2px green outline.
+- Gold is never used for text on light backgrounds (it fails contrast). Use it for fills, or for text on green only.
+- Every page uses the shared Header and Footer. The footer keeps all eight Quick Links: Annual Fund, Reimbursement, News, Events, Get Involved, Parents, Archive, Newsletter Signup.
+- Touch targets are at least 44px, and every input has a `<label>`. Icon-only buttons need an `aria-label`. Decorative SVGs get `aria-hidden="true"`.
+- Never invent content for bracketed placeholders like `[TIME]` or `[EIN]`; keep them or wire them to real data.
+- Keep existing integrations: donation links, Cloudflare Turnstile on newsletter and reimbursement, and the reimbursement submission backend.
