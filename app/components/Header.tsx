@@ -1,10 +1,21 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
-import {Link, NavLink, useLocation} from 'react-router';
+import {Link, NavLink, useLocation, useRouteLoaderData} from 'react-router';
 
 import {HeaderLogo} from '~/components/HeaderLogo';
 import {Button} from '~/components/ui/Button';
 import {Container} from '~/components/ui/Container';
 import {annualFundPath} from '~/data/annual-fund-campaign';
+import type {CalendarEvent} from '~/lib/types';
+
+type HomeLoaderData = {
+  bannerEvent?: CalendarEvent | null;
+};
+
+function formatBannerDate(start: string): string {
+  const date = start.includes('T') ? new Date(start) : new Date(`${start}T12:00:00`);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
+}
 
 const navLinks = [
   {to: '/about', label: 'About'},
@@ -93,16 +104,23 @@ export function Header() {
   }, [mobileMenuOpen]);
 
   const isHome = location.pathname === '/';
+  const homeData = useRouteLoaderData('routes/home') as HomeLoaderData | undefined;
+  const bannerEvent = isHome ? homeData?.bannerEvent : null;
+  const bannerDate = bannerEvent ? formatBannerDate(bannerEvent.start) : '';
+  const bannerLabel = bannerEvent
+    ? /prospective|tour|open house/i.test(`${bannerEvent.category} ${bannerEvent.title}`)
+      ? `Prospective families: tour ${bannerDate} →`
+      : `Coming up: ${bannerEvent.title} · ${bannerDate} →`
+    : null;
 
   return (
     <header className="sticky top-0 z-50 border-b border-bhe-border bg-bhe-paper" ref={headerRef}>
-      {isHome ? (
+      {isHome && bannerLabel ? (
         <div className="bg-bhe-green text-bhe-on-green">
-          <Container className="flex flex-col items-center justify-between gap-2 py-2.5 text-sm md:flex-row md:text-[14px]">
-            <p className="text-center md:text-left">
-              Barton Hills Elementary · Austin ISD · School day 7:40 a.m.–3:10 p.m.
-            </p>
-            {/* Tour CTA: hide until a prospective-families event is wired from home loader */}
+          <Container className="flex items-center justify-center py-2.5 text-sm md:justify-end md:text-[14px]">
+            <Link className="font-bold text-bhe-gold hover:underline" to="/events">
+              {bannerLabel}
+            </Link>
           </Container>
         </div>
       ) : null}

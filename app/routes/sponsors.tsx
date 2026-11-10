@@ -58,7 +58,7 @@ function SponsorTierSection({tier}: {tier: SponsorTier}) {
   return (
     <div>
       <div className="flex items-center gap-4 mb-2">
-        <div className={`h-10 w-10 rounded-lg ${tier.color} flex items-center justify-center`}>
+        <div className={`h-10 w-10 rounded-tile ${tier.color} flex items-center justify-center`}>
           <svg
             aria-hidden="true"
             className="h-5 w-5 text-white"
@@ -91,7 +91,7 @@ function SponsorTierSection({tier}: {tier: SponsorTier}) {
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                <div className="aspect-[3/2] rounded-lg bg-white border border-bhe-border/10 flex items-center justify-center p-3">
+                <div className="aspect-[3/2] rounded-card bg-bhe-card border border-bhe-border flex items-center justify-center p-3">
                   <img
                     alt={sponsor.name}
                     className={`max-h-full max-w-full object-contain ${sponsor.logoClassName ?? ''}`}
@@ -100,7 +100,7 @@ function SponsorTierSection({tier}: {tier: SponsorTier}) {
                 </div>
               </a>
             ) : (
-              <div className="aspect-[3/2] rounded-lg bg-white border border-bhe-border/10 flex items-center justify-center p-3">
+              <div className="aspect-[3/2] rounded-card bg-bhe-card border border-bhe-border flex items-center justify-center p-3">
                 <img
                   alt={sponsor.name}
                   className={`max-h-full max-w-full object-contain ${sponsor.logoClassName ?? ''}`}
@@ -115,7 +115,7 @@ function SponsorTierSection({tier}: {tier: SponsorTier}) {
         }).map(() => (
           <a
             aria-label="Become a sponsor (opens in new tab)"
-            className={`aspect-[3/2] rounded-lg ${tier.bgLight} border-2 border-dashed ${tier.borderColor} flex items-center justify-center transition-colors hover:border-bhe-gold/50 hover:scale-105`}
+            className={`aspect-[3/2] rounded-card ${tier.bgLight} border-2 border-dashed ${tier.borderColor} flex items-center justify-center transition-colors hover:border-bhe-gold/50 hover:scale-105`}
             href={corporateContributionsUrl}
             key={`${tier.name}-empty-placeholder`}
             rel="noopener noreferrer"
@@ -239,7 +239,7 @@ export default function Sponsors() {
                       className={`rounded-full px-4 py-2 text-sm font-display font-semibold transition-colors ${
                         isSelected
                           ? 'bg-bhe-green text-white'
-                          : 'text-bhe-ink/70 hover:text-bhe-ink hover:bg-charcoal/5'
+                          : 'text-bhe-ink/70 hover:text-bhe-ink hover:bg-bhe-paper-2'
                       }`}
                       key={year}
                       to={yearHref}

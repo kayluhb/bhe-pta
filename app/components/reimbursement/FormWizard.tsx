@@ -127,7 +127,7 @@ export function FormWizard() {
               className="font-display text-lg font-bold text-bhe-ink"
               id="help-dialog-title"
             >
-              Check Request / Reimbursement
+              Reimbursement help
             </h2>
             <button
               aria-label="Close dialog"

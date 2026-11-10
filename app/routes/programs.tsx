@@ -69,7 +69,7 @@ const programs = [
     description:
       'Organic garden and composting programs teaching environmental stewardship. Students learn about sustainable agriculture, the life cycle of plants, and the importance of caring for our planet through hands-on activities in our school garden.',
     color: 'bg-bhe-green-2',
-    borderColor: 'border-creek-green',
+    borderColor: 'border-bhe-green-2',
     icon: (
       <svg
         aria-hidden="true"
@@ -115,7 +115,7 @@ const programs = [
     description:
       'Programs supporting the emotional and social development of our students. Through structured activities and curriculum, students build resilience, empathy, self-awareness, and healthy relationship skills that serve them throughout their lives.',
     color: 'bg-bhe-green-2',
-    borderColor: 'border-creek-green',
+    borderColor: 'border-bhe-green-2',
     icon: (
       <svg
         aria-hidden="true"
@@ -184,7 +184,7 @@ const programs = [
     description:
       'Family-friendly events throughout the year that bring our school community together. From movie nights and potlucks to seasonal celebrations, these gatherings strengthen the bonds between families, teachers, and staff.',
     color: 'bg-bhe-green-2',
-    borderColor: 'border-creek-green',
+    borderColor: 'border-bhe-green-2',
     icon: (
       <svg
         aria-hidden="true"
@@ -253,7 +253,7 @@ const programs = [
     description:
       'Recognizing and celebrating the dedication of our teachers and staff throughout the year. From end-of-semester gifts and teacher lounge refreshments to retirement celebrations, we ensure our educators feel valued and supported.',
     color: 'bg-bhe-green-2',
-    borderColor: 'border-creek-green',
+    borderColor: 'border-bhe-green-2',
     icon: (
       <svg
         aria-hidden="true"
@@ -322,7 +322,7 @@ const programs = [
     description:
       'Capital investments in our school facilities and campus to create a better learning environment. From playground upgrades to classroom improvements, these projects benefit students and staff for years to come.',
     color: 'bg-bhe-green-2',
-    borderColor: 'border-creek-green',
+    borderColor: 'border-bhe-green-2',
     icon: (
       <svg
         aria-hidden="true"
@@ -354,10 +354,10 @@ export default function Programs() {
       <section className="bg-bhe-paper py-16 md:py-24">
         <div className="max-w-5xl mx-auto px-4 space-y-8">
           {programs.map((program) => (
-            <div className="rounded-lg bg-white p-8 shadow-md md:p-10" key={program.name}>
+            <div className="rounded-card border border-bhe-border bg-bhe-card p-8 md:p-10" key={program.name}>
               <div className="flex items-start gap-5">
                 <div
-                  className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-lg text-white ${program.color}`}
+                  className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-tile text-white ${program.color}`}
                 >
                   {program.icon}
                 </div>

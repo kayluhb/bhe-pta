@@ -10,10 +10,10 @@ import {sanitizeCalendarEvents, stripHtml} from '~/lib/calendar';
 import {getCloudflare} from '~/lib/cloudflare-context';
 import {formatNewsletterDate} from '~/lib/format-newsletter-date';
 import {loadPublishedCampaign} from '~/lib/fundraising/campaign-store';
-import {pickHomeUpcomingEvents} from '~/lib/home-upcoming-events';
+import {pickHomeBannerEvent, pickHomeUpcomingEvents} from '~/lib/home-upcoming-events';
 import {pageSeoMeta} from '~/lib/meta';
 import {mixNewsletters} from '~/lib/mix-newsletters';
-import {mockNewsletters, mockPtaNewsletters} from '~/lib/mock-data';
+import {mockEvents, mockNewsletters, mockPtaNewsletters} from '~/lib/mock-data';
 import {formatSchoolYearLong} from '~/lib/school-year';
 import {getFeaturedSponsorSchoolYear, getFeaturedSponsors} from '~/lib/sponsors';
 import type {CalendarEvent} from '~/lib/types';
@@ -33,7 +33,7 @@ export function meta({loaderData, matches}: Route.MetaArgs) {
 }
 
 export async function loader({context}: Route.LoaderArgs) {
-  let events: CalendarEvent[] = [];
+  let events: CalendarEvent[] = mockEvents;
   let schoolNews = mockNewsletters;
   let ptaNews = mockPtaNewsletters;
   let campaign = annualFundCampaign;
@@ -46,7 +46,10 @@ export async function loader({context}: Route.LoaderArgs) {
       campaign = annualFundCampaign;
     }
     const kvEvents = await env.BHE_CALENDAR.get('events', 'json');
-    if (kvEvents) events = sanitizeCalendarEvents(kvEvents as typeof events);
+    if (kvEvents) {
+      const sanitized = sanitizeCalendarEvents(kvEvents as typeof events);
+      if (sanitized.length > 0) events = sanitized;
+    }
     const kvSchool = await env.BHE_NEWSLETTERS.get('latest', 'json');
     if (kvSchool) schoolNews = kvSchool as typeof schoolNews;
     const kvPta = await env.BHE_PTA_NEWSLETTERS.get('latest', 'json');
@@ -55,14 +58,17 @@ export async function loader({context}: Route.LoaderArgs) {
     // KV not available — use mock data
   }
 
+  const now = new Date();
   const allNews = mixNewsletters(schoolNews, ptaNews, 3);
-  const upcomingEvents = pickHomeUpcomingEvents(events, new Date(), 3);
+  const upcomingEvents = pickHomeUpcomingEvents(events, now, 3);
+  const bannerEvent = pickHomeBannerEvent(events, now);
 
   const sponsorSchoolYear = getFeaturedSponsorSchoolYear();
   const sponsors = getFeaturedSponsors(6, sponsorSchoolYear);
 
   return {
     annualFundCampaign: campaign,
+    bannerEvent: bannerEvent ?? null,
     events: upcomingEvents,
     news: allNews,
     sponsorSchoolYear,

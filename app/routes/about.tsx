@@ -176,7 +176,7 @@ export default function About() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {initiatives.map((item) => (
-              <div className="rounded-lg bg-bhe-paper p-8 shadow-md" key={item.title}>
+              <div className="rounded-card border border-bhe-border bg-bhe-card-alt p-8" key={item.title}>
                 <div className="h-14 w-14 rounded-full bg-bhe-green/10 flex items-center justify-center mb-5 text-bhe-green">
                   {item.icon}
                 </div>
@@ -203,7 +203,7 @@ export default function About() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {boardMembers.map((member) => (
-              <div className="rounded-lg bg-white p-8 text-center shadow-md" key={member.name}>
+              <div className="rounded-card border border-bhe-border bg-bhe-card p-8 text-center" key={member.name}>
                 <div className="mx-auto mb-5 flex h-24 w-24 items-center justify-center rounded-full bg-bhe-green/10 text-bhe-green">
                   <svg
                     aria-hidden="true"
@@ -221,7 +221,7 @@ export default function About() {
                   </svg>
                 </div>
                 <h3 className="font-display text-lg font-bold text-bhe-ink">{member.name}</h3>
-                <p className="mt-1 font-display text-sm font-semibold text-bhe-gold">
+                <p className="mt-1 font-display text-sm font-semibold text-bhe-muted">
                   {member.role}
                 </p>
               </div>
@@ -244,7 +244,7 @@ export default function About() {
             <div className="space-y-3">
               {documents.map((doc) => (
                 <a
-                  className="flex items-center gap-4 bg-bhe-paper rounded-lg p-5 shadow-sm border border-bhe-border/5 hover:shadow-md hover:border-bhe-gold/30 transition-all duration-200 group"
+                  className="flex items-center gap-4 rounded-card border border-bhe-border bg-bhe-card-alt p-5 transition-colors hover:border-bhe-green/30 group"
                   href={`/about#${encodeURIComponent(doc.title)}`}
                   key={doc.title}
                 >

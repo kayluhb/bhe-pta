@@ -63,7 +63,7 @@ export default function News() {
                 >
                   <span
                     aria-hidden="true"
-                    className={`absolute top-1.5 -left-8 h-2.5 w-2.5 -translate-x-1/2 rounded-full ring-4 ring-warm-white md:-left-10 ${
+                    className={`absolute top-1.5 -left-8 h-2.5 w-2.5 -translate-x-1/2 rounded-full ring-4 ring-bhe-paper md:-left-10 ${
                       item.source === 'school' ? 'bg-bhe-green' : 'bg-bhe-gold'
                     }`}
                   />
@@ -115,7 +115,7 @@ function NewsletterEntry({newsletter}: {newsletter: Newsletter}) {
 
   return (
     <a
-      className="group block overflow-hidden rounded-lg bg-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+      className="group block overflow-hidden rounded-card border border-bhe-border bg-bhe-card transition-colors hover:border-bhe-green/30"
       href={newsletter.url}
       rel="noopener noreferrer"
       target="_blank"
@@ -133,7 +133,7 @@ function NewsletterEntry({newsletter}: {newsletter: Newsletter}) {
 
       <div className="p-6 md:p-8">
         <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1">
-          <time className="font-display text-xs font-bold tracking-wider text-bhe-gold uppercase">
+          <time className="font-display text-xs font-bold tracking-wider text-bhe-green-2 uppercase">
             {formatNewsletterDate(newsletter.date)}
           </time>
           <span
@@ -154,7 +154,7 @@ function NewsletterEntry({newsletter}: {newsletter: Newsletter}) {
           <p className="mt-3 leading-relaxed text-bhe-ink/70">{newsletter.excerpt}</p>
         )}
 
-        <span className="mt-4 inline-flex items-center text-sm font-semibold text-bhe-green transition-colors group-hover:text-bhe-gold">
+        <span className="mt-4 inline-flex items-center text-sm font-semibold text-bhe-green transition-colors group-hover:text-bhe-green-2">
           Read more
           <span className="sr-only"> about {newsletter.title}</span>
           <svg

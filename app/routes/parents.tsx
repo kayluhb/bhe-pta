@@ -265,10 +265,10 @@ export default function Parents() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {quickLinks.map((link) => {
               const cardClass =
-                'group rounded-lg bg-white p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg';
+                'group rounded-card border border-bhe-border bg-bhe-card p-6 transition-colors hover:border-bhe-green/30';
               const inner = (
                 <div className="flex items-start gap-4">
-                  <div className="shrink-0 h-12 w-12 rounded-lg bg-bhe-green/10 flex items-center justify-center text-bhe-green group-hover:bg-bhe-green group-hover:text-white transition-colors">
+                  <div className="shrink-0 h-12 w-12 rounded-tile bg-bhe-tint-green flex items-center justify-center text-bhe-green group-hover:bg-bhe-green group-hover:text-white transition-colors">
                     {link.icon}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -276,7 +276,7 @@ export default function Parents() {
                       {link.title}
                     </h3>
                     <p className="mt-1 text-sm text-bhe-ink/70">{link.description}</p>
-                    <span className="mt-3 inline-flex items-center gap-1 text-sm font-display font-bold text-bhe-green group-hover:text-bhe-gold transition-colors">
+                    <span className="mt-3 inline-flex items-center gap-1 text-sm font-display font-bold text-bhe-green group-hover:text-bhe-green-2 transition-colors">
                       {'to' in link ? 'Go' : 'Visit'}
                       <svg
                         aria-hidden="true"
@@ -325,7 +325,7 @@ export default function Parents() {
       {/* ── 3. School Overview Card ──────────────────────────────────────── */}
       <section className="bg-white py-16 md:py-24">
         <div className="max-w-4xl mx-auto px-4">
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="overflow-hidden rounded-card border border-bhe-border bg-bhe-card">
             <div className="bg-bhe-green p-6 md:p-8">
               <h2 className="text-2xl md:text-3xl font-display font-bold text-white">
                 School Hours
@@ -334,7 +334,7 @@ export default function Parents() {
             <div className="p-6 md:p-8">
               <table className="w-full">
                 <caption className="sr-only">School hours</caption>
-                <tbody className="divide-y divide-charcoal/10">
+                <tbody className="divide-y divide-bhe-border">
                   {hours.map((row) => (
                     <tr key={row.label}>
                       <th className="py-4 pr-4 text-left" scope="row">
@@ -365,7 +365,7 @@ export default function Parents() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {contactCards.map((card) => (
               <a
-                className="group rounded-lg bg-white p-6 text-center shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                className="group rounded-card border border-bhe-border bg-bhe-card p-6 text-center transition-colors hover:border-bhe-green/30"
                 href={card.href}
                 key={card.label}
                 {...('external' in card && card.external
@@ -379,7 +379,7 @@ export default function Parents() {
                 <p
                   className={`mt-1 text-sm transition-colors ${
                     card.accent
-                      ? 'text-bhe-green group-hover:text-bhe-gold'
+                      ? 'text-bhe-green group-hover:text-bhe-green-2'
                       : 'text-bhe-ink/70 group-hover:text-bhe-green'
                   }`}
                 >

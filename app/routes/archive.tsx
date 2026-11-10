@@ -198,7 +198,7 @@ function YearSection({
       <button
         aria-controls={`year-panel-${yearData.year}`}
         aria-expanded={open}
-        className="w-full flex items-center justify-between px-6 py-5 text-left cursor-pointer hover:bg-charcoal/[0.02] transition-colors"
+        className="w-full flex items-center justify-between px-6 py-5 text-left cursor-pointer hover:bg-bhe-paper-2/60 transition-colors"
         onClick={() => setOpen(!open)}
         type="button"
       >
@@ -287,7 +287,7 @@ function PostCard({post}: {post: ArchivePost}) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <article className="group rounded-lg border border-bhe-border/8 bg-charcoal/[0.01] overflow-hidden transition-colors hover:border-bhe-green/20">
+    <article className="group rounded-card border border-bhe-border bg-bhe-card-alt overflow-hidden transition-colors hover:border-bhe-green/20">
       <button
         aria-controls={`archive-post-${post.id}`}
         aria-expanded={expanded}
@@ -302,7 +302,7 @@ function PostCard({post}: {post: ArchivePost}) {
                 {formatPostDate(post.date)}
               </time>
               {post.category && post.category !== 'News' && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-bhe-gold/15 text-bhe-gold">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-bhe-tint-gold text-bhe-ink">
                   {post.category}
                 </span>
               )}
@@ -430,7 +430,7 @@ function ItemCard({
   if (item.type === 'image') {
     return (
       <button
-        className="group relative aspect-[4/3] rounded-lg overflow-hidden bg-charcoal/5 cursor-pointer text-left"
+        className="group relative aspect-[4/3] rounded-card overflow-hidden bg-bhe-tint-green cursor-pointer text-left"
         onClick={() => onImageClick(item)}
         type="button"
       >
@@ -456,7 +456,7 @@ function ItemCard({
   // PDF / Document card
   return (
     <a
-      className="group flex items-start gap-4 p-4 rounded-lg bg-charcoal/[0.02] border border-bhe-border/10 hover:border-bhe-green/30 hover:bg-bhe-green/[0.03] transition-all duration-200"
+      className="group flex items-start gap-4 rounded-card border border-bhe-border bg-bhe-card-alt p-4 transition-colors hover:border-bhe-green/30"
       href={fileUrl}
       rel="noopener noreferrer"
       target="_blank"

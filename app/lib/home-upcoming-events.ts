@@ -32,3 +32,15 @@ export function pickHomeUpcomingEvents(
 
   return upcoming;
 }
+
+/** Prefer the next prospective-family event; otherwise the next upcoming event. */
+export function pickHomeBannerEvent(
+  events: CalendarEvent[],
+  now: Date,
+): CalendarEvent | undefined {
+  const upcoming = pickHomeUpcomingEvents(events, now, 12);
+  const prospective = upcoming.find((event) =>
+    /prospective|tour|open house/i.test(`${event.category} ${event.title}`),
+  );
+  return prospective ?? upcoming[0];
+}

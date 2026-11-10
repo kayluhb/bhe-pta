@@ -71,45 +71,45 @@ export function ReviewSubmit({
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-charcoal/10">
-        <h2 className="text-xl font-semibold text-charcoal mb-6">Review Your Request</h2>
+      <div className="rounded-card border border-bhe-border bg-bhe-card p-6">
+        <h2 className="font-display text-xl font-bold text-bhe-ink mb-6">Review your request</h2>
 
         {/* Requester Info */}
         <div className="mb-6">
-          <h3 className="text-sm font-medium text-charcoal/70 uppercase tracking-wide mb-3">
-            Check Request Information
+          <h3 className="text-sm font-medium text-bhe-ink/70 uppercase tracking-wide mb-3">
+            Payment details
           </h3>
-          <dl className="bg-warm-white p-4 rounded-lg space-y-2 text-charcoal">
+          <dl className="bg-bhe-paper p-4 rounded-lg space-y-2 text-bhe-ink">
             <div>
-              <dt className="inline font-medium text-charcoal/80">Payable to:</dt>{' '}
-              <dd className="inline text-charcoal">{data.requester.payableTo}</dd>
+              <dt className="inline font-medium text-bhe-ink/80">Payable to:</dt>{' '}
+              <dd className="inline text-bhe-ink">{data.requester.payableTo}</dd>
             </div>
             <div>
-              <dt className="inline font-medium text-charcoal/80">Email:</dt>{' '}
-              <dd className="inline text-charcoal">{data.requester.email}</dd>
+              <dt className="inline font-medium text-bhe-ink/80">Email:</dt>{' '}
+              <dd className="inline text-bhe-ink">{data.requester.email}</dd>
             </div>
             {data.requester.phone && (
               <div>
-                <dt className="inline font-medium text-charcoal/80">Phone:</dt>{' '}
-                <dd className="inline text-charcoal">{data.requester.phone}</dd>
+                <dt className="inline font-medium text-bhe-ink/80">Phone:</dt>{' '}
+                <dd className="inline text-bhe-ink">{data.requester.phone}</dd>
               </div>
             )}
             <div>
-              <dt className="inline font-medium text-charcoal/80">Address:</dt>{' '}
-              <dd className="inline text-charcoal">{data.requester.address}</dd>
+              <dt className="inline font-medium text-bhe-ink/80">Address:</dt>{' '}
+              <dd className="inline text-bhe-ink">{data.requester.address}</dd>
             </div>
             <div>
-              <dt className="inline font-medium text-charcoal/80">Date of Request:</dt>{' '}
-              <dd className="inline text-charcoal">{formatDate(data.requester.dateOfRequest)}</dd>
+              <dt className="inline font-medium text-bhe-ink/80">Date of Request:</dt>{' '}
+              <dd className="inline text-bhe-ink">{formatDate(data.requester.dateOfRequest)}</dd>
             </div>
             <div>
-              <dt className="inline font-medium text-charcoal/80">Date Check Needed:</dt>{' '}
-              <dd className="inline text-charcoal">{formatDate(data.requester.dateCheckNeeded)}</dd>
+              <dt className="inline font-medium text-bhe-ink/80">Date Check Needed:</dt>{' '}
+              <dd className="inline text-bhe-ink">{formatDate(data.requester.dateCheckNeeded)}</dd>
             </div>
             {data.requester.invoiceNumber && (
               <div>
-                <dt className="inline font-medium text-charcoal/80">Invoice #:</dt>{' '}
-                <dd className="inline text-charcoal">{data.requester.invoiceNumber}</dd>
+                <dt className="inline font-medium text-bhe-ink/80">Invoice #:</dt>{' '}
+                <dd className="inline text-bhe-ink">{data.requester.invoiceNumber}</dd>
               </div>
             )}
           </dl>
@@ -117,13 +117,13 @@ export function ReviewSubmit({
 
         {/* Budget Account */}
         <div className="mb-6">
-          <h3 className="text-sm font-medium text-charcoal/70 uppercase tracking-wide mb-3">
+          <h3 className="text-sm font-medium text-bhe-ink/70 uppercase tracking-wide mb-3">
             Budget Account
           </h3>
-          <div className="bg-warm-white p-4 rounded-lg">
-            <p className="font-medium text-charcoal">{data.budget.primaryAccount}</p>
+          <div className="bg-bhe-paper p-4 rounded-lg">
+            <p className="font-medium text-bhe-ink">{data.budget.primaryAccount}</p>
             {data.budget.splitAccounts && (
-              <p className="text-sm text-charcoal/70 mt-1">
+              <p className="text-sm text-bhe-ink/70 mt-1">
                 (Individual accounts assigned per receipt below)
               </p>
             )}
@@ -132,7 +132,7 @@ export function ReviewSubmit({
 
         {/* Receipts */}
         <div className="mb-6">
-          <h3 className="text-sm font-medium text-charcoal/70 uppercase tracking-wide mb-3">
+          <h3 className="text-sm font-medium text-bhe-ink/70 uppercase tracking-wide mb-3">
             Receipts ({data.receipts.length})
           </h3>
           <div className="space-y-3">
@@ -140,34 +140,34 @@ export function ReviewSubmit({
               const rowFiles = data.filesByReceipt[index] ?? [];
               return (
                 <div
-                  className="bg-warm-white p-4 rounded-lg"
+                  className="bg-bhe-paper p-4 rounded-lg"
                   key={receipt.clientKey ?? `receipt-${index}`}
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <p className="font-medium text-charcoal">{receipt.description}</p>
-                      <p className="text-sm text-charcoal/70">
+                      <p className="font-medium text-bhe-ink">{receipt.description}</p>
+                      <p className="text-sm text-bhe-ink/70">
                         {formatDate(receipt.date)}
                         {receipt.placeOfPurchase && ` • ${receipt.placeOfPurchase}`}
                       </p>
-                      <p className="text-xs text-eagle-blue mt-1">
+                      <p className="text-xs text-bhe-green mt-1">
                         Account: {getReceiptBudgetAccount(index)}
                       </p>
                     </div>
-                    <p className="font-semibold text-charcoal ml-4">
+                    <p className="font-semibold text-bhe-ink ml-4">
                       {formatCurrency(receipt.amount)}
                     </p>
                   </div>
                   {rowFiles.length > 0 && (
-                    <ul className="mt-3 pt-3 border-t border-charcoal/10 space-y-1">
+                    <ul className="mt-3 pt-3 border-t border-bhe-border space-y-1">
                       {rowFiles.map((file) => (
                         <li
-                          className="flex items-center gap-2 text-sm text-charcoal"
+                          className="flex items-center gap-2 text-sm text-bhe-ink"
                           key={file.key}
                         >
                           <svg
                             aria-hidden="true"
-                            className="w-4 h-4 shrink-0 text-charcoal/70"
+                            className="w-4 h-4 shrink-0 text-bhe-ink/70"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -190,26 +190,26 @@ export function ReviewSubmit({
           </div>
           <div className="mt-4 flex justify-end">
             <div className="text-right">
-              <p className="text-sm text-charcoal/70">Total Amount</p>
-              <p className="text-2xl font-bold text-eagle-blue">{formatCurrency(totalAmount)}</p>
+              <p className="text-sm text-bhe-ink/70">Total Amount</p>
+              <p className="text-2xl font-bold text-bhe-green">{formatCurrency(totalAmount)}</p>
             </div>
           </div>
         </div>
 
         {data.filesByReceipt.every((row) => row.length === 0) && (
-          <div className="mb-6 p-4 bg-warm-white border border-charcoal/10 rounded-lg">
-            <p className="text-sm text-charcoal/80">
+          <div className="mb-6 p-4 bg-bhe-paper border border-bhe-border rounded-lg">
+            <p className="text-sm text-bhe-ink/80">
               <strong>No receipt files are attached.</strong> Your request will not include any
               supporting receipts unless they appear in the list above.
             </p>
             <label className="mt-3 flex items-start gap-2">
               <input
                 checked={ackNoReceipts}
-                className="mt-0.5 h-4 w-4 rounded border-charcoal/20 text-eagle-blue focus:ring-eagle-blue"
+                className="mt-0.5 h-4 w-4 rounded border-bhe-border text-bhe-green focus:ring-bhe-green"
                 onChange={(e) => setAckNoReceipts(e.target.checked)}
                 type="checkbox"
               />
-              <span className="text-sm text-charcoal/70">
+              <span className="text-sm text-bhe-ink/70">
                 I understand that no receipt files are attached to this request and wish to submit
                 anyway.
               </span>
@@ -223,8 +223,8 @@ export function ReviewSubmit({
           </div>
         )}
 
-        <div className="p-4 bg-eagle-blue/10 border border-eagle-blue/20 rounded-lg">
-          <p className="text-sm text-eagle-blue">
+        <div className="p-4 bg-bhe-green/10 border border-bhe-green/20 rounded-lg">
+          <p className="text-sm text-bhe-green">
             By submitting this request, you confirm that all information is accurate and the
             expenses are eligible for PTA reimbursement.
             <br /> <strong>Sales tax cannot be reimbursed</strong> and should not be included.

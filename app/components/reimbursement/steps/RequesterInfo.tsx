@@ -24,13 +24,13 @@ export function RequesterInfo({
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-charcoal/10">
-        <div className="flex items-center gap-2 mb-4">
-          <h2 className="text-xl font-semibold text-charcoal">Check Request Information</h2>
+      <div className="rounded-card border border-bhe-border bg-bhe-card p-6">
+        <div className="mb-4 flex items-center gap-2">
+          <h2 className="font-display text-xl font-bold text-bhe-ink">Who should we pay?</h2>
           {onShowHelp && (
             <button
               aria-label="Show form instructions"
-              className="h-6 w-6 rounded-full border border-charcoal/20 bg-white text-charcoal/50 hover:bg-charcoal/5 hover:text-charcoal flex items-center justify-center text-xs font-semibold transition-colors"
+              className="flex h-6 w-6 items-center justify-center rounded-full border border-bhe-border bg-bhe-card text-xs font-semibold text-bhe-muted transition-colors hover:bg-bhe-paper-2 hover:text-bhe-ink"
               onClick={onShowHelp}
               type="button"
             >
@@ -38,10 +38,10 @@ export function RequesterInfo({
             </button>
           )}
         </div>
-        <p className="text-charcoal/70 mb-6">
-          Please provide the payment details for your reimbursement request.
+        <p className="mb-6 text-bhe-muted">
+          Payment details for your reimbursement request.
           <br />
-          Fields marked with <span className="text-red-500">*</span> are required.
+          Fields marked with <span className="text-bhe-error">*</span> are required.
         </p>
 
         <div className="space-y-4">

@@ -17,6 +17,7 @@ import {
 } from '~/lib/event-categories';
 import {eventPrimaryCta} from '~/lib/event-cta';
 import {mergeParentMeta} from '~/lib/meta';
+import {mockEvents} from '~/lib/mock-data';
 import type {CalendarEvent} from '~/lib/types';
 import type {Route} from './+types/events';
 
@@ -32,13 +33,16 @@ export function meta({matches}: Route.MetaArgs) {
 }
 
 export async function loader({context}: Route.LoaderArgs) {
-  let events: CalendarEvent[] = [];
+  let events: CalendarEvent[] = mockEvents;
 
   try {
     const kvEvents = await getCloudflare(context).env.BHE_CALENDAR.get('events', 'json');
-    if (kvEvents) events = sanitizeCalendarEvents(kvEvents as CalendarEvent[]);
+    if (kvEvents) {
+      const sanitized = sanitizeCalendarEvents(kvEvents as CalendarEvent[]);
+      if (sanitized.length > 0) events = sanitized;
+    }
   } catch {
-    // KV not available
+    // KV not available — use mock data
   }
 
   return {events};

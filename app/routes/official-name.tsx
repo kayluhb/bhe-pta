@@ -70,7 +70,7 @@ export default function OfficialName() {
             The acronym <strong>{ACRONYM}</strong> stands for <strong>{ACRONYM_EXPANSION}</strong>.
             Our official website is{' '}
             <a
-              className="font-medium text-bhe-green hover:text-bhe-gold transition-colors"
+              className="font-medium text-bhe-green hover:text-bhe-green-2 transition-colors"
               href={`https://${WEBSITE}`}
             >
               {WEBSITE}
@@ -123,7 +123,7 @@ export default function OfficialName() {
           </ul>
           <p className="mt-8 text-center">
             <Link
-              className="font-display font-bold text-bhe-green hover:text-bhe-gold transition-colors"
+              className="font-display font-bold text-bhe-green hover:text-bhe-green-2 transition-colors"
               to="/programs"
             >
               View all programs
@@ -138,7 +138,7 @@ export default function OfficialName() {
             Organization Details
           </h2>
           <div className="mt-3 h-1 w-16 bg-bhe-gold rounded-full mx-auto" />
-          <dl className="mt-10 divide-y divide-charcoal/10 rounded-xl border border-bhe-border/10 bg-white">
+          <dl className="mt-10 divide-y divide-bhe-border rounded-card border border-bhe-border bg-bhe-card">
             <div className="px-6 py-4 sm:grid sm:grid-cols-3 sm:gap-4">
               <dt className="font-display font-bold text-bhe-ink">Official name</dt>
               <dd className="mt-1 text-bhe-ink/70 sm:col-span-2 sm:mt-0">{OFFICIAL_NAME}</dd>
@@ -157,7 +157,7 @@ export default function OfficialName() {
               <dt className="font-display font-bold text-bhe-ink">Website</dt>
               <dd className="mt-1 text-bhe-ink/70 sm:col-span-2 sm:mt-0">
                 <a
-                  className="text-bhe-green hover:text-bhe-gold transition-colors"
+                  className="text-bhe-green hover:text-bhe-green-2 transition-colors"
                   href={`https://${WEBSITE}`}
                 >
                   https://{WEBSITE}
@@ -186,7 +186,7 @@ export default function OfficialName() {
               <dt className="font-display font-bold text-bhe-ink">Contact</dt>
               <dd className="mt-1 text-bhe-ink/70 sm:col-span-2 sm:mt-0">
                 <a
-                  className="text-bhe-green hover:text-bhe-gold transition-colors"
+                  className="text-bhe-green hover:text-bhe-green-2 transition-colors"
                   href="mailto:pta@bheeagles.com"
                 >
                   pta@bheeagles.com

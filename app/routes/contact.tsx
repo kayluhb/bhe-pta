@@ -32,8 +32,8 @@ export default function Contact() {
             <div className="mt-3 h-1 w-16 bg-bhe-gold rounded-full mx-auto" />
           </div>
 
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-charcoal/10">
+          <div className="overflow-hidden rounded-card border border-bhe-border bg-bhe-card">
+            <div className="grid grid-cols-1 md:grid-cols-2 divide-y divide-bhe-border md:divide-y-0 md:divide-x">
               {/* Left: Address & Hours */}
               <div className="p-8 md:p-10">
                 <h3 className="font-display font-bold text-lg text-bhe-ink mb-6">
@@ -41,7 +41,7 @@ export default function Contact() {
                 </h3>
                 <div className="space-y-5">
                   <div className="flex items-start gap-4">
-                    <div className="shrink-0 h-10 w-10 rounded-lg bg-bhe-green/10 flex items-center justify-center text-bhe-green">
+                    <div className="shrink-0 h-10 w-10 rounded-tile bg-bhe-tint-green flex items-center justify-center text-bhe-green">
                       <svg
                         aria-hidden="true"
                         className="h-5 w-5"
@@ -73,7 +73,7 @@ export default function Contact() {
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <div className="shrink-0 h-10 w-10 rounded-lg bg-bhe-green/10 flex items-center justify-center text-bhe-green">
+                    <div className="shrink-0 h-10 w-10 rounded-tile bg-bhe-tint-green flex items-center justify-center text-bhe-green">
                       <svg
                         aria-hidden="true"
                         className="h-5 w-5"
@@ -102,7 +102,7 @@ export default function Contact() {
                 <h3 className="font-display font-bold text-lg text-bhe-ink mb-6">Get in Touch</h3>
                 <div className="space-y-5">
                   <div className="flex items-start gap-4">
-                    <div className="shrink-0 h-10 w-10 rounded-lg bg-bhe-green/10 flex items-center justify-center text-bhe-green">
+                    <div className="shrink-0 h-10 w-10 rounded-tile bg-bhe-tint-green flex items-center justify-center text-bhe-green">
                       <svg
                         aria-hidden="true"
                         className="h-5 w-5"
@@ -121,7 +121,7 @@ export default function Contact() {
                     <div>
                       <p className="font-display font-bold text-bhe-ink">Phone</p>
                       <a
-                        className="text-bhe-green hover:text-bhe-gold transition-colors mt-1 inline-block"
+                        className="text-bhe-green hover:text-bhe-green-2 transition-colors mt-1 inline-block"
                         href="tel:+15124142013"
                       >
                         (512) 414-2013
@@ -130,7 +130,7 @@ export default function Contact() {
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <div className="shrink-0 h-10 w-10 rounded-lg bg-bhe-green/10 flex items-center justify-center text-bhe-green">
+                    <div className="shrink-0 h-10 w-10 rounded-tile bg-bhe-tint-green flex items-center justify-center text-bhe-green">
                       <svg
                         aria-hidden="true"
                         className="h-5 w-5"
@@ -153,7 +153,7 @@ export default function Contact() {
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <div className="shrink-0 h-10 w-10 rounded-lg bg-bhe-green/10 flex items-center justify-center text-bhe-green">
+                    <div className="shrink-0 h-10 w-10 rounded-tile bg-bhe-tint-green flex items-center justify-center text-bhe-green">
                       <svg
                         aria-hidden="true"
                         className="h-5 w-5"
@@ -172,14 +172,14 @@ export default function Contact() {
                     <div>
                       <p className="font-display font-bold text-bhe-ink">Email</p>
                       <a
-                        className="text-bhe-green hover:text-bhe-gold transition-colors mt-1 inline-block"
+                        className="text-bhe-green hover:text-bhe-green-2 transition-colors mt-1 inline-block"
                         href="mailto:bhe@austinisd.org"
                       >
                         bhe@austinisd.org
                       </a>
                       <br />
                       <a
-                        className="text-bhe-green hover:text-bhe-gold transition-colors inline-block"
+                        className="text-bhe-green hover:text-bhe-green-2 transition-colors inline-block"
                         href="mailto:pta@bheeagles.com"
                       >
                         pta@bheeagles.com
@@ -205,7 +205,7 @@ export default function Contact() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Facebook */}
             <a
-              className="group flex items-center gap-5 rounded-lg bg-bhe-paper p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+              className="group flex items-center gap-5 rounded-card border border-bhe-border bg-bhe-card p-6 transition-colors hover:border-bhe-green/30"
               href="https://www.facebook.com/bartonhillspta/"
               rel="noopener noreferrer"
               target="_blank"
@@ -240,7 +240,7 @@ export default function Contact() {
 
             {/* Instagram */}
             <a
-              className="group flex items-center gap-5 rounded-lg bg-bhe-paper p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+              className="group flex items-center gap-5 rounded-card border border-bhe-border bg-bhe-card p-6 transition-colors hover:border-bhe-green/30"
               href="https://www.instagram.com/bartonhillspta/"
               rel="noopener noreferrer"
               target="_blank"
@@ -275,7 +275,7 @@ export default function Contact() {
 
             {/* BHE School Instagram */}
             <a
-              className="group flex items-center gap-5 rounded-lg bg-bhe-paper p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+              className="group flex items-center gap-5 rounded-card border border-bhe-border bg-bhe-card p-6 transition-colors hover:border-bhe-green/30"
               href="https://www.instagram.com/bheeagles/"
               rel="noopener noreferrer"
               target="_blank"
