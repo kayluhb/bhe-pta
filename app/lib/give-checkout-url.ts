@@ -1,16 +1,9 @@
 /**
  * Build the outbound CheddarUp URL for the Annual Fund give form.
- * Amount/frequency are collected in the UI for progressive enhancement only —
- * CheddarUp query encoding is not confirmed, so we never invent payment params.
+ * CheddarUp does not document amount/frequency query params, so we only
+ * attach campaign UTMs and let donors choose the gift on their site.
  */
-export function buildGiveCheckoutUrl(opts: {
-  amount: number | null;
-  baseUrl: string;
-  frequency: 'once' | 'monthly';
-  utmContent: string;
-}): string {
-  void opts.amount;
-  void opts.frequency;
+export function buildGiveCheckoutUrl(opts: {baseUrl: string; utmContent: string}): string {
   const url = new URL(opts.baseUrl);
   url.searchParams.set('utm_source', 'bheeagles');
   url.searchParams.set('utm_medium', 'website');
