@@ -1,3 +1,4 @@
+import {Link} from 'react-router';
 import {Button} from '~/components/ui/Button';
 import {GreenCta} from '~/components/ui/GreenCta';
 import {PageHero} from '~/components/ui/PageHero';
@@ -44,6 +45,7 @@ const initiatives = [
     title: 'Nick Akery Scholarship',
     description:
       'Supporting Barton Hills Elementary alumni with college scholarships to continue their educational journey.',
+    href: '/nick-akery-scholarship',
     icon: (
       <svg
         aria-hidden="true"
@@ -86,6 +88,7 @@ const initiatives = [
     title: 'The BHE Annual Fund',
     description:
       'Our yearly fundraising campaign ensuring every student has access to enriching programs and resources.',
+    href: annualFundPath,
     icon: (
       <svg
         aria-hidden="true"
@@ -175,15 +178,41 @@ export default function About() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {initiatives.map((item) => (
-              <div className="rounded-card border border-bhe-border bg-bhe-card-alt p-8" key={item.title}>
-                <div className="h-14 w-14 rounded-full bg-bhe-green/10 flex items-center justify-center mb-5 text-bhe-green">
-                  {item.icon}
+            {initiatives.map((item) => {
+              const body = (
+                <>
+                  <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-bhe-green/10 text-bhe-green">
+                    {item.icon}
+                  </div>
+                  <h3 className="font-display text-xl font-bold text-bhe-ink">{item.title}</h3>
+                  <p className="mt-3 leading-relaxed text-bhe-ink/70">{item.description}</p>
+                  {'href' in item && item.href ? (
+                    <p className="mt-4 text-sm font-bold text-bhe-green">Learn more →</p>
+                  ) : null}
+                </>
+              );
+
+              if ('href' in item && item.href) {
+                return (
+                  <Link
+                    className="rounded-card border border-bhe-border bg-bhe-card-alt p-8 transition-colors hover:border-bhe-green"
+                    key={item.title}
+                    to={item.href}
+                  >
+                    {body}
+                  </Link>
+                );
+              }
+
+              return (
+                <div
+                  className="rounded-card border border-bhe-border bg-bhe-card-alt p-8"
+                  key={item.title}
+                >
+                  {body}
                 </div>
-                <h3 className="font-display font-bold text-xl text-bhe-ink">{item.title}</h3>
-                <p className="mt-3 text-bhe-ink/70 leading-relaxed">{item.description}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

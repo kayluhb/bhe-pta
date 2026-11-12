@@ -8,6 +8,7 @@ export default [
   route('get-involved', './routes/get-involved.tsx'),
   route('annual-fund', './routes/annual-fund.tsx'),
   route('programs', './routes/programs.tsx'),
+  route('nick-akery-scholarship', './routes/nick-akery-scholarship.tsx'),
   route('parents', './routes/parents.tsx'),
   route('sponsors', './routes/sponsors.tsx'),
   route('archive', './routes/archive.tsx'),
