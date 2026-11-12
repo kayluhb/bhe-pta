@@ -191,14 +191,7 @@ export function keepCircledLineItems(receipt: ReceiptData): ReceiptData {
  */
 export function mergeReceiptMoneyFields(base: ReceiptData, money: ReceiptData): ReceiptData {
   const out: ReceiptData = {...base};
-  for (const key of [
-    'subtotal',
-    'shipping',
-    'tip',
-    'total_before_tax',
-    'tax',
-    'total',
-  ] as const) {
+  for (const key of ['subtotal', 'shipping', 'tip', 'total_before_tax', 'tax', 'total'] as const) {
     const have = parseMoneyAmount(receiptFieldString(out[key]));
     const add = parseMoneyAmount(receiptFieldString(money[key]));
     if ((have == null || Math.abs(have) < 0.005) && add != null && Math.abs(add) >= 0.005) {
@@ -213,7 +206,8 @@ export function mergeReceiptMoneyFields(base: ReceiptData, money: ReceiptData): 
     if (baseItems.length === 0 || basePriced === 0) {
       out.line_items = moneyItems.map((mi, i) => {
         const baseClaimed = claimedFlag((baseItems[i] as {claimed?: unknown} | undefined)?.claimed);
-        if (baseClaimed == null || claimedFlag((mi as {claimed?: unknown}).claimed) != null) return mi;
+        if (baseClaimed == null || claimedFlag((mi as {claimed?: unknown}).claimed) != null)
+          return mi;
         return {...mi, claimed: baseClaimed};
       });
     } else {
@@ -634,7 +628,13 @@ Transcribe every visible word in natural reading order (top to bottom). Include:
 
 Use blank lines between sections. If text is in columns or a table, read row by row so a treasurer can follow it.`;
 
-    const plain = await geminiMultimodal(apiKey, mimeType, base64Data, plainPrompt, maxOutputTokens);
+    const plain = await geminiMultimodal(
+      apiKey,
+      mimeType,
+      base64Data,
+      plainPrompt,
+      maxOutputTokens,
+    );
     if (plain.ok) {
       const cleaned = stripMarkdownCodeFence(plain.text);
       const prevLen = receiptFieldString(onlyReceipt.raw_transcript).length;
@@ -659,13 +659,17 @@ Return a single JSON object. No markdown. Shape:
 
 One object per distinct order/slip. Every visible product row needs a "total". Always include subtotal/tip/tax/grand total when printed.${MONEY_REPAIR_PROMPT_SUFFIX}`;
 
-    const money = await geminiMultimodal(apiKey, mimeType, base64Data, moneyPrompt, maxOutputTokens);
+    const money = await geminiMultimodal(
+      apiKey,
+      mimeType,
+      base64Data,
+      moneyPrompt,
+      maxOutputTokens,
+    );
     if (money.ok) {
       const moneyReceipts = parseExtractedReceiptsJSON(money.text).map(enrichReceiptMoneyFields);
       if (moneyReceipts.length === receipts.length) {
-        receipts = receipts.map((r, i) =>
-          mergeReceiptMoneyFields(r, moneyReceipts[i] ?? {}),
-        );
+        receipts = receipts.map((r, i) => mergeReceiptMoneyFields(r, moneyReceipts[i] ?? {}));
       } else if (moneyReceipts.length > receipts.length) {
         // Primary collapsed multiple orders; prefer the money pass's slip breakdown.
         receipts = moneyReceipts.map((m, i) =>

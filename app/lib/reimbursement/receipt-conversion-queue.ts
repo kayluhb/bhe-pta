@@ -1,17 +1,17 @@
 import {buildReceiptPdfTitle} from '~/lib/reimbursement/filename';
 import {
+  extractReceiptData,
+  generateReceiptPDF,
+  parseSubmissionReceiptLineForPdf,
+  type ReceiptData,
+  receiptFieldString,
+} from '~/lib/reimbursement/receipt';
+import {
   checkClaimedAmountsAgainstReceipts,
   mergeAmountAlertsIntoAdminNotes,
   resolveSubmittedAmountForCheck,
   stripReceiptConversionNotes,
 } from '~/lib/reimbursement/receipt-amount-check';
-import {
-  extractReceiptData,
-  generateReceiptPDF,
-  parseSubmissionReceiptLineForPdf,
-  receiptFieldString,
-  type ReceiptData,
-} from '~/lib/reimbursement/receipt';
 import {
   buildConvertedStagingPdfBasename,
   resolveStagingReceiptLineIndex,
@@ -69,22 +69,23 @@ async function maybeRecordAmountAlerts(
   receipts: ReceiptData[],
 ): Promise<void> {
   const submission = await env.REIMBURSEMENT_DB.prepare(
-    `SELECT total_amount, admin_notes FROM submissions WHERE id = ?`,
+    'SELECT total_amount, admin_notes FROM submissions WHERE id = ?',
   )
     .bind(submissionId)
     .first<{admin_notes: string | null; total_amount: number}>();
   if (!submission) return;
 
   const amountRows = await env.REIMBURSEMENT_DB.prepare(
-    `SELECT amount, sort_order FROM receipt_entries WHERE submission_id = ? ORDER BY sort_order`,
+    'SELECT amount, sort_order FROM receipt_entries WHERE submission_id = ? ORDER BY sort_order',
   )
     .bind(submissionId)
     .all<{amount: number; sort_order: number}>();
   const lines = amountRows.results ?? [];
   const lineAmount =
     receiptLineIndex != null
-      ? lines.find((r) => r.sort_order === receiptLineIndex - 1 || r.sort_order === receiptLineIndex)
-          ?.amount
+      ? lines.find(
+          (r) => r.sort_order === receiptLineIndex - 1 || r.sort_order === receiptLineIndex,
+        )?.amount
       : null;
   const receiptLineAmounts = lines.map((r) => Number(r.amount));
   const preferred = resolveSubmittedAmountForCheck({
@@ -93,11 +94,7 @@ async function maybeRecordAmountAlerts(
     submissionTotal: Number(submission.total_amount),
   });
   const claimedAmounts =
-    receiptLineAmounts.length > 0
-      ? receiptLineAmounts
-      : preferred != null
-        ? [preferred]
-        : [];
+    receiptLineAmounts.length > 0 ? receiptLineAmounts : preferred != null ? [preferred] : [];
   if (claimedAmounts.length === 0) return;
 
   const alerts = checkClaimedAmountsAgainstReceipts({
@@ -107,8 +104,10 @@ async function maybeRecordAmountAlerts(
   });
   const notesBase = stripReceiptConversionNotes(submission.admin_notes);
   const merged = mergeAmountAlertsIntoAdminNotes(notesBase, alerts);
-  if ((merged ?? null) === (submission.admin_notes ?? null) ||
-    (merged ?? '') === (submission.admin_notes ?? '').trim()) {
+  if (
+    (merged ?? null) === (submission.admin_notes ?? null) ||
+    (merged ?? '') === (submission.admin_notes ?? '').trim()
+  ) {
     return;
   }
 
@@ -300,7 +299,12 @@ export async function processReceiptConversionJob(
       .run();
 
     if (row.submission_id) {
-      await maybeRecordAmountAlerts(env, row.submission_id, row.receipt_line_index, result.receipts);
+      await maybeRecordAmountAlerts(
+        env,
+        row.submission_id,
+        row.receipt_line_index,
+        result.receipts,
+      );
     }
 
     // If a submission has not claimed this job yet, the original upload must stay in R2

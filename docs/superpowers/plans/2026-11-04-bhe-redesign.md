@@ -35,35 +35,36 @@
 
 ## File map
 
-| Path | Responsibility |
-|---|---|
-| `bhe-redesign-handoff/**` | Spec, mockups, tokens, eagle assets (already copied into repo) |
-| `.cursor/rules/bhe-redesign.mdc` | Agent stays on-spec while editing UI |
-| `app/app.css` | `@theme` bhe-* tokens, base body/focus, replace old brand colors over time |
-| `app/root.tsx` | Fonts (Bricolage + Figtree), body `bg-bhe-paper text-bhe-ink font-body` |
-| `public/bhe-eagle.svg` | Logo asset for `<img>` fallbacks if needed |
-| `app/components/EagleLogo.tsx` | Inline SVG `currentColor` logo |
-| `app/components/ui/Button.tsx` | Primary / accent / secondary / on-dark / text-link variants |
-| `app/components/ui/Container.tsx` | max-width 1240 + gutters |
-| `app/components/ui/DateTile.tsx` | Green date tile |
-| `app/components/ui/TagPill.tsx` | Tint pills |
-| `app/components/ui/GreenBand.tsx` | Full-bleed green + eagle watermark |
-| `app/components/Header.tsx` / `HeaderLogo.tsx` | Redesigned header + utility bar + mobile menu |
-| `app/components/Footer.tsx` | Redesigned five-column footer |
-| `app/components/NewsletterSignup.tsx` | Gold-band + green-band variants; keep Turnstile |
-| `app/routes/home.tsx` | Full home redesign |
-| `app/routes/annual-fund.tsx` | Hero + gift amount UI → CheddarUp |
-| `app/routes/events.tsx` | Filter chips + list/sidebar (calendar month view can be dropped or demoted if not in SPEC) |
-| `app/routes/get-involved.tsx` | Jump cards + volunteer / fund / sponsor / join |
-| `app/components/reimbursement/**` | Four-step UI per SPEC; hooks/API unchanged |
-| Other public routes | Token + shell restyle only |
-| `app/lib/event-categories.ts` | Map calendar categories → filter chips + tints |
+| Path                                           | Responsibility                                                                             |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `bhe-redesign-handoff/**`                      | Spec, mockups, tokens, eagle assets (already copied into repo)                             |
+| `.cursor/rules/bhe-redesign.mdc`               | Agent stays on-spec while editing UI                                                       |
+| `app/app.css`                                  | `@theme` bhe-* tokens, base body/focus, replace old brand colors over time                 |
+| `app/root.tsx`                                 | Fonts (Bricolage + Figtree), body `bg-bhe-paper text-bhe-ink font-body`                    |
+| `public/bhe-eagle.svg`                         | Logo asset for `<img>` fallbacks if needed                                                 |
+| `app/components/EagleLogo.tsx`                 | Inline SVG `currentColor` logo                                                             |
+| `app/components/ui/Button.tsx`                 | Primary / accent / secondary / on-dark / text-link variants                                |
+| `app/components/ui/Container.tsx`              | max-width 1240 + gutters                                                                   |
+| `app/components/ui/DateTile.tsx`               | Green date tile                                                                            |
+| `app/components/ui/TagPill.tsx`                | Tint pills                                                                                 |
+| `app/components/ui/GreenBand.tsx`              | Full-bleed green + eagle watermark                                                         |
+| `app/components/Header.tsx` / `HeaderLogo.tsx` | Redesigned header + utility bar + mobile menu                                              |
+| `app/components/Footer.tsx`                    | Redesigned five-column footer                                                              |
+| `app/components/NewsletterSignup.tsx`          | Gold-band + green-band variants; keep Turnstile                                            |
+| `app/routes/home.tsx`                          | Full home redesign                                                                         |
+| `app/routes/annual-fund.tsx`                   | Hero + gift amount UI → CheddarUp                                                          |
+| `app/routes/events.tsx`                        | Filter chips + list/sidebar (calendar month view can be dropped or demoted if not in SPEC) |
+| `app/routes/get-involved.tsx`                  | Jump cards + volunteer / fund / sponsor / join                                             |
+| `app/components/reimbursement/**`              | Four-step UI per SPEC; hooks/API unchanged                                                 |
+| Other public routes                            | Token + shell restyle only                                                                 |
+| `app/lib/event-categories.ts`                  | Map calendar categories → filter chips + tints                                             |
 
 ---
 
 ### Task 1: Tokens, fonts, and logo
 
 **Files:**
+
 - Modify: `app/app.css`
 - Modify: `app/root.tsx` (`links` font stylesheet + `body` classes; focus outline → `bhe-gold`)
 - Create: `app/components/EagleLogo.tsx`
@@ -71,6 +72,7 @@
 - Test: `app/lib/__tests__/design-tokens.test.ts` (assert CSS file contains required custom properties / `@theme` keys)
 
 **Interfaces:**
+
 - Consumes: handoff `tokens/tokens.css` values verbatim
 - Produces: Tailwind utilities `bg-bhe-paper`, `text-bhe-green`, `font-display`, `font-body`, `rounded-card`, `rounded-panel`, `shadow-float`, `shadow-form`, `max-w-container`; `<EagleLogo className="…" />` inheriting `currentColor`
 
@@ -129,6 +131,7 @@ EOF
 ### Task 2: Shared UI primitives
 
 **Files:**
+
 - Create: `app/components/ui/Button.tsx`
 - Create: `app/components/ui/Container.tsx`
 - Create: `app/components/ui/DateTile.tsx`
@@ -137,6 +140,7 @@ EOF
 - Test: `app/components/ui/__tests__/Button.test.tsx`
 
 **Interfaces:**
+
 - Consumes: Task 1 tokens + `EagleLogo`
 - Produces:
   - `Button({ variant: 'primary' | 'accent' | 'secondary' | 'on-dark' | 'text-link'; size?: 'md' | 'lg'; … })`
@@ -190,6 +194,7 @@ EOF
 ### Task 3: Header and Footer
 
 **Files:**
+
 - Modify: `app/components/Header.tsx`
 - Modify: `app/components/HeaderLogo.tsx`
 - Modify: `app/components/Footer.tsx`
@@ -198,6 +203,7 @@ EOF
 - Test: `app/components/__tests__/Header.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `EagleLogo`, `Button`, `annualFundPath`
 - Produces: Header with desktop nav (About…Contact), gold Give → `/annual-fund`, mobile menu panel per SPEC §2 (paper, 52px rows, focus trap, Escape). Home-only utility bar: left school day line; right prospective-families link when an upcoming event in that category exists (hide if none — pass optional prop or read from outlet context; simplest: optional `utilityBar?: { tourLabel: string; tourHref: string } | null` from home only via a small context or by rendering the bar inside `home.tsx` above Header… Prefer rendering utility bar inside `home.tsx` so Header stays dumb). Footer columns per SPEC; Quick Links keep all eight; social links keep existing URLs.
 
@@ -212,7 +218,10 @@ import {Header} from '~/components/Header';
 describe('Header', () => {
   it('exposes Give link to annual fund and main nav', () => {
     const router = createMemoryRouter(
-      [{path: '/', element: <Header />}, {path: '/annual-fund', element: <div />}],
+      [
+        {path: '/', element: <Header />},
+        {path: '/annual-fund', element: <div />},
+      ],
       {initialEntries: ['/']},
     );
     render(<RouterProvider router={router} />);
@@ -256,11 +265,13 @@ EOF
 ### Task 4: Home page
 
 **Files:**
+
 - Modify: `app/routes/home.tsx`
 - Possibly reuse: `app/lib/sponsors.ts` `getFeaturedSponsors`, news mix helpers, calendar sanitize
 - Test: `app/routes/__tests__/home-events.test.ts` for dedupe/next-three helper extracted from the route
 
 **Interfaces:**
+
 - Consumes: loader data shape already returned (`events`, `news`, `sponsors`, `annualFundCampaign`); shared UI; `annualFundPath` / give URL
 - Produces: sections in SPEC §3.1 order. Hero photo: use best existing public image if available; otherwise keep a labeled placeholder box `[Photo campus]` (do not invent stock). Fund callout uses campaign ask / per-student figure from existing copy ($930 invested per student is in current marketing — keep if present on live site; do not invent a new number). Omit `FundraisingProgress` thermometer from home unless it can sit outside the SPEC layout without fighting the mockups — default: omit on home; progress remains on admin + optional elsewhere later.
 
@@ -268,7 +279,11 @@ EOF
 
 ```ts
 // app/lib/home-upcoming-events.ts
-export function pickHomeUpcomingEvents(events: CalendarEvent[], now: Date, limit = 3): CalendarEvent[]
+export function pickHomeUpcomingEvents(
+  events: CalendarEvent[],
+  now: Date,
+  limit = 3,
+): CalendarEvent[];
 
 // test: dedupes identical start+title, skips past, returns 3
 ```
@@ -303,11 +318,13 @@ EOF
 ### Task 5: Annual Fund (Give)
 
 **Files:**
+
 - Modify: `app/routes/annual-fund.tsx`
 - Create: `app/components/annual-fund/GiveAmountForm.tsx` (client component for amount / frequency UI)
 - Test: `app/components/annual-fund/__tests__/give-amount.test.ts` for building the outbound CheddarUp URL
 
 **Interfaces:**
+
 - Consumes: `annualFundCampaign`, `annualFundGiveUrlWithUtm`, `TAX_ID` / `74-6086853`, `fundedInitiatives` list already on the page / get-involved
 - Produces: hero + form card; presets `$ask`, `$ask*2`, `$930`, Other; One time / Monthly segmented control; fields Name, Email, optional student names, employer-match checkbox; **Continue to payment** → external CheddarUp. If CheddarUp URL cannot encode amount/frequency, link through with UTM only and keep form fields as progressive enhancement / ignored — document in commit summary, do not invent a payment API. Green band “where your gift goes” uses the 11 real initiatives. FAQ accordion via `<details>`; first open. Replace mockup FAQ titles with SPEC list; use real EIN.
 
@@ -319,7 +336,7 @@ export function buildGiveCheckoutUrl(opts: {
   amount: number | null;
   frequency: 'once' | 'monthly';
   utmContent: string;
-}): string
+}): string;
 ```
 
 Assert UTM params always present; amount query included only when `amount` is non-null **and** you confirm CheddarUp accepts it (if unknown, helper returns UTM-only and test locks that behavior).
@@ -347,12 +364,14 @@ EOF
 ### Task 6: Events page
 
 **Files:**
+
 - Modify: `app/routes/events.tsx` (and/or split list UI into `app/components/events/EventsList.tsx`)
 - Create: `app/lib/event-categories.ts`
 - Test: `app/lib/__tests__/event-categories.test.ts`
 - Newsletter compact card reuses `NewsletterSignup`
 
 **Interfaces:**
+
 - Consumes: existing events loader (`CalendarEvent[]`)
 - Produces: title row; filter chips `All | Community | PTA meetings | Prospective families` with `aria-pressed`; month-grouped list; date tiles; category `TagPill`; RSVP vs Details button heuristic (tour/prospective → RSVP label if URL looks like signup, else Details); sidebar newsletter + “Submit an event” card — if no real submission URL exists, use `mailto:pta@bheeagles.com` with subject (do not invent a form). “Add to my calendar”: if no ICS public URL exists in repo, omit the button or link to the school calendar source already used by the scraper — search codebase first; never invent a feed URL. Month empty-state dashed box per SPEC.
 
@@ -381,10 +400,12 @@ EOF
 ### Task 7: Get Involved
 
 **Files:**
+
 - Modify: `app/routes/get-involved.tsx`
 - Keep volunteer role arrays already in the file (align labels with SPEC where SPEC is more precise)
 
 **Interfaces:**
+
 - Consumes: campaign loader, `annualFundPath`, `corporateContributionsUrl`, existing membership link from live page (find current “Become a member” href in the file or sponsors/about — reuse, do not invent)
 - Produces: SPEC §3.4 sections and anchors `#volunteer` `#fund` `#sponsor` `#join`
 
@@ -409,6 +430,7 @@ EOF
 ### Task 8: Reimbursement form UI
 
 **Files:**
+
 - Modify: `app/routes/reimbursement.tsx`
 - Modify: `app/components/reimbursement/FormWizard.tsx`
 - Modify: `app/components/reimbursement/FormProgress.tsx`
@@ -418,13 +440,18 @@ EOF
 - Test: extend or add `app/hooks/__tests__/useFormState.test.tsx` only if validation rules change; add step-gate helper test if you extract `canProceed(step, state)`
 
 **Interfaces:**
+
 - Consumes: existing form state + `/api/reimbursement/submit`
 - Produces: SPEC §3.5 layout (sidebar total + checklist; phone: details checklist + top total on step 2); stepper labels Request info / Receipts / Budget / Review; step copy; sales-tax checkbox; done state may remain `reimbursement.success` route — either restyle success page to match done-state mockup or inline done state then navigate; **do not break** success query `?id=`.
 
 - [ ] **Step 1: Write failing test for step validation gate if extracted**
 
 ```ts
-export function canProceedToNext(step: number, state: FormState, salesTaxConfirmed: boolean): boolean
+export function canProceedToNext(
+  step: number,
+  state: FormState,
+  salesTaxConfirmed: boolean,
+): boolean;
 ```
 
 - [ ] **Step 2: FAIL → implement gate; wire Next buttons**
@@ -450,11 +477,13 @@ EOF
 ### Task 9: Restyle remaining public pages
 
 **Files:**
+
 - Modify: `app/routes/about.tsx`, `news.tsx`, `programs.tsx`, `parents.tsx`, `contact.tsx`, `archive.tsx`, `sponsors.tsx`, `budget.tsx`, `privacy.tsx`, `terms.tsx`, `official-name.tsx`, `reimbursement.success.tsx`, `pay-me.tsx` as needed for token class names
 - Replace `eagle-blue` / `spirit-gold` / `night-blue` / `warm-white` / `font-heading` usages on these pages with `bhe-*` / `font-display` where straightforward
 - Sponsors page: update tier color classes to bhe tokens; keep data
 
 **Interfaces:**
+
 - Consumes: new Header/Footer automatically via root
 - Produces: readable pages on paper background; no new section inventing
 
@@ -479,6 +508,7 @@ EOF
 ### Task 10: Final pass and open questions log
 
 **Files:**
+
 - Create: `docs/superpowers/plans/2026-11-04-bhe-redesign-open-questions.md` (short checklist of SPEC §5–§6 items still unresolved)
 
 - [ ] **Step 1: Diff each designed page against desktop + phone mockups; note deviations**

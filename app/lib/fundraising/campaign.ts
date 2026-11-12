@@ -175,10 +175,7 @@ export function parseAnnualFundSubmission(
   if (typeof body.title !== 'string' || typeof body.schoolYear !== 'string') {
     return {error: 'Title and school year are required.', ok: false};
   }
-  if (
-    body.thermometerVisible !== undefined &&
-    typeof body.thermometerVisible !== 'boolean'
-  ) {
+  if (body.thermometerVisible !== undefined && typeof body.thermometerVisible !== 'boolean') {
     return {error: 'Thermometer visibility must be true or false.', ok: false};
   }
   if (!Array.isArray(body.milestones)) {

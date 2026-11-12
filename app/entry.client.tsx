@@ -3,7 +3,7 @@ import {StrictMode, startTransition} from 'react';
 import {hydrateRoot} from 'react-dom/client';
 import {HydratedRouter} from 'react-router/dom';
 
-import {MISSING_ROUTE_ACTION_RE} from '~/lib/sentry';
+import {MISSING_ROUTE_ACTION_RE, SENTRY_RESTRICTED_DATA_COLLECTION} from '~/lib/sentry';
 
 declare global {
   interface Window {
@@ -19,10 +19,10 @@ function readSentryDsn(): string | undefined {
 const sentryDsn = readSentryDsn();
 if (sentryDsn) {
   Sentry.init({
+    dataCollection: SENTRY_RESTRICTED_DATA_COLLECTION,
     dsn: sentryDsn,
-    sendDefaultPii: false,
-    tracesSampleRate: 0.1,
     ignoreErrors: [MISSING_ROUTE_ACTION_RE],
+    tracesSampleRate: 0.1,
   });
 }
 

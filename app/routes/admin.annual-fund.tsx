@@ -305,7 +305,10 @@ export default function AdminAnnualFund() {
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="flex items-start gap-3 text-sm font-body text-charcoal" htmlFor="thermometer-visible">
+              <label
+                className="flex items-start gap-3 text-sm font-body text-charcoal"
+                htmlFor="thermometer-visible"
+              >
                 <input
                   checked={thermometerVisible}
                   className="mt-1 h-4 w-4 rounded border-gray-300 text-eagle-blue focus:ring-eagle-blue"

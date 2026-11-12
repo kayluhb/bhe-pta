@@ -1,7 +1,6 @@
 import {describe, expect, it} from 'vitest';
-
-import {canProceedToNext} from '~/lib/reimbursement/can-proceed';
 import type {FormState} from '~/hooks/useFormState';
+import {canProceedToNext} from '~/lib/reimbursement/can-proceed';
 
 function baseState(overrides: Partial<FormState> = {}): FormState {
   return {

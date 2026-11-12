@@ -48,14 +48,14 @@ describe('mergeParentMeta', () => {
 
   it('replaces parent canonical when child sets one', () => {
     const out = mergeParentMeta(
-      [{meta: [{href: 'https://example.com/old', rel: 'canonical', tagName: 'link'}]}] as Parameters<
-        typeof mergeParentMeta
-      >[0],
+      [
+        {meta: [{href: 'https://example.com/old', rel: 'canonical', tagName: 'link'}]},
+      ] as Parameters<typeof mergeParentMeta>[0],
       [{href: 'https://example.com/new', rel: 'canonical', tagName: 'link'}],
     );
-    const canonicals = out.filter(
-      (m) => 'rel' in m && m.rel === 'canonical' && 'href' in m,
-    ) as {href: string}[];
+    const canonicals = out.filter((m) => 'rel' in m && m.rel === 'canonical' && 'href' in m) as {
+      href: string;
+    }[];
     expect(canonicals).toHaveLength(1);
     expect(canonicals[0].href).toBe('https://example.com/new');
   });
@@ -79,7 +79,9 @@ describe('pageSeoMeta', () => {
       ),
     ).toBe(true);
     expect(
-      out.some((m) => 'name' in m && m.name === 'twitter:card' && m.content === 'summary_large_image'),
+      out.some(
+        (m) => 'name' in m && m.name === 'twitter:card' && m.content === 'summary_large_image',
+      ),
     ).toBe(true);
     expect(
       out.some(

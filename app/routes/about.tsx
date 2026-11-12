@@ -176,7 +176,10 @@ export default function About() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {initiatives.map((item) => (
-              <div className="rounded-card border border-bhe-border bg-bhe-card-alt p-8" key={item.title}>
+              <div
+                className="rounded-card border border-bhe-border bg-bhe-card-alt p-8"
+                key={item.title}
+              >
                 <div className="h-14 w-14 rounded-full bg-bhe-green/10 flex items-center justify-center mb-5 text-bhe-green">
                   {item.icon}
                 </div>
@@ -203,7 +206,10 @@ export default function About() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {boardMembers.map((member) => (
-              <div className="rounded-card border border-bhe-border bg-bhe-card p-8 text-center" key={member.name}>
+              <div
+                className="rounded-card border border-bhe-border bg-bhe-card p-8 text-center"
+                key={member.name}
+              >
                 <div className="mx-auto mb-5 flex h-24 w-24 items-center justify-center rounded-full bg-bhe-green/10 text-bhe-green">
                   <svg
                     aria-hidden="true"

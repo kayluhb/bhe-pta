@@ -11,7 +11,7 @@ import {
 } from '../receipt-amount-check';
 
 describe('checkSubmittedAmountAgainstReceipts', () => {
-  it('flags when the claim matches the grand total that includes sales tax (Sam\'s Club)', () => {
+  it("flags when the claim matches the grand total that includes sales tax (Sam's Club)", () => {
     const alerts = checkSubmittedAmountAgainstReceipts(302.52, [
       {
         subtotal: '295.79',

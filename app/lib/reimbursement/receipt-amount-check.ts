@@ -1,9 +1,5 @@
 import {formatUsd} from '~/lib/format-currency';
-import {
-  type ReceiptData,
-  parseMoneyAmount,
-  receiptFieldString,
-} from '~/lib/reimbursement/receipt';
+import {parseMoneyAmount, type ReceiptData, receiptFieldString} from '~/lib/reimbursement/receipt';
 
 export type ReceiptAmountAlertKind = 'tax_included' | 'amount_mismatch';
 
@@ -76,10 +72,7 @@ function positiveAmounts(values: Array<number | null | undefined>): number[] {
   return values.filter((n): n is number => n != null && Number.isFinite(n) && n > 0);
 }
 
-function findMatchingClaim(
-  claimedAmounts: number[],
-  anchors: number[],
-): number | null {
+function findMatchingClaim(claimedAmounts: number[], anchors: number[]): number | null {
   for (const claimed of claimedAmounts) {
     if (anchors.some((anchor) => nearlyEqual(claimed, anchor, claimed))) {
       return claimed;
@@ -121,9 +114,7 @@ export function checkClaimedAmountsAgainstReceipts(args: {
   receipts: ReceiptData[];
 }): ReceiptAmountAlert[] {
   const claimedAmounts = positiveAmounts(
-    args.preferredClaimedAmount != null
-      ? [args.preferredClaimedAmount]
-      : args.claimedAmounts,
+    args.preferredClaimedAmount != null ? [args.preferredClaimedAmount] : args.claimedAmounts,
   );
   if (claimedAmounts.length === 0) return [];
 
@@ -142,10 +133,7 @@ export function checkClaimedAmountsAgainstReceipts(args: {
   // Tax included: a claimed line (or sole claim) equals the grand total that still has tax.
   if (tax != null && tax >= 0.005 && total != null) {
     const taxClaim = findMatchingClaim(claimedAmounts, [total]);
-    if (
-      taxClaim != null &&
-      (suggested == null || !nearlyEqual(taxClaim, suggested, taxClaim))
-    ) {
+    if (taxClaim != null && (suggested == null || !nearlyEqual(taxClaim, suggested, taxClaim))) {
       return [
         {
           extractedSubtotal: money.subtotal,
@@ -176,9 +164,7 @@ export function checkClaimedAmountsAgainstReceipts(args: {
   if (shown == null) return [];
 
   const compared =
-    claimedAmounts.length === 1
-      ? claimedAmounts[0]!
-      : closestClaim(claimedAmounts, shown);
+    claimedAmounts.length === 1 ? claimedAmounts[0]! : closestClaim(claimedAmounts, shown);
   const label = total != null ? 'receipt total' : 'receipt subtotal';
   const multiHint =
     claimedAmounts.length > 1

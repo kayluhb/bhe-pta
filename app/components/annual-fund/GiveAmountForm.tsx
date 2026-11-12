@@ -18,9 +18,7 @@ export function GiveAmountForm({ask, giveBaseUrl}: GiveAmountFormProps) {
       <p className="text-[13px] font-bold uppercase tracking-[0.12em] text-bhe-green-2">
         Suggested gift
       </p>
-      <p className="mt-2 font-display text-5xl font-extrabold leading-none text-bhe-ink">
-        ${ask}
-      </p>
+      <p className="mt-2 font-display text-5xl font-extrabold leading-none text-bhe-ink">${ask}</p>
       <p className="mt-2 text-sm text-bhe-muted">per child · PTA membership included</p>
       <p className="mt-5 text-[15px] leading-relaxed text-bhe-body">
         The PTA invests about ${FULL_COST_PER_STUDENT} per student each year. Give what you can —

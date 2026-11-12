@@ -58,8 +58,14 @@ export function Button(props: ButtonProps) {
     );
   }
 
-  const {children: _c, className: _cl, size: _s, variant: _v, type = 'button', ...buttonRest} =
-    props as ButtonAsButton;
+  const {
+    children: _c,
+    className: _cl,
+    size: _s,
+    variant: _v,
+    type = 'button',
+    ...buttonRest
+  } = props as ButtonAsButton;
   return (
     <button className={classNames} type={type} {...buttonRest}>
       {children}

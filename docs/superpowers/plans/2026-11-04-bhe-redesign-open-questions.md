@@ -23,10 +23,10 @@ Recorded after implementing `docs/superpowers/plans/2026-11-04-bhe-redesign.md` 
 
 ## Placeholders wired vs left
 
-| Item | Resolution |
-|---|---|
-| `[EIN]` | `74-6086853` (existing) |
-| `[PAYMENT PROVIDER]` | CheddarUp |
-| `[TIME · LOCATION]` | Events list uses description snippet when present; else shows `[TIME · LOCATION]` |
-| Budget accounts | Existing live form list (unchanged) |
-| Turnstile | Kept on newsletter + reimbursement |
+| Item                 | Resolution                                                                        |
+| -------------------- | --------------------------------------------------------------------------------- |
+| `[EIN]`              | `74-6086853` (existing)                                                           |
+| `[PAYMENT PROVIDER]` | CheddarUp                                                                         |
+| `[TIME · LOCATION]`  | Events list uses description snippet when present; else shows `[TIME · LOCATION]` |
+| Budget accounts      | Existing live form list (unchanged)                                               |
+| Turnstile            | Kept on newsletter + reimbursement                                                |

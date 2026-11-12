@@ -54,9 +54,7 @@ describe('extractMailchimpImageUrl', () => {
 
   it('resolves relative protocol URLs', () => {
     const html = `<img src="//mcusercontent.com/abc/images/hero.jpeg" />`;
-    expect(extractMailchimpImageUrl(html)).toBe(
-      'https://mcusercontent.com/abc/images/hero.jpeg',
-    );
+    expect(extractMailchimpImageUrl(html)).toBe('https://mcusercontent.com/abc/images/hero.jpeg');
   });
 });
 

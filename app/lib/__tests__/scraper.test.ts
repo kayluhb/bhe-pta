@@ -50,7 +50,10 @@ describe('scrapeSchoolNews', () => {
       </div>
     `;
     const fetchMock = vi.fn(async (url: string) => {
-      if (String(url).includes('app.smore.com/n/abc') || String(url).includes('www.smore.com/n/abc')) {
+      if (
+        String(url).includes('app.smore.com/n/abc') ||
+        String(url).includes('www.smore.com/n/abc')
+      ) {
         return {
           ok: true,
           text: async () =>
@@ -64,10 +67,17 @@ describe('scrapeSchoolNews', () => {
             `<article class="article"><div class="content"><div class="field field--name-body field--item"><p><a href="https://app.smore.com/n/abc">Eagle Update</a></p></div></div></article>`,
         };
       }
-      if (String(url).endsWith('/news') || String(url).includes('/news?') || String(url) === 'https://bartonhills.austinschools.org/news') {
+      if (
+        String(url).endsWith('/news') ||
+        String(url).includes('/news?') ||
+        String(url) === 'https://bartonhills.austinschools.org/news'
+      ) {
         return {ok: true, text: async () => html};
       }
-      return {ok: true, text: async () => '<article class="article"><div class="content"></div></article>'};
+      return {
+        ok: true,
+        text: async () => '<article class="article"><div class="content"></div></article>',
+      };
     });
     vi.stubGlobal('fetch', fetchMock);
     const items = await scrapeSchoolNews();
