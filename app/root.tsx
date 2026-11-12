@@ -38,7 +38,10 @@ export function meta(_args: Route.MetaArgs) {
     {content: 'https://bheeagles.com/og-image.jpg', property: 'og:image'},
     {content: '1200', property: 'og:image:width'},
     {content: '630', property: 'og:image:height'},
-    {content: 'Barton Hills Elementary PTA banner with school, seal, and eagle mascot', property: 'og:image:alt'},
+    {
+      content: 'Barton Hills Elementary PTA banner with school, seal, and eagle mascot',
+      property: 'og:image:alt',
+    },
     {content: 'summary_large_image', name: 'twitter:card'},
     {content: 'https://bheeagles.com/og-image.jpg', name: 'twitter:image'},
     {content: 'BHE', name: 'apple-mobile-web-app-title'},

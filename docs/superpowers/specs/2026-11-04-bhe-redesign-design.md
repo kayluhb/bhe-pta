@@ -9,6 +9,7 @@ The source of truth for implementation. Exact pixel values live in the mockups (
 ## 1. Foundations
 
 ### Color (see `tokens/`)
+
 - Page background is `paper` `#F6F1E7`. Cards are white with a 1px `border` `#E3DACB`.
 - Primary is `green` `#173D2E`: headings, default text, primary buttons, and the dark bands (Annual Fund band, footer, date tiles).
 - Accent is `gold` `#F3B23C`: the Give button, the hero fund callout, the newsletter band, the final "Submit request" button, and eyebrow labels on green. **Never use gold as text on light backgrounds.**
@@ -17,6 +18,7 @@ The source of truth for implementation. Exact pixel values live in the mockups (
 - Tag tints: `tint-green` (Community, regular-cadence roles), `tint-gold` (Prospective families, intermittent roles, the sales-tax notice), `tint-blue` (PTA meeting, one-time roles). Tag text is always `ink`.
 
 ### Type
+
 - **Display:** Bricolage Grotesque 800 (700 for card titles), with tight tracking.
   - H1 hero: `clamp(48px, 6vw, 84px)`, line-height 0.98, letter-spacing −0.035em. Phone: 42–48px.
   - Section H2: 44px, letter-spacing −0.02em, line-height 1.05. Phone: 30–32px.
@@ -27,17 +29,20 @@ The source of truth for implementation. Exact pixel values live in the mockups (
 - **Nav links:** 16px, weight 600.
 
 ### Layout
+
 - Container: max-width 1240px, centered, 24px side padding (16px on phone).
 - Sections: 64–88px vertical padding on desktop, 40–48px on phone.
 - Grids use `repeat(auto-fit, minmax(min(100%, Npx), 1fr))`, so they collapse to one column on their own. Two-column page layouts (form + sidebar, events list + sidebar) use flex-wrap: main is `flex: 999 1 560px`, sidebar is `flex: 1 1 300px`.
 - Breakpoint for the phone header and menu: < 768px.
 
 ### Shape and elevation
+
 - Buttons and chips are pills (999px radius). Inputs: 12px. Date tiles and dropzones: 12–16px. Cards: 18–24px. Big panels: 28px.
 - Shadows only on floating elements: the hero fund callout (`shadow-float`) and the Give form (`shadow-form`).
 - Photo placeholders in the mockups are diagonal-hatched boxes labelled `[Photo …]`. Replace them with real images (`object-fit: cover`, same radius).
 
 ### Icons
+
 Inline stroke icons at 1.8–2px stroke and 24px viewBox, sized 20–40px. Any line icon set matches (e.g. Lucide). Colors: `green-2` on cards, `green` in lists. Decorative icons are `aria-hidden`.
 
 ---
@@ -45,6 +50,7 @@ Inline stroke icons at 1.8–2px stroke and 24px viewBox, sized 20–40px. Any l
 ## 2. Shared components
 
 ### Header (desktop ≥ 768px)
+
 - Paper background, 1px bottom border, 18px vertical padding.
 - Left: eagle logo (50px tall, green) + a two-line wordmark: "Barton Hills Elementary" (Bricolage 800, 21px) over "PARENT TEACHER ASSOCIATION" (13px, 600, uppercase, 0.12em, muted). The whole lockup links to `/`.
 - Right nav: About, News, Events, Programs, Parents, Get Involved, Contact. Each link has 10×12px padding. The current page is weight 700 with a 2px underline at 6px offset (`aria-current="page"`).
@@ -52,11 +58,13 @@ Inline stroke icons at 1.8–2px stroke and 24px viewBox, sized 20–40px. Any l
 - The home page only has a utility bar above the header: green, 14px text, "Barton Hills Elementary · Austin ISD · School day 7:40 a.m.–3:10 p.m." on the left and a gold link "Prospective families: tour Nov 10 →" on the right. Drive the right side from the next prospective-parent event, or hide it when there isn't one.
 
 ### Header (phone < 768px)
+
 - The logo is 36px; the wordmark is "Barton Hills" over "ELEMENTARY PTA". On the right: a gold Give pill and a 44×44 hamburger button (`aria-label="Open menu"`).
 - **The menu panel isn't designed yet.** Build a full-screen or drop-down panel: paper background, nav links at 20px/700 with 52px-tall rows, a gold Give button at the bottom, and a close button. Trap focus while it's open and close it on Escape.
 - On the home page, a green tour banner sits above the header (centered gold link).
 
 ### Footer (all pages)
+
 - Green background, `on-green-muted` text at 15px, padding 72px top.
 - A flex-wrap row of columns:
   1. Cream eagle logo (60px), "Barton Hills Elementary PTA" (Bricolage 800, 24px, cream), and the tagline "Supporting students, teachers and families to build a thriving school community for every Eagle."
@@ -69,17 +77,19 @@ Inline stroke icons at 1.8–2px stroke and 24px viewBox, sized 20–40px. Any l
 - Phone: one column; Quick links stay two columns with 10px vertical padding per link so tap targets are 44px.
 
 ### Buttons
-| Variant | Style | Used for |
-|---|---|---|
-| Primary | green fill, cream text, 700 | Most CTAs, form Next |
-| Accent | gold fill, green text, 700–800 | Give, Give now, Continue to payment, Submit request |
-| Secondary | transparent, 2px green border, green text | Get involved, Back, View sponsor tiers |
-| On-dark secondary | 2px cream border, cream text | "Annual Fund details" on the green band |
-| Text link | green, 700, "→" suffix | "View all events →", "All news →" |
+
+| Variant           | Style                                     | Used for                                            |
+| ----------------- | ----------------------------------------- | --------------------------------------------------- |
+| Primary           | green fill, cream text, 700               | Most CTAs, form Next                                |
+| Accent            | gold fill, green text, 700–800            | Give, Give now, Continue to payment, Submit request |
+| Secondary         | transparent, 2px green border, green text | Get involved, Back, View sponsor tiers              |
+| On-dark secondary | 2px cream border, cream text              | "Annual Fund details" on the green band             |
+| Text link         | green, 700, "→" suffix                    | "View all events →", "All news →"                   |
 
 Sizes: large is 16–18px vertical padding with 28px horizontal; medium is 12–14 by 22–24. All buttons are at least 44px tall.
 
 ### Cards and pieces
+
 - **Date tile:** 72×80 (88×96 on Events; 56–60 wide on phone), green, 14px radius. Gold three-letter label (NOV / SAT / TUE) over a Bricolage 800 day number in cream.
 - **Tag pill:** 3–8px vertical by 10–14px horizontal, 999px radius, a tint background, 12–15px at weight 600–700.
 - **Program item:** 3px green top rule, icon, H3 at 20px/700, a 15px muted description.
@@ -91,6 +101,7 @@ Sizes: large is 16–18px vertical padding with 28px horizontal; medium is 12–
 ## 3. Pages
 
 ### 3.1 Home (`/`)
+
 1. **Utility bar** (see Header).
 2. **Hero** (two columns that stack on phone):
    - Left: outlined pill "GO EAGLES · EST. 1964", H1 "Soaring together since 1964.", lead "Parents, teachers and neighbors keeping Barton Hills a school where every Eagle thrives — through volunteering, fundraising and advocacy.", and CTAs **Give to the Annual Fund** (primary → Annual Fund) and **Get involved** (secondary → Get Involved).
@@ -105,6 +116,7 @@ Sizes: large is 16–18px vertical padding with 28px horizontal; medium is 12–
 10. **Footer.**
 
 ### 3.2 Annual Fund / Give (`/annual-fund`)
+
 1. **Hero + gift form** (two columns):
    - Left: eyebrow "2026–27 ANNUAL FUND", H1 "One gift funds a whole year at BHE.", a lead paragraph, and three checkmarks (membership included · tax-deductible · every amount counts).
    - Right: a white form card (28px radius, `shadow-form`):
@@ -120,16 +132,20 @@ Sizes: large is 16–18px vertical padding with 28px horizontal; medium is 12–
 4. **Footer.**
 
 ### 3.3 Events (`/events`)
+
 1. Title row: H1 "Events", a lead line, and an outlined "Add to my calendar" button (link to an iCal/Google Calendar feed; see Open questions).
 2. **Filter chips** (`role="group"` with `aria-pressed`): All · Community · PTA meetings · Prospective families. They filter the list client-side by category. On phone, the chips scroll horizontally on one line.
 3. **List + sidebar:**
    - List: events grouped under month headings ("NOVEMBER 2026"). Each card has an 88×96 date tile (weekday + day), a category tag pill, a Bricolage 700 28px title, a muted "time · location" line, and a primary pill button (RSVP for tours, otherwise Details). If the month has few events, show a dashed "More events will be posted soon / Browse past events in the archive →" box.
    - Sidebar: a green "Never miss an event" newsletter card (with Turnstile), and a white "Planning an event? Submit an event →" card.
 4. **Footer.**
+
 - Data: use the site's existing events source. Category-to-tint mapping: Community → green, Prospective families → gold, PTA meeting → blue.
 
 ### 3.4 Get Involved (`/get-involved`)
+
 All content here comes from the current live page.
+
 1. **Hero:** H1 "Find your flock." and the lead "The PTA runs on community help. Give an hour or a semester, a gift or a sponsorship — every bit keeps BHE soaring." Below it, four jump-link cards (first one filled green): Volunteer "25+ ways to help" · Annual Fund "$650 per child suggested" · Sponsor "For local businesses" · Join the PTA "Become a member". These link to section anchors.
 2. **Volunteer opportunities** (`#volunteer`): H2, a subline, and a primary "Email the PTA to sign up" button (mailto:pta@bheeagles.com). Three cards, each with an icon, H3, subline and role pills:
    - **Regular cadence** (green pills): ACPTA & Vertical Team Rep, Book Buddies, Coffee Talk, Courtesy, Graphic Design, Social Media, Bulletin Board, Website
@@ -141,9 +157,11 @@ All content here comes from the current live page.
 6. **Footer.**
 
 ### 3.5 Reimbursement (`/reimbursement`)
+
 A four-step check-request form. **Keep the existing submission backend, file upload handling and Turnstile check**; this is a UI rebuild.
 
 **Layout:** title block (eyebrow "FOR VOLUNTEERS & STAFF", H1 "Reimbursement request", lead), then form column + sidebar. The sidebar has:
+
 - A green "YOUR REQUEST" card with a live total and "N receipts · step X of 4".
 - A white "Before you start" checklist: photos or PDFs of receipts (up to 10 files) · amounts before sales tax, which can't be reimbursed · the PTA budget account · only PTA-approved expenses qualify.
 - "Questions? Email pta@bheeagles.com".
@@ -166,6 +184,7 @@ Labels: Request info · Receipts · Budget · Review (phone: Info · Receipts ·
 **Navigation:** Back (secondary) and Next (primary) buttons. Next labels: "Next: Add receipts" → "Next: Budget account" → "Next: Review" → "Submit request". On phone, the buttons are full width and stacked (Next above Back).
 
 **Validation (add; the mockup doesn't enforce it):**
+
 - Block Next until the step's required fields are valid. Show inline errors under fields (error color, linked with `aria-describedby`) and move focus to the first invalid field.
 - Step 2 also needs the sales-tax checkbox checked, amounts greater than 0, at most 10 files in total and 10MB per file.
 - Preserve form state when moving between steps, and ideally across an accidental refresh using sessionStorage.
@@ -173,6 +192,7 @@ Labels: Request info · Receipts · Budget · Review (phone: Info · Receipts ·
 ---
 
 ## 4. Placeholders (never invent values)
+
 - `[TIME]`, `[TIME · LOCATION]` on events → the events data
 - Event locations "Barton Hills Elementary grounds" and "Meet at the front office" are guesses → the events data
 - `[PAYMENT PROVIDER]` → the current donation provider name
@@ -183,6 +203,7 @@ Labels: Request info · Receipts · Budget · Review (phone: Info · Receipts ·
 - `[Sponsor logo]` tiles → existing sponsor logos
 
 ## 5. Verify with the PTA (added in the design, not on the current site)
+
 - Give form extras: the $1,300 and $930 preset amounts, monthly giving, the employer-match checkbox, and the student name field. Drop any the donation provider can't support.
 - The answer to "Why $650 per child?" (wording written for the design).
 - Event short descriptions on the home page ("Pitch in on the grounds…" etc.).
@@ -190,6 +211,7 @@ Labels: Request info · Receipts · Budget · Review (phone: Info · Receipts ·
 - The reimbursement done-state wording ("We've emailed a copy…", "the treasurer will follow up").
 
 ## 6. Open questions
+
 - Is there a calendar feed (iCal/Google) for "Add to my calendar"?
 - Is there an event-submission form or inbox for "Submit an event"?
 - Mobile menu design: build per §2 unless the PTA wants something else.

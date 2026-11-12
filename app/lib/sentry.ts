@@ -1,6 +1,25 @@
 export const MISSING_ROUTE_ACTION_RE =
   /You made a \S+ request to "[^"]*" but did not provide an `action` for route/;
 
+const SENTRY_PII_DENY = ['forwarded', '-ip', 'remote-', 'via', '-user'];
+
+/** Preserves Sentry v10 `sendDefaultPii: false` behavior under the v11 `dataCollection` API. */
+export const SENTRY_RESTRICTED_DATA_COLLECTION = {
+  cookies: false,
+  databaseQueryData: false,
+  genAI: {inputs: false, outputs: false},
+  graphQL: {document: false, variables: false},
+  httpBodies: [] as Array<
+    'incomingRequest' | 'outgoingRequest' | 'incomingResponse' | 'outgoingResponse'
+  >,
+  httpHeaders: {
+    request: {deny: [...SENTRY_PII_DENY]},
+    response: {deny: [...SENTRY_PII_DENY]},
+  },
+  urlQueryParams: {deny: [...SENTRY_PII_DENY]},
+  userInfo: false,
+};
+
 const ROOT_MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
 function messageFromUnknown(error: unknown): string | null {

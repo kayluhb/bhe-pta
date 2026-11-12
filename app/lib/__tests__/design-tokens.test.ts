@@ -6,9 +6,9 @@ describe('design tokens', () => {
   it('defines bhe theme colors and fonts in app.css', () => {
     const css = readFileSync(resolve('app/app.css'), 'utf8');
     for (const needle of [
-      '--color-bhe-green: #173D2E',
-      '--color-bhe-gold: #F3B23C',
-      '--color-bhe-paper: #F6F1E7',
+      '--color-bhe-green: #173d2e',
+      '--color-bhe-gold: #f3b23c',
+      '--color-bhe-paper: #f6f1e7',
       '--font-display:',
       '--font-body:',
       'Bricolage Grotesque',

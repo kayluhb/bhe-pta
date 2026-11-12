@@ -189,10 +189,7 @@ export function SearchableBudgetAccountSelect({
           id={`${id}-input`}
           onBlur={(e) => {
             const next = e.relatedTarget as Node | null;
-            if (
-              containerRef.current?.contains(next) ||
-              listboxRef.current?.contains(next)
-            ) {
+            if (containerRef.current?.contains(next) || listboxRef.current?.contains(next)) {
               return;
             }
             setActiveIndex(-1);

@@ -33,11 +33,7 @@ const programs = [
         strokeWidth={1.5}
         viewBox="0 0 24 24"
       >
-        <path
-          d="M9 18V5l12-2v13"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+        <path d="M9 18V5l12-2v13" strokeLinecap="round" strokeLinejoin="round" />
         <path
           d="M6 21a3 3 0 100-6 3 3 0 000 6zM18 19a3 3 0 100-6 3 3 0 000 6z"
           strokeLinecap="round"
@@ -336,7 +332,10 @@ export default function Programs() {
       <section className="bg-bhe-paper py-16 md:py-24">
         <div className="max-w-5xl mx-auto px-4 space-y-8">
           {programs.map((program) => (
-            <div className="rounded-card border border-bhe-border bg-bhe-card p-8 md:p-10" key={program.name}>
+            <div
+              className="rounded-card border border-bhe-border bg-bhe-card p-8 md:p-10"
+              key={program.name}
+            >
               <div className="flex items-start gap-5">
                 <div
                   className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-tile text-white ${program.color}`}

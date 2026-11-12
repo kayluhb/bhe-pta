@@ -3,31 +3,16 @@ import {describe, expect, it} from 'vitest';
 import {mergeNewslettersByDate, mixNewsletters} from '../mix-newsletters';
 import type {Newsletter} from '../types';
 
-function item(
-  id: string,
-  source: 'school' | 'pta',
-  date: string,
-): Newsletter {
+function item(id: string, source: 'school' | 'pta', date: string): Newsletter {
   return {id, title: id, date, excerpt: '', url: '#', source};
 }
 
 describe('mergeNewslettersByDate', () => {
   it('merges school and PTA newest-first by date', () => {
-    const school = [
-      item('s1', 'school', '2026-08-17'),
-      item('s2', 'school', '2026-08-03'),
-    ];
-    const pta = [
-      item('p1', 'pta', '2026-08-10'),
-      item('p2', 'pta', '2026-07-15'),
-    ];
+    const school = [item('s1', 'school', '2026-08-17'), item('s2', 'school', '2026-08-03')];
+    const pta = [item('p1', 'pta', '2026-08-10'), item('p2', 'pta', '2026-07-15')];
 
-    expect(mergeNewslettersByDate(school, pta).map((n) => n.id)).toEqual([
-      's1',
-      'p1',
-      's2',
-      'p2',
-    ]);
+    expect(mergeNewslettersByDate(school, pta).map((n) => n.id)).toEqual(['s1', 'p1', 's2', 'p2']);
   });
 
   it('handles an empty source', () => {
@@ -43,10 +28,7 @@ describe('mixNewsletters', () => {
       item('s2', 'school', '2026-08-10'),
       item('s3', 'school', '2026-08-03'),
     ];
-    const pta = [
-      item('p1', 'pta', '2026-08-01'),
-      item('p2', 'pta', '2026-07-15'),
-    ];
+    const pta = [item('p1', 'pta', '2026-08-01'), item('p2', 'pta', '2026-07-15')];
 
     const mixed = mixNewsletters(school, pta, 3);
     expect(mixed.map((n) => n.id)).toEqual(['s1', 'p1', 's2']);

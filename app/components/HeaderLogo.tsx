@@ -13,7 +13,9 @@ export function HeaderLogo({compact = false}: HeaderLogoProps) {
       <span className="inline-flex items-center gap-2.5 text-bhe-green">
         <EagleLogo className="h-9 w-auto" />
         <span aria-hidden="true" className="flex flex-col leading-none">
-          <span className="font-display text-[17px] font-extrabold tracking-tight">Barton Hills</span>
+          <span className="font-display text-[17px] font-extrabold tracking-tight">
+            Barton Hills
+          </span>
           <span className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-bhe-muted">
             Elementary PTA
           </span>

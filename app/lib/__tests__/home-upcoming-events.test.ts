@@ -3,7 +3,9 @@ import {describe, expect, it} from 'vitest';
 import {pickHomeBannerEvent, pickHomeUpcomingEvents} from '~/lib/home-upcoming-events';
 import type {CalendarEvent} from '~/lib/types';
 
-function event(partial: Partial<CalendarEvent> & Pick<CalendarEvent, 'id' | 'title' | 'start'>): CalendarEvent {
+function event(
+  partial: Partial<CalendarEvent> & Pick<CalendarEvent, 'id' | 'title' | 'start'>,
+): CalendarEvent {
   return {
     allDay: true,
     category: 'Community Event',

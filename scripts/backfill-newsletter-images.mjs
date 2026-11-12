@@ -126,7 +126,10 @@ function kvPut(namespaceId, value) {
 }
 
 async function fetchText(url) {
-  const res = await fetch(url, {headers: { 'user-agent': UA, accept: 'text/html,*/*' }, redirect: 'follow'});
+  const res = await fetch(url, {
+    headers: {'user-agent': UA, accept: 'text/html,*/*'},
+    redirect: 'follow',
+  });
   if (!res.ok) throw new Error(`Fetch ${url} -> ${res.status}`);
   return res.text();
 }

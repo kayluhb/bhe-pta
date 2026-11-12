@@ -1,8 +1,8 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {useNavigate} from 'react-router';
 import {useFormState} from '~/hooks/useFormState';
-import {canProceedToNext} from '~/lib/reimbursement/can-proceed';
 import {useTurnstile} from '~/hooks/useTurnstile';
+import {canProceedToNext} from '~/lib/reimbursement/can-proceed';
 import {FormProgress} from './FormProgress';
 import {BudgetAccount} from './steps/BudgetAccount';
 import {ReceiptEntries} from './steps/ReceiptEntries';
@@ -129,10 +129,7 @@ export function FormWizard() {
       >
         <div className="p-6" role="document">
           <div className="flex items-start justify-between">
-            <h2
-              className="font-display text-lg font-bold text-bhe-ink"
-              id="help-dialog-title"
-            >
+            <h2 className="font-display text-lg font-bold text-bhe-ink" id="help-dialog-title">
               Reimbursement help
             </h2>
             <button
@@ -157,8 +154,8 @@ export function FormWizard() {
           <div id="help-dialog-desc">
             <p className="mt-3 text-bhe-body">
               Use this form to request reimbursement for PTA-related purchases. Submit everything
-              online—no need to print or drop anything off. You&apos;ll get a confirmation email after
-              submitting.
+              online—no need to print or drop anything off. You&apos;ll get a confirmation email
+              after submitting.
             </p>
             <ul className="mt-4 list-inside list-disc space-y-1 text-sm text-bhe-muted">
               <li>
@@ -184,9 +181,7 @@ export function FormWizard() {
             <span className="text-sm font-bold">
               {state.receipts.length} receipt{state.receipts.length === 1 ? '' : 's'} · step 2 of 4
             </span>
-            <span className="font-display text-2xl font-extrabold">
-              ${totalAmount.toFixed(2)}
-            </span>
+            <span className="font-display text-2xl font-extrabold">${totalAmount.toFixed(2)}</span>
           </div>
         ) : null}
 

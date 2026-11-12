@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.15/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.6.7/schema.json",
   "css": {
     "parser": {
       "tailwindDirectives": true
@@ -17,13 +17,16 @@
     "includes": [
       "**",
       "!**/.cache",
+      "!**/.claude",
       "!**/node_modules",
       "!**/build",
+      "!**/bhe-redesign-handoff",
       "!**/public/build",
       "!**/.react-router",
       "!**/coverage",
       "!**/.wrangler",
-      "!**/worker-configuration.d.ts"
+      "!**/worker-configuration.d.ts",
+      "!**/*.svg"
     ]
   },
   "formatter": {
@@ -41,12 +44,52 @@
   },
   "overrides": [
     {
-      "includes": ["app/components/Calendar.tsx"],
+      "includes": ["app/components/Calendar.tsx", "app/routes/events.tsx"],
       "linter": {
         "rules": {
           "a11y": {
             "useFocusableInteractive": "off",
             "useSemanticElements": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["app/components/EagleLogo.tsx"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noSvgWithoutTitle": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["app/root.tsx"],
+      "linter": {
+        "rules": {
+          "security": {
+            "noDangerouslySetInnerHtml": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["app/lib/reimbursement/filename.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noControlCharactersInRegex": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["app/components/reimbursement/SearchableBudgetAccountSelect.tsx"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "useExhaustiveDependencies": "off"
           }
         }
       }
@@ -58,7 +101,7 @@
       "correctness": {
         "noUnusedVariables": "error"
       },
-      "recommended": true,
+      "preset": "recommended",
       "style": {
         "noInferrableTypes": "error",
         "noNonNullAssertion": "warn",

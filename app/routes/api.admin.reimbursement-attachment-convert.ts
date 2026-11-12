@@ -1,13 +1,13 @@
 import {requireAdmin} from '~/lib/admin/auth';
 import {getCloudflare} from '~/lib/cloudflare-context';
 import {buildAdminReceiptPdfTitle} from '~/lib/reimbursement/filename';
+import {extractReceiptData, generateReceiptPDF} from '~/lib/reimbursement/receipt';
 import {
   checkClaimedAmountsAgainstReceipts,
   mergeAmountAlertsIntoAdminNotes,
   type ReceiptAmountAlert,
   stripReceiptConversionNotes,
 } from '~/lib/reimbursement/receipt-amount-check';
-import {extractReceiptData, generateReceiptPDF} from '~/lib/reimbursement/receipt';
 import type {Route} from './+types/api.admin.reimbursement-attachment-convert';
 
 interface SubmissionRow {
@@ -160,8 +160,10 @@ export async function action({request, params, context}: Route.ActionArgs) {
           nextSort,
         ),
     ];
-    if ((mergedNotes ?? null) !== (submission.admin_notes ?? null) &&
-      (mergedNotes ?? '') !== (submission.admin_notes ?? '').trim()) {
+    if (
+      (mergedNotes ?? null) !== (submission.admin_notes ?? null) &&
+      (mergedNotes ?? '') !== (submission.admin_notes ?? '').trim()
+    ) {
       statements.push(
         db
           .prepare(

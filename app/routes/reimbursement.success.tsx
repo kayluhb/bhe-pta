@@ -49,8 +49,9 @@ export default function ReimbursementSuccess() {
 
             {email ? (
               <p className="text-bhe-body">
-                We&apos;ve emailed a copy to <span className="font-semibold text-bhe-ink">{email}</span>
-                . The treasurer will follow up if anything else is needed.
+                We&apos;ve emailed a copy to{' '}
+                <span className="font-semibold text-bhe-ink">{email}</span>. The treasurer will
+                follow up if anything else is needed.
               </p>
             ) : (
               <p className="text-bhe-body">
@@ -83,7 +84,10 @@ export default function ReimbursementSuccess() {
               </a>
             </p>
 
-            <Link className="mt-6 inline-flex text-sm font-bold text-bhe-green hover:underline" to="/">
+            <Link
+              className="mt-6 inline-flex text-sm font-bold text-bhe-green hover:underline"
+              to="/"
+            >
               Back to home
             </Link>
           </div>

@@ -1,4 +1,4 @@
-import {readFileSync} from 'node:fs';
+import {existsSync, readFileSync} from 'node:fs';
 import {dirname, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {describe, expect, it} from 'vitest';
@@ -10,6 +10,9 @@ import {formatCentsAsMoney, parseBankBalanceToCents, parseMoney, roundDollars} f
 import {extractPlBudgetActuals} from '../pl-parse';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '../../../..');
+const plFixture = join(root, 'budgets/Barton Hills Elementary PTA_Profit and Loss Detail.csv');
+const augustFixture = join(root, 'budgets/August 2026.csv');
+const hasBudgetFixtures = existsSync(plFixture) && existsSync(augustFixture);
 
 describe('budget csv helpers', () => {
   it('round-trips quoted multiline fields', () => {
@@ -65,11 +68,8 @@ describe('extractPlBudgetActuals', () => {
     expect(actuals.get('Fundraiser #1 (Carnival)')).toBe(1200);
   });
 
-  it('maps income and expense totals from the sample P&L', () => {
-    const pl = readFileSync(
-      join(root, 'budgets/Barton Hills Elementary PTA_Profit and Loss Detail.csv'),
-      'utf8',
-    );
+  it.skipIf(!hasBudgetFixtures)('maps income and expense totals from the sample P&L', () => {
+    const pl = readFileSync(plFixture, 'utf8');
     const {actuals} = extractPlBudgetActuals(pl);
 
     expect(actuals.get('Business contributions')).toBe(1730);
@@ -100,34 +100,34 @@ describe('extractPlBudgetActuals', () => {
 });
 
 describe('generateMonthBudget', () => {
-  it('updates actuals, header, and totals from P&L + August template', () => {
-    const template = readFileSync(join(root, 'budgets/August 2026.csv'), 'utf8');
-    const pl = readFileSync(
-      join(root, 'budgets/Barton Hills Elementary PTA_Profit and Loss Detail.csv'),
-      'utf8',
-    );
-    const {actuals} = extractPlBudgetActuals(pl);
-    const result = generateMonthBudget({
-      asOfDate: '2026-09-12',
-      bankBalanceCents: 15000000,
-      plActuals: actuals,
-      previousLabel: 'August 2026',
-      templateCsv: template,
-    });
+  it.skipIf(!hasBudgetFixtures)(
+    'updates actuals, header, and totals from P&L + August template',
+    () => {
+      const template = readFileSync(augustFixture, 'utf8');
+      const pl = readFileSync(plFixture, 'utf8');
+      const {actuals} = extractPlBudgetActuals(pl);
+      const result = generateMonthBudget({
+        asOfDate: '2026-09-12',
+        bankBalanceCents: 15000000,
+        plActuals: actuals,
+        previousLabel: 'August 2026',
+        templateCsv: template,
+      });
 
-    expect(result.unmatchedBudgetLines).toEqual([]);
-    const rows = parseCsv(result.csv);
-    expect(rows[0]?.[1]).toBe('current balance $150,000.00');
-    expect(rows[0]?.[2]).toBe('available for expenses $122,500.00');
-    expect(rows[0]?.[3]).toContain('Key changes from August 2026');
+      expect(result.unmatchedBudgetLines).toEqual([]);
+      const rows = parseCsv(result.csv);
+      expect(rows[0]?.[1]).toBe('current balance $150,000.00');
+      expect(rows[0]?.[2]).toBe('available for expenses $122,500.00');
+      expect(rows[0]?.[3]).toContain('Key changes from August 2026');
 
-    const family = rows.find((r) => r[0]?.startsWith('Annual Fund — Families'));
-    expect(family?.[2]).toBe('$213,244');
+      const family = rows.find((r) => r[0]?.startsWith('Annual Fund — Families'));
+      expect(family?.[2]).toBe('$213,244');
 
-    const carnival = rows.find((r) => r[0] === 'Fundraiser #1 (Carnival)');
-    expect(carnival?.[2]).toBe('$3,461');
+      const carnival = rows.find((r) => r[0] === 'Fundraiser #1 (Carnival)');
+      expect(carnival?.[2]).toBe('$3,461');
 
-    const section = rows.find((r) => r[0]?.startsWith('INCOME'));
-    expect(section?.[2]).toContain('9/12/26');
-  });
+      const section = rows.find((r) => r[0]?.startsWith('INCOME'));
+      expect(section?.[2]).toContain('9/12/26');
+    },
+  );
 });

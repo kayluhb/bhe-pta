@@ -57,7 +57,7 @@ No `FOREIGN KEY` to `school_years(id)` — matches the existing convention in
 already enforces this relationship in code elsewhere). `school_year_id` is validated
 against `school_years` in the route.
 
-Row = one *exported* person (already used to generate a CSV row), not a Cheddar Up
+Row = one _exported_ person (already used to generate a CSV row), not a Cheddar Up
 submission. The unique index is the actual duplicate guard; app logic just makes the
 common case (skip already-tracked emails) efficient and gives a clean summary count.
 
@@ -148,7 +148,7 @@ outcome of a re-upload.
 - If the Cheddar Up export's column layout changes again, the route fails closed (400)
   rather than guessing — the header layout will need a code update, not just data cleanup.
 - **Cross-upload identity is email-only.** If a household re-submits the form between
-  uploads using a *different* email than their first submission (confirmed in the real
+  uploads using a _different_ email than their first submission (confirmed in the real
   26-27 data: a parent's own email changed between a June and a September submission),
   `pta_members` won't recognize them as already-tracked and they get exported a second
   time. Within a single upload this is caught by `clusterDuplicateSubmissions` (address OR
@@ -170,6 +170,6 @@ outcome of a re-upload.
   year explicitly.** A family joining in, say, February for the current school year would
   get a `MemberYear` one calendar year ahead of what every historical reference file shows,
   since all of those happened to be dated in the fall. Whether MyPTEZ actually needs
-  `MemberYear` to match the *school* year rather than the *calendar* year of `PaidDate` is
+  `MemberYear` to match the _school_ year rather than the _calendar_ year of `PaidDate` is
   unconfirmed — flag this if the chair does a real mid-season (winter/spring) re-upload; the
   fix would be deriving `MemberYear` from `school_years.id`/`starts_on` instead.

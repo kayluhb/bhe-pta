@@ -5,12 +5,7 @@ interface FormProgressProps {
   phoneSteps?: string[];
 }
 
-export function FormProgress({
-  currentStep,
-  onStepSelect,
-  phoneSteps,
-  steps,
-}: FormProgressProps) {
+export function FormProgress({currentStep, onStepSelect, phoneSteps, steps}: FormProgressProps) {
   const labels = phoneSteps ?? steps;
 
   return (
