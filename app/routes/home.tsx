@@ -14,6 +14,7 @@ import {pickHomeBannerEvent, pickHomeUpcomingEvents} from '~/lib/home-upcoming-e
 import {pageSeoMeta} from '~/lib/meta';
 import {mixNewsletters} from '~/lib/mix-newsletters';
 import {mockEvents, mockNewsletters, mockPtaNewsletters} from '~/lib/mock-data';
+import {NEWSLETTER_IMAGE_WIDTHS, resizedImageUrl} from '~/lib/resized-image';
 import {formatSchoolYearLong} from '~/lib/school-year';
 import {getFeaturedSponsorSchoolYear, getFeaturedSponsors} from '~/lib/sponsors';
 import type {CalendarEvent} from '~/lib/types';
@@ -260,7 +261,9 @@ export default function Home({loaderData}: Route.ComponentProps) {
                         alt=""
                         className="h-full w-full object-cover object-top"
                         loading="lazy"
-                        src={item.imageUrl}
+                        src={resizedImageUrl(item.imageUrl, {
+                          width: NEWSLETTER_IMAGE_WIDTHS.card,
+                        })}
                       />
                     </div>
                   ) : (
