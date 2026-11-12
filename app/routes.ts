@@ -13,6 +13,7 @@ export default [
   route('archive', './routes/archive.tsx'),
   route('budget', './routes/budget.tsx'),
   route('api/archive/file', './routes/api.archive.file.ts'),
+  route('api/image', './routes/api.image.ts'),
   route('contact', './routes/contact.tsx'),
   route('dev/sync-calendar', './routes/dev.sync-calendar.tsx'),
   route('reimbursement', './routes/reimbursement.tsx'),

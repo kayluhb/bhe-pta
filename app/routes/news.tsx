@@ -7,6 +7,7 @@ import {formatNewsletterDate} from '~/lib/format-newsletter-date';
 import {mergeParentMeta} from '~/lib/meta';
 import {mergeNewslettersByDate} from '~/lib/mix-newsletters';
 import {mockNewsletters, mockPtaNewsletters} from '~/lib/mock-data';
+import {NEWSLETTER_IMAGE_WIDTHS, resizedImageUrl} from '~/lib/resized-image';
 import type {Newsletter} from '~/lib/types';
 import type {Route} from './+types/news';
 
@@ -126,7 +127,9 @@ function NewsletterEntry({newsletter}: {newsletter: Newsletter}) {
             alt=""
             className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.02]"
             loading="lazy"
-            src={newsletter.imageUrl}
+            src={resizedImageUrl(newsletter.imageUrl, {
+              width: NEWSLETTER_IMAGE_WIDTHS.listing,
+            })}
           />
         </div>
       ) : null}
