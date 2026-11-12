@@ -69,7 +69,10 @@ function SuggestHelper({
 
   return (
     <div className="mt-3 rounded-lg border border-bhe-border bg-bhe-paper p-4">
-      <label className="text-sm font-medium text-bhe-ink/80 mb-2 block" htmlFor="budget-suggest-input">
+      <label
+        className="text-sm font-medium text-bhe-ink/80 mb-2 block"
+        htmlFor="budget-suggest-input"
+      >
         Describe what you purchased and we'll suggest an account
       </label>
       <div className="flex gap-2">
@@ -131,7 +134,9 @@ export function BudgetAccount({
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
       <div className="rounded-card border border-bhe-border bg-bhe-card p-6">
-        <h2 className="font-display text-xl font-bold text-bhe-ink mb-2">Which budget does this come from?</h2>
+        <h2 className="font-display text-xl font-bold text-bhe-ink mb-2">
+          Which budget does this come from?
+        </h2>
         <p className="text-bhe-ink/70 mb-6">
           Select which PTA budget account should be debited for this reimbursement.
         </p>

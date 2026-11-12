@@ -8,6 +8,7 @@ import {scrapeSchoolNews} from '../app/lib/scraper';
 import {
   isMissingRouteActionError,
   methodNotAllowedForRootResponse,
+  SENTRY_RESTRICTED_DATA_COLLECTION,
   shouldDropSentryEvent,
 } from '../app/lib/sentry';
 
@@ -265,15 +266,15 @@ export default Sentry.withSentry<Env>((env: Env) => {
   }
 
   return {
-    dsn: env.SENTRY_DSN,
-    // Keep sampling conservative for free-tier quota.
-    tracesSampleRate: 0.1,
-    sendDefaultPii: false,
     beforeSend(event, hint) {
       if (isMissingRouteActionError(hint.originalException) || shouldDropSentryEvent(event)) {
         return null;
       }
       return event;
     },
+    dataCollection: SENTRY_RESTRICTED_DATA_COLLECTION,
+    dsn: env.SENTRY_DSN,
+    // Keep sampling conservative for free-tier quota.
+    tracesSampleRate: 0.1,
   };
-}, handler);
+}, handler) as ExportedHandler<Env>;

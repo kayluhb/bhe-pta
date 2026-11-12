@@ -38,8 +38,10 @@ export function scoreNewsletterImageCandidate(candidate: ImageCandidate): number
     const ratio = width / height;
     // Prefer near-landscape card shapes; heavily penalize tall portraits.
     if (ratio >= 1.15 && ratio <= 2.4) score += 80;
-    else if (ratio >= 0.95 && ratio < 1.15) score += 35; // square-ish
-    else if (ratio > 2.4) score += 20; // very wide banners
+    else if (ratio >= 0.95 && ratio < 1.15)
+      score += 35; // square-ish
+    else if (ratio > 2.4)
+      score += 20; // very wide banners
     else score -= 60; // portrait
     score += Math.min(width, 900) / 20;
   } else if (width > 0) {
@@ -80,9 +82,7 @@ export function extractMailchimpImageUrl(html: string): string | undefined {
 
   if (candidates.length === 0) return undefined;
 
-  candidates.sort(
-    (a, b) => scoreNewsletterImageCandidate(b) - scoreNewsletterImageCandidate(a),
-  );
+  candidates.sort((a, b) => scoreNewsletterImageCandidate(b) - scoreNewsletterImageCandidate(a));
 
   return candidates[0]?.url;
 }

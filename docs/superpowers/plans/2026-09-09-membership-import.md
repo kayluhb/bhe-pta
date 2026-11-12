@@ -40,28 +40,30 @@ dependency, for CSV parsing), Vitest.
 
 ## File Structure
 
-| File | Responsibility |
-|---|---|
-| `migrations/0011_pta_members.sql` | New table tracking exported members per school year |
-| `app/lib/membership/types.ts` | Shared types: `PersonFields`, `RawFamilySubmission`, `MemberRole`, `MemberRow` |
-| `app/lib/membership/errors.ts` | `MembershipImportError` |
-| `app/lib/membership/csv-output.ts` | Render `MemberRow[]` as the Texas PTA import CSV |
-| `app/lib/membership/parse.ts` | Parse + validate the raw Cheddar Up export into `RawFamilySubmission[]` |
-| `app/lib/membership/dedupe.ts` | Collapse repeat submissions within one upload |
-| `app/lib/membership/build-rows.ts` | Split each family into primary/spouse/child `MemberRow`s |
-| `app/routes/api.admin.membership-import.ts` | The action: parse → dedupe → build → filter against `pta_members` → insert → respond with CSV |
-| `app/routes/admin.membership.tsx` | The page: pick a school year, upload a file, download the result |
-| `app/routes.ts` | Register both new routes |
-| `app/routes/admin.reimbursements.tsx`, `app/routes/admin.school-years.tsx` | Add a "Membership" nav link |
+| File                                                                       | Responsibility                                                                                |
+| -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `migrations/0011_pta_members.sql`                                          | New table tracking exported members per school year                                           |
+| `app/lib/membership/types.ts`                                              | Shared types: `PersonFields`, `RawFamilySubmission`, `MemberRole`, `MemberRow`                |
+| `app/lib/membership/errors.ts`                                             | `MembershipImportError`                                                                       |
+| `app/lib/membership/csv-output.ts`                                         | Render `MemberRow[]` as the Texas PTA import CSV                                              |
+| `app/lib/membership/parse.ts`                                              | Parse + validate the raw Cheddar Up export into `RawFamilySubmission[]`                       |
+| `app/lib/membership/dedupe.ts`                                             | Collapse repeat submissions within one upload                                                 |
+| `app/lib/membership/build-rows.ts`                                         | Split each family into primary/spouse/child `MemberRow`s                                      |
+| `app/routes/api.admin.membership-import.ts`                                | The action: parse → dedupe → build → filter against `pta_members` → insert → respond with CSV |
+| `app/routes/admin.membership.tsx`                                          | The page: pick a school year, upload a file, download the result                              |
+| `app/routes.ts`                                                            | Register both new routes                                                                      |
+| `app/routes/admin.reimbursements.tsx`, `app/routes/admin.school-years.tsx` | Add a "Membership" nav link                                                                   |
 
 ---
 
 ### Task 1: `pta_members` migration
 
 **Files:**
+
 - Create: `migrations/0011_pta_members.sql`
 
 **Interfaces:**
+
 - Produces: table `pta_members` with columns `id, school_year_id, role, email, first_name,
   middle_name, last_name, gender, address, city, state, zip, home_phone, cell_phone,
   lifetime, paid_date, source_document_number, imported_at`, and a unique index
@@ -120,11 +122,13 @@ git commit -m "Add pta_members table for membership-import tracking"
 ### Task 2: `MemberRow` type + CSV rendering
 
 **Files:**
+
 - Create: `app/lib/membership/types.ts`
 - Create: `app/lib/membership/csv-output.ts`
 - Test: `app/lib/membership/__tests__/csv-output.test.ts`
 
 **Interfaces:**
+
 - Produces: `MemberRole = 'primary' | 'spouse' | 'child'`; `MemberRow` (fields: `address,
   cellPhone, city, email, firstName, homePhone, lastName, lifetime: boolean, middleName,
   paidDate: string, role: MemberRole, sourceDocumentNumber, state, zip` — all strings
@@ -317,12 +321,14 @@ git commit -m "Add MemberRow type and Texas PTA import CSV rendering"
 ### Task 3: Parse the Cheddar Up export
 
 **Files:**
+
 - Modify: `app/lib/membership/types.ts` (add `PersonFields`, `RawFamilySubmission`)
 - Create: `app/lib/membership/errors.ts`
 - Create: `app/lib/membership/parse.ts`
 - Test: `app/lib/membership/__tests__/parse.test.ts`
 
 **Interfaces:**
+
 - Consumes: nothing from prior tasks (parallel to Task 2's output types, but adds its own).
 - Produces: `MembershipImportError` (extends `Error`); `PersonFields` (fields: `city,
   email, firstName, lastName, phone, state, street, streetLine2, zip`, all strings);
@@ -409,7 +415,9 @@ const HEADER = [
 ].join(',');
 
 function csvRow(cells: string[]): string {
-  return cells.map((cell) => (cell.includes(',') || cell.includes('\n') ? `"${cell}"` : cell)).join(',');
+  return cells
+    .map((cell) => (cell.includes(',') || cell.includes('\n') ? `"${cell}"` : cell))
+    .join(',');
 }
 
 describe('parseCheddarUpExport', () => {
@@ -672,10 +680,12 @@ git commit -m "Parse the Cheddar Up membership export"
 ### Task 4: Collapse duplicate submissions within one upload
 
 **Files:**
+
 - Create: `app/lib/membership/dedupe.ts`
 - Test: `app/lib/membership/__tests__/dedupe.test.ts`
 
 **Interfaces:**
+
 - Consumes: `RawFamilySubmission`, `PersonFields` from `types.ts` (Task 3).
 - Produces: `clusterDuplicateSubmissions(records: RawFamilySubmission[]):
   RawFamilySubmission[]` from `dedupe.ts`.
@@ -828,12 +838,7 @@ const STREET_ABBREVIATIONS: Record<string, string> = {
 };
 
 function normalizeAddress(street: string): string {
-  const cleaned = street
-    .trim()
-    .toLowerCase()
-    .replace(/[.,#]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+  const cleaned = street.trim().toLowerCase().replace(/[.,#]/g, ' ').replace(/\s+/g, ' ').trim();
   if (!cleaned) return '';
   return cleaned
     .split(' ')
@@ -876,9 +881,7 @@ function isBetterSubmission(candidate: RawFamilySubmission, current: RawFamilySu
   return completeness(candidate) > completeness(current);
 }
 
-export function clusterDuplicateSubmissions(
-  records: RawFamilySubmission[],
-): RawFamilySubmission[] {
+export function clusterDuplicateSubmissions(records: RawFamilySubmission[]): RawFamilySubmission[] {
   const parent = records.map((_, index) => index);
 
   function find(index: number): number {
@@ -919,11 +922,15 @@ export function clusterDuplicateSubmissions(
     clusters.set(root, members);
   });
 
-  return [...clusters.values()].map((indexes) =>
-    indexes.reduce((bestIndex, candidateIndex) =>
-      isBetterSubmission(records[candidateIndex], records[bestIndex]) ? candidateIndex : bestIndex,
-    ),
-  ).map((bestIndex) => records[bestIndex]);
+  return [...clusters.values()]
+    .map((indexes) =>
+      indexes.reduce((bestIndex, candidateIndex) =>
+        isBetterSubmission(records[candidateIndex], records[bestIndex])
+          ? candidateIndex
+          : bestIndex,
+      ),
+    )
+    .map((bestIndex) => records[bestIndex]);
 }
 ```
 
@@ -945,10 +952,12 @@ git commit -m "Collapse duplicate membership-form submissions within one upload"
 ### Task 5: Build per-person rows from families
 
 **Files:**
+
 - Create: `app/lib/membership/build-rows.ts`
 - Test: `app/lib/membership/__tests__/build-rows.test.ts`
 
 **Interfaces:**
+
 - Consumes: `MemberRow`, `MemberRole` (Task 2); `PersonFields`, `RawFamilySubmission`
   (Task 3).
 - Produces: `BuildMemberRowsResult` (fields: `rows: MemberRow[], skippedChildLines:
@@ -1027,7 +1036,11 @@ describe('buildMemberRows', () => {
 
   it('joins street + line 2 with a comma when line 2 is present', () => {
     const {rows} = buildMemberRows(
-      [submission({primary: person({email: 'p@example.com', street: '100 Main St', streetLine2: 'Apt 2'})})],
+      [
+        submission({
+          primary: person({email: 'p@example.com', street: '100 Main St', streetLine2: 'Apt 2'}),
+        }),
+      ],
       STARTS_ON,
     );
     expect(rows[0].address).toBe('100 Main St, Apt 2');
@@ -1074,7 +1087,12 @@ describe('buildMemberRows', () => {
         zip: '78704',
       }),
       additionalStreetGiven: true,
-      primary: person({email: 'primary@example.com', firstName: 'Pat', lastName: 'Primary', phone: '+15125550000'}),
+      primary: person({
+        email: 'primary@example.com',
+        firstName: 'Pat',
+        lastName: 'Primary',
+        phone: '+15125550000',
+      }),
     });
     const {rows} = buildMemberRows([record], STARTS_ON);
     expect(rows[1]).toMatchObject({
@@ -1087,7 +1105,12 @@ describe('buildMemberRows', () => {
   it('adds a child row per valid name line and skips a non-name line', () => {
     const record = submission({
       childLines: ['Everett Primary, 1st, Goodin', '3 BHE alumni'],
-      primary: person({email: 'primary@example.com', firstName: 'Pat', lastName: 'Primary', phone: '+15125550000'}),
+      primary: person({
+        email: 'primary@example.com',
+        firstName: 'Pat',
+        lastName: 'Primary',
+        phone: '+15125550000',
+      }),
     });
     const {rows, skippedChildLines} = buildMemberRows([record], STARTS_ON);
     const childRows = rows.filter((row) => row.role === 'child');
@@ -1246,9 +1269,7 @@ export function buildMemberRows(
         household.phone.trim() || (record.additionalStreetGiven ? '' : record.primary.phone.trim());
       const email = additional.email.trim() || plusAddress(primaryEmail, additional.firstName);
 
-      rows.push(
-        buildRow('spouse', {...household, phone}, email, paidDate, record.documentNumber),
-      );
+      rows.push(buildRow('spouse', {...household, phone}, email, paidDate, record.documentNumber));
     }
 
     for (const line of record.childLines) {
@@ -1295,11 +1316,13 @@ git commit -m "Build primary/spouse/child rows from clustered submissions"
 ### Task 6: The API route
 
 **Files:**
+
 - Modify: `app/routes.ts`
 - Create: `app/routes/api.admin.membership-import.ts`
 - Test: `app/routes/__tests__/api.admin.membership-import.test.ts`
 
 **Interfaces:**
+
 - Consumes: `parseCheddarUpExport` (Task 3), `clusterDuplicateSubmissions` (Task 4),
   `buildMemberRows` (Task 5), `toImportCsv` (Task 2), `MembershipImportError` (Task 3),
   `MemberRow` (Task 2), `requireAdmin` from `~/lib/admin/auth`, `getCloudflare` from
@@ -1634,11 +1657,13 @@ git commit -m "Add the membership-import API route"
 ### Task 7: The admin page
 
 **Files:**
+
 - Create: `app/routes/admin.membership.tsx`
 - Modify: `app/routes/admin.reimbursements.tsx` (add nav link)
 - Modify: `app/routes/admin.school-years.tsx` (add nav link)
 
 **Interfaces:**
+
 - Consumes: `requireAdmin`, `SessionPayload` from `~/lib/admin/auth`; `getCloudflare` from
   `~/lib/cloudflare-context`; `mergeParentMeta` from `~/lib/meta`; posts to
   `POST /api/admin/membership/import` (Task 6), reading its `X-New-Count`,
@@ -1768,8 +1793,8 @@ export default function AdminMembership() {
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         <p className="text-sm text-gray-600 font-body max-w-2xl">
-          Upload the Cheddar Up membership-form export. New members (not already exported
-          this school year) come back as a Texas PTA import CSV, ready for MyPTEZ.
+          Upload the Cheddar Up membership-form export. New members (not already exported this
+          school year) come back as a Texas PTA import CSV, ready for MyPTEZ.
         </p>
 
         {error && (
@@ -1847,12 +1872,12 @@ In `app/routes/admin.reimbursements.tsx`, in the header nav block (the one conta
 "School years" link), add a sibling link right before it:
 
 ```tsx
-            <a
-              className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
-              href="/admin/membership"
-            >
-              Membership
-            </a>
+<a
+  className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
+  href="/admin/membership"
+>
+  Membership
+</a>;
 ```
 
 - [ ] **Step 3: Add the same nav link to `admin.school-years.tsx`**
@@ -1861,12 +1886,12 @@ In `app/routes/admin.school-years.tsx`, in its header nav block (next to the exi
 "Reimbursements" link), add:
 
 ```tsx
-            <a
-              className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
-              href="/admin/membership"
-            >
-              Membership
-            </a>
+<a
+  className="text-sm font-body text-white/90 hover:text-white underline underline-offset-2 transition-colors"
+  href="/admin/membership"
+>
+  Membership
+</a>;
 ```
 
 - [ ] **Step 4: Type-check**
@@ -1877,6 +1902,7 @@ Expected: no errors.
 - [ ] **Step 5: Manual verification**
 
 Run: `pnpm dev`, then:
+
 1. Log in at `/admin/login`, visit `/admin/school-years`, and add a `2026-27` school year
    with `starts_on = 2026-08-01` if one doesn't already exist (mark it default).
 2. Visit `/admin/membership`. Confirm the "Membership" links from `/admin/reimbursements`

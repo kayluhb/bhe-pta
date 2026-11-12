@@ -2,8 +2,8 @@ import {describe, expect, it} from 'vitest';
 
 import {
   allSponsors,
-  getFeaturedSponsors,
   getFeaturedSponsorSchoolYear,
+  getFeaturedSponsors,
   getSponsorTiers,
   getSponsorYearGroup,
   listSponsorSchoolYears,

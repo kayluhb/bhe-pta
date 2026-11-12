@@ -15,9 +15,7 @@ export function NewsCard({date, excerpt, title, to}: NewsCardProps) {
   const content = (
     <div
       className={`flex h-full flex-col overflow-hidden rounded-lg bg-white shadow-md ${
-        to
-          ? 'group transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg'
-          : ''
+        to ? 'group transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg' : ''
       }`}
     >
       <div className="flex flex-1 flex-col p-6">

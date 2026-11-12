@@ -27,13 +27,13 @@ The site will be available at `http://localhost:5173`.
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Local dev server with HMR |
-| `pnpm build` | Production build |
+| Command            | Description                          |
+| ------------------ | ------------------------------------ |
+| `pnpm dev`         | Local dev server with HMR            |
+| `pnpm build`       | Production build                     |
 | `pnpm prod:deploy` | Build + deploy to Cloudflare Workers |
-| `pnpm typecheck` | Full type check |
-| `pnpm preview` | Build + local preview |
+| `pnpm typecheck`   | Full type check                      |
+| `pnpm preview`     | Build + local preview                |
 
 ## Deployment
 

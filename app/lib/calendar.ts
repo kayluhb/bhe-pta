@@ -91,6 +91,19 @@ function escapeAttr(value: string): string {
   return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 }
 
+function escapeText(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/** True when a sanitized description still contains markup for HTML rendering. */
+export function descriptionHasHtml(value: string): boolean {
+  return HTML_TAG_RE.test(value);
+}
+
 /** Allowlist-sanitize HTML from calendar DESCRIPTION fields. */
 function sanitizeHtmlFragment(html: string): string {
   let out = html.replace(
@@ -137,6 +150,11 @@ export function sanitizeEventDescription(raw: string | undefined): string | unde
     return cleaned.length > 0 ? cleaned : undefined;
   }
 
+  const urlMatch = unescaped.match(/https?:\/\/[^\s\]]+/i);
+  const linkedHref = urlMatch
+    ? safeHref(urlMatch[0].replace(/[.,;:)\]]+$/, ''))
+    : undefined;
+
   const withoutLinks = unescaped
     .replace(/\[[^\]]*(?:https?:)?\/\/[^\]]+\]/gi, '')
     .replace(/(?:https?:)?\/\/\S+/gi, '');
@@ -151,10 +169,17 @@ export function sanitizeEventDescription(raw: string | undefined): string | unde
     .map((line) => line.replace(/\s*-\s*Google Docs\s*$/i, '').trim())
     .filter((line) => line.length > 0);
 
-  if (lines.length === 0) return undefined;
+  if (lines.length === 0) {
+    if (!linkedHref || /docs\.google\.com/i.test(linkedHref)) return undefined;
+    return `<a href="${escapeAttr(linkedHref)}" rel="noopener noreferrer" target="_blank">Open link</a>`;
+  }
 
-  // Prefer the first meaningful line for compact cards; avoid dumping link farms.
-  return lines[0];
+  // Prefer the first meaningful line for compact cards. Only keep a URL when the
+  // copy clearly points to an action (tickets, RSVP, etc.) — not Docs link farms.
+  const text = lines[0];
+  const actionCopy = /ticket|purchase|buy|order|rsvp|register|sign\s*up|lunch/i.test(text);
+  if (!linkedHref || /docs\.google\.com/i.test(linkedHref) || !actionCopy) return text;
+  return `${escapeText(text)} <a href="${escapeAttr(linkedHref)}" rel="noopener noreferrer" target="_blank">here</a>`;
 }
 
 /** Re-sanitize descriptions on events already stored in KV (handles pre-fix data). */

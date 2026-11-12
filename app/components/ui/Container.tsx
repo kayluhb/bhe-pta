@@ -8,7 +8,11 @@ type ContainerProps = {
 
 export function Container({as: Tag = 'div', children, className}: ContainerProps) {
   return (
-    <Tag className={['mx-auto w-full max-w-container px-4 md:px-6', className].filter(Boolean).join(' ')}>
+    <Tag
+      className={['mx-auto w-full max-w-container px-4 md:px-6', className]
+        .filter(Boolean)
+        .join(' ')}
+    >
       {children}
     </Tag>
   );

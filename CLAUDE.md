@@ -22,6 +22,7 @@ No test framework is currently configured.
 ### Request Flow
 
 `workers/app.ts` is the Cloudflare Worker entry point. It handles three concerns:
+
 1. **HTTP requests** — delegates to React Router's server handler for SSR
 2. **Cron triggers** (daily **02:00 UTC**, `0 2 * * *` in [`wrangler.jsonc`](wrangler.jsonc)) — runs scrapers that populate KV caches
 3. **Queue consumer** — [`bhe-pta-receipt-conversion`](wrangler.jsonc) processes receipt conversion jobs (Gemini)
@@ -37,9 +38,9 @@ Route loaders access Cloudflare bindings via `getCloudflare(context)` (seeded on
 ```typescript
 import {getCloudflare} from '~/lib/cloudflare-context';
 
-export async function loader({ context }: Route.LoaderArgs) {
-  const data = await getCloudflare(context).env.BHE_CALENDAR.get("events", "json");
-  return { events: data ?? mockEvents };
+export async function loader({context}: Route.LoaderArgs) {
+  const data = await getCloudflare(context).env.BHE_CALENDAR.get('events', 'json');
+  return {events: data ?? mockEvents};
 }
 ```
 
@@ -47,22 +48,23 @@ All loaders follow a KV-first pattern with mock data fallback (`app/lib/mock-dat
 
 ### Cloudflare Bindings
 
-| Binding | Type | Purpose |
-|---------|------|---------|
-| `BHE_NEWSLETTERS` | KV | Cached school newsletters (scraped) |
-| `BHE_PTA_NEWSLETTERS` | KV | Cached PTA newsletters (Mailchimp) |
-| `BHE_CALENDAR` | KV | Cached calendar events (parsed ICS) |
-| `REIMBURSEMENT_DB` | D1 | Reimbursement submissions database |
-| `R2_BUCKET` | R2 | Receipt file uploads |
-| `R2_ARCHIVE` | R2 | Archive bucket (`api.archive.file`) |
-| `RECEIPT_CONVERSION_QUEUE` | Queue | Async receipt → PDF pipeline |
-| `AI` | Workers AI | Budget account suggestions (`@cf/zai-org/glm-5.3`) |
+| Binding                    | Type       | Purpose                                            |
+| -------------------------- | ---------- | -------------------------------------------------- |
+| `BHE_NEWSLETTERS`          | KV         | Cached school newsletters (scraped)                |
+| `BHE_PTA_NEWSLETTERS`      | KV         | Cached PTA newsletters (Mailchimp)                 |
+| `BHE_CALENDAR`             | KV         | Cached calendar events (parsed ICS)                |
+| `REIMBURSEMENT_DB`         | D1         | Reimbursement submissions database                 |
+| `R2_BUCKET`                | R2         | Receipt file uploads                               |
+| `R2_ARCHIVE`               | R2         | Archive bucket (`api.archive.file`)                |
+| `RECEIPT_CONVERSION_QUEUE` | Queue      | Async receipt → PDF pipeline                       |
+| `AI`                       | Workers AI | Budget account suggestions (`@cf/zai-org/glm-5.3`) |
 
 Bindings are declared in `wrangler.jsonc`. Generated binding types live in `worker-configuration.d.ts` (from `pnpm cf-typegen`); extra secrets/optional keys merge via `app/env.d.ts`.
 
 ### Cron Worker (`workers/app.ts` → `scheduled`)
 
 At **02:00 UTC** daily, three data pipelines run:
+
 - **Scraper** (`app/lib/scraper.ts`) — Cheerio-based scrape of school news page
 - **Calendar** (`app/lib/calendar.ts`) — Manual ICS parser for school calendar feed
 - **Mailchimp** (`app/lib/mailchimp.ts`) — Fetches sent campaign archive

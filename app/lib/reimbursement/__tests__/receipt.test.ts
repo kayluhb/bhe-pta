@@ -142,10 +142,7 @@ describe('mergeReceiptMoneyFields', () => {
   it('overlays priced lines and grand total onto an unpriced primary extract', () => {
     const out = mergeReceiptMoneyFields(
       {
-        line_items: [
-          {description: 'Paper Mate Flair'},
-          {description: 'Nature Made B12'},
-        ],
+        line_items: [{description: 'Paper Mate Flair'}, {description: 'Nature Made B12'}],
         vendor_name: 'Amazon.com',
       },
       {
@@ -293,10 +290,7 @@ describe('assessReceiptExtractionQuality', () => {
 
   it('drops a long-scan slip that has no usable dollars', () => {
     const salvaged = salvageLongDocumentReceipt({
-      line_items: [
-        {description: 'A\tB\tC\tD'},
-        {description: 'E\tF\tG\tH'},
-      ],
+      line_items: [{description: 'A\tB\tC\tD'}, {description: 'E\tF\tG\tH'}],
       vendor_name: 'Unknown',
     });
     expect(salvaged).toBeNull();

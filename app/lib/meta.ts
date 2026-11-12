@@ -50,8 +50,7 @@ export function pageSeoMeta(
   matches: ({meta?: MetaDescriptor[]} | undefined)[],
   options: PageSeoOptions,
 ): MetaDescriptor[] {
-  const canonical =
-    options.path === '/' ? `${SITE_ORIGIN}/` : `${SITE_ORIGIN}${options.path}`;
+  const canonical = options.path === '/' ? `${SITE_ORIGIN}/` : `${SITE_ORIGIN}${options.path}`;
   const ogTitle = options.ogTitle ?? options.title;
   const ogDescription = options.ogDescription ?? options.description;
 

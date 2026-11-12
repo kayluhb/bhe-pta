@@ -202,7 +202,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
      ${whereClause}
      ORDER BY ${
        validSort === 'total_amount' && budgetFilter ? 'bl.budget_amount' : `s.${validSort}`
-} ${validOrder}
+     } ${validOrder}
      LIMIT ? OFFSET ?`;
 
   const countSql = `SELECT COUNT(*) as count FROM submissions s ${budgetJoin} ${whereClause}`;

@@ -232,7 +232,10 @@ export default function About() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {boardMembers.map((member) => (
-              <div className="rounded-card border border-bhe-border bg-bhe-card p-8 text-center" key={member.name}>
+              <div
+                className="rounded-card border border-bhe-border bg-bhe-card p-8 text-center"
+                key={member.name}
+              >
                 <div className="mx-auto mb-5 flex h-24 w-24 items-center justify-center rounded-full bg-bhe-green/10 text-bhe-green">
                   <svg
                     aria-hidden="true"

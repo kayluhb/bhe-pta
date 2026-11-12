@@ -1,10 +1,10 @@
 import {describe, expect, it} from 'vitest';
 
 import {
+  type EventFilterId,
   eventMatchesFilter,
   filterIdForCategory,
   tintForFilter,
-  type EventFilterId,
 } from '~/lib/event-categories';
 
 describe('event-categories', () => {
@@ -21,9 +21,7 @@ describe('event-categories', () => {
     expect(filterIdForCategory('Fine Arts')).toBe('community');
     expect(eventMatchesFilter({category: 'Fine Arts'}, 'all')).toBe(true);
     expect(eventMatchesFilter({category: 'Fine Arts'}, 'community')).toBe(true);
-    expect(eventMatchesFilter({category: 'PTA Meeting'}, 'community' as EventFilterId)).toBe(
-      false,
-    );
+    expect(eventMatchesFilter({category: 'PTA Meeting'}, 'community' as EventFilterId)).toBe(false);
   });
 
   it('does not treat Tournament titles as prospective tours', () => {
