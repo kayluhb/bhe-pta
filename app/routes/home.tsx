@@ -6,7 +6,7 @@ import {Container} from '~/components/ui/Container';
 import {DateTile} from '~/components/ui/DateTile';
 import {GreenBand} from '~/components/ui/GreenBand';
 import {annualFundCampaign, annualFundPath} from '~/data/annual-fund-campaign';
-import {sanitizeCalendarEvents, stripHtml} from '~/lib/calendar';
+import {descriptionHasHtml, sanitizeCalendarEvents} from '~/lib/calendar';
 import {getCloudflare} from '~/lib/cloudflare-context';
 import {formatNewsletterDate} from '~/lib/format-newsletter-date';
 import {loadPublishedCampaign} from '~/lib/fundraising/campaign-store';
@@ -208,9 +208,17 @@ export default function Home({loaderData}: Route.ComponentProps) {
                     {event.title}
                   </h3>
                   {event.description ? (
-                    <p className="mt-1 text-sm leading-relaxed text-bhe-muted">
-                      {stripHtml(event.description)}
-                    </p>
+                    descriptionHasHtml(event.description) ? (
+                      <div
+                        className="mt-1 text-sm leading-relaxed text-bhe-muted [&_a]:font-bold [&_a]:text-bhe-green [&_a]:underline"
+                        // biome-ignore lint/security/noDangerouslySetInnerHtml: sanitized in calendar.ts
+                        dangerouslySetInnerHTML={{__html: event.description}}
+                      />
+                    ) : (
+                      <p className="mt-1 text-sm leading-relaxed text-bhe-muted">
+                        {event.description}
+                      </p>
+                    )
                   ) : null}
                 </div>
               </article>

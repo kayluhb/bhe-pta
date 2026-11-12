@@ -5,7 +5,7 @@ import {NewsletterSignup} from '~/components/NewsletterSignup';
 import {Container} from '~/components/ui/Container';
 import {DateTile} from '~/components/ui/DateTile';
 import {TagPill} from '~/components/ui/TagPill';
-import {sanitizeCalendarEvents, stripHtml} from '~/lib/calendar';
+import {descriptionHasHtml, sanitizeCalendarEvents} from '~/lib/calendar';
 import {getCloudflare} from '~/lib/cloudflare-context';
 import {
   EVENT_FILTERS,
@@ -79,9 +79,8 @@ function eventTimeLabel(event: CalendarEvent): string | null {
   });
 }
 
-function eventDescriptionPlain(event: CalendarEvent): string {
-  return event.description ? stripHtml(event.description) : '';
-}
+const descriptionClassName =
+  'mt-1 text-sm leading-relaxed text-bhe-body [&_a]:font-bold [&_a]:text-bhe-green [&_a]:underline';
 
 export default function EventsPage() {
   const {events} = useLoaderData<typeof loader>();
@@ -187,7 +186,7 @@ export default function EventsPage() {
                           </h3>
                           {(() => {
                             const time = eventTimeLabel(event);
-                            const description = eventDescriptionPlain(event);
+                            const description = event.description?.trim() ?? '';
                             if (!time && !description) {
                               return (
                                 <p className="mt-1 text-sm text-bhe-muted">[TIME · LOCATION]</p>
@@ -199,9 +198,17 @@ export default function EventsPage() {
                                   <p className="mt-1 text-sm font-semibold text-bhe-ink">{time}</p>
                                 ) : null}
                                 {description ? (
-                                  <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-bhe-body">
-                                    {description}
-                                  </p>
+                                  descriptionHasHtml(description) ? (
+                                    <div
+                                      className={descriptionClassName}
+                                      // biome-ignore lint/security/noDangerouslySetInnerHtml: sanitized in calendar.ts
+                                      dangerouslySetInnerHTML={{__html: description}}
+                                    />
+                                  ) : (
+                                    <p className={`${descriptionClassName} whitespace-pre-wrap`}>
+                                      {description}
+                                    </p>
+                                  )
                                 ) : null}
                               </>
                             );
@@ -214,8 +221,13 @@ export default function EventsPage() {
                             <a
                               className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-bhe-green px-6 py-3 font-bold text-bhe-on-green hover:bg-bhe-green-2"
                               href={cta.href}
+                              rel={cta.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
+                              target={cta.href.startsWith('mailto:') ? undefined : '_blank'}
                             >
                               {cta.label}
+                              {cta.href.startsWith('mailto:') ? null : (
+                                <span className="sr-only"> (opens in new tab)</span>
+                              )}
                             </a>
                           );
                         })()}
