@@ -166,6 +166,16 @@ const handler = {
       return Response.redirect(url.toString(), 301);
     }
 
+    // Legacy WordPress scholarship page
+    if (
+      url.pathname === '/pta-information/nick-akery-scholarship' ||
+      url.pathname === '/pta-information/nick-akery-scholarship/'
+    ) {
+      url.pathname = '/nick-akery-scholarship';
+      url.search = '';
+      return Response.redirect(url.toString(), 301);
+    }
+
     // Soft-duplicate homepage from old WP query params
     if (url.pathname === '/' && url.searchParams.has('page_id')) {
       url.search = '';

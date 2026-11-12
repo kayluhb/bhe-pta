@@ -1,3 +1,4 @@
+import {Link} from 'react-router';
 import {Button} from '~/components/ui/Button';
 import {GreenCta} from '~/components/ui/GreenCta';
 import {PageHero} from '~/components/ui/PageHero';
@@ -138,6 +139,7 @@ const programs = [
     name: 'Nick Akery Scholarship',
     description:
       'College scholarships for Barton Hills alumni, honoring Nick Akery and supporting graduates as they continue their education.',
+    href: '/nick-akery-scholarship',
     color: 'bg-bhe-green',
     borderColor: 'border-bhe-green',
     icon: (
@@ -331,11 +333,8 @@ export default function Programs() {
       {/* ── 2. Program Cards ─────────────────────────────────────────────── */}
       <section className="bg-bhe-paper py-16 md:py-24">
         <div className="max-w-5xl mx-auto px-4 space-y-8">
-          {programs.map((program) => (
-            <div
-              className="rounded-card border border-bhe-border bg-bhe-card p-8 md:p-10"
-              key={program.name}
-            >
+          {programs.map((program) => {
+            const body = (
               <div className="flex items-start gap-5">
                 <div
                   className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-tile text-white ${program.color}`}
@@ -349,10 +348,34 @@ export default function Programs() {
                   <p className="mt-3 text-lg leading-relaxed text-bhe-ink/70">
                     {program.description}
                   </p>
+                  {'href' in program && program.href ? (
+                    <p className="mt-4 text-sm font-bold text-bhe-green">View details →</p>
+                  ) : null}
                 </div>
               </div>
-            </div>
-          ))}
+            );
+
+            if ('href' in program && program.href) {
+              return (
+                <Link
+                  className="block rounded-card border border-bhe-border bg-bhe-card p-8 transition-colors hover:border-bhe-green md:p-10"
+                  key={program.name}
+                  to={program.href}
+                >
+                  {body}
+                </Link>
+              );
+            }
+
+            return (
+              <div
+                className="rounded-card border border-bhe-border bg-bhe-card p-8 md:p-10"
+                key={program.name}
+              >
+                {body}
+              </div>
+            );
+          })}
         </div>
       </section>
 
