@@ -287,6 +287,71 @@ dialog[open]::backdrop {
   }
 }
 
+/*
+ * Header eagle: wings flap while the logo is hovered.
+ * Each wing layer (<EagleLogo wings>) skews and scales about its hinge line, which is the line
+ * through transform-origin at the rotate() angle. Those values must match the clip regions in
+ * EagleLogo.tsx, or the wings pull away from the body.
+ */
+.eagle-wings {
+  overflow: visible;
+}
+
+.eagle-wing-upper {
+  transform-origin: 617px 180px;
+}
+
+.eagle-wing-lower {
+  transform-origin: 815px 435px;
+}
+
+.eagle-flap .eagle-wing-upper {
+  animation: eagle-flap-upper 0.7s infinite;
+}
+
+.eagle-flap .eagle-wing-lower {
+  animation: eagle-flap-lower 0.7s infinite;
+}
+
+@keyframes eagle-flap-upper {
+  0%,
+  100% {
+    animation-timing-function: ease-out;
+    transform: rotate(48deg) skewX(0deg) scaleY(1) rotate(-48deg);
+  }
+  25% {
+    animation-timing-function: ease-in-out;
+    transform: rotate(48deg) skewX(3.6deg) scaleY(1.05) rotate(-48deg);
+  }
+  70% {
+    animation-timing-function: ease-in;
+    transform: rotate(48deg) skewX(-8.5deg) scaleY(0.88) rotate(-48deg);
+  }
+}
+
+@keyframes eagle-flap-lower {
+  0%,
+  100% {
+    animation-timing-function: ease-out;
+    transform: rotate(101.4deg) skewX(0deg) scaleY(1) rotate(-101.4deg);
+  }
+  25% {
+    animation-timing-function: ease-in-out;
+    transform: rotate(101.4deg) skewX(-3deg) scaleY(1.04) rotate(-101.4deg);
+  }
+  70% {
+    animation-timing-function: ease-in;
+    transform: rotate(101.4deg) skewX(7.6deg) scaleY(0.92) rotate(-101.4deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eagle-flap .eagle-wing-upper,
+  .eagle-flap .eagle-wing-lower {
+    animation: none;
+  }
+}
+
 /* Native menulist carets sit on the border. Draw one inset to match horizontal padding. */
 select {
   appearance: none;
