@@ -151,9 +151,7 @@ export function sanitizeEventDescription(raw: string | undefined): string | unde
   }
 
   const urlMatch = unescaped.match(/https?:\/\/[^\s\]]+/i);
-  const linkedHref = urlMatch
-    ? safeHref(urlMatch[0].replace(/[.,;:)\]]+$/, ''))
-    : undefined;
+  const linkedHref = urlMatch ? safeHref(urlMatch[0].replace(/[.,;:)\]]+$/, '')) : undefined;
 
   const withoutLinks = unescaped
     .replace(/\[[^\]]*(?:https?:)?\/\/[^\]]+\]/gi, '')

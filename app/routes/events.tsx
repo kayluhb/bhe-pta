@@ -21,6 +21,8 @@ import {mockEvents} from '~/lib/mock-data';
 import type {CalendarEvent} from '~/lib/types';
 import type {Route} from './+types/events';
 
+const MAILTO_PREFIX = 'mailto:';
+
 export function meta({matches}: Route.MetaArgs) {
   return mergeParentMeta(matches, [
     {title: 'Events Calendar | Barton Hills Elementary PTA'},
@@ -217,15 +219,16 @@ export default function EventsPage() {
                         {(() => {
                           const cta = eventPrimaryCta(event);
                           if (!cta) return null;
+                          const isMailto = cta.href.startsWith(MAILTO_PREFIX);
                           return (
                             <a
                               className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-bhe-green px-6 py-3 font-bold text-bhe-on-green hover:bg-bhe-green-2"
                               href={cta.href}
-                              rel={cta.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
-                              target={cta.href.startsWith('mailto:') ? undefined : '_blank'}
+                              rel={isMailto ? undefined : 'noopener noreferrer'}
+                              target={isMailto ? undefined : '_blank'}
                             >
                               {cta.label}
-                              {cta.href.startsWith('mailto:') ? null : (
+                              {isMailto ? null : (
                                 <span className="sr-only"> (opens in new tab)</span>
                               )}
                             </a>
