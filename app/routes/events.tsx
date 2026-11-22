@@ -221,7 +221,9 @@ export default function EventsPage() {
                             <a
                               className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-bhe-green px-6 py-3 font-bold text-bhe-on-green hover:bg-bhe-green-2"
                               href={cta.href}
-                              rel={cta.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
+                              rel={
+                                cta.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'
+                              }
                               target={cta.href.startsWith('mailto:') ? undefined : '_blank'}
                             >
                               {cta.label}

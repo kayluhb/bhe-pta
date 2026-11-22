@@ -134,8 +134,8 @@ export default function NickAkeryScholarship() {
             <p className="mt-6 text-[15px] leading-relaxed text-bhe-body">
               Scholarship (1) weighs academics, extracurricular involvement, community involvement,
               and character. Scholarship (2) emphasizes community involvement outside school,
-              especially contributions to Barton Hills and other area elementary schools. One student
-              cannot receive both awards.
+              especially contributions to Barton Hills and other area elementary schools. One
+              student cannot receive both awards.
             </p>
           </div>
         </Container>
@@ -168,12 +168,13 @@ export default function NickAkeryScholarship() {
                     target="_blank"
                   >
                     <span>
-                      <span className="font-display text-lg font-bold text-bhe-ink">{form.label}</span>
+                      <span className="font-display text-lg font-bold text-bhe-ink">
+                        {form.label}
+                      </span>
                       <span className="mt-1 block text-sm text-bhe-muted">{form.detail}</span>
                     </span>
                     <span className="mt-2 text-sm font-bold text-bhe-green sm:mt-0">
-                      Open form →
-                      <span className="sr-only"> (opens in new tab)</span>
+                      Open form →<span className="sr-only"> (opens in new tab)</span>
                     </span>
                   </a>
                 </li>
